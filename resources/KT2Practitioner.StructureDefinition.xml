@@ -1,8 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
 <StructureDefinition xmlns="http://hl7.org/fhir">
   <id value="9a1f74f9-f0e3-40c1-89d6-a15a0f55e5cd" />
   <meta>
     <versionId value="7" />
-    <lastUpdated value="2022-11-09T10:43:08.783764+00:00" />
+    <lastUpdated value="2022-12-15T15:33:46.5885058+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Practitioner" />
   <version value="0.2.0" />
@@ -65,17 +66,14 @@
     </element>
     <element id="Practitioner.identifier">
       <path value="Practitioner.identifier" />
-      <label value="Koppeltaal" />
       <min value="1" />
     </element>
     <element id="Practitioner.active">
       <path value="Practitioner.active" />
-      <label value="Koppeltaal" />
       <min value="1" />
     </element>
     <element id="Practitioner.name">
       <path value="Practitioner.name" />
-      <label value="Koppeltaal" />
       <min value="1" />
     </element>
     <element id="Practitioner.name:nameInformation">
@@ -137,7 +135,6 @@
     </element>
     <element id="Practitioner.telecom">
       <path value="Practitioner.telecom" />
-      <label value="Koppeltaal" />
       <min value="1" />
     </element>
     <element id="Practitioner.telecom:telephoneNumbers">
@@ -193,10 +190,6 @@
     <element id="Practitioner.address">
       <path value="Practitioner.address" />
       <max value="0" />
-    </element>
-    <element id="Practitioner.gender">
-      <path value="Practitioner.gender" />
-      <label value="Koppeltaal" />
     </element>
     <element id="Practitioner.photo">
       <path value="Practitioner.photo" />

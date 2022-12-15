@@ -1,8 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
 <StructureDefinition xmlns="http://hl7.org/fhir">
   <id value="652e4317-33c6-4056-9085-ff8041611275" />
   <meta>
     <versionId value="5" />
-    <lastUpdated value="2022-07-13T13:36:22.7666864+00:00" />
+    <lastUpdated value="2022-12-15T15:34:01.1891369+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Endpoint" />
   <version value="0.1.0" />
@@ -52,36 +53,12 @@
         <profile value="http://koppeltaal.nl/fhir/StructureDefinition/resource-origin" />
       </type>
     </element>
-    <element id="Endpoint.identifier">
-      <path value="Endpoint.identifier" />
-      <label value="Koppeltaal" />
-    </element>
-    <element id="Endpoint.status">
-      <path value="Endpoint.status" />
-      <label value="Koppeltaal" />
-    </element>
-    <element id="Endpoint.connectionType">
-      <path value="Endpoint.connectionType" />
-      <label value="Koppeltaal" />
-    </element>
-    <element id="Endpoint.name">
-      <path value="Endpoint.name" />
-      <label value="Koppeltaal" />
-    </element>
     <element id="Endpoint.managingOrganization">
       <path value="Endpoint.managingOrganization" />
       <type>
         <code value="Reference" />
         <targetProfile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Organization" />
       </type>
-    </element>
-    <element id="Endpoint.payloadType">
-      <path value="Endpoint.payloadType" />
-      <label value="Koppeltaal" />
-    </element>
-    <element id="Endpoint.address">
-      <path value="Endpoint.address" />
-      <label value="Koppeltaal" />
     </element>
   </differential>
 </StructureDefinition>

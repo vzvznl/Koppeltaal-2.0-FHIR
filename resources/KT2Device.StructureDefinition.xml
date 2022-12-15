@@ -1,8 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
 <StructureDefinition xmlns="http://hl7.org/fhir">
   <id value="a2366484-486c-4853-a5ce-2952593400e6" />
   <meta>
     <versionId value="9" />
-    <lastUpdated value="2022-07-13T13:35:17.3511837+00:00" />
+    <lastUpdated value="2022-12-15T15:34:06.2060066+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Device" />
   <version value="0.1.0" />
@@ -44,34 +45,19 @@
     </element>
     <element id="Device.identifier">
       <path value="Device.identifier" />
-      <label value="Koppeltaal" />
       <min value="1" />
     </element>
     <element id="Device.status">
       <path value="Device.status" />
-      <label value="Koppeltaal" />
       <min value="1" />
     </element>
     <element id="Device.deviceName">
       <path value="Device.deviceName" />
-      <label value="Koppeltaal" />
       <min value="1" />
     </element>
     <element id="Device.deviceName.type">
       <path value="Device.deviceName.type" />
       <fixedCode value="user-friendly-name" />
-    </element>
-    <element id="Device.type">
-      <path value="Device.type" />
-      <label value="Koppeltaal" />
-    </element>
-    <element id="Device.specialization">
-      <path value="Device.specialization" />
-      <label value="Koppeltaal" />
-    </element>
-    <element id="Device.url">
-      <path value="Device.url" />
-      <label value="Koppeltaal" />
     </element>
   </differential>
 </StructureDefinition>

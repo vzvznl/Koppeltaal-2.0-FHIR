@@ -1,8 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
 <StructureDefinition xmlns="http://hl7.org/fhir">
   <id value="c8a6ea0f-e91c-40b6-b382-27f318e0ed31" />
   <meta>
     <versionId value="5" />
-    <lastUpdated value="2022-11-09T16:09:37.0723007+00:00" />
+    <lastUpdated value="2022-12-15T15:33:37.6214276+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Subscription" />
   <version value="0.2.0" />
@@ -42,39 +43,15 @@
         <profile value="http://koppeltaal.nl/fhir/StructureDefinition/resource-origin" />
       </type>
     </element>
-    <element id="Subscription.status">
-      <path value="Subscription.status" />
-      <label value="Koppeltaal" />
-    </element>
-    <element id="Subscription.reason">
-      <path value="Subscription.reason" />
-      <label value="Koppeltaal" />
-    </element>
-    <element id="Subscription.criteria">
-      <path value="Subscription.criteria" />
-      <label value="Koppeltaal" />
-    </element>
-    <element id="Subscription.channel">
-      <path value="Subscription.channel" />
-      <label value="Koppeltaal" />
-    </element>
     <element id="Subscription.channel.type">
       <path value="Subscription.channel.type" />
       <short value="rest-hook" />
       <definition value="Only the rest-hook is available in Koppeltaal&#xD;&#xA;The type of channel to send notifications on." />
       <fixedCode value="rest-hook" />
     </element>
-    <element id="Subscription.channel.endpoint">
-      <path value="Subscription.channel.endpoint" />
-      <label value="Koppeltaal" />
-    </element>
     <element id="Subscription.channel.payload">
       <path value="Subscription.channel.payload" />
       <max value="0" />
-    </element>
-    <element id="Subscription.channel.header">
-      <path value="Subscription.channel.header" />
-      <label value="Koppeltaal" />
     </element>
   </differential>
 </StructureDefinition>

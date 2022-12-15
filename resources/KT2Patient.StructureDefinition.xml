@@ -1,8 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
 <StructureDefinition xmlns="http://hl7.org/fhir">
   <id value="bc3d9597-ee0b-4fb6-83aa-134b05ba5939" />
   <meta>
     <versionId value="9" />
-    <lastUpdated value="2022-11-09T09:24:08.8749923+00:00" />
+    <lastUpdated value="2022-12-15T15:25:09.1772391+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Patient" />
   <version value="0.2.0" />
@@ -85,17 +86,14 @@
     </element>
     <element id="Patient.identifier">
       <path value="Patient.identifier" />
-      <label value="Koppeltaal" />
       <min value="1" />
     </element>
     <element id="Patient.active">
       <path value="Patient.active" />
-      <label value="Koppeltaal" />
       <min value="1" />
     </element>
     <element id="Patient.name">
       <path value="Patient.name" />
-      <label value="Koppeltaal" />
       <min value="1" />
     </element>
     <element id="Patient.name:nameInformation">
@@ -134,10 +132,6 @@
       <path value="Patient.name.text" />
       <comment value="This element is not used in  the context of Koppeltaal 2.0&#xD;&#xA;&#xD;&#xA;Can provide both a text representation and parts. Applications updating a name SHALL ensure that when both text and parts are present,  no content is included in the text that isn't found in a part." />
     </element>
-    <element id="Patient.telecom">
-      <path value="Patient.telecom" />
-      <label value="Koppeltaal" />
-    </element>
     <element id="Patient.telecom:telephoneNumbers">
       <path value="Patient.telecom" />
       <sliceName value="telephoneNumbers" />
@@ -166,12 +160,10 @@
     </element>
     <element id="Patient.gender">
       <path value="Patient.gender" />
-      <label value="Koppeltaal" />
       <min value="1" />
     </element>
     <element id="Patient.birthDate">
       <path value="Patient.birthDate" />
-      <label value="Koppeltaal" />
       <min value="1" />
     </element>
     <element id="Patient.deceased[x]">
@@ -225,12 +217,10 @@
     </element>
     <element id="Patient.photo">
       <path value="Patient.photo" />
-      <label value="Koppeltaal" />
       <max value="0" />
     </element>
     <element id="Patient.contact">
       <path value="Patient.contact" />
-      <label value="Koppeltaal" />
       <max value="0" />
     </element>
     <element id="Patient.communication">
@@ -243,7 +233,6 @@
     </element>
     <element id="Patient.managingOrganization">
       <path value="Patient.managingOrganization" />
-      <label value="Koppeltaal" />
       <type>
         <code value="Reference" />
         <targetProfile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Organization" />

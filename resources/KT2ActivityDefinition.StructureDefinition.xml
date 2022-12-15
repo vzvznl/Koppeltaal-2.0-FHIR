@@ -1,8 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
 <StructureDefinition xmlns="http://hl7.org/fhir">
   <id value="6e21161c-cc1e-4cdc-a02c-d5b356907e1e" />
   <meta>
     <versionId value="13" />
-    <lastUpdated value="2022-12-01T08:36:58.8133263+00:00" />
+    <lastUpdated value="2022-12-15T15:32:15.0195802+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2ActivityDefinition" />
   <version value="0.2.1" />
@@ -60,7 +61,6 @@
     <element id="ActivityDefinition.extension:endpoint">
       <path value="ActivityDefinition.extension" />
       <sliceName value="endpoint" />
-      <label value="Koppeltaal" />
       <short value="Endpoint to the service application" />
       <definition value="Mandatory reference to the service application (endpoint) that provides the eHealth activity. Can be more than one endpoint." />
       <min value="1" />
@@ -91,33 +91,11 @@
     </element>
     <element id="ActivityDefinition.url">
       <path value="ActivityDefinition.url" />
-      <label value="Koppeltaal" />
       <min value="1" />
-    </element>
-    <element id="ActivityDefinition.identifier">
-      <path value="ActivityDefinition.identifier" />
-      <label value="Koppeltaal" />
-    </element>
-    <element id="ActivityDefinition.version">
-      <path value="ActivityDefinition.version" />
-      <label value="Koppeltaal" />
-    </element>
-    <element id="ActivityDefinition.name">
-      <path value="ActivityDefinition.name" />
-      <label value="Koppeltaal" />
     </element>
     <element id="ActivityDefinition.title">
       <path value="ActivityDefinition.title" />
-      <label value="Koppeltaal" />
       <min value="1" />
-    </element>
-    <element id="ActivityDefinition.subtitle">
-      <path value="ActivityDefinition.subtitle" />
-      <label value="Koppeltaal" />
-    </element>
-    <element id="ActivityDefinition.status">
-      <path value="ActivityDefinition.status" />
-      <label value="Koppeltaal" />
     </element>
     <element id="ActivityDefinition.experimental">
       <path value="ActivityDefinition.experimental" />
@@ -134,10 +112,6 @@
     <element id="ActivityDefinition.contact">
       <path value="ActivityDefinition.contact" />
       <max value="0" />
-    </element>
-    <element id="ActivityDefinition.description">
-      <path value="ActivityDefinition.description" />
-      <label value="Koppeltaal" />
     </element>
     <element id="ActivityDefinition.jurisdiction">
       <path value="ActivityDefinition.jurisdiction" />
@@ -166,10 +140,6 @@
     <element id="ActivityDefinition.effectivePeriod">
       <path value="ActivityDefinition.effectivePeriod" />
       <max value="0" />
-    </element>
-    <element id="ActivityDefinition.topic">
-      <path value="ActivityDefinition.topic" />
-      <label value="Koppeltaal" />
     </element>
     <element id="ActivityDefinition.author">
       <path value="ActivityDefinition.author" />
@@ -202,10 +172,6 @@
     <element id="ActivityDefinition.profile">
       <path value="ActivityDefinition.profile" />
       <max value="0" />
-    </element>
-    <element id="ActivityDefinition.code">
-      <path value="ActivityDefinition.code" />
-      <label value="Koppeltaal" />
     </element>
     <element id="ActivityDefinition.intent">
       <path value="ActivityDefinition.intent" />

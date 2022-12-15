@@ -1,8 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
 <StructureDefinition xmlns="http://hl7.org/fhir">
   <id value="cda7659c-d630-49cf-9746-4d91543ccd96" />
   <meta>
     <versionId value="2" />
-    <lastUpdated value="2022-08-03T08:03:46.497211+00:00" />
+    <lastUpdated value="2022-12-15T15:34:12.2741354+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2AuditEvent" />
   <version value="0.1.4" />
@@ -71,34 +72,6 @@
       </type>
       <isModifier value="false" />
     </element>
-    <element id="AuditEvent.type">
-      <path value="AuditEvent.type" />
-      <label value="Koppeltaal" />
-    </element>
-    <element id="AuditEvent.subtype">
-      <path value="AuditEvent.subtype" />
-      <label value="Koppeltaal" />
-    </element>
-    <element id="AuditEvent.action">
-      <path value="AuditEvent.action" />
-      <label value="Koppeltaal" />
-    </element>
-    <element id="AuditEvent.period">
-      <path value="AuditEvent.period" />
-      <label value="Koppeltaal" />
-    </element>
-    <element id="AuditEvent.recorded">
-      <path value="AuditEvent.recorded" />
-      <label value="Koppeltaal" />
-    </element>
-    <element id="AuditEvent.outcome">
-      <path value="AuditEvent.outcome" />
-      <label value="Koppeltaal" />
-    </element>
-    <element id="AuditEvent.agent">
-      <path value="AuditEvent.agent" />
-      <label value="Koppeltaal" />
-    </element>
     <element id="AuditEvent.agent.who">
       <path value="AuditEvent.agent.who" />
       <type>
@@ -112,17 +85,8 @@
         <targetProfile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Device" />
       </type>
     </element>
-    <element id="AuditEvent.agent.requestor">
-      <path value="AuditEvent.agent.requestor" />
-      <label value="Koppeltaal" />
-    </element>
-    <element id="AuditEvent.source">
-      <path value="AuditEvent.source" />
-      <label value="Koppeltaal" />
-    </element>
     <element id="AuditEvent.source.observer">
       <path value="AuditEvent.source.observer" />
-      <label value="Koppeltaal" />
       <type>
         <code value="Reference" />
         <targetProfile value="http://hl7.org/fhir/StructureDefinition/PractitionerRole" />
@@ -136,7 +100,6 @@
     </element>
     <element id="AuditEvent.entity">
       <path value="AuditEvent.entity" />
-      <label value="Koppeltaal" />
       <min value="1" />
     </element>
   </differential>
