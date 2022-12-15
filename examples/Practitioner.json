@@ -1,0 +1,44 @@
+{
+  "resourceType": "Practitioner",
+  "id": "Practitioner123",
+  "meta": {
+    "profile": [
+      "http://koppeltaal.nl/fhir/StructureDefinition/KT2Practitioner"
+    ]
+  },
+  "identifier": [
+    {
+      "use": "official",
+      "system": "https://irma.app/email",
+      "value": "mario+vzvz@therapieland.nl"
+    }
+  ],
+  "active": true,
+  "name": [
+    {
+      "use": "official",
+      "family": "Splinter",
+      "given": [
+        "M"
+      ],
+      "_given": [
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier",
+              "valueCode": "IN"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "telecom": [
+    {
+      "system": "email",
+      "value": "mario+vzvz@therapieland.nl",
+      "use": "work"
+    }
+  ],
+  "gender": "unknown"
+}

@@ -1,0 +1,87 @@
+<StructureDefinition xmlns="http://hl7.org/fhir">
+  <id value="652e4317-33c6-4056-9085-ff8041611275" />
+  <meta>
+    <versionId value="5" />
+    <lastUpdated value="2022-07-13T13:36:22.7666864+00:00" />
+  </meta>
+  <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Endpoint" />
+  <version value="0.1.0" />
+  <name value="KT2_Endpoint" />
+  <status value="draft" />
+  <date value="2022-07-15T15:51:04.8144083+00:00" />
+  <publisher value="VZVZ" />
+  <contact>
+    <name value="Bernard Stibbe" />
+  </contact>
+  <description value="The (FHIR) Endpoint (resource) is a representation of a technical contact point of an application that offers one or more eHealth services for a healthcare provider." />
+  <copyright value="VZVZ" />
+  <fhirVersion value="4.0.1" />
+  <mapping>
+    <identity value="rim" />
+    <uri value="http://hl7.org/v3" />
+    <name value="RIM Mapping" />
+  </mapping>
+  <mapping>
+    <identity value="w5" />
+    <uri value="http://hl7.org/fhir/fivews" />
+    <name value="FiveWs Pattern Mapping" />
+  </mapping>
+  <kind value="resource" />
+  <abstract value="false" />
+  <type value="Endpoint" />
+  <baseDefinition value="http://hl7.org/fhir/StructureDefinition/Endpoint" />
+  <derivation value="constraint" />
+  <differential>
+    <element id="Endpoint.extension">
+      <path value="Endpoint.extension" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="url" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+      <min value="0" />
+    </element>
+    <element id="Endpoint.extension:resource-origin">
+      <path value="Endpoint.extension" />
+      <sliceName value="resource-origin" />
+      <min value="0" />
+      <type>
+        <code value="Extension" />
+        <profile value="http://koppeltaal.nl/fhir/StructureDefinition/resource-origin" />
+      </type>
+    </element>
+    <element id="Endpoint.identifier">
+      <path value="Endpoint.identifier" />
+      <label value="Koppeltaal" />
+    </element>
+    <element id="Endpoint.status">
+      <path value="Endpoint.status" />
+      <label value="Koppeltaal" />
+    </element>
+    <element id="Endpoint.connectionType">
+      <path value="Endpoint.connectionType" />
+      <label value="Koppeltaal" />
+    </element>
+    <element id="Endpoint.name">
+      <path value="Endpoint.name" />
+      <label value="Koppeltaal" />
+    </element>
+    <element id="Endpoint.managingOrganization">
+      <path value="Endpoint.managingOrganization" />
+      <type>
+        <code value="Reference" />
+        <targetProfile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Organization" />
+      </type>
+    </element>
+    <element id="Endpoint.payloadType">
+      <path value="Endpoint.payloadType" />
+      <label value="Koppeltaal" />
+    </element>
+    <element id="Endpoint.address">
+      <path value="Endpoint.address" />
+      <label value="Koppeltaal" />
+    </element>
+  </differential>
+</StructureDefinition>

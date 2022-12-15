@@ -1,0 +1,236 @@
+<StructureDefinition xmlns="http://hl7.org/fhir">
+  <id value="a06e2b6f-c167-408a-9df2-ae08b5756d29" />
+  <meta>
+    <versionId value="13" />
+    <lastUpdated value="2022-12-05T09:17:44.4705251+00:00" />
+  </meta>
+  <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Task" />
+  <version value="0.2.1" />
+  <name value="KT2_Task" />
+  <status value="draft" />
+  <date value="2022-12-05T09:33:20.3688856+00:00" />
+  <publisher value="VZVZ" />
+  <contact>
+    <name value="Bernard Stibbe" />
+  </contact>
+  <description value="The (FHIR) Task (resource) describes an eHealth task, that is, an eHealth activity assigned to a patient." />
+  <copyright value="VZVZ" />
+  <fhirVersion value="4.0.1" />
+  <mapping>
+    <identity value="workflow" />
+    <uri value="http://hl7.org/fhir/workflow" />
+    <name value="Workflow Pattern" />
+  </mapping>
+  <mapping>
+    <identity value="rim" />
+    <uri value="http://hl7.org/v3" />
+    <name value="RIM Mapping" />
+  </mapping>
+  <mapping>
+    <identity value="w5" />
+    <uri value="http://hl7.org/fhir/fivews" />
+    <name value="FiveWs Pattern Mapping" />
+  </mapping>
+  <mapping>
+    <identity value="v2" />
+    <uri value="http://hl7.org/v2" />
+    <name value="HL7 v2 Mapping" />
+  </mapping>
+  <kind value="resource" />
+  <abstract value="false" />
+  <type value="Task" />
+  <baseDefinition value="http://hl7.org/fhir/StructureDefinition/Task" />
+  <derivation value="constraint" />
+  <differential>
+    <element id="Task.extension">
+      <path value="Task.extension" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="url" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+      <min value="0" />
+    </element>
+    <element id="Task.extension:observer">
+      <path value="Task.extension" />
+      <sliceName value="observer" />
+      <label value="Koppeltaal" />
+      <min value="0" />
+      <type>
+        <code value="Extension" />
+        <profile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2ObservationTeam" />
+      </type>
+    </element>
+    <element id="Task.extension:resource_origin">
+      <path value="Task.extension" />
+      <sliceName value="resource_origin" />
+      <min value="0" />
+      <type>
+        <code value="Extension" />
+        <profile value="http://koppeltaal.nl/fhir/StructureDefinition/resource-origin" />
+      </type>
+    </element>
+    <element id="Task.identifier">
+      <path value="Task.identifier" />
+      <label value="Koppeltaal" />
+      <definition value="De aan een patiënt toegewezen eHealth activiteit" />
+      <min value="1" />
+    </element>
+    <element id="Task.instantiatesCanonical">
+      <path value="Task.instantiatesCanonical" />
+      <label value="Koppeltaal" />
+      <min value="1" />
+      <type>
+        <code value="canonical" />
+        <targetProfile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2ActivityDefinition" />
+      </type>
+    </element>
+    <element id="Task.instantiatesUri">
+      <path value="Task.instantiatesUri" />
+      <max value="0" />
+    </element>
+    <element id="Task.basedOn">
+      <path value="Task.basedOn" />
+      <max value="0" />
+    </element>
+    <element id="Task.groupIdentifier">
+      <path value="Task.groupIdentifier" />
+      <max value="0" />
+    </element>
+    <element id="Task.partOf">
+      <path value="Task.partOf" />
+      <label value="Koppeltaal" />
+      <type>
+        <code value="Reference" />
+        <targetProfile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Task" />
+      </type>
+    </element>
+    <element id="Task.status">
+      <path value="Task.status" />
+      <label value="Koppeltaal" />
+    </element>
+    <element id="Task.statusReason">
+      <path value="Task.statusReason" />
+      <max value="0" />
+    </element>
+    <element id="Task.businessStatus">
+      <path value="Task.businessStatus" />
+      <max value="0" />
+    </element>
+    <element id="Task.intent">
+      <path value="Task.intent" />
+      <label value="Koppeltaal" />
+    </element>
+    <element id="Task.priority">
+      <path value="Task.priority" />
+      <label value="Koppeltaal" />
+    </element>
+    <element id="Task.code">
+      <path value="Task.code" />
+      <label value="Koppeltaal" />
+    </element>
+    <element id="Task.description">
+      <path value="Task.description" />
+      <label value="Koppeltaal" />
+    </element>
+    <element id="Task.focus">
+      <path value="Task.focus" />
+      <max value="0" />
+    </element>
+    <element id="Task.for">
+      <path value="Task.for" />
+      <label value="Koppeltaal" />
+      <type>
+        <code value="Reference" />
+        <targetProfile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Patient" />
+      </type>
+    </element>
+    <element id="Task.encounter">
+      <path value="Task.encounter" />
+      <max value="0" />
+    </element>
+    <element id="Task.executionPeriod">
+      <path value="Task.executionPeriod" />
+      <label value="Koppeltaal" />
+    </element>
+    <element id="Task.authoredOn">
+      <path value="Task.authoredOn" />
+      <label value="Koppeltaal" />
+    </element>
+    <element id="Task.lastModified">
+      <path value="Task.lastModified" />
+      <label value="Koppeltaal" />
+    </element>
+    <element id="Task.requester">
+      <path value="Task.requester" />
+      <label value="Koppeltaal" />
+      <type>
+        <code value="Reference" />
+        <targetProfile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Practitioner" />
+      </type>
+    </element>
+    <element id="Task.performerType">
+      <path value="Task.performerType" />
+      <max value="0" />
+    </element>
+    <element id="Task.owner">
+      <path value="Task.owner" />
+      <label value="Koppeltaal" />
+      <min value="1" />
+      <type>
+        <code value="Reference" />
+        <targetProfile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2CareTeam" />
+        <targetProfile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Patient" />
+        <targetProfile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Practitioner" />
+        <targetProfile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2RelatedPerson" />
+      </type>
+    </element>
+    <element id="Task.location">
+      <path value="Task.location" />
+      <max value="0" />
+    </element>
+    <element id="Task.reasonCode">
+      <path value="Task.reasonCode" />
+      <max value="0" />
+    </element>
+    <element id="Task.reasonReference">
+      <path value="Task.reasonReference" />
+      <max value="0" />
+    </element>
+    <element id="Task.insurance">
+      <path value="Task.insurance" />
+      <max value="0" />
+    </element>
+    <element id="Task.note">
+      <path value="Task.note" />
+      <max value="0" />
+    </element>
+    <element id="Task.relevantHistory">
+      <path value="Task.relevantHistory" />
+      <max value="0" />
+    </element>
+    <element id="Task.restriction">
+      <path value="Task.restriction" />
+      <label value="Koppeltaal" />
+    </element>
+    <element id="Task.restriction.recipient">
+      <path value="Task.restriction.recipient" />
+      <type>
+        <code value="Reference" />
+        <targetProfile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Patient" />
+        <targetProfile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Practitioner" />
+        <targetProfile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Organization" />
+      </type>
+    </element>
+    <element id="Task.input">
+      <path value="Task.input" />
+      <max value="0" />
+    </element>
+    <element id="Task.output">
+      <path value="Task.output" />
+      <max value="0" />
+    </element>
+  </differential>
+</StructureDefinition>

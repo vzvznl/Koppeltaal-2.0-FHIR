@@ -1,0 +1,32 @@
+{
+  "resourceType": "Patient",
+  "id": "KTPatient2",
+  "meta": {
+    "profile": [
+      "http://koppeltaal.nl/fhir/StructureDefinition/KT2Patient"
+    ]
+  },
+  "identifier": [
+    {
+      "use": "official",
+      "system": "https://irma.app",
+      "value": "bertabotje01@vzvz.nl"
+    }
+  ],
+  "active": true,
+  "name": [
+    {
+      "family": "Botje",
+      "given": "Berta"
+    }
+  ],
+  "telecom": [
+    {
+      "system": "email",
+      "value": "bertabotje01@vzvz.nl",
+      "use": "home"
+    }
+  ],
+  "gender": "female",
+  "birthDate": "1972-11-12"
+}

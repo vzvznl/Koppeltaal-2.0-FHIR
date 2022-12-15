@@ -1,0 +1,46 @@
+{
+  "resourceType": "Patient",
+  "id": "KTPatient1",
+  "meta": {
+    "profile": [
+      "http://koppeltaal.nl/fhir/StructureDefinition/KT2Patient"
+    ]
+  },
+  "identifier": [
+    {
+      "use": "usual",
+      "system": "urn:oid:2.16.840.1.113883.16.4.3.2.5",
+      "value": "BerendBotje-01"
+    },
+    {
+      "use": "official",
+      "system": "https://irma.app",
+      "value": "berendbotje01@vzvz.nl"
+    }
+  ],
+  "active": true,
+  "name": [
+    {
+      "use": "official",
+      "family": "Botje",
+      "given": "Berend",
+      "_given": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier",
+            "valueCode": "IN"
+          }
+        ]
+      }
+    }
+  ],
+  "telecom": [
+    {
+      "system": "email",
+      "value": "berendbotje01@vzvz.nl",
+      "use": "home"
+    }
+  ],
+  "gender": "male",
+  "birthDate": "1970-12-20"
+}

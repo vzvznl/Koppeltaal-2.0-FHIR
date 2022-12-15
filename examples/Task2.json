@@ -1,0 +1,22 @@
+{
+  "resourceType": "Task",
+  "id": "T123",
+  "meta": {
+    "profile": [
+      "http://koppeltaal.nl/fhir/StructureDefinition/KT2Task"
+    ]
+  },
+  "identifier": [
+    {
+      "system": "https://TaskSystem",
+      "value": "1234"
+    }
+  ],
+  "instantiatesCanonical": "https://int-381-kt2-sprint-7.minddistrict.dev/catalogue/6bea89a73b3d48d0963d627d93d071c2",
+  "intent": "order",
+  "owner": {
+    "reference": "https://fhir.simplifier.net/r4/Patient/fe26d86b-aada-4188-9cd6-9b363f4b7b1f",
+    "type": "Patient"
+  },
+  "status": "ready"
+}

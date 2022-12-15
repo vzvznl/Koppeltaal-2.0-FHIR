@@ -1,0 +1,38 @@
+<StructureDefinition xmlns="http://hl7.org/fhir">
+  <id value="50b8083b-ba76-4248-8b37-758f247e353b" />
+  <url value="http://koppeltaal.nl/fhir/StructureDefinition/correlation-id" />
+  <version value="0.1.0" />
+  <name value="KT2_CorrelationId" />
+  <status value="draft" />
+  <date value="2022-07-28T08:33:26.4601897+00:00" />
+  <contact>
+    <name value="Bernard Stibbe" />
+  </contact>
+  <copyright value="VZVZ" />
+  <fhirVersion value="4.0.1" />
+  <kind value="complex-type" />
+  <abstract value="false" />
+  <context>
+    <type value="element" />
+    <expression value="AuditEvent" />
+  </context>
+  <type value="Extension" />
+  <baseDefinition value="http://hl7.org/fhir/StructureDefinition/Extension" />
+  <derivation value="constraint" />
+  <differential>
+    <element id="Extension">
+      <path value="Extension" />
+      <max value="1" />
+    </element>
+    <element id="Extension.url">
+      <path value="Extension.url" />
+      <fixedUri value="http://koppeltaal.nl/fhir/StructureDefinition/correlation-id" />
+    </element>
+    <element id="Extension.value[x]">
+      <path value="Extension.value[x]" />
+      <type>
+        <code value="id" />
+      </type>
+    </element>
+  </differential>
+</StructureDefinition>

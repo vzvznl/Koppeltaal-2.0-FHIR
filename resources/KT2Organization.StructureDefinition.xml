@@ -1,0 +1,122 @@
+<StructureDefinition xmlns="http://hl7.org/fhir">
+  <id value="df7fa3be-46a1-476f-84d1-9bda6c8d067d" />
+  <meta>
+    <versionId value="11" />
+    <lastUpdated value="2022-11-09T12:48:29.6698005+00:00" />
+  </meta>
+  <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Organization" />
+  <version value="0.2.0" />
+  <name value="KT2_Organization" />
+  <status value="draft" />
+  <date value="2022-11-09T12:52:27.6959626+00:00" />
+  <publisher value="VZVZ" />
+  <contact>
+    <name value="Bernard Stibbe" />
+  </contact>
+  <description value="The (FHIR) Organization (resource) describes a formally or informally recognized grouping of people or organizations formed for the purpose of achieving some form of collective action. &#xD;&#xA;Includes also departments, community groups, healthcare practice groups, etc." />
+  <copyright value="VZVZ" />
+  <fhirVersion value="4.0.1" />
+  <mapping>
+    <identity value="v2" />
+    <uri value="http://hl7.org/v2" />
+    <name value="HL7 v2 Mapping" />
+  </mapping>
+  <mapping>
+    <identity value="rim" />
+    <uri value="http://hl7.org/v3" />
+    <name value="RIM Mapping" />
+  </mapping>
+  <mapping>
+    <identity value="servd" />
+    <uri value="http://www.omg.org/spec/ServD/1.0/" />
+    <name value="ServD" />
+  </mapping>
+  <mapping>
+    <identity value="w5" />
+    <uri value="http://hl7.org/fhir/fivews" />
+    <name value="FiveWs Pattern Mapping" />
+  </mapping>
+  <kind value="resource" />
+  <abstract value="false" />
+  <type value="Organization" />
+  <baseDefinition value="http://nictiz.nl/fhir/StructureDefinition/nl-core-HealthcareProvider-Organization" />
+  <derivation value="constraint" />
+  <differential>
+    <element id="Organization.extension">
+      <path value="Organization.extension" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="url" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+      <min value="0" />
+    </element>
+    <element id="Organization.extension:resource-origin">
+      <path value="Organization.extension" />
+      <sliceName value="resource-origin" />
+      <min value="0" />
+      <type>
+        <code value="Extension" />
+        <profile value="http://koppeltaal.nl/fhir/StructureDefinition/resource-origin" />
+      </type>
+    </element>
+    <element id="Organization.identifier">
+      <path value="Organization.identifier" />
+      <label value="Koppeltaal" />
+      <min value="1" />
+    </element>
+    <element id="Organization.active">
+      <path value="Organization.active" />
+      <label value="Koppeltaal" />
+      <min value="1" />
+    </element>
+    <element id="Organization.type">
+      <path value="Organization.type" />
+      <label value="Koppeltaal" />
+    </element>
+    <element id="Organization.name">
+      <path value="Organization.name" />
+      <label value="Koppeltaal" />
+    </element>
+    <element id="Organization.alias">
+      <path value="Organization.alias" />
+      <max value="0" />
+    </element>
+    <element id="Organization.telecom">
+      <path value="Organization.telecom" />
+      <label value="Koppeltaal" />
+      <max value="0" />
+    </element>
+    <element id="Organization.address">
+      <path value="Organization.address" />
+      <label value="Koppeltaal" />
+      <max value="0" />
+    </element>
+    <element id="Organization.partOf">
+      <path value="Organization.partOf" />
+      <label value="Koppeltaal" />
+      <type>
+        <extension url="http://hl7.org/fhir/StructureDefinition/structuredefinition-hierarchy">
+          <valueBoolean value="true" />
+        </extension>
+        <code value="Reference" />
+        <targetProfile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Organization" />
+      </type>
+    </element>
+    <element id="Organization.contact">
+      <path value="Organization.contact" />
+      <max value="0" />
+    </element>
+    <element id="Organization.endpoint">
+      <path value="Organization.endpoint" />
+      <label value="Koppeltaal" />
+      <max value="0" />
+      <type>
+        <code value="Reference" />
+        <targetProfile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Endpoint" />
+      </type>
+    </element>
+  </differential>
+</StructureDefinition>

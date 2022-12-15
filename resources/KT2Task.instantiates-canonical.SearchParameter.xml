@@ -1,0 +1,22 @@
+<SearchParameter xmlns="http://hl7.org/fhir">
+  <id value="fcd3fa09-79a5-4a82-84ef-c6b9fc51dc03" />
+  <meta>
+    <versionId value="2" />
+    <lastUpdated value="2022-07-28T13:25:14.5558508+00:00" />
+  </meta>
+  <url value="http://koppeltaal.nl/fhir/SearchParameter/Task-instantiates-canonical" />
+  <version value="0.0.2" />
+  <name value="KT2_SearchInstantiates" />
+  <status value="draft" />
+  <experimental value="false" />
+  <date value="2022-07-28T13:26:01.1795899+00:00" />
+  <description value="Instantiates FHIR protocol or definition" />
+  <code value="instantiates-canonical" />
+  <base value="Task" />
+  <type value="reference" />
+  <expression value="Task.instantiatesCanonical" />
+  <xpath value="f:Task/f:instantiatesCanonical" />
+  <xpathUsage value="normal" />
+  <target value="ActivityDefinition" />
+  <chain value="publisher-identifier" />
+</SearchParameter>

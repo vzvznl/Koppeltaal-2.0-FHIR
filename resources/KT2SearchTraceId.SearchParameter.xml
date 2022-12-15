@@ -1,0 +1,20 @@
+<SearchParameter xmlns="http://hl7.org/fhir">
+  <id value="84af5eb2-c601-4670-958d-25a85c86f20d" />
+  <url value="http://koppeltaal.nl/fhir/SearchParameter/trace-id" />
+  <version value="0.1.0" />
+  <name value="KT2_SearchTraceId" />
+  <status value="draft" />
+  <experimental value="false" />
+  <date value="2022-07-28T13:22:36.5725118+00:00" />
+  <publisher value="VZVZ" />
+  <contact>
+    <name value="Bernard Stibbe" />
+  </contact>
+  <description value="Search trace id for tracking audit events" />
+  <code value="traceId" />
+  <base value="AuditEvent" />
+  <type value="token" />
+  <expression value="AuditEvent.extension('http://koppeltaal.nl/fhir/StructureDefinition/trace-id')" />
+  <xpath value="f:AuditEvent/f:extension[@url='http://koppeltaal.nl/fhir/StructureDefinition/trace-id']" />
+  <xpathUsage value="normal" />
+</SearchParameter>

@@ -1,0 +1,72 @@
+{
+  "resourceType": "Task",
+  "id": "Task123",
+  "meta": {
+    "profile": [
+      "http://koppeltaal.nl/fhir/StructureDefinition/KT2Task"
+    ]
+  },
+  "extension": [
+    {
+      "url": "http://koppeltaal.nl/fhir/StructureDefinition/KT2ObservationTeam",
+      "valueReference": {
+        "reference": "CareTeam/123",
+        "type": "CareTeam"
+      }
+    },
+    {
+      "url": "http://koppeltaal.nl/fhir/StructureDefinition/resource-origin",
+      "valueReference": {
+        "reference": "Device/654",
+        "type": "Device"
+      }
+    }
+  ],
+  "identifier": [
+    {
+      "system": "https://TaskSystem",
+      "value": "1234"
+    }
+  ],
+  "instantiatesCanonical": "https://int-381-kt2-sprint-7.minddistrict.dev/catalogue/6bea89a73b3d48d0963d627d93d071c2",
+  "partOf": {
+    "reference": "Task/123"
+  },
+  "for": {
+    "reference": "Patient/61",
+    "type": "Patient"
+  },
+  "intent": "order",
+  "priority": "routine",
+  "code": {
+    "coding": [
+      {
+        "system": "http://hl7.org/fhir/CodeSystem/task-code",
+        "code": "fulfill"
+      }
+    ]
+  },
+  "executionPeriod": {
+    "start": "2021-01-11T08:25:05+10:00",
+    "end": "2021-01-12T08:25:05+10:00"
+  },
+  "requester": {
+    "reference": "Practitioner/62",
+    "type": "Practitioner"
+  },
+  "owner": {
+    "reference": "Patient/61",
+    "type": "Patient"
+  },
+  "restriction": {
+    "recipient": [
+      {
+        "reference": "Practitioner/62",
+        "type": "Practitioner"
+      }
+    ]
+  },
+  "status": "ready",
+  "authoredOn": "2020-12-31T08:25:05+10:00",
+  "lastModified": "2020-12-31T09:45:05+10:00"
+}

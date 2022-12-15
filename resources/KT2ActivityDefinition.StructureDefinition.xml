@@ -1,0 +1,271 @@
+<StructureDefinition xmlns="http://hl7.org/fhir">
+  <id value="6e21161c-cc1e-4cdc-a02c-d5b356907e1e" />
+  <meta>
+    <versionId value="13" />
+    <lastUpdated value="2022-12-01T08:36:58.8133263+00:00" />
+  </meta>
+  <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2ActivityDefinition" />
+  <version value="0.2.1" />
+  <name value="KT2_ActivityDefinition" />
+  <status value="draft" />
+  <date value="2022-12-01T08:38:06.288373+00:00" />
+  <publisher value="VZVZ" />
+  <contact>
+    <name value="Bernard Stibbe" />
+  </contact>
+  <description value="The (FHIR) ActivityDefinition (resource) describes an eHealth activity that is available for assignment to a patient. When assigning an eHealth activity to a patient, an eHealth Task is created, in which sub-activities are included as contained resources that refer to the main task via Task.partOf." />
+  <copyright value="VZVZ" />
+  <fhirVersion value="4.0.1" />
+  <mapping>
+    <identity value="workflow" />
+    <uri value="http://hl7.org/fhir/workflow" />
+    <name value="Workflow Pattern" />
+  </mapping>
+  <mapping>
+    <identity value="rim" />
+    <uri value="http://hl7.org/v3" />
+    <name value="RIM Mapping" />
+  </mapping>
+  <mapping>
+    <identity value="w5" />
+    <uri value="http://hl7.org/fhir/fivews" />
+    <name value="FiveWs Pattern Mapping" />
+  </mapping>
+  <mapping>
+    <identity value="objimpl" />
+    <uri value="http://hl7.org/fhir/object-implementation" />
+    <name value="Object Implementation Information" />
+  </mapping>
+  <kind value="resource" />
+  <abstract value="false" />
+  <type value="ActivityDefinition" />
+  <baseDefinition value="http://hl7.org/fhir/StructureDefinition/ActivityDefinition" />
+  <derivation value="constraint" />
+  <differential>
+    <element id="ActivityDefinition">
+      <path value="ActivityDefinition" />
+      <short value="Beschrijving van een eHealth activiteit" />
+    </element>
+    <element id="ActivityDefinition.extension">
+      <path value="ActivityDefinition.extension" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="url" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+      <min value="2" />
+    </element>
+    <element id="ActivityDefinition.extension:endpoint">
+      <path value="ActivityDefinition.extension" />
+      <sliceName value="endpoint" />
+      <label value="Koppeltaal" />
+      <short value="Endpoint to the service application" />
+      <definition value="Mandatory reference to the service application (endpoint) that provides the eHealth activity. Can be more than one endpoint." />
+      <min value="1" />
+      <type>
+        <code value="Extension" />
+        <profile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2EndpointExtension" />
+      </type>
+    </element>
+    <element id="ActivityDefinition.extension:resource-origin">
+      <path value="ActivityDefinition.extension" />
+      <sliceName value="resource-origin" />
+      <min value="0" />
+      <type>
+        <code value="Extension" />
+        <profile value="http://koppeltaal.nl/fhir/StructureDefinition/resource-origin" />
+      </type>
+    </element>
+    <element id="ActivityDefinition.extension:publicerId">
+      <path value="ActivityDefinition.extension" />
+      <sliceName value="publicerId" />
+      <min value="0" />
+      <max value="1" />
+      <type>
+        <code value="Extension" />
+        <profile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2PublisherId" />
+      </type>
+      <isModifier value="false" />
+    </element>
+    <element id="ActivityDefinition.url">
+      <path value="ActivityDefinition.url" />
+      <label value="Koppeltaal" />
+      <min value="1" />
+    </element>
+    <element id="ActivityDefinition.identifier">
+      <path value="ActivityDefinition.identifier" />
+      <label value="Koppeltaal" />
+    </element>
+    <element id="ActivityDefinition.version">
+      <path value="ActivityDefinition.version" />
+      <label value="Koppeltaal" />
+    </element>
+    <element id="ActivityDefinition.name">
+      <path value="ActivityDefinition.name" />
+      <label value="Koppeltaal" />
+    </element>
+    <element id="ActivityDefinition.title">
+      <path value="ActivityDefinition.title" />
+      <label value="Koppeltaal" />
+      <min value="1" />
+    </element>
+    <element id="ActivityDefinition.subtitle">
+      <path value="ActivityDefinition.subtitle" />
+      <label value="Koppeltaal" />
+    </element>
+    <element id="ActivityDefinition.status">
+      <path value="ActivityDefinition.status" />
+      <label value="Koppeltaal" />
+    </element>
+    <element id="ActivityDefinition.experimental">
+      <path value="ActivityDefinition.experimental" />
+      <max value="0" />
+    </element>
+    <element id="ActivityDefinition.date">
+      <path value="ActivityDefinition.date" />
+      <max value="0" />
+    </element>
+    <element id="ActivityDefinition.publisher">
+      <path value="ActivityDefinition.publisher" />
+      <max value="0" />
+    </element>
+    <element id="ActivityDefinition.contact">
+      <path value="ActivityDefinition.contact" />
+      <max value="0" />
+    </element>
+    <element id="ActivityDefinition.description">
+      <path value="ActivityDefinition.description" />
+      <label value="Koppeltaal" />
+    </element>
+    <element id="ActivityDefinition.jurisdiction">
+      <path value="ActivityDefinition.jurisdiction" />
+      <max value="0" />
+    </element>
+    <element id="ActivityDefinition.purpose">
+      <path value="ActivityDefinition.purpose" />
+      <max value="0" />
+    </element>
+    <element id="ActivityDefinition.usage">
+      <path value="ActivityDefinition.usage" />
+      <max value="0" />
+    </element>
+    <element id="ActivityDefinition.copyright">
+      <path value="ActivityDefinition.copyright" />
+      <max value="0" />
+    </element>
+    <element id="ActivityDefinition.approvalDate">
+      <path value="ActivityDefinition.approvalDate" />
+      <max value="0" />
+    </element>
+    <element id="ActivityDefinition.lastReviewDate">
+      <path value="ActivityDefinition.lastReviewDate" />
+      <max value="0" />
+    </element>
+    <element id="ActivityDefinition.effectivePeriod">
+      <path value="ActivityDefinition.effectivePeriod" />
+      <max value="0" />
+    </element>
+    <element id="ActivityDefinition.topic">
+      <path value="ActivityDefinition.topic" />
+      <label value="Koppeltaal" />
+    </element>
+    <element id="ActivityDefinition.author">
+      <path value="ActivityDefinition.author" />
+      <max value="0" />
+    </element>
+    <element id="ActivityDefinition.editor">
+      <path value="ActivityDefinition.editor" />
+      <max value="0" />
+    </element>
+    <element id="ActivityDefinition.reviewer">
+      <path value="ActivityDefinition.reviewer" />
+      <max value="0" />
+    </element>
+    <element id="ActivityDefinition.endorser">
+      <path value="ActivityDefinition.endorser" />
+      <max value="0" />
+    </element>
+    <element id="ActivityDefinition.relatedArtifact">
+      <path value="ActivityDefinition.relatedArtifact" />
+      <max value="0" />
+    </element>
+    <element id="ActivityDefinition.library">
+      <path value="ActivityDefinition.library" />
+      <max value="0" />
+    </element>
+    <element id="ActivityDefinition.kind">
+      <path value="ActivityDefinition.kind" />
+      <max value="0" />
+    </element>
+    <element id="ActivityDefinition.profile">
+      <path value="ActivityDefinition.profile" />
+      <max value="0" />
+    </element>
+    <element id="ActivityDefinition.code">
+      <path value="ActivityDefinition.code" />
+      <label value="Koppeltaal" />
+    </element>
+    <element id="ActivityDefinition.intent">
+      <path value="ActivityDefinition.intent" />
+      <max value="0" />
+    </element>
+    <element id="ActivityDefinition.priority">
+      <path value="ActivityDefinition.priority" />
+      <max value="0" />
+    </element>
+    <element id="ActivityDefinition.doNotPerform">
+      <path value="ActivityDefinition.doNotPerform" />
+      <max value="0" />
+    </element>
+    <element id="ActivityDefinition.timing[x]">
+      <path value="ActivityDefinition.timing[x]" />
+      <max value="0" />
+    </element>
+    <element id="ActivityDefinition.location">
+      <path value="ActivityDefinition.location" />
+      <max value="0" />
+    </element>
+    <element id="ActivityDefinition.participant">
+      <path value="ActivityDefinition.participant" />
+      <max value="0" />
+    </element>
+    <element id="ActivityDefinition.product[x]">
+      <path value="ActivityDefinition.product[x]" />
+      <max value="0" />
+    </element>
+    <element id="ActivityDefinition.quantity">
+      <path value="ActivityDefinition.quantity" />
+      <max value="0" />
+    </element>
+    <element id="ActivityDefinition.dosage">
+      <path value="ActivityDefinition.dosage" />
+      <max value="0" />
+    </element>
+    <element id="ActivityDefinition.bodySite">
+      <path value="ActivityDefinition.bodySite" />
+      <max value="0" />
+    </element>
+    <element id="ActivityDefinition.specimenRequirement">
+      <path value="ActivityDefinition.specimenRequirement" />
+      <max value="0" />
+    </element>
+    <element id="ActivityDefinition.observationRequirement">
+      <path value="ActivityDefinition.observationRequirement" />
+      <max value="0" />
+    </element>
+    <element id="ActivityDefinition.observationResultRequirement">
+      <path value="ActivityDefinition.observationResultRequirement" />
+      <max value="0" />
+    </element>
+    <element id="ActivityDefinition.transform">
+      <path value="ActivityDefinition.transform" />
+      <max value="0" />
+    </element>
+    <element id="ActivityDefinition.dynamicValue">
+      <path value="ActivityDefinition.dynamicValue" />
+      <max value="0" />
+    </element>
+  </differential>
+</StructureDefinition>

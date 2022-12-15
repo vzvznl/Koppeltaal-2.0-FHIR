@@ -1,0 +1,143 @@
+<StructureDefinition xmlns="http://hl7.org/fhir">
+  <id value="cda7659c-d630-49cf-9746-4d91543ccd96" />
+  <meta>
+    <versionId value="2" />
+    <lastUpdated value="2022-08-03T08:03:46.497211+00:00" />
+  </meta>
+  <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2AuditEvent" />
+  <version value="0.1.4" />
+  <name value="KT2_AuditEvent" />
+  <status value="draft" />
+  <date value="2022-08-03T08:04:08.9550806+00:00" />
+  <contact>
+    <name value="Bernard Stibbe" />
+  </contact>
+  <copyright value="VZVZ" />
+  <fhirVersion value="4.0.1" />
+  <kind value="resource" />
+  <abstract value="false" />
+  <type value="AuditEvent" />
+  <baseDefinition value="http://hl7.org/fhir/StructureDefinition/AuditEvent" />
+  <derivation value="constraint" />
+  <differential>
+    <element id="AuditEvent.extension">
+      <path value="AuditEvent.extension" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="url" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+      <min value="0" />
+    </element>
+    <element id="AuditEvent.extension:resource-origin">
+      <path value="AuditEvent.extension" />
+      <sliceName value="resource-origin" />
+      <min value="0" />
+      <type>
+        <code value="Extension" />
+        <profile value="http://koppeltaal.nl/fhir/StructureDefinition/resource-origin" />
+      </type>
+      <isModifier value="false" />
+    </element>
+    <element id="AuditEvent.extension:traceId">
+      <path value="AuditEvent.extension" />
+      <sliceName value="traceId" />
+      <min value="0" />
+      <type>
+        <code value="Extension" />
+        <profile value="http://koppeltaal.nl/fhir/StructureDefinition/trace-id" />
+      </type>
+      <isModifier value="false" />
+    </element>
+    <element id="AuditEvent.extension:correlationId">
+      <path value="AuditEvent.extension" />
+      <sliceName value="correlationId" />
+      <min value="0" />
+      <type>
+        <code value="Extension" />
+        <profile value="http://koppeltaal.nl/fhir/StructureDefinition/correlation-id" />
+      </type>
+      <isModifier value="false" />
+    </element>
+    <element id="AuditEvent.extension:requestId">
+      <path value="AuditEvent.extension" />
+      <sliceName value="requestId" />
+      <min value="0" />
+      <type>
+        <code value="Extension" />
+        <profile value="http://koppeltaal.nl/fhir/StructureDefinition/request-id" />
+      </type>
+      <isModifier value="false" />
+    </element>
+    <element id="AuditEvent.type">
+      <path value="AuditEvent.type" />
+      <label value="Koppeltaal" />
+    </element>
+    <element id="AuditEvent.subtype">
+      <path value="AuditEvent.subtype" />
+      <label value="Koppeltaal" />
+    </element>
+    <element id="AuditEvent.action">
+      <path value="AuditEvent.action" />
+      <label value="Koppeltaal" />
+    </element>
+    <element id="AuditEvent.period">
+      <path value="AuditEvent.period" />
+      <label value="Koppeltaal" />
+    </element>
+    <element id="AuditEvent.recorded">
+      <path value="AuditEvent.recorded" />
+      <label value="Koppeltaal" />
+    </element>
+    <element id="AuditEvent.outcome">
+      <path value="AuditEvent.outcome" />
+      <label value="Koppeltaal" />
+    </element>
+    <element id="AuditEvent.agent">
+      <path value="AuditEvent.agent" />
+      <label value="Koppeltaal" />
+    </element>
+    <element id="AuditEvent.agent.who">
+      <path value="AuditEvent.agent.who" />
+      <type>
+        <code value="Reference" />
+        <targetProfile value="http://hl7.org/fhir/StructureDefinition/PractitionerRole" />
+        <targetProfile value="http://hl7.org/fhir/StructureDefinition/Practitioner" />
+        <targetProfile value="http://hl7.org/fhir/StructureDefinition/Organization" />
+        <targetProfile value="http://hl7.org/fhir/StructureDefinition/Device" />
+        <targetProfile value="http://hl7.org/fhir/StructureDefinition/Patient" />
+        <targetProfile value="http://hl7.org/fhir/StructureDefinition/RelatedPerson" />
+        <targetProfile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Device" />
+      </type>
+    </element>
+    <element id="AuditEvent.agent.requestor">
+      <path value="AuditEvent.agent.requestor" />
+      <label value="Koppeltaal" />
+    </element>
+    <element id="AuditEvent.source">
+      <path value="AuditEvent.source" />
+      <label value="Koppeltaal" />
+    </element>
+    <element id="AuditEvent.source.observer">
+      <path value="AuditEvent.source.observer" />
+      <label value="Koppeltaal" />
+      <type>
+        <code value="Reference" />
+        <targetProfile value="http://hl7.org/fhir/StructureDefinition/PractitionerRole" />
+        <targetProfile value="http://hl7.org/fhir/StructureDefinition/Practitioner" />
+        <targetProfile value="http://hl7.org/fhir/StructureDefinition/Organization" />
+        <targetProfile value="http://hl7.org/fhir/StructureDefinition/Device" />
+        <targetProfile value="http://hl7.org/fhir/StructureDefinition/Patient" />
+        <targetProfile value="http://hl7.org/fhir/StructureDefinition/RelatedPerson" />
+        <targetProfile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Device" />
+      </type>
+    </element>
+    <element id="AuditEvent.entity">
+      <path value="AuditEvent.entity" />
+      <label value="Koppeltaal" />
+      <min value="1" />
+    </element>
+  </differential>
+</StructureDefinition>

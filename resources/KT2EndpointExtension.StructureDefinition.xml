@@ -1,0 +1,46 @@
+<StructureDefinition xmlns="http://hl7.org/fhir">
+  <id value="6328deaa-1bce-4f67-af33-737069317741" />
+  <meta>
+    <versionId value="9" />
+    <lastUpdated value="2022-06-15T13:07:11.1588827+00:00" />
+  </meta>
+  <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2EndpointExtension" />
+  <version value="0.0.2" />
+  <name value="KT2_EndpointExtension" />
+  <status value="draft" />
+  <date value="2022-07-15T15:51:04.8144083+00:00" />
+  <publisher value="VZVZ" />
+  <contact>
+    <name value="Bernard Stibbe" />
+  </contact>
+  <description value="Reference extension to the service  application (endpoint) that provides the eHealth activity." />
+  <copyright value="VZVZ" />
+  <fhirVersion value="4.0.1" />
+  <mapping>
+    <identity value="rim" />
+    <uri value="http://hl7.org/v3" />
+    <name value="RIM Mapping" />
+  </mapping>
+  <kind value="complex-type" />
+  <abstract value="false" />
+  <context>
+    <type value="fhirpath" />
+    <expression value="ActivityDefinition" />
+  </context>
+  <type value="Extension" />
+  <baseDefinition value="http://hl7.org/fhir/StructureDefinition/Extension" />
+  <derivation value="constraint" />
+  <differential>
+    <element id="Extension.url">
+      <path value="Extension.url" />
+      <fixedUri value="http://koppeltaal.nl/fhir/StructureDefinition/KT2EndpointExtension" />
+    </element>
+    <element id="Extension.value[x]">
+      <path value="Extension.value[x]" />
+      <type>
+        <code value="Reference" />
+        <targetProfile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Endpoint" />
+      </type>
+    </element>
+  </differential>
+</StructureDefinition>

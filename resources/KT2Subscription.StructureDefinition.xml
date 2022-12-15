@@ -1,0 +1,80 @@
+<StructureDefinition xmlns="http://hl7.org/fhir">
+  <id value="c8a6ea0f-e91c-40b6-b382-27f318e0ed31" />
+  <meta>
+    <versionId value="5" />
+    <lastUpdated value="2022-11-09T16:09:37.0723007+00:00" />
+  </meta>
+  <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Subscription" />
+  <version value="0.2.0" />
+  <name value="KT2_Subscription" />
+  <status value="draft" />
+  <date value="2022-11-09T16:09:57.1668411+00:00" />
+  <publisher value="VZVZ" />
+  <contact>
+    <name value="Bernard Stibbe" />
+  </contact>
+  <description value="The (FHIR) Subscription (resource) is used to define a push-based subscription from a server to another system. Once a Subscription is registered with the server, the server checks every resource that is created or updated, and if the resource matches the given criteria, it sends a message on the defined &quot;channel&quot; so that another system can take an appropriate action." />
+  <copyright value="VZVZ" />
+  <fhirVersion value="4.0.1" />
+  <kind value="resource" />
+  <abstract value="false" />
+  <type value="Subscription" />
+  <baseDefinition value="http://hl7.org/fhir/StructureDefinition/Subscription" />
+  <derivation value="constraint" />
+  <differential>
+    <element id="Subscription.extension">
+      <path value="Subscription.extension" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="url" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+      <min value="0" />
+    </element>
+    <element id="Subscription.extension:resource-origin">
+      <path value="Subscription.extension" />
+      <sliceName value="resource-origin" />
+      <min value="0" />
+      <type>
+        <code value="Extension" />
+        <profile value="http://koppeltaal.nl/fhir/StructureDefinition/resource-origin" />
+      </type>
+    </element>
+    <element id="Subscription.status">
+      <path value="Subscription.status" />
+      <label value="Koppeltaal" />
+    </element>
+    <element id="Subscription.reason">
+      <path value="Subscription.reason" />
+      <label value="Koppeltaal" />
+    </element>
+    <element id="Subscription.criteria">
+      <path value="Subscription.criteria" />
+      <label value="Koppeltaal" />
+    </element>
+    <element id="Subscription.channel">
+      <path value="Subscription.channel" />
+      <label value="Koppeltaal" />
+    </element>
+    <element id="Subscription.channel.type">
+      <path value="Subscription.channel.type" />
+      <short value="rest-hook" />
+      <definition value="Only the rest-hook is available in Koppeltaal&#xD;&#xA;The type of channel to send notifications on." />
+      <fixedCode value="rest-hook" />
+    </element>
+    <element id="Subscription.channel.endpoint">
+      <path value="Subscription.channel.endpoint" />
+      <label value="Koppeltaal" />
+    </element>
+    <element id="Subscription.channel.payload">
+      <path value="Subscription.channel.payload" />
+      <max value="0" />
+    </element>
+    <element id="Subscription.channel.header">
+      <path value="Subscription.channel.header" />
+      <label value="Koppeltaal" />
+    </element>
+  </differential>
+</StructureDefinition>

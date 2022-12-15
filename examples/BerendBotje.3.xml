@@ -1,0 +1,33 @@
+<Patient xmlns="http://hl7.org/fhir">
+  <id value="KTPatient4" />
+  <meta>
+    <profile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Patient" />
+  </meta>
+  <identifier>
+    <use value="usual" />
+    <system value="urn:oid:2.16.840.1.113883.16.4.3.2.5" />
+    <value value="BerendBotje-03" />
+  </identifier>
+  <identifier>
+    <use value="official" />
+    <system value="https://irma.app" />
+    <value value="berendbotje03@vzvz.nl" />
+  </identifier>
+  <active value="true" />
+  <name>
+    <use value="official" />
+    <family value="Botje" />
+    <given value="Berend">
+      <extension url="http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier">
+        <valueCode value="IN" />
+      </extension>
+    </given>
+  </name>
+  <telecom>
+    <system value="email" />
+    <value value="berendbotje01@vzvz.nl" />
+    <use value="home" />
+  </telecom>
+  <gender value="male" />
+  <birthDate value="1970-12-20" />
+</Patient>
