@@ -78,9 +78,9 @@
         <profile value="http://koppeltaal.nl/fhir/StructureDefinition/resource-origin" />
       </type>
     </element>
-    <element id="ActivityDefinition.extension:publicerId">
+    <element id="ActivityDefinition.extension:publisherId">
       <path value="ActivityDefinition.extension" />
-      <sliceName value="publicerId" />
+      <sliceName value="publisherId" />
       <min value="0" />
       <type>
         <code value="Extension" />
