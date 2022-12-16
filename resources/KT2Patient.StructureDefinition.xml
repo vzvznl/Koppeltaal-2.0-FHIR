@@ -3,7 +3,7 @@
   <id value="bc3d9597-ee0b-4fb6-83aa-134b05ba5939" />
   <meta>
     <versionId value="9" />
-    <lastUpdated value="2022-12-15T15:25:09.1772391+00:00" />
+    <lastUpdated value="2022-12-16T11:34:07.5632142+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Patient" />
   <version value="0.2.0" />
@@ -148,7 +148,6 @@
     <element id="Patient.telecom:emailAddresses">
       <path value="Patient.telecom" />
       <sliceName value="emailAddresses" />
-      <max value="1" />
     </element>
     <element id="Patient.telecom:emailAddresses.rank">
       <path value="Patient.telecom.rank" />
