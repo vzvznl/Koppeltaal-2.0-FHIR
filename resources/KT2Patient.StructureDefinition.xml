@@ -3,7 +3,7 @@
   <id value="bc3d9597-ee0b-4fb6-83aa-134b05ba5939" />
   <meta>
     <versionId value="9" />
-    <lastUpdated value="2022-12-16T11:55:43.3544436+00:00" />
+    <lastUpdated value="2022-12-16T15:16:54.3709721+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Patient" />
   <version value="0.2.0" />
@@ -73,16 +73,6 @@
         <code value="Extension" />
         <profile value="http://koppeltaal.nl/fhir/StructureDefinition/resource-origin" />
       </type>
-    </element>
-    <element id="Patient.extension:resource-origin.value[x]">
-      <path value="Patient.extension.value[x]" />
-      <slicing>
-        <discriminator>
-          <type value="type" />
-          <path value="$this" />
-        </discriminator>
-        <rules value="open" />
-      </slicing>
     </element>
     <element id="Patient.identifier">
       <path value="Patient.identifier" />
