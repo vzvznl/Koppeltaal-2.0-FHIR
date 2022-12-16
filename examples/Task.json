@@ -8,13 +8,6 @@
   },
   "extension": [
     {
-      "url": "http://koppeltaal.nl/fhir/StructureDefinition/KT2ObservationTeam",
-      "valueReference": {
-        "reference": "CareTeam/123",
-        "type": "CareTeam"
-      }
-    },
-    {
       "url": "http://koppeltaal.nl/fhir/StructureDefinition/resource-origin",
       "valueReference": {
         "reference": "Device/654",
@@ -68,5 +61,12 @@
   },
   "status": "ready",
   "authoredOn": "2020-12-31T08:25:05+10:00",
-  "lastModified": "2020-12-31T09:45:05+10:00"
+  "lastModified": "2020-12-31T09:45:05+10:00",
+  "comment-to-process":     {
+    "url": "http://koppeltaal.nl/fhir/StructureDefinition/KT2ObservationTeam",
+    "valueReference": {
+      "reference": "CareTeam/123",
+      "type": "CareTeam"
+    }
+  }
 }

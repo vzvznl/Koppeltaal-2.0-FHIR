@@ -3,7 +3,7 @@
   <id value="a06e2b6f-c167-408a-9df2-ae08b5756d29" />
   <meta>
     <versionId value="13" />
-    <lastUpdated value="2022-12-15T15:32:34.9372956+00:00" />
+    <lastUpdated value="2022-12-16T15:49:10.6447653+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Task" />
   <version value="0.2.1" />
@@ -53,15 +53,6 @@
         <rules value="open" />
       </slicing>
       <min value="0" />
-    </element>
-    <element id="Task.extension:observer">
-      <path value="Task.extension" />
-      <sliceName value="observer" />
-      <min value="0" />
-      <type>
-        <code value="Extension" />
-        <profile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2ObservationTeam" />
-      </type>
     </element>
     <element id="Task.extension:resource_origin">
       <path value="Task.extension" />
