@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <StructureDefinition xmlns="http://hl7.org/fhir">
   <id value="5f1e2ceb-2a76-4fb8-ade3-2875923611d3" />
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2CareTeam" />
@@ -66,7 +67,7 @@
     </element>
     <element id="CareTeam.participant.onBehalfOf">
       <path value="CareTeam.participant.onBehalfOf" />
-      <comment value="This element is not used in  the context of Koppeltaal 2.0&#xD;&#xA;&#xD;&#xA;References SHALL be a reference to an actual FHIR resource, and SHALL be resolveable (allowing for access control, temporary unavailability, etc.). Resolution can be either by retrieval from the URL, or, where applicable by resource type, by treating an absolute reference as a canonical URL and looking it up in a local registry/repository." />
+      <comment value="This element is not used in the context of Koppeltaal 2.0" />
       <type>
         <code value="Reference" />
         <targetProfile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Organization" />
@@ -74,7 +75,7 @@
     </element>
     <element id="CareTeam.participant.period">
       <path value="CareTeam.participant.period" />
-      <comment value="This element is not used in  the context of Koppeltaal 2.0&#xD;&#xA;&#xD;&#xA;A Period specifies a range of time; the context of use will specify whether the entire range applies (e.g. &quot;the patient was an inpatient of the hospital for this time range&quot;) or one value from the range applies (e.g. &quot;give to the patient between these two times&quot;).&#xA;&#xA;Period is not used for a duration (a measure of elapsed time). See [Duration](datatypes.html#Duration)." />
+      <comment value="This element is not used in the context of Koppeltaal 2.0" />
     </element>
     <element id="CareTeam.reasonCode">
       <path value="CareTeam.reasonCode" />

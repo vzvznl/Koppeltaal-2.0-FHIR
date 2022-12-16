@@ -102,7 +102,7 @@
     </element>
     <element id="Patient.name:nameInformation.text">
       <path value="Patient.name.text" />
-      <comment value="This element is not used in  the context of Koppeltaal 2.0&#xD;&#xA;&#xD;&#xA;Can provide both a text representation and parts. Applications updating a name SHALL ensure that when both text and parts are present,  no content is included in the text that isn't found in a part." />
+      <comment value="This element is not used in the context of Koppeltaal 2.0" />
     </element>
     <element id="Patient.name:nameInformation.family">
       <path value="Patient.name.family" />
@@ -114,15 +114,15 @@
     </element>
     <element id="Patient.name:nameInformation.prefix">
       <path value="Patient.name.prefix" />
-      <comment value="This element is not used in  the context of Koppeltaal 2.0&#xD;&#xA;&#xD;&#xA;The zib concept 'titles' is mapped to elements `HumanName.prefix` and `HumanName.suffix`. Semantically this mapping is not complete: the zib uses a single concept that contains all the required information about noble and scientific titles, while FHIR captures the same information in a structured way.&#xD;&#xA;&#xD;&#xA;**Export:**&#xD;&#xA;&#xD;&#xA;Systems are expected to transform as much as possible to the FHIR datamodel and thereby to be as explicit as possible. Note that in order to mark the type of a prefix, you can use the FHIR standard extension for ISO 21090 EN Qualifiers. Examples include the use of the qualifier _HON_ to indicate honorific prefixes and _AC_ for academic prefixes.&#xD;&#xA;&#xD;&#xA;If it is not possible to breakup the zib concept titles to positioned prefixes and suffixes, the prefix element is used to store all information.&#xD;&#xA;&#xD;&#xA;**Import:**&#xD;&#xA;&#xD;&#xA;Systems need to expect and be resilient for a broader range of information stored in the prefix element than stated by it's definition." />
+      <comment value="This element is not used in the context of Koppeltaal 2.0" />
     </element>
     <element id="Patient.name:nameInformation.suffix">
       <path value="Patient.name.suffix" />
-      <comment value="This element is not used in  the context of Koppeltaal 2.0&#xD;&#xA;&#xD;&#xA;The zib concept 'titles' is mapped to elements `HumanName.prefix` and `HumanName.suffix`. Semantically this mapping is not complete: the zib uses a single concept that contains all the required information about noble and scientific titles, while FHIR captures the same information in a structured way.&#xD;&#xA;&#xD;&#xA;**Export:**&#xD;&#xA;&#xD;&#xA;Systems are expected to transform as much as possible to the FHIR datamodel and thereby to be as explicit as possible. Note that in order to mark the type of a prefix, you can use the FHIR standard extension for ISO 21090 EN Qualifiers. Examples include the use of the qualifier _HON_ to indicate honorific prefixes and _AC_ for academic prefixes.&#xD;&#xA;&#xD;&#xA;If it is not possible to breakup the zib concept titles to positioned prefixes and suffixes, the prefix element is used to store all information.&#xD;&#xA;&#xD;&#xA;**Import:**&#xD;&#xA;&#xD;&#xA;Systems need to expect and be resilient for a broader range of information stored in the prefix element than stated by it's definition." />
+      <comment value="This element is not used in the context of Koppeltaal 2.0" />
     </element>
     <element id="Patient.name:nameInformation.period">
       <path value="Patient.name.period" />
-      <comment value="This element is not used in  the context of Koppeltaal 2.0&#xD;&#xA;&#xD;&#xA;A Period specifies a range of time; the context of use will specify whether the entire range applies (e.g. &quot;the patient was an inpatient of the hospital for this time range&quot;) or one value from the range applies (e.g. &quot;give to the patient between these two times&quot;).&#xA;&#xA;Period is not used for a duration (a measure of elapsed time). See [Duration](datatypes.html#Duration)." />
+      <comment value="This element is not used in the context of Koppeltaal 2.0" />
     </element>
     <element id="Patient.name:nameInformation-GivenName">
       <path value="Patient.name" />
@@ -130,7 +130,7 @@
     </element>
     <element id="Patient.name:nameInformation-GivenName.text">
       <path value="Patient.name.text" />
-      <comment value="This element is not used in  the context of Koppeltaal 2.0&#xD;&#xA;&#xD;&#xA;Can provide both a text representation and parts. Applications updating a name SHALL ensure that when both text and parts are present,  no content is included in the text that isn't found in a part." />
+      <comment value="This element is not used in the context of Koppeltaal 2.0" />
     </element>
     <element id="Patient.telecom:telephoneNumbers">
       <path value="Patient.telecom" />
@@ -139,11 +139,11 @@
     </element>
     <element id="Patient.telecom:telephoneNumbers.rank">
       <path value="Patient.telecom.rank" />
-      <comment value="This element is not used in  the context of Koppeltaal 2.0&#xD;&#xA;&#xD;&#xA;Note that rank does not necessarily follow the order in which the contacts are represented in the instance." />
+      <comment value="This element is not used in the context of Koppeltaal 2.0" />
     </element>
     <element id="Patient.telecom:telephoneNumbers.period">
       <path value="Patient.telecom.period" />
-      <comment value="This element is not used in  the context of Koppeltaal 2.0&#xD;&#xA;&#xD;&#xA;A Period specifies a range of time; the context of use will specify whether the entire range applies (e.g. &quot;the patient was an inpatient of the hospital for this time range&quot;) or one value from the range applies (e.g. &quot;give to the patient between these two times&quot;).&#xA;&#xA;Period is not used for a duration (a measure of elapsed time). See [Duration](datatypes.html#Duration)." />
+      <comment value="This element is not used in the context of Koppeltaal 2.0" />
     </element>
     <element id="Patient.telecom:emailAddresses">
       <path value="Patient.telecom" />
@@ -152,11 +152,11 @@
     </element>
     <element id="Patient.telecom:emailAddresses.rank">
       <path value="Patient.telecom.rank" />
-      <comment value="This element is not used in  the context of Koppeltaal 2.0&#xD;&#xA;&#xD;&#xA;Note that rank does not necessarily follow the order in which the contacts are represented in the instance." />
+      <comment value="This element is not used in the context of Koppeltaal 2.0" />
     </element>
     <element id="Patient.telecom:emailAddresses.period">
       <path value="Patient.telecom.period" />
-      <comment value="This element is not used in  the context of Koppeltaal 2.0&#xD;&#xA;&#xD;&#xA;A Period specifies a range of time; the context of use will specify whether the entire range applies (e.g. &quot;the patient was an inpatient of the hospital for this time range&quot;) or one value from the range applies (e.g. &quot;give to the patient between these two times&quot;).&#xA;&#xA;Period is not used for a duration (a measure of elapsed time). See [Duration](datatypes.html#Duration)." />
+      <comment value="This element is not used in the context of Koppeltaal 2.0" />
     </element>
     <element id="Patient.gender">
       <path value="Patient.gender" />
@@ -184,28 +184,28 @@
     <element id="Patient.address.extension:addressType">
       <path value="Patient.address.extension" />
       <sliceName value="addressType" />
-      <comment value="This element is not used in  the context of Koppeltaal 2.0&#xD;&#xA;&#xD;&#xA;There can be no stigma associated with the use of extensions by any application, project, or standard - regardless of the institution or jurisdiction that uses or defines the extensions.  The use of extensions is what allows the FHIR specification to retain a core level of simplicity for everyone." />
+      <comment value="This element is not used in the context of Koppeltaal 2.0" />
       <min value="0" />
     </element>
     <element id="Patient.address.type">
       <path value="Patient.address.type" />
-      <comment value="This element is not used in  the context of Koppeltaal 2.0&#xD;&#xA;&#xD;&#xA;The definition of Address states that &quot;address is intended to describe postal addresses, not physical locations&quot;. However, many applications track whether an address has a dual purpose of being a location that can be visited as well as being a valid delivery destination, and Postal addresses are often used as proxies for physical locations (also see the [Location](location.html#) resource)." />
+      <comment value="This element is not used in the context of Koppeltaal 2.0" />
     </element>
     <element id="Patient.address.text">
       <path value="Patient.address.text" />
-      <comment value="This element is not used in  the context of Koppeltaal 2.0&#xD;&#xA;&#xD;&#xA;Can provide both a text representation and parts. Applications updating an address SHALL ensure that  when both text and parts are present,  no content is included in the text that isn't found in a part." />
+      <comment value="This element is not used in the context of Koppeltaal 2.0" />
     </element>
     <element id="Patient.address.district">
       <path value="Patient.address.district" />
-      <comment value="This element is not used in  the context of Koppeltaal 2.0&#xD;&#xA;&#xD;&#xA;District is sometimes known as county, but in some regions 'county' is used in place of city (municipality), so county name should be conveyed in city instead." />
+      <comment value="This element is not used in the context of Koppeltaal 2.0" />
     </element>
     <element id="Patient.address.state">
       <path value="Patient.address.state" />
-      <comment value="This element is not used in  the context of Koppeltaal 2.0&#xD;&#xA;&#xD;&#xA;Note that FHIR strings SHALL NOT exceed 1MB in size" />
+      <comment value="This element is not used in the context of Koppeltaal 2.0" />
     </element>
     <element id="Patient.address.period">
       <path value="Patient.address.period" />
-      <comment value="This element is not used in  the context of Koppeltaal 2.0&#xD;&#xA;&#xD;&#xA;A Period specifies a range of time; the context of use will specify whether the entire range applies (e.g. &quot;the patient was an inpatient of the hospital for this time range&quot;) or one value from the range applies (e.g. &quot;give to the patient between these two times&quot;).&#xA;&#xA;Period is not used for a duration (a measure of elapsed time). See [Duration](datatypes.html#Duration)." />
+      <comment value="This element is not used in the context of Koppeltaal 2.0" />
     </element>
     <element id="Patient.maritalStatus">
       <path value="Patient.maritalStatus" />
