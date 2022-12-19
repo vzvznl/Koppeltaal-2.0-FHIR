@@ -3,7 +3,7 @@
   <id value="6e21161c-cc1e-4cdc-a02c-d5b356907e1e" />
   <meta>
     <versionId value="13" />
-    <lastUpdated value="2022-12-15T15:32:15.0195802+00:00" />
+    <lastUpdated value="2022-12-19T11:02:01.6700413+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2ActivityDefinition" />
   <version value="0.2.1" />
@@ -26,6 +26,7 @@
     <element id="ActivityDefinition">
       <path value="ActivityDefinition" />
       <short value="Beschrijving van een eHealth activiteit" />
+      <comment value="De (FHIR) ActivityDefinition beschrijft een eHealth activiteit die beschikbaar is voor toewijzing aan een patiënt. Bij toewijzing van een eHealth activiteit aan een patiënt ontstaat een eHealth Taak (Task), waarbij sub-activiteiten kunnen worden opgenomen als contained resources die verwijzen naar de hoofdtaak via Task.partOf." />
     </element>
     <element id="ActivityDefinition.extension">
       <path value="ActivityDefinition.extension" />
@@ -36,7 +37,7 @@
         </discriminator>
         <rules value="open" />
       </slicing>
-      <min value="2" />
+      <min value="1" />
     </element>
     <element id="ActivityDefinition.extension:endpoint">
       <path value="ActivityDefinition.extension" />
