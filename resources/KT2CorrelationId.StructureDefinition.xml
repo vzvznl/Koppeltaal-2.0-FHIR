@@ -1,5 +1,5 @@
 <StructureDefinition xmlns="http://hl7.org/fhir">
-  <id value="50b8083b-ba76-4248-8b37-758f247e353b" />
+  <id value="correlation-id" />
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/correlation-id" />
   <version value="0.1.0" />
   <name value="KT2_CorrelationId" />

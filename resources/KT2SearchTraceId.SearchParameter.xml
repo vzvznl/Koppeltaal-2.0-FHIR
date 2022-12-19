@@ -1,5 +1,5 @@
 <SearchParameter xmlns="http://hl7.org/fhir">
-  <id value="84af5eb2-c601-4670-958d-25a85c86f20d" />
+  <id value="search-trace-id" />
   <url value="http://koppeltaal.nl/fhir/SearchParameter/trace-id" />
   <version value="0.1.0" />
   <name value="KT2_SearchTraceId" />

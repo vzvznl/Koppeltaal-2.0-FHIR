@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <StructureDefinition xmlns="http://hl7.org/fhir">
-  <id value="5f1e2ceb-2a76-4fb8-ade3-2875923611d3" />
+  <id value="KT2CareTeam" />
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2CareTeam" />
   <version value="0.2.2" />
   <name value="KT2_CareTeam" />

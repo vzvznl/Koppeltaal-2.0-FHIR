@@ -1,5 +1,5 @@
 <StructureDefinition xmlns="http://hl7.org/fhir">
-  <id value="ff717d32-23e6-442b-9191-7bfc750b427d" />
+  <id value="resource-origin" />
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/resource-origin" />
   <version value="0.1.1" />
   <name value="KT2_ResourceOrigin" />

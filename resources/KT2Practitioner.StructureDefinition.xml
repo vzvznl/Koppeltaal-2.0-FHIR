@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <StructureDefinition xmlns="http://hl7.org/fhir">
-  <id value="9a1f74f9-f0e3-40c1-89d6-a15a0f55e5cd" />
+  <id value="KT2Practitioner" />
   <meta>
     <versionId value="7" />
     <lastUpdated value="2022-12-16T11:40:35.4067291+00:00" />

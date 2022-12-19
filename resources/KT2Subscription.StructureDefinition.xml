@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <StructureDefinition xmlns="http://hl7.org/fhir">
-  <id value="c8a6ea0f-e91c-40b6-b382-27f318e0ed31" />
+  <id value="KT2Subscription" />
   <meta>
     <versionId value="5" />
     <lastUpdated value="2022-12-15T15:33:37.6214276+00:00" />

@@ -1,5 +1,5 @@
 <StructureDefinition xmlns="http://hl7.org/fhir">
-  <id value="ce43bca0-29f3-43ce-abfa-29a0a8bffb43" />
+  <id value="request-id" />
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/request-id" />
   <version value="0.1.0" />
   <name value="KT2_RequestId" />

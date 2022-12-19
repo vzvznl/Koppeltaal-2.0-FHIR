@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <StructureDefinition xmlns="http://hl7.org/fhir">
-  <id value="652e4317-33c6-4056-9085-ff8041611275" />
+  <id value="KT2Endpoint" />
   <meta>
     <versionId value="5" />
     <lastUpdated value="2022-12-15T15:34:01.1891369+00:00" />

@@ -1,5 +1,5 @@
 <StructureDefinition xmlns="http://hl7.org/fhir">
-  <id value="569da2b6-26a8-4cea-9d88-b20ba182aed2" />
+  <id value="KT2PublisherId" />
   <meta>
     <versionId value="7" />
     <lastUpdated value="2022-12-01T08:29:11.3047121+00:00" />

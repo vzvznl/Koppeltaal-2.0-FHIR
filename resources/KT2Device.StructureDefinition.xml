@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <StructureDefinition xmlns="http://hl7.org/fhir">
-  <id value="a2366484-486c-4853-a5ce-2952593400e6" />
+  <id value="KT2Device" />
   <meta>
     <versionId value="9" />
     <lastUpdated value="2022-12-15T15:34:06.2060066+00:00" />

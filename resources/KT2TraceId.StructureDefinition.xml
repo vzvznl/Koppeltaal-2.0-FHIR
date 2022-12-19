@@ -1,5 +1,5 @@
 <StructureDefinition xmlns="http://hl7.org/fhir">
-  <id value="926e426d-c734-45bd-9754-4fa35157a09a" />
+  <id value="trace-id" />
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/trace-id" />
   <version value="0.1.1" />
   <name value="KT2_TraceId" />

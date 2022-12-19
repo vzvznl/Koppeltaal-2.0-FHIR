@@ -1,5 +1,5 @@
 <StructureDefinition xmlns="http://hl7.org/fhir">
-  <id value="6328deaa-1bce-4f67-af33-737069317741" />
+  <id value="KT2EndpointExtension" />
   <meta>
     <versionId value="9" />
     <lastUpdated value="2022-06-15T13:07:11.1588827+00:00" />

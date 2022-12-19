@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <StructureDefinition xmlns="http://hl7.org/fhir">
-  <id value="bc3d9597-ee0b-4fb6-83aa-134b05ba5939" />
+  <id value="KT2Patient" />
   <meta>
     <versionId value="9" />
     <lastUpdated value="2022-12-16T15:16:54.3709721+00:00" />

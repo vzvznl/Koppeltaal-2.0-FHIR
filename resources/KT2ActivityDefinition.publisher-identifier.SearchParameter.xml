@@ -1,5 +1,5 @@
 <SearchParameter xmlns="http://hl7.org/fhir">
-  <id value="0a706cc5-4ddb-455c-8c1a-fd4e8ac8d9da" />
+  <id value="search-publisher-identifier-extension" />
   <meta>
     <versionId value="2" />
     <lastUpdated value="2022-07-28T13:25:16.4440096+00:00" />
