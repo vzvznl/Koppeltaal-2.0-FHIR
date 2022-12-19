@@ -1,6 +1,6 @@
 {
   "resourceType": "Patient",
-  "id": "KTPatient2",
+  "id": "patient-managingOrganization-telefoonnummer",
   "meta": {
     "profile": [
       "http://nictiz.nl/fhir/StructureDefinition/nl-core-Patient"
@@ -17,20 +17,18 @@
   "name": [
     {
       "use": "official",
-      "family": "Blauwe-Druiven",
+      "family": "Botje",
       "_family": {
         "extension": [
           {
-            "url": "http://hl7.org/fhir/StructureDefinition/humanname-own-name",
-            "valueString": "Druiven"
-          },
-          {
             "url": "http://hl7.org/fhir/StructureDefinition/humanname-partner-name",
-            "valueString": "Blauwe"
+            "valueString": "Botje"
           }
         ]
       },
-      "given": "TROS",
+      "given": [
+        "Berta"
+      ],
       "_given": [
         {
           "extension": [
@@ -41,19 +39,51 @@
           ]
         }
       ]
-    },
-    {
-      "use": "usual",
-      "given": "Druifje"
     }
   ],
   "telecom": [
     {
-      "system": "email",
-      "value": "bertabotje01@vzvz.nl",
+      "system": "phone",
+      "_system": {
+        "extension": [
+          {
+            "url": "http://nictiz.nl/fhir/StructureDefinition/ext-CodeSpecification",
+            "valueCodeableConcept": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v3-AddressUse",
+                  "code": "MC",
+                  "display": "Mobile Phone"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "value": "+31611234567",
       "use": "home"
     }
   ],
   "gender": "female",
-  "birthDate": "1972-11-12"
+  "_gender": {
+    "extension": [
+      {
+        "url": "http://nictiz.nl/fhir/StructureDefinition/ext-CodeSpecification",
+        "valueCodeableConcept": {
+          "coding": {
+            "system": "http://terminology.hl7.org/CodeSystem/v3-AdministrativeGender",
+            "code": "F",
+            "display": "Female"
+          }
+        }
+      }
+    ]
+  },
+  "birthDate": "1972-11-12",
+  "managingOrganization": [
+    {
+      "reference": "http://koppeltaal.leverancier.nl/fhir/Organization/Organization123",
+      "type": "Organization"
+    }
+  ]
 }

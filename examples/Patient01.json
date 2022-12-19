@@ -1,6 +1,6 @@
 {
   "resourceType": "Patient",
-  "id": "KTPatient1",
+  "id": "patient-volledige-naam-bsn",
   "meta": {
     "profile": [
       "http://koppeltaal.nl/fhir/StructureDefinition/KT2Patient"
@@ -8,39 +8,77 @@
   },
   "identifier": [
     {
-      "use": "usual",
-      "system": "urn:oid:2.16.840.1.113883.16.4.3.2.5",
-      "value": "BerendBotje-01"
+      "use": "official",
+      "system": "http://fhir.nl/fhir/NamingSystem/bsn",
+      "value": "0123456789"
     },
     {
-      "use": "official",
+      "use": "usual",
       "system": "https://irma.app",
-      "value": "berendbotje01@vzvz.nl"
+      "value": "bertabotje1@vzvz.nl"
     }
   ],
   "active": true,
   "name": [
     {
       "use": "official",
-      "family": "Botje",
-      "given": "Berend",
+      "text": "B.F. (Berta) Botje-Pietersen",
+      "family": "Botje-Pietersen",
+      "_family": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/humanname-own-name",
+            "valueString": "Pietersen"
+          },
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/humanname-partner-name",
+            "valueString": "Botje"
+          }
+        ]
+      },
+      "given": [
+        "B.",
+        "F."
+      ],
       "_given": {
         "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier",
+            "valueCode": "IN"
+          },
           {
             "url": "http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier",
             "valueCode": "IN"
           }
         ]
       }
+    },
+    {
+      "use": "usual",
+      "given": "Berta"
     }
   ],
   "telecom": [
     {
       "system": "email",
-      "value": "berendbotje01@vzvz.nl",
+      "value": "bertabotje1@vzvz.nl",
       "use": "home"
     }
   ],
-  "gender": "male",
-  "birthDate": "1970-12-20"
+  "gender": "female",
+  "_gender": {
+    "extension": [
+      {
+        "url": "http://nictiz.nl/fhir/StructureDefinition/ext-CodeSpecification",
+        "valueCodeableConcept": {
+          "coding": {
+            "system": "http://terminology.hl7.org/CodeSystem/v3-AdministrativeGender",
+            "code": "F",
+            "display": "Female"
+          }
+        }
+      }
+    ]
+  },
+  "birthDate": "1970-12-21"
 }

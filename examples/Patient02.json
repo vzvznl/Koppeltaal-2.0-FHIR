@@ -1,6 +1,6 @@
 {
   "resourceType": "Patient",
-  "id": "KTPatient2",
+  "id": "patient-volledig-adres",
   "meta": {
     "profile": [
       "http://koppeltaal.nl/fhir/StructureDefinition/KT2Patient"
@@ -18,7 +18,17 @@
     {
       "use": "official",
       "family": "Botje",
-      "given": "Berta",
+      "_family": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/humanname-partner-name",
+            "valueString": "Botje"
+          }
+        ]
+      },
+      "given": [
+        "B"
+      ],
       "_given": [
         {
           "extension": [
@@ -39,5 +49,89 @@
     }
   ],
   "gender": "female",
-  "birthDate": "1972-11-12"
+  "_gender": {
+    "extension": [
+      {
+        "url": "http://nictiz.nl/fhir/StructureDefinition/ext-CodeSpecification",
+        "valueCodeableConcept": {
+          "coding": {
+            "system": "http://terminology.hl7.org/CodeSystem/v3-AdministrativeGender",
+            "code": "F",
+            "display": "Female"
+          }
+        }
+      }
+    ]
+  },
+  "birthDate": "1972-11-12",
+  "address": [
+    {
+      "extension": [
+        {
+          "url": "http://nictiz.nl/fhir/StructureDefinition/ext-AddressInformation.AddressType",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-AddressUse",
+                "code": "HP",
+                "display": "Primary Home"
+              }
+            ]
+          }
+        }
+      ],
+      "use": "home",
+      "type": "both",
+      "line": [
+        "1e Jacob van Campenstr to 15 A 2e"
+      ],
+      "_line": [
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetName",
+              "valueString": "1e Jacob van Campenstr"
+            },
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-houseNumber",
+              "valueString": "15"
+            },
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-buildingNumberSuffix",
+              "valueString": "A 2e"
+            },
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-additionalLocator",
+              "valueString": "to"
+            },
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-unitID",
+              "valueString": "Testadres"
+            }
+          ]
+        }
+      ],
+      "city": "Hoogmade",
+      "district": "Kaag en Braassem",
+      "postalCode": "1012 NX",
+      "country": "Nederland",
+      "_country": {
+        "extension": [
+          {
+            "url": "http://nictiz.nl/fhir/StructureDefinition/ext-CodeSpecification",
+            "valueCodeableConcept": {
+              "coding": [
+                {
+                  "system": "urn:iso:std:iso:3166",
+                  "version": "2020-10-26T00:00:00",
+                  "code": "NL",
+                  "display": "Nederland"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
 }

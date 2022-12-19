@@ -1,5 +1,5 @@
 <Patient xmlns="http://hl7.org/fhir">
-    <id value="KTPatient1" />
+    <id value="patient-botje-minimaal" />
     <meta>
         <profile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Patient" />
     </meta>
@@ -15,27 +15,36 @@
     </identifier>
     <active value="true" />
     <name>
+        <use value="official" />
         <text value="Berend Botje" />
-        <family value="Botje" />
-        <given value="Berend" />
+        <family value="Botje">
+            <!-- achternaam/meisjesnaam -->
+            <extension url="http://hl7.org/fhir/StructureDefinition/humanname-own-name">
+                <valueString value="Botje"/>
+            </extension>
+        </family>
+        <!-- voornaam -->
+        <given value="Berend">
+            <extension url="http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier">
+                <valueCode value="BR"/>
+            </extension>
+        </given>
     </name>
     <telecom>
         <system value="email" />
         <value value="berendbotje01@vzvz.nl" />
         <use value="home" />
     </telecom>
-    <gender value="male" />
+    <gender value="male">
+        <extension url="http://nictiz.nl/fhir/StructureDefinition/ext-CodeSpecification">
+            <valueCodeableConcept>
+                <coding>
+                    <system value="http://terminology.hl7.org/CodeSystem/v3-AdministrativeGender" />
+                    <code value="M" />
+                    <display value="Male" />
+                </coding>
+            </valueCodeableConcept>
+        </extension>
+    </gender>
     <birthDate value="1970-12-20" />
-    <contact>
-        <relationship>
-            <coding>
-                <system value="http://terminology.hl7.org/CodeSystem/v2-0131" />
-                <code value="E" />
-                <display value="Employer" />
-            </coding>
-        </relationship>
-        <name>
-            <text value="Hopje" />
-        </name>
-    </contact>
 </Patient>

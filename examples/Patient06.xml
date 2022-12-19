@@ -1,5 +1,5 @@
 <Patient xmlns="http://hl7.org/fhir">
-  <id value="KTPatient4" />
+  <id value="patient-volledigenaam-xml" />
   <meta>
     <profile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Patient" />
   </meta>
@@ -11,13 +11,37 @@
   <identifier>
     <use value="official" />
     <system value="https://irma.app" />
-    <value value="berendbotje03@vzvz.nl" />
+    <value value="schemer04@vzvz.nl" />
   </identifier>
   <active value="true" />
   <name>
     <use value="official" />
-    <family value="Botje" />
-    <given value="Berend">
+    <text value="Hendrik Willem Schemer" />
+    <family value="Schemer">
+      <extension url="http://hl7.org/fhir/StructureDefinition/humanname-own-name">
+        <valueString value="Schemer" />
+      </extension>
+    </family>
+    <!--  Each official first name is communicated individually, augmented with the iso21090-EN-qualifier
+           extension set to "BR" (Birth) to indicate that it is a complete and official first name.  -->
+    <given value="Hendrik">
+      <extension url="http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier">
+        <valueCode value="BR" />
+      </extension>
+    </given>
+    <given value="Willem">
+      <extension url="http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier">
+        <valueCode value="BR" />
+      </extension>
+    </given>
+    <!--  Each official first name initial is communicated individually, augmented with the iso21090-EN-qualifier
+           extension set to "IN" (Initial).  -->
+    <given value="H.">
+      <extension url="http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier">
+        <valueCode value="IN" />
+      </extension>
+    </given>
+    <given value="W.">
       <extension url="http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier">
         <valueCode value="IN" />
       </extension>
@@ -28,6 +52,16 @@
     <value value="berendbotje01@vzvz.nl" />
     <use value="home" />
   </telecom>
-  <gender value="male" />
+  <gender value="male">
+    <extension url="http://nictiz.nl/fhir/StructureDefinition/ext-CodeSpecification">
+      <valueCodeableConcept>
+        <coding>
+          <system value="http://terminology.hl7.org/CodeSystem/v3-AdministrativeGender" />
+          <code value="M" />
+          <display value="Male" />
+        </coding>
+      </valueCodeableConcept>
+    </extension>
+  </gender>
   <birthDate value="1970-12-20" />
 </Patient>
