@@ -1,6 +1,6 @@
 {
   "resourceType": "Practitioner",
-  "id": "Practitioner123",
+  "id": "practitioner-volledig",
   "meta": {
     "profile": [
       "http://koppeltaal.nl/fhir/StructureDefinition/KT2Practitioner"
@@ -9,16 +9,34 @@
   "identifier": [
     {
       "use": "official",
-      "system": "https://irma.app/email",
-      "value": "mario+vzvz@therapieland.nl"
+      "system": "http://fhir.nl/fhir/NamingSystem/big",
+      "value": "11223344556"
     }
   ],
   "active": true,
   "name": [
     {
       "family": "Splinter",
+      "_family": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/humanname-own-name",
+            "valueString": "Splinter"
+          }
+        ]
+      },
       "given": [
-        "M"
+        "Mario"
+      ],
+      "_given": [
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier",
+              "valueCode": "BR"
+            }
+          ]
+        }
       ]
     }
   ],
@@ -29,5 +47,20 @@
       "use": "work"
     }
   ],
-  "gender": "unknown"
+  "gender": "unknown",
+  "_gender": {
+    "extension": [
+      {
+        "url": "http://nictiz.nl/fhir/StructureDefinition/ext-CodeSpecification",
+        "valueCodeableConcept": {
+          "coding": {
+            "system": "http://terminology.hl7.org/CodeSystem/v3-NullFlavor",
+            "code": "UNK",
+            "display": "Unknown"
+          }
+        }
+      }
+    ]
+  },
+  "birthDate": "1990-12-12"
 }
