@@ -1,0 +1,41 @@
+{
+  "resourceType": "Device",
+  "id": "device-volledig",
+  "meta": {
+    "profile": [
+      "http://koppeltaal.nl/fhir/StructureDefinition/KT2Device"
+    ]
+  },
+  "identifier": {
+    "system": "https://koppeltaal.nl/client_id",
+    "value": "1234-abcd-efef-123456789"
+  },
+  "status": "active",
+  "deviceName": [
+          {
+            "name": "Testteam 6",
+            "type": "user-friendly-name"
+          }
+        ],
+  "type" : {
+      "coding" : [
+        {
+          "system" : "http://hl7.org/fhir/ValueSet/device-type",
+          "code" : "86967005",
+          "display": "tool"
+        }
+      ]
+   },
+  "specialization": [
+    {
+      "systemType": {
+        "coding": [
+          {
+            "system": "http://ggz.koppeltaal.nl/fhir/Koppeltaal/ApplicationRoles",
+            "code": "ELearning"
+          }
+        ]
+      }
+    }
+  ]
+}

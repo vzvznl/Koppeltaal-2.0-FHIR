@@ -16,7 +16,8 @@
     "coding": [
       {
         "system": "http://hl7.org/fhir/ValueSet/device-type",
-        "code": "9096001"
+        "code": "9096001",
+        "display": "support"
       }
     ]
   },

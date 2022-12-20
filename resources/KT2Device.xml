@@ -3,7 +3,7 @@
   <id value="KT2Device" />
   <meta>
     <versionId value="9" />
-    <lastUpdated value="2022-12-15T15:34:06.2060066+00:00" />
+    <lastUpdated value="2022-12-20T19:43:38.5735134+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Device" />
   <version value="0.1.0" />
@@ -49,6 +49,7 @@
     </element>
     <element id="Device.status">
       <path value="Device.status" />
+      <comment value="The default value should be set to 'active'." />
       <min value="1" />
     </element>
     <element id="Device.deviceName">
