@@ -1,3 +1,6 @@
 /koppeltaal.code-workspace
 /koppeltaal.xpr
 archive
+scripts
+packages
+tmp
