@@ -14,7 +14,7 @@
   <kind value="resource" />
   <abstract value="false" />
   <type value="CareTeam" />
-  <baseDefinition value="http://hl7.org/fhir/StructureDefinition/CareTeam" />
+  <baseDefinition value="http://nictiz.nl/fhir/StructureDefinition/nl-core-CareTeam" />
   <derivation value="constraint" />
   <differential>
     <element id="CareTeam.extension">
