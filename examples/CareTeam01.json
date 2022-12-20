@@ -1,6 +1,6 @@
 {
   "resourceType": "CareTeam",
-  "id": "CareTeam123",
+  "id": "careteam-minimaal",
   "meta": {
     "profile": [
       "http://koppeltaal.nl/fhir/StructureDefinition/KT2CareTeam"
@@ -13,25 +13,5 @@
       "value": "1234"
     }
   ],
-  "status": "active",
-  "name": "Demo groep",
-  "subject": {
-    "reference": "Patient/8876",
-    "type": "Patient",
-    "display": "Patient, Ingrid de Jong-de Wit"
-  },
-  "participant": [
-    {
-      "role": [
-        {
-          "text": "Hoofdbehandelaar"
-        }
-      ],
-      "member": {
-        "reference": "Practitioner/123",
-        "type": "Practitioner",
-        "display": "Behandelaar"
-      }
-    }
-  ]
+  "status": "active"
 }
