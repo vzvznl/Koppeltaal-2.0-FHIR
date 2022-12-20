@@ -55,7 +55,9 @@
     },
     {
       "use": "usual",
-      "given": "Berta"
+      "given": [
+        "Berta"
+      ]
     }
   ],
   "telecom": [
