@@ -84,12 +84,50 @@
     <element id="CareTeam.participant:healthcareProfessional">
       <path value="CareTeam.participant" />
       <sliceName value="healthcareProfessional" />
+      <comment value="This element is not used in the context of Koppeltaal 2.0" />
     </element>
-    <element id="CareTeam.participant:healthcareProfessional.onBehalfOf">
+    <element id="CareTeam.participant:kt2healthcareProfessional">
+      <path value="CareTeam.participant" />
+      <sliceName value="kt2healthcareProfessional" />
+    </element>
+    <element id="CareTeam.participant:kt2healthcareProfessional.role">
+      <path value="CareTeam.participant.role" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="$this" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+    </element>
+    <element id="CareTeam.participant:kt2healthcareProfessional.role:healthProfessionalRole">
+      <path value="CareTeam.participant.role" />
+      <sliceName value="healthProfessionalRole" />
+      <definition value="The role the health professional fulfils in the healthcare process. For health professionals, this could be for example attender, referrer or performer." />
+      <alias value="ZorgverlenerRol" />
+      <max value="1" />
+      <binding>
+        <extension url="http://hl7.org/fhir/StructureDefinition/elementdefinition-bindingName">
+          <valueString value="CareTeamParticipantRole" />
+        </extension>
+        <strength value="required" />
+        <description value="The role the health professional fulfils in the healthcare process." />
+        <valueSet value="http://decor.nictiz.nl/fhir/ValueSet/2.16.840.1.113883.2.4.3.11.60.40.2.17.1.5--20200901000000" />
+      </binding>
+    </element>
+    <element id="CareTeam.participant:kt2healthcareProfessional.member">
+      <path value="CareTeam.participant.member" />
+      <comment value="This element is used in Koppeltaal 2.0 to refer to the Practitioner who is member of the team" />
+      <type>
+        <code value="Reference" />
+        <targetProfile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Practitioner" />
+      </type>
+    </element>
+    <element id="CareTeam.participant:kt2healthcareProfessional.onBehalfOf">
       <path value="CareTeam.participant.onBehalfOf" />
       <comment value="This element is not used in the context of Koppeltaal 2.0" />
     </element>
-    <element id="CareTeam.participant:healthcareProfessional.period">
+    <element id="CareTeam.participant:kt2healthcareProfessional.period">
       <path value="CareTeam.participant.period" />
       <comment value="This element is not used in the context of Koppeltaal 2.0" />
     </element>
@@ -103,7 +141,11 @@
     </element>
     <element id="CareTeam.managingOrganization">
       <path value="CareTeam.managingOrganization" />
-      <max value="0" />
+      <max value="1" />
+      <type>
+        <code value="Reference" />
+        <targetProfile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Organization" />
+      </type>
     </element>
     <element id="CareTeam.telecom">
       <path value="CareTeam.telecom" />
