@@ -82,7 +82,7 @@
   "birthDate": "1972-11-12",
   "managingOrganization": [
     {
-      "reference": "http://koppeltaal.leverancier.nl/fhir/Organization/Organization123",
+      "reference": "http://koppeltaal.leverancier.nl/fhir/Organization/organization-minimaal",
       "type": "Organization"
     }
   ]
