@@ -57,22 +57,39 @@
       <path value="CareTeam.encounter" />
       <max value="0" />
     </element>
-    <element id="CareTeam.participant.member">
-      <path value="CareTeam.participant.member" />
-      <type>
-        <code value="Reference" />
-        <targetProfile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Practitioner" />
-      </type>
+    <element id="CareTeam.participant:contactperson">
+      <path value="CareTeam.participant" />
+      <sliceName value="contactperson" />
     </element>
-    <element id="CareTeam.participant.onBehalfOf">
+    <element id="CareTeam.participant:contactperson.onBehalfOf">
       <path value="CareTeam.participant.onBehalfOf" />
       <comment value="This element is not used in the context of Koppeltaal 2.0" />
-      <type>
-        <code value="Reference" />
-        <targetProfile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Organization" />
-      </type>
     </element>
-    <element id="CareTeam.participant.period">
+    <element id="CareTeam.participant:contactperson.period">
+      <path value="CareTeam.participant.period" />
+      <comment value="This element is not used in the context of Koppeltaal 2.0" />
+    </element>
+    <element id="CareTeam.participant:patient">
+      <path value="CareTeam.participant" />
+      <sliceName value="patient" />
+    </element>
+    <element id="CareTeam.participant:patient.onBehalfOf">
+      <path value="CareTeam.participant.onBehalfOf" />
+      <comment value="This element is not used in the context of Koppeltaal 2.0" />
+    </element>
+    <element id="CareTeam.participant:patient.period">
+      <path value="CareTeam.participant.period" />
+      <comment value="This element is not used in the context of Koppeltaal 2.0" />
+    </element>
+    <element id="CareTeam.participant:healthcareProfessional">
+      <path value="CareTeam.participant" />
+      <sliceName value="healthcareProfessional" />
+    </element>
+    <element id="CareTeam.participant:healthcareProfessional.onBehalfOf">
+      <path value="CareTeam.participant.onBehalfOf" />
+      <comment value="This element is not used in the context of Koppeltaal 2.0" />
+    </element>
+    <element id="CareTeam.participant:healthcareProfessional.period">
       <path value="CareTeam.participant.period" />
       <comment value="This element is not used in the context of Koppeltaal 2.0" />
     </element>
