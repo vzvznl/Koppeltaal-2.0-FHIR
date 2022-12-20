@@ -16,17 +16,17 @@
   "active": true,
   "name": [
     {
-      "family": "Splinter",
+      "family": "Jongen",
       "_family": {
         "extension": [
           {
             "url": "http://hl7.org/fhir/StructureDefinition/humanname-own-name",
-            "valueString": "Splinter"
+            "valueString": "Jongen"
           }
         ]
       },
       "given": [
-        "Mario"
+        "Kees"
       ],
       "_given": [
         {
@@ -43,7 +43,7 @@
   "telecom": [
     {
       "system": "email",
-      "value": "mario+vzvz@therapieland.nl",
+      "value": "kees.jongen@therapieland.nl",
       "use": "work"
     }
   ],
