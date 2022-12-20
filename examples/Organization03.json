@@ -1,6 +1,6 @@
 {
   "resourceType": "Organization",
-  "id": "organization-naam-type",
+  "id": "organization-afdeling",
   "meta": {
     "profile": [
       "http://koppeltaal.nl/fhir/StructureDefinition/KT2Organization"
@@ -18,13 +18,16 @@
     {
       "coding": [
         {
-          "system": "http://nictiz.nl/fhir/NamingSystem/organization-type",
-          "version": "2020-09-01T00:00:00",
-          "code": "G5",
-          "display": "Geestelijke Gezondheidszorg"
+          "system": "urn:oid:2.16.840.1.113883.2.4.6.7",
+          "code": "0335",
+          "display": "Medisch specialisten, geriatrie"
         }
       ]
     }
   ],
-  "name": "St. Testziekenhuis, Testorganisatie Koppeltaal"
+  "name": "Geriatrie afdeling van St. Testziekenhuis",
+  "partOf": {
+    "reference": "Organization/organization-naam-type",
+    "type": "Organization"
+  }
 }

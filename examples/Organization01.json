@@ -1,6 +1,6 @@
 {
   "resourceType": "Organization",
-  "id": "Organization123",
+  "id": "organization-minimaal",
   "meta": {
     "profile": [
       "http://koppeltaal.nl/fhir/StructureDefinition/KT2Organization"
@@ -10,21 +10,8 @@
     {
       "use": "official",
       "system": "http://fhir.nl/fhir/NamingSystem/agb-z",
-      "value": "GGZ-Test"
+      "value": "25123456"
     }
   ],
-  "type": [
-    {
-      "coding": [
-        {
-          "system": "urn:oid:2.16.840.1.113883.2.4.6.7",
-          "version": "2020-10-23T00:00:00",
-          "code": "0629",
-          "display": "Ziekenhuizen, psychiatrische ziekenhuizen"
-        }
-      ]
-    }
-  ],
-  "active": true,
-  "name": "Test Organization for Koppeltaal"
+  "active": true
 }
