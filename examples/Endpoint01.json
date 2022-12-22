@@ -1,6 +1,6 @@
 {
   "resourceType": "Endpoint",
-  "id": "Endpoint123",
+  "id": "endpoint123",
   "meta": {
     "profile": [
       "http://koppeltaal.nl/fhir/StructureDefinition/KT2Endpoint"
