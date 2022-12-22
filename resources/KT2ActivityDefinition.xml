@@ -3,7 +3,7 @@
   <id value="KT2ActivityDefinition" />
   <meta>
     <versionId value="13" />
-    <lastUpdated value="2022-12-19T11:02:01.6700413+00:00" />
+    <lastUpdated value="2022-12-22T15:56:04.7039071+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2ActivityDefinition" />
   <version value="0.2.1" />
@@ -79,6 +79,10 @@
     </element>
     <element id="ActivityDefinition.experimental">
       <path value="ActivityDefinition.experimental" />
+      <max value="0" />
+    </element>
+    <element id="ActivityDefinition.subject[x]">
+      <path value="ActivityDefinition.subject[x]" />
       <max value="0" />
     </element>
     <element id="ActivityDefinition.date">
