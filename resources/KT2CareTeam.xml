@@ -46,6 +46,10 @@
       <path value="CareTeam.status" />
       <min value="1" />
     </element>
+    <element id="CareTeam.category">
+      <path value="CareTeam.category" />
+      <max value="0" />
+    </element>
     <element id="CareTeam.subject">
       <path value="CareTeam.subject" />
       <type>
@@ -57,9 +61,14 @@
       <path value="CareTeam.encounter" />
       <max value="0" />
     </element>
+    <element id="CareTeam.participant">
+      <path value="CareTeam.participant" />
+      <comment value="LET OP: `allSlices` is een weergave bug in Simplifier.net. Dit is al bij Firely gemeld." />
+    </element>
     <element id="CareTeam.participant:contactperson">
       <path value="CareTeam.participant" />
       <sliceName value="contactperson" />
+      <comment value="This element is not used in the context of Koppeltaal 2.0" />
     </element>
     <element id="CareTeam.participant:contactperson.onBehalfOf">
       <path value="CareTeam.participant.onBehalfOf" />
@@ -107,9 +116,6 @@
       <alias value="ZorgverlenerRol" />
       <max value="1" />
       <binding>
-        <extension url="http://hl7.org/fhir/StructureDefinition/elementdefinition-bindingName">
-          <valueString value="CareTeamParticipantRole" />
-        </extension>
         <strength value="required" />
         <description value="The role the health professional fulfils in the healthcare process." />
         <valueSet value="http://decor.nictiz.nl/fhir/ValueSet/2.16.840.1.113883.2.4.3.11.60.40.2.17.1.5--20200901000000" />

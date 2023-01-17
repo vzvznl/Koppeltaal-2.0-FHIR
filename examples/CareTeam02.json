@@ -14,13 +14,6 @@
     }
   ],
   "status": "active",
-  "category": {
-    "coding": {
-      "system": "http://loinc.org",
-      "code": "LA27977-0",
-      "display": "Episode of care-focused care team"
-    }
-  },
   "name": "Careteam depressie",
   "subject": {
     "reference": "Patient/patient-met-resource-origin",
