@@ -3,7 +3,7 @@
   <id value="KT2Device" />
   <meta>
     <versionId value="9" />
-    <lastUpdated value="2022-12-20T19:43:38.5735134+00:00" />
+    <lastUpdated value="2023-01-17T09:42:27.9784205+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Device" />
   <version value="0.1.0" />
@@ -47,10 +47,42 @@
       <path value="Device.identifier" />
       <min value="1" />
     </element>
+    <element id="Device.definition">
+      <path value="Device.definition" />
+      <max value="0" />
+    </element>
+    <element id="Device.udiCarrier">
+      <path value="Device.udiCarrier" />
+      <max value="0" />
+    </element>
     <element id="Device.status">
       <path value="Device.status" />
       <comment value="The default value should be set to 'active'." />
       <min value="1" />
+    </element>
+    <element id="Device.distinctIdentifier">
+      <path value="Device.distinctIdentifier" />
+      <max value="0" />
+    </element>
+    <element id="Device.manufacturer">
+      <path value="Device.manufacturer" />
+      <max value="0" />
+    </element>
+    <element id="Device.manufactureDate">
+      <path value="Device.manufactureDate" />
+      <max value="0" />
+    </element>
+    <element id="Device.expirationDate">
+      <path value="Device.expirationDate" />
+      <max value="0" />
+    </element>
+    <element id="Device.lotNumber">
+      <path value="Device.lotNumber" />
+      <max value="0" />
+    </element>
+    <element id="Device.serialNumber">
+      <path value="Device.serialNumber" />
+      <max value="0" />
     </element>
     <element id="Device.deviceName">
       <path value="Device.deviceName" />
@@ -59,6 +91,38 @@
     <element id="Device.deviceName.type">
       <path value="Device.deviceName.type" />
       <fixedCode value="user-friendly-name" />
+    </element>
+    <element id="Device.modelNumber">
+      <path value="Device.modelNumber" />
+      <max value="0" />
+    </element>
+    <element id="Device.partNumber">
+      <path value="Device.partNumber" />
+      <max value="0" />
+    </element>
+    <element id="Device.property">
+      <path value="Device.property" />
+      <max value="0" />
+    </element>
+    <element id="Device.patient">
+      <path value="Device.patient" />
+      <max value="0" />
+    </element>
+    <element id="Device.location">
+      <path value="Device.location" />
+      <max value="0" />
+    </element>
+    <element id="Device.note">
+      <path value="Device.note" />
+      <max value="0" />
+    </element>
+    <element id="Device.safety">
+      <path value="Device.safety" />
+      <max value="0" />
+    </element>
+    <element id="Device.parent">
+      <path value="Device.parent" />
+      <max value="0" />
     </element>
   </differential>
 </StructureDefinition>
