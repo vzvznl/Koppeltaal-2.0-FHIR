@@ -3,7 +3,7 @@
   <id value="KT2Endpoint" />
   <meta>
     <versionId value="5" />
-    <lastUpdated value="2022-12-15T15:34:01.1891369+00:00" />
+    <lastUpdated value="2023-01-17T14:04:41.845024+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Endpoint" />
   <version value="0.1.0" />
@@ -49,6 +49,18 @@
         <code value="Reference" />
         <targetProfile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Organization" />
       </type>
+    </element>
+    <element id="Endpoint.contact">
+      <path value="Endpoint.contact" />
+      <max value="0" />
+    </element>
+    <element id="Endpoint.period">
+      <path value="Endpoint.period" />
+      <max value="0" />
+    </element>
+    <element id="Endpoint.payloadMimeType">
+      <path value="Endpoint.payloadMimeType" />
+      <max value="0" />
     </element>
   </differential>
 </StructureDefinition>
