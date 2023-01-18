@@ -2,4 +2,4 @@ title: Koppeltaal Implementation Guide
 description: Implementation Guide for the profiles
 version: 0.5
 style-root: project
-style-name: /assets/styles/koppeltaal
+style-name: ../assets/styles/koppeltaal
