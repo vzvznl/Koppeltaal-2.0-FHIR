@@ -1,7 +1,7 @@
 ---
 topic: nl-core-profiles
 ---
-## Based on nl-core profiles
+# {{page-title}}
 
 The Dutch National Institute for ICT in Healthcare (Nictiz) defines and maintains Healthcare Information Models (hcim) or Zorginformatiebouwstenen (zibs) in Dutch. These zibs are described in FHIR R4 profiles. More information on these profiles can be found in their Simplifier project: [Nictiz R4 Zib2020](https://simplifier.net/nictiz-r4-zib2020).
 

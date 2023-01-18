@@ -1,8 +1,4 @@
 - name: Index
   filename: Index.page.md
 - name: General Notes
-  filename: General-Notes.page.md
-- name: Restriction on usage of elements
-  filename: Restrictions-on-elements.md
-- name: Based on nl-core profiles
-  filename: Based-on-nl-core-profiles.md
+  filename: General-Notes
