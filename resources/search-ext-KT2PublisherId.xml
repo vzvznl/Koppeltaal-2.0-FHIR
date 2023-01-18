@@ -1,15 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
 <SearchParameter xmlns="http://hl7.org/fhir">
   <id value="search-publisher-identifier-extension" />
   <meta>
     <versionId value="2" />
-    <lastUpdated value="2022-07-28T13:25:16.4440096+00:00" />
+    <lastUpdated value="2023-01-18T17:07:04.2793527+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/SearchParameter/publisher-identifier-extension" />
-  <version value="0.0.2" />
+  <version value="0.0.3" />
   <name value="KT2_SearchPublisherIdentifier" />
-  <status value="draft" />
+  <status value="active" />
   <experimental value="false" />
-  <date value="2022-07-28T13:26:01.1795899+00:00" />
+  <date value="2023-01-18T17:07:04.2793527+00:00" />
   <publisher value="VZVZ" />
   <contact>
     <name value="Bernard Stibbe" />

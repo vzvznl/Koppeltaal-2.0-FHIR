@@ -1,14 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
 <SearchParameter xmlns="http://hl7.org/fhir">
   <id value="search-resource-origin-extension" />
   <meta>
     <versionId value="2" />
-    <lastUpdated value="2022-07-28T13:25:42.0610177+00:00" />
+    <lastUpdated value="2023-01-18T17:08:31.2091+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/SearchParameter/resource-origin-extension" />
-  <version value="0.0.2" />
+  <version value="0.0.3" />
   <name value="KT2_SearchResourceOrigin" />
-  <status value="draft" />
-  <date value="2022-07-28T13:26:01.1795899+00:00" />
+  <status value="active" />
+  <date value="2023-01-18T17:08:31.2091+00:00" />
   <publisher value="VZVZ" />
   <description value="Search domain resources by resource-origin." />
   <code value="resource-origin" />
