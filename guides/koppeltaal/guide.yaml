@@ -1,5 +1,5 @@
 title: Koppeltaal Implementation Guide
 description: Implementation Guide for the profiles
 version: 0.5
-style-root: ./assets
+style-root: /assets
 style-name: koppeltaal
