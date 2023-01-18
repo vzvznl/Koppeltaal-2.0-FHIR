@@ -3,7 +3,7 @@
   <id value="KT2Subscription" />
   <meta>
     <versionId value="5" />
-    <lastUpdated value="2022-12-15T15:33:37.6214276+00:00" />
+    <lastUpdated value="2023-01-17T12:14:18.5775102+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Subscription" />
   <version value="0.2.0" />
@@ -42,6 +42,10 @@
         <code value="Extension" />
         <profile value="http://koppeltaal.nl/fhir/StructureDefinition/resource-origin" />
       </type>
+    </element>
+    <element id="Subscription.error">
+      <path value="Subscription.error" />
+      <comment value="Contains the last error message if the subscription fails." />
     </element>
     <element id="Subscription.channel.type">
       <path value="Subscription.channel.type" />

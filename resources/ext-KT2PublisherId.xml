@@ -3,7 +3,7 @@
   <id value="KT2PublisherId" />
   <meta>
     <versionId value="7" />
-    <lastUpdated value="2022-12-01T08:29:11.3047121+00:00" />
+    <lastUpdated value="2023-01-17T10:24:22.009957+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2PublisherId" />
   <version value="0.2.0" />
@@ -29,6 +29,7 @@
   <differential>
     <element id="Extension">
       <path value="Extension" />
+      <comment value="This extension allows every module vendor to search for tasks with linked to their module." />
       <max value="1" />
     </element>
     <element id="Extension.url">

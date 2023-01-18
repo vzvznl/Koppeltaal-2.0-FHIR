@@ -24,6 +24,8 @@
   <differential>
     <element id="Extension">
       <path value="Extension" />
+      <definition value="Defines the author of the resource." />
+      <comment value="Part of the authorisation model. Upon creation of the resource this extension is set to the device that created it." />
       <max value="1" />
     </element>
     <element id="Extension.url">

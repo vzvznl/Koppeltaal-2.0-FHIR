@@ -3,7 +3,7 @@
   <id value="KT2AuditEvent" />
   <meta>
     <versionId value="2" />
-    <lastUpdated value="2022-12-15T15:34:12.2741354+00:00" />
+    <lastUpdated value="2023-01-17T12:12:48.5448621+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2AuditEvent" />
   <version value="0.1.4" />
@@ -72,35 +72,74 @@
       </type>
       <isModifier value="false" />
     </element>
+    <element id="AuditEvent.purposeOfEvent">
+      <path value="AuditEvent.purposeOfEvent" />
+      <max value="0" />
+    </element>
+    <element id="AuditEvent.agent.type">
+      <path value="AuditEvent.agent.type" />
+      <min value="1" />
+    </element>
     <element id="AuditEvent.agent.who">
       <path value="AuditEvent.agent.who" />
+      <min value="1" />
       <type>
         <code value="Reference" />
-        <targetProfile value="http://hl7.org/fhir/StructureDefinition/PractitionerRole" />
-        <targetProfile value="http://hl7.org/fhir/StructureDefinition/Practitioner" />
-        <targetProfile value="http://hl7.org/fhir/StructureDefinition/Organization" />
-        <targetProfile value="http://hl7.org/fhir/StructureDefinition/Device" />
-        <targetProfile value="http://hl7.org/fhir/StructureDefinition/Patient" />
-        <targetProfile value="http://hl7.org/fhir/StructureDefinition/RelatedPerson" />
         <targetProfile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Device" />
       </type>
     </element>
+    <element id="AuditEvent.agent.altId">
+      <path value="AuditEvent.agent.altId" />
+      <max value="0" />
+    </element>
+    <element id="AuditEvent.agent.name">
+      <path value="AuditEvent.agent.name" />
+      <max value="0" />
+    </element>
+    <element id="AuditEvent.agent.location">
+      <path value="AuditEvent.agent.location" />
+      <max value="0" />
+    </element>
+    <element id="AuditEvent.agent.policy">
+      <path value="AuditEvent.agent.policy" />
+      <max value="0" />
+    </element>
+    <element id="AuditEvent.agent.media">
+      <path value="AuditEvent.agent.media" />
+      <max value="0" />
+    </element>
+    <element id="AuditEvent.agent.network">
+      <path value="AuditEvent.agent.network" />
+      <max value="0" />
+    </element>
+    <element id="AuditEvent.agent.purposeOfUse">
+      <path value="AuditEvent.agent.purposeOfUse" />
+      <max value="0" />
+    </element>
+    <element id="AuditEvent.source.site">
+      <path value="AuditEvent.source.site" />
+      <definition value="Domeinnaam van der observer" />
+      <comment value="Domeinnaam van der observer" />
+    </element>
     <element id="AuditEvent.source.observer">
       <path value="AuditEvent.source.observer" />
+      <definition value="Reporter that creates the event" />
       <type>
         <code value="Reference" />
-        <targetProfile value="http://hl7.org/fhir/StructureDefinition/PractitionerRole" />
-        <targetProfile value="http://hl7.org/fhir/StructureDefinition/Practitioner" />
-        <targetProfile value="http://hl7.org/fhir/StructureDefinition/Organization" />
-        <targetProfile value="http://hl7.org/fhir/StructureDefinition/Device" />
-        <targetProfile value="http://hl7.org/fhir/StructureDefinition/Patient" />
-        <targetProfile value="http://hl7.org/fhir/StructureDefinition/RelatedPerson" />
         <targetProfile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Device" />
       </type>
     </element>
     <element id="AuditEvent.entity">
       <path value="AuditEvent.entity" />
       <min value="1" />
+    </element>
+    <element id="AuditEvent.entity.query">
+      <path value="AuditEvent.entity.query" />
+      <comment value="Warning: name and query are mutually exclusive. Use query to register the parameters e.g." />
+    </element>
+    <element id="AuditEvent.entity.detail">
+      <path value="AuditEvent.entity.detail" />
+      <max value="0" />
     </element>
   </differential>
 </StructureDefinition>

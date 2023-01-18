@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <StructureDefinition xmlns="http://hl7.org/fhir">
   <id value="trace-id" />
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/trace-id" />
@@ -22,6 +23,7 @@
   <differential>
     <element id="Extension">
       <path value="Extension" />
+      <comment value="This traceId is intended to track a log entry across multiple logs" />
       <max value="1" />
     </element>
     <element id="Extension.url">

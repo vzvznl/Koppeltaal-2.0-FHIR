@@ -3,7 +3,7 @@
   <id value="KT2ActivityDefinition" />
   <meta>
     <versionId value="13" />
-    <lastUpdated value="2022-12-22T15:56:04.7039071+00:00" />
+    <lastUpdated value="2023-01-17T10:50:40.4601703+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2ActivityDefinition" />
   <version value="0.2.1" />
@@ -95,6 +95,12 @@
     </element>
     <element id="ActivityDefinition.contact">
       <path value="ActivityDefinition.contact" />
+      <max value="0" />
+    </element>
+    <element id="ActivityDefinition.useContext">
+      <path value="ActivityDefinition.useContext" />
+      <definition value="The context for the content of the eHealth activity" />
+      <comment value="E.g. the activity is targeted to a certain age group" />
       <max value="0" />
     </element>
     <element id="ActivityDefinition.jurisdiction">
