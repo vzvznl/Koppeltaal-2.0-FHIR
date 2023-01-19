@@ -12,10 +12,15 @@
   <date value="2022-12-05T09:33:20.3688856+00:00" />
   <publisher value="VZVZ" />
   <contact>
-    <name value="Bernard Stibbe" />
+    <name value="VZVZ" />
+    <telecom>
+      <system value="url" />
+      <value value="https://www.vzvz.nl" />
+      <use value="work" />
+    </telecom>
   </contact>
-  <description value="The (FHIR) Task (resource) describes an eHealth task, that is, an eHealth activity assigned to a patient." />
   <copyright value="VZVZ" />
+  <description value="The (FHIR) Task (resource) describes an eHealth task, that is, an eHealth activity assigned to a patient." />
   <fhirVersion value="4.0.1" />
   <kind value="resource" />
   <abstract value="false" />

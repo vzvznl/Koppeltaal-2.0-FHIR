@@ -6,8 +6,14 @@
   <name value="KT2_CareTeam" />
   <status value="draft" />
   <date value="2022-12-02T09:58:59.7729899+00:00" />
+  <publisher value="VZVZ" />
   <contact>
-    <name value="Bernard Stibbe" />
+    <name value="VZVZ" />
+    <telecom>
+      <system value="url" />
+      <value value="https://www.vzvz.nl" />
+      <use value="work" />
+    </telecom>
   </contact>
   <copyright value="VZVZ" />
   <fhirVersion value="4.0.1" />

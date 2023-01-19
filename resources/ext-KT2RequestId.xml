@@ -5,8 +5,14 @@
   <name value="KT2_RequestId" />
   <status value="draft" />
   <date value="2022-07-28T10:14:54.041132+00:00" />
+  <publisher value="VZVZ" />
   <contact>
-    <name value="Bernard Stibbe" />
+    <name value="VZVZ" />
+    <telecom>
+      <system value="url" />
+      <value value="https://www.vzvz.nl" />
+      <use value="work" />
+    </telecom>
   </contact>
   <copyright value="VZVZ" />
   <fhirVersion value="4.0.1" />

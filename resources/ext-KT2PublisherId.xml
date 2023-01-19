@@ -12,10 +12,15 @@
   <date value="2022-12-01T08:38:06.288373+00:00" />
   <publisher value="VZVZ" />
   <contact>
-    <name value="Bernard Stibbe" />
+    <name value="VZVZ" />
+    <telecom>
+      <system value="url" />
+      <value value="https://www.vzvz.nl" />
+      <use value="work" />
+    </telecom>
   </contact>
-  <description value="Identifier of the publisher (organization or individual). This extension is used as id in the ActivityDefinition." />
   <copyright value="VZVZ" />
+  <description value="Identifier of the publisher (organization or individual). This extension is used as id in the ActivityDefinition." />
   <fhirVersion value="4.0.1" />
   <kind value="complex-type" />
   <abstract value="false" />

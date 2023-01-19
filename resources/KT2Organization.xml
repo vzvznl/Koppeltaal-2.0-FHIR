@@ -12,10 +12,15 @@
   <date value="2022-11-09T12:52:27.6959626+00:00" />
   <publisher value="VZVZ" />
   <contact>
-    <name value="Bernard Stibbe" />
+    <name value="VZVZ" />
+    <telecom>
+      <system value="url" />
+      <value value="https://www.vzvz.nl" />
+      <use value="work" />
+    </telecom>
   </contact>
-  <description value="The (FHIR) Organization (resource) describes a formally or informally recognized grouping of people or organizations formed for the purpose of achieving some form of collective action. &#xD;&#xA;Includes also departments, community groups, healthcare practice groups, etc." />
   <copyright value="VZVZ" />
+  <description value="The (FHIR) Organization (resource) describes a formally or informally recognized grouping of people or organizations formed for the purpose of achieving some form of collective action. &#xD;&#xA;Includes also departments, community groups, healthcare practice groups, etc." />
   <fhirVersion value="4.0.1" />
   <kind value="resource" />
   <abstract value="false" />

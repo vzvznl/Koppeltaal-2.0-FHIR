@@ -12,10 +12,15 @@
   <date value="2022-07-15T15:51:04.8144083+00:00" />
   <publisher value="VZVZ" />
   <contact>
-    <name value="Bernard Stibbe" />
+    <name value="VZVZ" />
+    <telecom>
+      <system value="url" />
+      <value value="https://www.vzvz.nl" />
+      <use value="work" />
+    </telecom>
   </contact>
-  <description value="Reference extension to the service  application (endpoint) that provides the eHealth activity." />
   <copyright value="VZVZ" />
+  <description value="Reference extension to the service  application (endpoint) that provides the eHealth activity." />
   <fhirVersion value="4.0.1" />
   <kind value="complex-type" />
   <abstract value="false" />

@@ -11,6 +11,15 @@
   <status value="active" />
   <date value="2023-01-18T17:08:31.2091+00:00" />
   <publisher value="VZVZ" />
+  <contact>
+    <name value="VZVZ" />
+    <telecom>
+      <system value="url" />
+      <value value="https://www.vzvz.nl" />
+      <use value="work" />
+    </telecom>
+  </contact>
+  <copyright value="VZVZ" />
   <description value="Search domain resources by resource-origin." />
   <code value="resource-origin" />
   <base value="ActivityDefinition" />

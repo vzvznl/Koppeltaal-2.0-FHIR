@@ -10,8 +10,14 @@
   <name value="KT2_AuditEvent" />
   <status value="draft" />
   <date value="2022-08-03T08:04:08.9550806+00:00" />
+  <publisher value="VZVZ" />
   <contact>
-    <name value="Bernard Stibbe" />
+    <name value="VZVZ" />
+    <telecom>
+      <system value="url" />
+      <value value="https://www.vzvz.nl" />
+      <use value="work" />
+    </telecom>
   </contact>
   <copyright value="VZVZ" />
   <fhirVersion value="4.0.1" />
