@@ -1,6 +1,6 @@
 {
   "resourceType": "Subscription",
-  "id": "Subscription123",
+  "id": "subscription-123",
   "meta": {
     "profile": [
       "http://koppeltaal.nl/fhir/StructureDefinition/KT2Subscription"
