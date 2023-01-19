@@ -1,13 +1,13 @@
 {
   "name": "koppeltaalv2.00",
-  "version": "0.7.3",
-  "description": "Draft of used FHIR resource profiles in Koppeltaal 2.0. ",
+  "version": "0.7.4",
+  "description": "Draft of used FHIR resource profiles in Koppeltaal 2.0.",
   "author": "VZVZ - Bernard Stibbe",
   "fhirVersions": [
     "4.0.1"
   ],
   "dependencies": {
-    "nictiz.fhir.nl.r4.zib2020": "0.6.0-beta.2",
-    "nictiz.fhir.nl.r4.nl-core": "0.6.0-beta.2"
+    "nictiz.fhir.nl.r4.zib2020": "0.7.0-beta.1",
+    "nictiz.fhir.nl.r4.nl-core": "0.7.0-beta.1"
   }
 }
