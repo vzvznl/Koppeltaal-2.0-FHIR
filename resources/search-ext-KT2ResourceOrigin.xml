@@ -6,7 +6,7 @@
     <lastUpdated value="2023-01-18T17:08:31.2091+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/SearchParameter/resource-origin-extension" />
-  <version value="0.0.3" />
+  <version value="0.0.4" />
   <name value="KT2_SearchResourceOrigin" />
   <status value="active" />
   <date value="2023-01-18T17:08:31.2091+00:00" />
@@ -35,6 +35,6 @@
   <base value="OperationOutcome" />
   <base value="Bundle" />
   <type value="reference" />
-  <expression value="extension('http://koppeltaal.nl/fhir/StructureDefinition/resource-origin')" />
+  <expression value="ActivityDefinition.extension('http://koppeltaal.nl/fhir/StructureDefinition/resource-origin') | CareTeam.extension('http://koppeltaal.nl/fhir/StructureDefinition/resource-origin') | Device.extension('http://koppeltaal.nl/fhir/StructureDefinition/resource-origin') | Organization.extension('http://koppeltaal.nl/fhir/StructureDefinition/resource-origin') | Patient.extension('http://koppeltaal.nl/fhir/StructureDefinition/resource-origin') | Practitioner.extension('http://koppeltaal.nl/fhir/StructureDefinition/resource-origin') | RelatedPerson.extension('http://koppeltaal.nl/fhir/StructureDefinition/resource-origin') | Task.extension('http://koppeltaal.nl/fhir/StructureDefinition/resource-origin') | AuditEvent.extension('http://koppeltaal.nl/fhir/StructureDefinition/resource-origin') | Endpoint.extension('http://koppeltaal.nl/fhir/StructureDefinition/resource-origin') | Subscription.extension('http://koppeltaal.nl/fhir/StructureDefinition/resource-origin')" />
   <xpathUsage value="normal" />
 </SearchParameter>
