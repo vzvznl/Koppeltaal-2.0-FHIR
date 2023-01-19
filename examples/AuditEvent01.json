@@ -1,6 +1,6 @@
 {
   "resourceType": "AuditEvent",
-  "id": "AuditEvent002",
+  "id": "auditevent-01",
   "meta": {
     "profile": [
       "http://koppeltaal.nl/fhir/StructureDefinition/KT2AuditEvent"
@@ -19,7 +19,7 @@
     }
   ],
   "action": "C",
-  "recorded": "2013-06-20T23:42:24+00:00",
+  "recorded": "2023-01-19T23:42:24+00:00",
   "outcome": "0",
   "agent": [
     {
@@ -54,7 +54,7 @@
   "entity": [
     {
       "what": {
-        "reference": "Patient/1497868/_history/1",
+        "reference": "Patient/patient-botje-minimaal/_history/1",
         "type": "Patient"
       },
       "type": {
