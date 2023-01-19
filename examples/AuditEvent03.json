@@ -23,6 +23,14 @@
   "outcome": "0",
   "agent": [
     {
+      "type":{
+        "coding":[
+           {
+              "system":"http://dicom.nema.org/resources/ontology/DCM",
+              "code":"110153"
+           }
+        ]
+     },
       "who": {
         "reference": "Device/1234"
       },
