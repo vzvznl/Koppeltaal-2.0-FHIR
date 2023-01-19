@@ -1,0 +1,62 @@
+{
+  "resourceType": "Task",
+  "id": "task-in-progress",
+  "meta": {
+    "profile": [
+      "http://koppeltaal.nl/fhir/StructureDefinition/KT2Task"
+    ]
+  },
+  "extension": [
+    {
+      "url": "http://koppeltaal.nl/fhir/StructureDefinition/resource-origin",
+      "valueReference": {
+        "reference": "Device/device-volledig",
+        "type": "Device"
+      }
+    }
+  ],
+  "identifier" : {
+    "system": "http://vzvz.nl/fhir/NamingSystem/koppeltaal-TaskIdentifier",
+    "value": "54321"
+  },
+  "instantiatesCanonical": "https://int-381-kt2-sprint-7.minddistrict.dev/catalogue/E0E49199-B329-4A52-8B9C-7635E59B8EE2",
+  "for": {
+    "identifier": {
+        "use": "official",
+        "system": "https://irma.app",
+        "value": "bertabotje01@vzvz.nl"
+    },
+    "type": "Patient"
+  },
+  "intent": "order",
+  "priority": "routine",
+  "executionPeriod": {
+    "start": "2021-01-11T08:25:05+10:00"
+  },
+  "requester": {
+    "identifier": {
+      "system":"urn:oid:2.16.528.1.1007.3.1",
+      "value": "938273695"
+    },
+    "type": "Practitioner"
+  },
+  "owner": {
+    "identifier": {
+        "system": "https://irma.app",
+        "value": "bertabotje01@vzvz.nl"
+    },
+    "type": "Patient"
+  },
+  "restriction": {
+    "recipient": {
+      "identifier": {
+        "system":"urn:oid:2.16.528.1.1007.3.1",
+        "value": "938273695"
+      },
+      "type": "Practitioner"
+    }
+  },
+  "status": "in-progress",
+  "authoredOn": "2020-12-31T08:25:05+10:00",
+  "lastModified": "2020-12-31T09:45:05+10:00"
+}
