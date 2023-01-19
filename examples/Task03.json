@@ -1,20 +1,32 @@
 {
   "resourceType": "Task",
-  "id": task-overkoepelend
-  "instantiatesCanonical": "ActivityDefinition/1737471",
-  "for":
-  {
+  "id": "task-overkoepelend",
+  "meta": {
+    "profile": [
+      "http://koppeltaal.nl/fhir/StructureDefinition/KT2Task"
+    ]
+  },
+  "extension": [
+    {
+      "url": "http://koppeltaal.nl/fhir/StructureDefinition/resource-origin",
+      "valueReference": {
+        "reference": "Device/device-volledig",
+        "type": "Device"
+      }
+    }
+  ],
+  "identifier" : {
+    "system": "http://vzvz.nl/fhir/NamingSystem/koppeltaal-TaskIdentifier",
+    "value": "54321"
+  },
+  "instantiatesCanonical": "https://int-381-kt2-sprint-7.minddistrict.dev/catalogue/E0E49199-B329-4A52-8B9C-7635E59B8EE2",
+  "for": {
     "identifier": {
-      "use": "usual",
-      "system": "systeemnaamuitgave",
-      "value": "BerendBotje-01"
+        "use": "official",
+        "system": "https://irma.app",
+        "value": "bertabotje01@vzvz.nl"
     },
     "type": "Patient"
-  },
-  "groupIdentifier": {
-    "use": "official",
-    "system": "https:/health.org/group/identifiers",
-    "value": "G20170201-001"
   },
   "intent": "order",
   "priority": "routine",
@@ -29,9 +41,9 @@
     "type": "Practitioner"
   },
   "owner": {
-    "identifier" :{
-      "system": "systeemnaamuitgave",
-      "value": "BerendBotje-01"
+    "identifier": {
+        "system": "https://irma.app",
+        "value": "bertabotje01@vzvz.nl"
     },
     "type": "Patient"
   },
@@ -45,10 +57,7 @@
     }
   },
   "status": "ready",
-  "location": {
-    "reference": "Location/55da18",
-    "type": "Location"
-  },
+
   "authoredOn": "2020-12-31T08:25:05+10:00",
   "lastModified": "2020-12-31T09:45:05+10:00"
 }
