@@ -20,7 +20,6 @@
       <use value="work" />
     </telecom>
   </contact>
-  <copyright value="VZVZ" />
   <description value="Instantiates FHIR protocol or definition" />
   <code value="instantiates-canonical" />
   <base value="Task" />

@@ -19,7 +19,6 @@
       <use value="work" />
     </telecom>
   </contact>
-  <copyright value="VZVZ" />
   <description value="Search domain resources by resource-origin." />
   <code value="resource-origin" />
   <base value="ActivityDefinition" />

@@ -19,7 +19,6 @@
       <use value="work" />
     </telecom>
   </contact>
-  <copyright value="VZVZ" />
   <description value="Search trace id for tracking audit events" />
   <code value="traceId" />
   <base value="AuditEvent" />

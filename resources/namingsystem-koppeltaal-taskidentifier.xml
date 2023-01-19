@@ -13,7 +13,6 @@
       <use value="work" />
     </telecom>
   </contact>
-  <copyright value="VZVZ" />
   <description value="Identifier system of the Tasks as used within Koppeltaal" />
   <uniqueId>
     <type value="uri" />
