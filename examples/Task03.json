@@ -1,0 +1,54 @@
+{
+  "resourceType": "Task",
+  "id": task-overkoepelend
+  "instantiatesCanonical": "ActivityDefinition/1737471",
+  "for":
+  {
+    "identifier": {
+      "use": "usual",
+      "system": "systeemnaamuitgave",
+      "value": "BerendBotje-01"
+    },
+    "type": "Patient"
+  },
+  "groupIdentifier": {
+    "use": "official",
+    "system": "https:/health.org/group/identifiers",
+    "value": "G20170201-001"
+  },
+  "intent": "order",
+  "priority": "routine",
+  "executionPeriod": {
+    "start": "2021-01-11T08:25:05+10:00"
+  },
+  "requester": {
+    "identifier": {
+      "system":"urn:oid:2.16.528.1.1007.3.1",
+      "value": "938273695"
+    },
+    "type": "Practitioner"
+  },
+  "owner": {
+    "identifier" :{
+      "system": "systeemnaamuitgave",
+      "value": "BerendBotje-01"
+    },
+    "type": "Patient"
+  },
+  "restriction": {
+    "recipient": {
+      "identifier": {
+        "system":"urn:oid:2.16.528.1.1007.3.1",
+        "value": "938273695"
+      },
+      "type": "Practitioner"
+    }
+  },
+  "status": "ready",
+  "location": {
+    "reference": "Location/55da18",
+    "type": "Location"
+  },
+  "authoredOn": "2020-12-31T08:25:05+10:00",
+  "lastModified": "2020-12-31T09:45:05+10:00"
+}
