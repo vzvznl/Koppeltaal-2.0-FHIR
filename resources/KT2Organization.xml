@@ -19,8 +19,8 @@
       <use value="work" />
     </telecom>
   </contact>
-  <copyright value="VZVZ" />
   <description value="The (FHIR) Organization (resource) describes a formally or informally recognized grouping of people or organizations formed for the purpose of achieving some form of collective action. &#xD;&#xA;Includes also departments, community groups, healthcare practice groups, etc." />
+  <copyright value="VZVZ" />
   <fhirVersion value="4.0.1" />
   <kind value="resource" />
   <abstract value="false" />

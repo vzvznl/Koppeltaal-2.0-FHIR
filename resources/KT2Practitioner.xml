@@ -19,8 +19,8 @@
       <use value="work" />
     </telecom>
   </contact>
-  <copyright value="VZVZ" />
   <description value="The (FHIR) Practitioner (resource) is a representation of a person who is directly or indirectly involved in the provision of health care." />
+  <copyright value="VZVZ" />
   <fhirVersion value="4.0.1" />
   <kind value="resource" />
   <abstract value="false" />

@@ -19,8 +19,8 @@
       <use value="work" />
     </telecom>
   </contact>
-  <copyright value="VZVZ" />
   <description value="Identifier of the publisher (organization or individual). This extension is used as id in the ActivityDefinition." />
+  <copyright value="VZVZ" />
   <fhirVersion value="4.0.1" />
   <kind value="complex-type" />
   <abstract value="false" />
