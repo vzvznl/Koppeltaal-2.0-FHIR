@@ -65,6 +65,11 @@
       <comment value="The default value should be set to 'active'." />
       <min value="1" />
     </element>
+    <element id="Device.statusReason">
+      <path value="Device.statusReason" />
+      <definition value="Reason for the status of the Device availability." />
+      <max value="0" />
+    </element>
     <element id="Device.distinctIdentifier">
       <path value="Device.distinctIdentifier" />
       <max value="0" />
@@ -105,6 +110,10 @@
       <path value="Device.partNumber" />
       <max value="0" />
     </element>
+    <element id="Device.version">
+      <path value="Device.version" />
+      <max value="0" />
+    </element>
     <element id="Device.property">
       <path value="Device.property" />
       <max value="0" />
@@ -113,8 +122,23 @@
       <path value="Device.patient" />
       <max value="0" />
     </element>
+    <element id="Device.owner">
+      <path value="Device.owner" />
+      <type>
+        <code value="Reference" />
+        <targetProfile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Organization" />
+      </type>
+    </element>
+    <element id="Device.contact">
+      <path value="Device.contact" />
+      <max value="0" />
+    </element>
     <element id="Device.location">
       <path value="Device.location" />
+      <max value="0" />
+    </element>
+    <element id="Device.url">
+      <path value="Device.url" />
       <max value="0" />
     </element>
     <element id="Device.note">
