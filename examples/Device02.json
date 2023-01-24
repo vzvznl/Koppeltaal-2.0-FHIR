@@ -38,7 +38,6 @@
       }
     }
   ],
-  "url": "http://koppeltaal.leverancier.nl/fhir/R4/",
   "extension": [
     {
       "url": "http://koppeltaal.nl/fhir/StructureDefinition/resource-origin",

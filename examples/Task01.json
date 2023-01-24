@@ -51,14 +51,6 @@
     "reference": "Patient/patient-volledige-naam-bsn",
     "type": "Patient"
   },
-  "restriction": {
-    "recipient": [
-      {
-        "reference": "Practitioner/practitioner-minimaal",
-        "type": "Practitioner"
-      }
-    ]
-  },
   "status": "ready",
   "authoredOn": "2023-01-19T08:25:05+01:00",
   "lastModified": "2023-01-19T09:45:05+01:00"
