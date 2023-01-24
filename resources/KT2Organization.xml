@@ -3,10 +3,10 @@
   <id value="KT2Organization" />
   <meta>
     <versionId value="11" />
-    <lastUpdated value="2022-12-15T15:33:53.5905704+00:00" />
+    <lastUpdated value="2023-01-24T13:06:17.2184528+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Organization" />
-  <version value="0.2.0" />
+  <version value="0.8.0" />
   <name value="KT2_Organization" />
   <status value="draft" />
   <date value="2022-11-09T12:52:27.6959626+00:00" />
@@ -71,9 +71,6 @@
     <element id="Organization.partOf">
       <path value="Organization.partOf" />
       <type>
-        <extension url="http://hl7.org/fhir/StructureDefinition/structuredefinition-hierarchy">
-          <valueBoolean value="true" />
-        </extension>
         <code value="Reference" />
         <targetProfile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Organization" />
       </type>

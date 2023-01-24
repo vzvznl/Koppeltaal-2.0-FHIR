@@ -2,7 +2,7 @@
 <StructureDefinition xmlns="http://hl7.org/fhir">
   <id value="resource-origin" />
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/resource-origin" />
-  <version value="0.1.1" />
+  <version value="0.8.0" />
   <name value="KT2_ResourceOrigin" />
   <status value="draft" />
   <date value="2022-07-29T13:12:00.7050951+00:00" />

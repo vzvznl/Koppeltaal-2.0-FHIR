@@ -2,7 +2,7 @@
 <StructureDefinition xmlns="http://hl7.org/fhir">
   <id value="correlation-id" />
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/correlation-id" />
-  <version value="0.1.0" />
+  <version value="0.8.0" />
   <name value="KT2_CorrelationId" />
   <status value="draft" />
   <date value="2022-07-28T08:33:26.4601897+00:00" />

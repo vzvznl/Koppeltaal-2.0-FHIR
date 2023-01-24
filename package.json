@@ -1,8 +1,8 @@
 {
   "name": "koppeltaalv2.00",
-  "version": "0.7.4",
+  "version": "0.8.0",
   "description": "Draft of used FHIR resource profiles in Koppeltaal 2.0.",
-  "author": "VZVZ - Bernard Stibbe",
+  "author": "VZVZ",
   "fhirVersions": [
     "4.0.1"
   ],

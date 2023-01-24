@@ -2,7 +2,7 @@
 <StructureDefinition xmlns="http://hl7.org/fhir">
   <id value="trace-id" />
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/trace-id" />
-  <version value="0.1.1" />
+  <version value="0.8.0" />
   <name value="KT2_TraceId" />
   <status value="draft" />
   <date value="2022-07-27T09:57:23.9475889+00:00" />

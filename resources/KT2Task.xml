@@ -3,10 +3,10 @@
   <id value="KT2Task" />
   <meta>
     <versionId value="13" />
-    <lastUpdated value="2023-01-19T09:25:56.8728438+00:00" />
+    <lastUpdated value="2023-01-24T13:07:12.0578273+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Task" />
-  <version value="0.2.1" />
+  <version value="0.8.0" />
   <name value="KT2_Task" />
   <status value="draft" />
   <date value="2022-12-05T09:33:20.3688856+00:00" />

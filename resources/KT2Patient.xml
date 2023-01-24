@@ -3,10 +3,10 @@
   <id value="KT2Patient" />
   <meta>
     <versionId value="9" />
-    <lastUpdated value="2022-12-20T13:01:41.9504959+00:00" />
+    <lastUpdated value="2023-01-24T13:06:31.736911+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Patient" />
-  <version value="0.2.0" />
+  <version value="0.8.0" />
   <name value="KT2_Patient" />
   <status value="draft" />
   <date value="2022-11-09T09:32:01.6311294+00:00" />

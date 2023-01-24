@@ -3,10 +3,10 @@
   <id value="search-task-instantiates-canonical" />
   <meta>
     <versionId value="2" />
-    <lastUpdated value="2023-01-18T17:11:20.0278738+00:00" />
+    <lastUpdated value="2023-01-24T13:08:10.8158843+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/SearchParameter/task-instantiates-canonical" />
-  <version value="0.0.3" />
+  <version value="0.8.0" />
   <name value="KT2_SearchInstantiates" />
   <status value="active" />
   <experimental value="false" />

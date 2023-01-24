@@ -3,10 +3,10 @@
   <id value="KT2AuditEvent" />
   <meta>
     <versionId value="2" />
-    <lastUpdated value="2023-01-17T12:12:48.5448621+00:00" />
+    <lastUpdated value="2023-01-24T14:27:11.6767278+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2AuditEvent" />
-  <version value="0.1.4" />
+  <version value="0.8.0" />
   <name value="KT2_AuditEvent" />
   <status value="draft" />
   <date value="2022-08-03T08:04:08.9550806+00:00" />

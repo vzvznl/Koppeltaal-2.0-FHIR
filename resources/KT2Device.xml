@@ -3,10 +3,10 @@
   <id value="KT2Device" />
   <meta>
     <versionId value="9" />
-    <lastUpdated value="2023-01-17T09:42:27.9784205+00:00" />
+    <lastUpdated value="2023-01-24T13:05:51.8329486+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Device" />
-  <version value="0.1.0" />
+  <version value="0.8.0" />
   <name value="KT2_Device" />
   <status value="draft" />
   <date value="2022-07-15T15:51:04.8144083+00:00" />

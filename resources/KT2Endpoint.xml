@@ -3,10 +3,10 @@
   <id value="KT2Endpoint" />
   <meta>
     <versionId value="5" />
-    <lastUpdated value="2023-01-17T14:04:41.845024+00:00" />
+    <lastUpdated value="2023-01-24T13:06:02.4002191+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Endpoint" />
-  <version value="0.1.0" />
+  <version value="0.8.0" />
   <name value="KT2_Endpoint" />
   <status value="draft" />
   <date value="2022-07-15T15:51:04.8144083+00:00" />

@@ -3,10 +3,10 @@
   <id value="KT2Subscription" />
   <meta>
     <versionId value="5" />
-    <lastUpdated value="2023-01-17T12:14:18.5775102+00:00" />
+    <lastUpdated value="2023-01-24T13:06:53.1725719+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Subscription" />
-  <version value="0.2.0" />
+  <version value="0.8.0" />
   <name value="KT2_Subscription" />
   <status value="draft" />
   <date value="2022-11-09T16:09:57.1668411+00:00" />

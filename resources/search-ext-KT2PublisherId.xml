@@ -3,10 +3,10 @@
   <id value="search-publisher-identifier-extension" />
   <meta>
     <versionId value="2" />
-    <lastUpdated value="2023-01-18T17:07:04.2793527+00:00" />
+    <lastUpdated value="2023-01-24T13:07:26.3087273+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/SearchParameter/publisher-identifier-extension" />
-  <version value="0.0.3" />
+  <version value="0.8.0" />
   <name value="KT2_SearchPublisherIdentifier" />
   <status value="active" />
   <experimental value="false" />

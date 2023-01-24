@@ -3,10 +3,10 @@
   <id value="KT2Practitioner" />
   <meta>
     <versionId value="7" />
-    <lastUpdated value="2022-12-16T11:40:35.4067291+00:00" />
+    <lastUpdated value="2023-01-24T13:06:43.1209404+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Practitioner" />
-  <version value="0.2.0" />
+  <version value="0.8.0" />
   <name value="KT2_Practitioner" />
   <status value="draft" />
   <date value="2022-11-09T10:45:24.0622522+00:00" />

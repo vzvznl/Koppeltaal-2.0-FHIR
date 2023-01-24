@@ -3,10 +3,10 @@
   <id value="KT2PublisherId" />
   <meta>
     <versionId value="7" />
-    <lastUpdated value="2023-01-17T10:24:22.009957+00:00" />
+    <lastUpdated value="2023-01-24T13:04:50.8095698+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2PublisherId" />
-  <version value="0.2.0" />
+  <version value="0.8.0" />
   <name value="KT2_PublisherId" />
   <status value="draft" />
   <date value="2022-12-01T08:38:06.288373+00:00" />
