@@ -1,6 +1,6 @@
 {
   "resourceType": "AuditEvent",
-  "id": "AuditEvent003",
+  "id": "auditevent-launch-application",
   "meta": {
     "profile": [
       "http://koppeltaal.nl/fhir/StructureDefinition/KT2AuditEvent"

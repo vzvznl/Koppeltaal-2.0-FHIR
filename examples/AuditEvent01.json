@@ -1,6 +1,6 @@
 {
   "resourceType": "AuditEvent",
-  "id": "auditevent-01",
+  "id": "auditevent-create-patient",
   "meta": {
     "profile": [
       "http://koppeltaal.nl/fhir/StructureDefinition/KT2AuditEvent"

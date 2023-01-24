@@ -1,6 +1,6 @@
 {
   "resourceType": "AuditEvent",
-  "id": "AuditEvent005",
+  "id": "auditevent-error-invalid-subscription",
   "meta": {
     "profile": [
       "http://koppeltaal.nl/fhir/StructureDefinition/KT2AuditEvent"

@@ -1,6 +1,6 @@
 {
   "resourceType": "AuditEvent",
-  "id": "AuditEvent004",
+  "id": "auditevent-delete-patient",
   "meta": {
     "profile": [
       "http://koppeltaal.nl/fhir/StructureDefinition/KT2AuditEvent"
