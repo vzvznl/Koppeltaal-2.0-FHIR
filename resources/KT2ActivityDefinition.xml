@@ -30,8 +30,8 @@
   <differential>
     <element id="ActivityDefinition">
       <path value="ActivityDefinition" />
-      <short value="Beschrijving van een eHealth activiteit" />
-      <comment value="De (FHIR) ActivityDefinition beschrijft een eHealth activiteit die beschikbaar is voor toewijzing aan een patiënt. Bij toewijzing van een eHealth activiteit aan een patiënt ontstaat een eHealth Taak (Task), waarbij sub-activiteiten kunnen worden opgenomen als contained resources die verwijzen naar de hoofdtaak via Task.partOf." />
+      <short value="Description of an eHealth activity" />
+      <comment value="The (FHIR) ActivityDefinition describes an eHealth activity available to assign to a patient. The assignment of an eHealth activity to a patient creates an eHealth Task (Task resource). This task can contain sub activities as contained resources which refer to the main task using the Task.partOf element." />
     </element>
     <element id="ActivityDefinition.extension">
       <path value="ActivityDefinition.extension" />

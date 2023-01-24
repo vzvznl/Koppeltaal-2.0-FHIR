@@ -23,7 +23,7 @@ This method is used for all top level elements in a resource whenever applicable
 
 Some elements consists of complex types. Especially when they are defined in the nl-core profiles it is not desirable to restrict the subelements of such element by setting the cardinality to 0.
 These elements will be marked with a comment `This element is not used in the context of Koppeltaal 2.0`.
-The intention is for senders not to fill these elements and receivers to ignore any content in these elements should the exist in the instance.
+The intention is for senders not to fill these elements and receivers to ignore any content in these elements should they exist in the instance.
 
 ## Description in this Implementation Guide
 
@@ -33,7 +33,7 @@ Therefore this section of the Implementation Guide lists all the elements in eve
 
 ### Identifier
 
-The Identifier data type restricts the use to the elements `type`, `system` and `value`. Other elements are not to be used.
+The Identifier data type restricts the use to the elements `use`, `system` and `value`. Other elements are not to be used.
 
 {{render:guides-koppeltaal-assets-identifier-restrictions}} 
 

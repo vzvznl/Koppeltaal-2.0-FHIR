@@ -55,7 +55,7 @@
     <element id="Subscription.channel.type">
       <path value="Subscription.channel.type" />
       <short value="rest-hook" />
-      <definition value="Only the rest-hook is available in Koppeltaal&#xD;&#xA;The type of channel to send notifications on." />
+      <definition value="Only `rest-hook` is available in Koppeltaal&#xD;&#xA;The type of channel to send notifications on." />
       <fixedCode value="rest-hook" />
     </element>
     <element id="Subscription.channel.payload">

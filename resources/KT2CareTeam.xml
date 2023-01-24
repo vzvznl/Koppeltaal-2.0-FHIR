@@ -69,7 +69,7 @@
     </element>
     <element id="CareTeam.participant">
       <path value="CareTeam.participant" />
-      <comment value="LET OP: `allSlices` is een weergave bug in Simplifier.net. Dit is al bij Firely gemeld." />
+      <comment value="WARNING: `allSlices` is a display bug in Simplifier.net. There is no `allSlices` slice. Firely is already notified of this bug." />
     </element>
     <element id="CareTeam.participant:contactperson">
       <path value="CareTeam.participant" />

@@ -124,8 +124,7 @@
     </element>
     <element id="AuditEvent.source.site">
       <path value="AuditEvent.source.site" />
-      <definition value="Domeinnaam van der observer" />
-      <comment value="Domeinnaam van der observer" />
+      <definition value="Domainname of the observer" />
     </element>
     <element id="AuditEvent.source.observer">
       <path value="AuditEvent.source.observer" />
@@ -141,7 +140,7 @@
     </element>
     <element id="AuditEvent.entity.query">
       <path value="AuditEvent.entity.query" />
-      <comment value="Warning: name and query are mutually exclusive. Use query to register the parameters e.g." />
+      <comment value="Warning: name and query are mutually exclusive. Use query to register the full query, including parameters." />
     </element>
     <element id="AuditEvent.entity.detail">
       <path value="AuditEvent.entity.detail" />
