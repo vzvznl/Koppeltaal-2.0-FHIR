@@ -8,7 +8,7 @@
   },
   "identifier": [
     {
-      "system": "http://vzvz.nl/fhir/NamingSystem/koppeltaal-TaskIdentifier",
+      "system": "http://systeem.nl",
       "value": "12345"
     }
   ],

@@ -17,7 +17,7 @@
   ],
   "identifier": [
     {
-      "system": "http://vzvz.nl/fhir/NamingSystem/koppeltaal-TaskIdentifier",
+      "system": "http://koppeltaal.nl/taskIdentifier",
       "value": "1234"
     }
   ],
