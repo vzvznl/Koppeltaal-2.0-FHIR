@@ -3,13 +3,13 @@
   <id value="KT2AuditEvent" />
   <meta>
     <versionId value="2" />
-    <lastUpdated value="2023-01-24T14:27:11.6767278+00:00" />
+    <lastUpdated value="2023-01-31T10:46:43.0505383+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2AuditEvent" />
-  <version value="0.8.0" />
+  <version value="0.9.0" />
   <name value="KT2_AuditEvent" />
   <status value="draft" />
-  <date value="2022-08-03T08:04:08.9550806+00:00" />
+  <date value="2023-01-31" />
   <publisher value="VZVZ" />
   <contact>
     <name value="VZVZ" />
@@ -112,10 +112,6 @@
     </element>
     <element id="AuditEvent.agent.media">
       <path value="AuditEvent.agent.media" />
-      <max value="0" />
-    </element>
-    <element id="AuditEvent.agent.network">
-      <path value="AuditEvent.agent.network" />
       <max value="0" />
     </element>
     <element id="AuditEvent.agent.purposeOfUse">

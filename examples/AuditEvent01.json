@@ -35,6 +35,20 @@
         "reference": "Device/ba33314a-795a-4777-bef8-e6611f6be645"
       },
       "requestor": true
+    },
+    {
+      "type": {
+        "coding": [
+          {
+            "system": "http://dicom.nema.org/resources/ontology/DCM",
+            "code": "110152"
+          }
+        ]
+      },
+      "who": {
+        "reference": "Device/volledig-device"
+      },
+      "requestor": false
     }
   ],
   "source": {
