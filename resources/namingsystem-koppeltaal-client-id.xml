@@ -1,0 +1,22 @@
+<NamingSystem xmlns="http://hl7.org/fhir">
+  <id value="koppeltaal-ClientID" />
+  <name value="KoppeltaalClientID" />
+  <status value="draft" />
+  <kind value="identifier" />
+  <date value="2023-01-19T12:00:00.000+01:00" />
+  <publisher value="VZVZ" />
+  <contact>
+    <name value="VZVZ" />
+    <telecom>
+      <system value="url" />
+      <value value="https://www.vzvz.nl" />
+      <use value="work" />
+    </telecom>
+  </contact>
+  <description value="Identifier system of the Devices as used within Koppeltaal" />
+  <uniqueId>
+    <type value="uri" />
+    <value value="http://vzvz.nl/fhir/NamingSystem/koppeltaal-client-id" />
+    <preferred value="true" />
+  </uniqueId>
+</NamingSystem>

@@ -3,13 +3,13 @@
   <id value="KT2Device" />
   <meta>
     <versionId value="9" />
-    <lastUpdated value="2023-01-24T13:05:51.8329486+00:00" />
+    <lastUpdated value="2023-02-07T12:25:05.6203243+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Device" />
-  <version value="0.8.0" />
+  <version value="0.8.1" />
   <name value="KT2_Device" />
   <status value="draft" />
-  <date value="2023-01-24" />
+  <date value="2023-02-07" />
   <publisher value="VZVZ" />
   <contact>
     <name value="VZVZ" />
@@ -51,6 +51,10 @@
     <element id="Device.identifier">
       <path value="Device.identifier" />
       <min value="1" />
+    </element>
+    <element id="Device.identifier.system">
+      <path value="Device.identifier.system" />
+      <fixedUri value="http://vzvz.nl/fhir/NamingSystem/koppeltaal-client-id" />
     </element>
     <element id="Device.definition">
       <path value="Device.definition" />
@@ -108,6 +112,10 @@
     </element>
     <element id="Device.partNumber">
       <path value="Device.partNumber" />
+      <max value="0" />
+    </element>
+    <element id="Device.specialization">
+      <path value="Device.specialization" />
       <max value="0" />
     </element>
     <element id="Device.version">

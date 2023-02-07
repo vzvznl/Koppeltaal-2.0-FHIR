@@ -7,7 +7,7 @@
     ]
   },
   "identifier": {
-    "system": "https://koppeltaal.nl/client_id",
+    "system": "http://vzvz.nl/fhir/NamingSystem/koppeltaal-client-id",
     "value": "1234-abcd-efef-123456789"
   },
   "status": "active",
@@ -20,24 +20,12 @@
   "type" : {
       "coding" : [
         {
-          "system" : "http://hl7.org/fhir/ValueSet/device-type",
+          "system" : "http://snomed.info/sct",
           "code" : "86967005",
           "display": "tool"
         }
       ]
    },
-  "specialization": [
-    {
-      "systemType": {
-        "coding": [
-          {
-            "system": "http://ggz.koppeltaal.nl/fhir/Koppeltaal/ApplicationRoles",
-            "code": "ELearning"
-          }
-        ]
-      }
-    }
-  ],
   "extension": [
     {
       "url": "http://koppeltaal.nl/fhir/StructureDefinition/resource-origin",

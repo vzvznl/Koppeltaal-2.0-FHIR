@@ -8,14 +8,14 @@
   },
   "identifier": [
     {
-      "system": "https://koppeltaal.nl/client_id",
+      "system": "http://vzvz.nl/fhir/NamingSystem/koppeltaal-client-id",
       "value": "048d9d71-186c-4508-8615-6e8f9b5013ef"
     }
   ],
   "type": {
     "coding": [
       {
-        "system": "http://hl7.org/fhir/ValueSet/device-type",
+        "system": "http://snomed.info/sct",
         "code": "9096001",
         "display": "support"
       }
