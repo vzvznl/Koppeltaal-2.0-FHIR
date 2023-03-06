@@ -24,8 +24,8 @@
   <code value="publisher-identifier" />
   <base value="ActivityDefinition" />
   <type value="token" />
-  <expression value="ActivityDefinition.extension('http://koppeltaal.nl/fhir/StructureDefinition/KT2PublisherIdentifier')" />
-  <xpath value="f:ActivityDefinition/f:extension[@url='http://koppeltaal.nl/fhir/StructureDefinition/KT2PublisherIdentifier']" />
+  <expression value="ActivityDefinition.extension('http://koppeltaal.nl/fhir/StructureDefinition/KT2PublisherId')" />
+  <xpath value="f:ActivityDefinition/f:extension[@url='http://koppeltaal.nl/fhir/StructureDefinition/KT2PublisherId']" />
   <xpathUsage value="normal" />
   <target value="ActivityDefinition" />
 </SearchParameter>
