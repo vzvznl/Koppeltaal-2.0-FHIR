@@ -3,14 +3,14 @@
   <id value="search-task-instantiates-canonical" />
   <meta>
     <versionId value="2" />
-    <lastUpdated value="2023-01-24T13:08:10.8158843+00:00" />
+    <lastUpdated value="2023-03-14T13:08:10.8158843+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/SearchParameter/task-instantiates-canonical" />
-  <version value="0.8.0" />
+  <version value="0.8.1" />
   <name value="KT2_SearchInstantiates" />
   <status value="active" />
   <experimental value="false" />
-  <date value="2023-01-24" />
+  <date value="2023-03-14" />
   <publisher value="VZVZ" />
   <contact>
     <name value="VZVZ" />
@@ -28,5 +28,5 @@
   <xpath value="f:Task/f:instantiatesCanonical" />
   <xpathUsage value="normal" />
   <target value="ActivityDefinition" />
-  <chain value="publisher-identifier" />
+  <chain value="publisherId" />
 </SearchParameter>
