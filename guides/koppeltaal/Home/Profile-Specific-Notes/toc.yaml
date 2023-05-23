@@ -2,5 +2,7 @@
   filename: Index.page.md
 - name: AuditEvent
   filename: AuditEvent.page.md
+- name: CareTeam
+  filename: CareTeam.page.md
 - name: Subscription
   filename: Subscription.page.md
