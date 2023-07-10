@@ -3,7 +3,7 @@
   <id value="KT2Patient" />
   <meta>
     <versionId value="9" />
-    <lastUpdated value="2023-01-24T13:06:31.736911+00:00" />
+    <lastUpdated value="2023-07-10T08:36:53.9247324+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Patient" />
   <version value="0.8.0" />
@@ -65,6 +65,12 @@
     <element id="Patient.name">
       <path value="Patient.name" />
       <min value="1" />
+      <constraint>
+        <key value="kt2pnu-1" />
+        <severity value="error" />
+        <human value="Patient name use must not be empty" />
+        <expression value="name.use.empty().not()" />
+      </constraint>
     </element>
     <element id="Patient.name:nameInformation">
       <path value="Patient.name" />
