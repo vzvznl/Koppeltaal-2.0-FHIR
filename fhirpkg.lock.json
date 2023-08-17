@@ -1,5 +1,5 @@
 {
-  "updated": "2023-07-10T10:58:00.5347372+02:00",
+  "updated": "2023-08-17T10:33:30.4965087+02:00",
   "dependencies": {
     "nictiz.fhir.nl.r4.zib2020": "0.7.0-beta.1",
     "hl7.fhir.r4.core": "4.0.1",
