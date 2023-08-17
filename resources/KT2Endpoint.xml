@@ -3,13 +3,13 @@
   <id value="KT2Endpoint" />
   <meta>
     <versionId value="5" />
-    <lastUpdated value="2023-01-24T13:06:02.4002191+00:00" />
+    <lastUpdated value="2023-08-17T08:27:35.8089387+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Endpoint" />
-  <version value="0.8.0" />
+  <version value="0.8.1" />
   <name value="KT2_Endpoint" />
   <status value="draft" />
-  <date value="2023-01-24" />
+  <date value="2023-08-17" />
   <publisher value="VZVZ" />
   <contact>
     <name value="VZVZ" />
@@ -47,6 +47,13 @@
         <code value="Extension" />
         <profile value="http://koppeltaal.nl/fhir/StructureDefinition/resource-origin" />
       </type>
+    </element>
+    <element id="Endpoint.connectionType">
+      <path value="Endpoint.connectionType" />
+      <fixedCoding>
+        <system value="http://terminology.hl7.org/CodeSystem/endpoint-connection-type" />
+        <code value="hl7-fhir-rest" />
+      </fixedCoding>
     </element>
     <element id="Endpoint.managingOrganization">
       <path value="Endpoint.managingOrganization" />
