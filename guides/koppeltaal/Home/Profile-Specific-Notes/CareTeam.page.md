@@ -3,7 +3,7 @@ topic: kt2careteam
 ---
 # {{page-title}}
 
-{{render:KT2CareTeam}}
+{{tree:KT2CareTeam}}
 
 ## Subject element
 

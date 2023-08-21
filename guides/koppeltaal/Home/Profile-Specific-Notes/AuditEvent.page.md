@@ -3,7 +3,7 @@ topic: kt2auditevent
 ---
 # {{page-title}}
 
-{{render:KT2AuditEvent}}
+{{tree:KT2AuditEvent}}
 
 ## Agent
 

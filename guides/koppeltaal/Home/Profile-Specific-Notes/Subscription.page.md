@@ -3,7 +3,7 @@ topic: kt2subscription
 ---
 # {{page-title}}
 
-{{render:KT2Subscription}}
+{{tree:KT2Subscription}}
 
 ## Beware of loops
 

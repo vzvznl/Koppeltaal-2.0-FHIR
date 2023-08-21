@@ -3,7 +3,7 @@ topic: kt2patient
 ---
 # {{page-title}}
 
-{{render:http://koppeltaal.nl/fhir/StructureDefinition/KT2Patient}}
+{{tree:http://koppeltaal.nl/fhir/StructureDefinition/KT2Patient}}
 
 ## Country
 
