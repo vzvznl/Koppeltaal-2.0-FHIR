@@ -4,5 +4,7 @@
   filename: AuditEvent.page.md
 - name: CareTeam
   filename: CareTeam.page.md
+- name: Patient
+  filename: Patient.page.md
 - name: Subscription
   filename: Subscription.page.md
