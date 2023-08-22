@@ -60,6 +60,12 @@
     <element id="Practitioner.name">
       <path value="Practitioner.name" />
       <min value="1" />
+      <constraint>
+        <key value="kt2pnu-1" />
+        <severity value="error" />
+        <human value="Practitioner name use must not be empty" />
+        <expression value="use.hasValue()" />
+      </constraint>
     </element>
     <element id="Practitioner.name:nameInformation">
       <path value="Practitioner.name" />
