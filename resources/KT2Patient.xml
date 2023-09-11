@@ -3,7 +3,7 @@
   <id value="KT2Patient" />
   <meta>
     <versionId value="9" />
-    <lastUpdated value="2023-07-10T08:36:53.9247324+00:00" />
+    <lastUpdated value="2023-09-11T09:36:27.8217711+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Patient" />
   <version value="0.8.0" />
@@ -28,27 +28,14 @@
   <baseDefinition value="http://nictiz.nl/fhir/StructureDefinition/nl-core-Patient" />
   <derivation value="constraint" />
   <differential>
-    <element id="Patient.extension">
-      <path value="Patient.extension" />
-      <slicing>
-        <discriminator>
-          <type value="value" />
-          <path value="url" />
-        </discriminator>
-        <rules value="open" />
-      </slicing>
-      <min value="0" />
-    </element>
     <element id="Patient.extension:nationality">
       <path value="Patient.extension" />
       <sliceName value="nationality" />
-      <min value="0" />
       <max value="0" />
     </element>
     <element id="Patient.extension:resource-origin">
       <path value="Patient.extension" />
       <sliceName value="resource-origin" />
-      <min value="0" />
       <type>
         <code value="Extension" />
         <profile value="http://koppeltaal.nl/fhir/StructureDefinition/resource-origin" />
@@ -144,22 +131,10 @@
       <path value="Patient.deceased[x]" />
       <max value="0" />
     </element>
-    <element id="Patient.address.extension">
-      <path value="Patient.address.extension" />
-      <slicing>
-        <discriminator>
-          <type value="value" />
-          <path value="url" />
-        </discriminator>
-        <rules value="open" />
-      </slicing>
-      <min value="0" />
-    </element>
     <element id="Patient.address.extension:addressType">
       <path value="Patient.address.extension" />
       <sliceName value="addressType" />
       <comment value="This element is not used in the context of Koppeltaal 2.0" />
-      <min value="0" />
     </element>
     <element id="Patient.address.type">
       <path value="Patient.address.type" />
@@ -176,6 +151,11 @@
     <element id="Patient.address.state">
       <path value="Patient.address.state" />
       <comment value="This element is not used in the context of Koppeltaal 2.0" />
+    </element>
+    <element id="Patient.address.country.extension:countryCode">
+      <path value="Patient.address.country.extension" />
+      <sliceName value="countryCode" />
+      <comment value="See [Koppeltaal Implementation Guide](https://simplifier.net/guide/koppeltaal/Home/Profile-Specific-Notes/Patient.page.md?version=current) for more information." />
     </element>
     <element id="Patient.address.period">
       <path value="Patient.address.period" />
