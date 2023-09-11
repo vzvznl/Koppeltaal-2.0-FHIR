@@ -86,6 +86,10 @@
       <path value="AuditEvent.agent.type" />
       <min value="1" />
     </element>
+    <element id="AuditEvent.agent.role">
+      <path value="AuditEvent.agent.role" />
+      <comment value="This element is not used in the context of Koppeltaal 2.0" />
+    </element>
     <element id="AuditEvent.agent.who">
       <path value="AuditEvent.agent.who" />
       <min value="1" />
