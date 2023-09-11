@@ -23,21 +23,9 @@
   <baseDefinition value="http://nictiz.nl/fhir/StructureDefinition/nl-core-CareTeam" />
   <derivation value="constraint" />
   <differential>
-    <element id="CareTeam.extension">
-      <path value="CareTeam.extension" />
-      <slicing>
-        <discriminator>
-          <type value="value" />
-          <path value="url" />
-        </discriminator>
-        <rules value="open" />
-      </slicing>
-      <min value="0" />
-    </element>
     <element id="CareTeam.extension:resource-origin">
       <path value="CareTeam.extension" />
       <sliceName value="resource-origin" />
-      <min value="0" />
       <type>
         <code value="Extension" />
         <profile value="http://koppeltaal.nl/fhir/StructureDefinition/resource-origin" />
@@ -99,7 +87,7 @@
     <element id="CareTeam.participant:healthcareProfessional">
       <path value="CareTeam.participant" />
       <sliceName value="healthcareProfessional" />
-      <comment value="This element is not used in the context of Koppeltaal 2.0" />
+      <comment value="This slice is not used in the context of Koppeltaal 2.0" />
     </element>
     <element id="CareTeam.participant:kt2healthcareProfessional">
       <path value="CareTeam.participant" />
@@ -114,12 +102,14 @@
         </discriminator>
         <rules value="open" />
       </slicing>
+      <comment value="See [Koppeltaal Implementation Guide](https://simplifier.net/guide/koppeltaal/Home/Profile-Specific-Notes/CareTeam.page.md?version=current) for more information on the ValueSet of the role." />
     </element>
     <element id="CareTeam.participant:kt2healthcareProfessional.role:healthProfessionalRole">
       <path value="CareTeam.participant.role" />
       <sliceName value="healthProfessionalRole" />
       <definition value="The role the health professional fulfils in the healthcare process. For health professionals, this could be for example attender, referrer or performer." />
-      <alias value="ZorgverlenerRol" />
+      <comment value="Roles may sometimes be inferred by type of Practitioner.  These are relationships that hold only within the context of the care team.  General relationships should be handled as properties of the Patient resource directly.&#xD;&#xA;&#xD;&#xA;For more information see: [Koppeltaal Implementation Guide](https://simplifier.net/guide/koppeltaal/Home/Profile-Specific-Notes/CareTeam.page.md?version=current)" />
+      <alias value="ZorgverlenerRolCodelijst" />
       <max value="1" />
       <binding>
         <strength value="required" />
