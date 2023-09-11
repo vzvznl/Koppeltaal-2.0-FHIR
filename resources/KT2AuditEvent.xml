@@ -134,6 +134,10 @@
       <path value="AuditEvent.entity" />
       <min value="1" />
     </element>
+    <element id="AuditEvent.entity.securityLabel">
+      <path value="AuditEvent.entity.securityLabel" />
+      <comment value="This element is not used in the context of Koppeltaal 2.0" />
+    </element>
     <element id="AuditEvent.entity.query">
       <path value="AuditEvent.entity.query" />
       <comment value="Warning: name and query are mutually exclusive. Use query to register the full query, including parameters." />
