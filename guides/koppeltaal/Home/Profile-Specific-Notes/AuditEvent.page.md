@@ -17,6 +17,29 @@ Note: for the code `transmit` use
     "code": "transmit
 }
 ```
+
+## AuditEvent.subtype
+
+The ValueSet for this element contains codes from several Codesystems. See: [ValueSet AuditEvent Subtype](http://hl7.org/fhir/R4B/valueset-audit-event-sub-type.html)
+
+For FHIR actions such as `read`, `search` and `create`, use the codes from the CodeSystem `http://hl7.org/fhir/restful-interaction`. Example:
+
+```json
+{
+    "system": "http://hl7.org/fhir/restful-interaction",
+    "code": "search"
+}
+```
+
+For interactions related to application launches and such use codes from the DICOM CodeSystem. Example (Application Start):
+
+```json
+{
+    "system": "http://dicom.nema.org/resources/ontology/DCM",
+    "code": "110120"
+}
+```
+
 ## Agent
 
 The AuditEvent resource instance should always contain 2 agents, one for the source, one for the destination.

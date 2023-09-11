@@ -3,10 +3,10 @@
   <id value="KT2AuditEvent" />
   <meta>
     <versionId value="2" />
-    <lastUpdated value="2023-01-31T10:46:43.0505383+00:00" />
+    <lastUpdated value="2023-09-11T13:41:17.2810669+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2AuditEvent" />
-  <version value="0.9.0" />
+  <version value="0.10.0" />
   <name value="KT2_AuditEvent" />
   <status value="draft" />
   <date value="2023-01-31" />
@@ -27,21 +27,9 @@
   <baseDefinition value="http://hl7.org/fhir/StructureDefinition/AuditEvent" />
   <derivation value="constraint" />
   <differential>
-    <element id="AuditEvent.extension">
-      <path value="AuditEvent.extension" />
-      <slicing>
-        <discriminator>
-          <type value="value" />
-          <path value="url" />
-        </discriminator>
-        <rules value="open" />
-      </slicing>
-      <min value="0" />
-    </element>
     <element id="AuditEvent.extension:resource-origin">
       <path value="AuditEvent.extension" />
       <sliceName value="resource-origin" />
-      <min value="0" />
       <type>
         <code value="Extension" />
         <profile value="http://koppeltaal.nl/fhir/StructureDefinition/resource-origin" />
@@ -51,7 +39,6 @@
     <element id="AuditEvent.extension:traceId">
       <path value="AuditEvent.extension" />
       <sliceName value="traceId" />
-      <min value="0" />
       <type>
         <code value="Extension" />
         <profile value="http://koppeltaal.nl/fhir/StructureDefinition/trace-id" />
@@ -61,7 +48,6 @@
     <element id="AuditEvent.extension:correlationId">
       <path value="AuditEvent.extension" />
       <sliceName value="correlationId" />
-      <min value="0" />
       <type>
         <code value="Extension" />
         <profile value="http://koppeltaal.nl/fhir/StructureDefinition/correlation-id" />
@@ -71,7 +57,6 @@
     <element id="AuditEvent.extension:requestId">
       <path value="AuditEvent.extension" />
       <sliceName value="requestId" />
-      <min value="0" />
       <type>
         <code value="Extension" />
         <profile value="http://koppeltaal.nl/fhir/StructureDefinition/request-id" />
@@ -86,6 +71,9 @@
         <valueSet value="http://vzvz.nl/fhir/ValueSet/audit-event-type" />
       </binding>
     </element>
+    <element id="AuditEvent.subtype">
+      <path value="AuditEvent.subtype" />
+      <comment value="For more information on which values to use see [Koppeltaal Implementation Guide](https://simplifier.net/guide/koppeltaal/Home/Profile-Specific-Notes/AuditEvent.page.md?version=current)" />
     </element>
     <element id="AuditEvent.purposeOfEvent">
       <path value="AuditEvent.purposeOfEvent" />
