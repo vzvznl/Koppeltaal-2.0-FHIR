@@ -98,3 +98,14 @@ _patient_
     }
 ]
 ```
+
+## Entity.type
+
+For this element, from the ValueSet only use the CodeSystem [ResourceType](https://simplifier.net/packages/hl7.fhir.r4.core/4.0.1/files/81127) to indicate which FHIR Resource type was used. Example:
+
+```json
+{
+    "system": "http://hl7.org/fhir/resource-types",
+    "code": "CareTeam"
+}
+```

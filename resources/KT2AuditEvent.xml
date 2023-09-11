@@ -3,7 +3,7 @@
   <id value="KT2AuditEvent" />
   <meta>
     <versionId value="2" />
-    <lastUpdated value="2023-09-11T21:14:57.7236099+00:00" />
+    <lastUpdated value="2023-09-11T21:28:19.3991918+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2AuditEvent" />
   <version value="0.10.0" />
@@ -139,6 +139,10 @@
     <element id="AuditEvent.entity">
       <path value="AuditEvent.entity" />
       <min value="1" />
+    </element>
+    <element id="AuditEvent.entity.type">
+      <path value="AuditEvent.entity.type" />
+      <comment value="For more information see [Koppeltaal Implementation Guide](https://simplifier.net/guide/koppeltaal/Home/Profile-Specific-Notes/AuditEvent.page.md?version=current)" />
     </element>
     <element id="AuditEvent.entity.lifecycle">
       <path value="AuditEvent.entity.lifecycle" />
