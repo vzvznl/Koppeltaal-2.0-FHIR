@@ -42,6 +42,59 @@ For interactions related to application launches and such use codes from the DIC
 
 ## Agent
 
-The AuditEvent resource instance should always contain 2 agents, one for the source, one for the destination.
+The AuditEvent resource instance should always contain at least 2 agents, one for the source, one for the destination.
+
+If necessary the patient to which this event relates can be added as a third agent. For examples see the section _Agent.type_.
 
 The `agent.network.address` is used to store the url of the source and the endpoint of the destination.
+
+### Agent.type
+
+For the `type` element the generic VZVZ ValueSet for this element is used. This set contains only the relevant codes from the DICOM CodeSystem as used in Koppeltaal. The other Codesystems contain the remaining codes.
+
+As mentioned above, there are several agent elements, one for the source, one for the destination and one that refers to the patient. The examples below only show the relevant elements of `agent`, not the full set.
+
+_source_
+```json
+"agent": [
+    {
+        "type": {
+            "coding": {
+                "system": "http://dicom.nema.org/resources/ontology/DCM",
+                "code": "110153"
+            }
+        },
+        "requestor": "true"
+    }
+]
+```
+
+_destination_
+```json
+"agent": [
+    {
+        "type": {
+            "coding": {
+                "system": "http://dicom.nema.org/resources/ontology/DCM",
+                "code": "110152"
+            }
+        },
+        "requestor": "false"
+    }
+]
+```
+
+_patient_
+```json
+"agent": [
+    {
+        "type": {
+            "coding": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-RoleClass",
+                "code": "PAT"
+            }
+        },
+        "requestor": "false"
+    }
+]
+```

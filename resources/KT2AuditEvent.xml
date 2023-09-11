@@ -3,7 +3,7 @@
   <id value="KT2AuditEvent" />
   <meta>
     <versionId value="2" />
-    <lastUpdated value="2023-09-11T13:41:17.2810669+00:00" />
+    <lastUpdated value="2023-09-11T21:14:57.7236099+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2AuditEvent" />
   <version value="0.10.0" />
@@ -81,7 +81,12 @@
     </element>
     <element id="AuditEvent.agent.type">
       <path value="AuditEvent.agent.type" />
+      <comment value="For more information see [Koppeltaal Implementation Guide](https://simplifier.net/guide/koppeltaal/Home/Profile-Specific-Notes/AuditEvent.page.md?version=current)" />
       <min value="1" />
+      <binding>
+        <strength value="extensible" />
+        <valueSet value="http://vzvz.nl/fhir/ValueSet/participation-role-type" />
+      </binding>
     </element>
     <element id="AuditEvent.agent.role">
       <path value="AuditEvent.agent.role" />
