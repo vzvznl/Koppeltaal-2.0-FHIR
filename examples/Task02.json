@@ -14,6 +14,10 @@
   ],
   "instantiatesCanonical": "https://int-381-kt2-sprint-7.minddistrict.dev/catalogue/6bea89a73b3d48d0963d627d93d071c2",
   "intent": "order",
+  "for": {
+    "reference": "Patient/patient-botje-minimaal",
+    "type": "Patient"
+  },
   "owner": {
     "reference": "Patient/patient-botje-minimaal",
     "type": "Patient"
