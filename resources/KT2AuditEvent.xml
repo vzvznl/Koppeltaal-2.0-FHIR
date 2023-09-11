@@ -78,6 +78,15 @@
       </type>
       <isModifier value="false" />
     </element>
+    <element id="AuditEvent.type">
+      <path value="AuditEvent.type" />
+      <comment value="For more information see [Koppeltaal Implementation Guide](https://simplifier.net/guide/koppeltaal/Home/Profile-Specific-Notes/AuditEvent.page.md?version=current)" />
+      <binding>
+        <strength value="extensible" />
+        <valueSet value="http://vzvz.nl/fhir/ValueSet/audit-event-type" />
+      </binding>
+    </element>
+    </element>
     <element id="AuditEvent.purposeOfEvent">
       <path value="AuditEvent.purposeOfEvent" />
       <max value="0" />

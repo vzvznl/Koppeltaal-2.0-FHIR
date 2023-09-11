@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ValueSet xmlns="http://hl7.org/fhir">
+    <id value="valueset-audit-event-type" />
+    <meta>
+        <versionId value="2" />
+        <lastUpdated value="2022-09-05T12:00:00+02:00" />
+        <profile value="http://hl7.org/fhir/StructureDefinition/ValueSet" />
+    </meta>
+    <extension url="http://hl7.org/fhir/StructureDefinition/resource-effectivePeriod">
+        <valuePeriod>
+            <start value="2022-08-22T12:00:00+02:00" />
+        </valuePeriod>
+    </extension>
+    <url value="http://vzvz.nl/fhir/ValueSet/audit-event-type" />
+    <identifier>
+        <use value="official" />
+        <value value="http://vzvz.nl/fhir/ValueSet/audit-event-type" />
+    </identifier>
+    <version value="2022-09-05" />
+    <name value="audit-event-type ValueSet" />
+    <title value="audit-event-type ValueSet" />
+    <status value="draft" />
+    <experimental value="false" />
+    <date value="2022-09-05T12:00:00+02:00" />
+    <publisher value="VZVZ" />
+    <contact>
+        <name value="VZVZ" />
+        <telecom>
+            <system value="email" />
+            <value value="standaardisatie@vzvz.nl" />
+        </telecom>
+    </contact>
+    <description value="audit-event-type ValueSet" />
+    <compose>
+        <include>
+            <system value="http://dicom.nema.org/resources/ontology/DCM" />
+            <concept>
+                <code value="110100" />
+                <display value="Application Activity" />
+            </concept>
+            <concept>
+                <code value="110114" />
+                <display value="User Authentication" />
+            </concept>
+        </include>
+        <include>
+            <system value="http://terminology.hl7.org/CodeSystem/audit-event-type" />
+        </include>
+        <include>
+            <system value="http://terminology.hl7.org/CodeSystem/audit-event-type" />
+            <version value="0.5.0" />
+            <concept>
+                <code value="hl7-v3" />
+            </concept>
+        </include>
+        <include>
+            <system value="http://terminology.hl7.org/CodeSystem/iso-21089-lifecycle" />
+            <concept>
+                <code value="transmit" />
+                <display value="Transmit Record Lifecycle Event" />
+            </concept>
+        </include>
+    </compose>
+</ValueSet>
