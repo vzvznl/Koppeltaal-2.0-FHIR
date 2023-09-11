@@ -134,6 +134,10 @@
       <path value="AuditEvent.entity" />
       <min value="1" />
     </element>
+    <element id="AuditEvent.entity.lifecycle">
+      <path value="AuditEvent.entity.lifecycle" />
+      <comment value="This element is not used in the context of Koppeltaal 2.0" />
+    </element>
     <element id="AuditEvent.entity.securityLabel">
       <path value="AuditEvent.entity.securityLabel" />
       <comment value="This element is not used in the context of Koppeltaal 2.0" />
