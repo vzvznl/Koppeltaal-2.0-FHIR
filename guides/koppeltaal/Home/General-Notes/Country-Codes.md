@@ -4,6 +4,7 @@ topic: country-codes
 
 # {{page-title}}
 
+## List of country codes
 The link to the list of country codes is hard to find, therefore they are referenced here:
 
 [ValueSet 'LandCodelijsten'](https://simplifier.net/packages/nictiz.fhir.nl.r4.zib2020/0.7.0-beta.1/files/783891) references two other ValueSets:
@@ -12,8 +13,10 @@ The link to the list of country codes is hard to find, therefore they are refere
 * [ValueSet 'LandISOCodelijst'](https://simplifier.net/packages/nictiz.fhir.nl.r4.zib2020/0.7.0-beta.1/files/783961) which references a CodeSystem that is described here:
     * [ValueSet: CountryEntityType](https://terminology.hl7.org/4.0.0/ValueSet-v3-CountryEntityType.html)
 
+## National or international?
 General guidance: use the international CodeSystem unless there is an explicit use case for using the national CodeSystem.
 
+## Exception on country codes
 <div class="warning">
 <span>⚠️ Warning</span>
 </div>
