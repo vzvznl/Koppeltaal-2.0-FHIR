@@ -3,7 +3,7 @@
   <id value="KT2Patient" />
   <meta>
     <versionId value="9" />
-    <lastUpdated value="2023-09-11T09:36:27.8217711+00:00" />
+    <lastUpdated value="2023-09-18T10:46:44.0602833+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Patient" />
   <version value="0.8.0" />
@@ -155,7 +155,11 @@
     <element id="Patient.address.country.extension:countryCode">
       <path value="Patient.address.country.extension" />
       <sliceName value="countryCode" />
-      <comment value="See [Koppeltaal Implementation Guide](https://simplifier.net/guide/koppeltaal/Home/Profile-Specific-Notes/Patient.page.md?version=current) for more information." />
+      <comment value="See [Koppeltaal Implementation Guide](https://simplifier.net/guide/koppeltaal/Home/General-Notes/Country-Codes.md?version=current) for more information." />
+    </element>
+    <element id="Patient.address.country.extension:countryCode.value[x]">
+      <path value="Patient.address.country.extension.value[x]" />
+      <comment value="See [Koppeltaal Implementation Guide](https://simplifier.net/guide/koppeltaal/Home/General-Notes/Country-Codes.md?version=current) for more information." />
     </element>
     <element id="Patient.address.period">
       <path value="Patient.address.period" />
