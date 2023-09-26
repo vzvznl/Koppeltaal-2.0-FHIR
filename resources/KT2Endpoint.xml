@@ -51,9 +51,13 @@
     <element id="Endpoint.connectionType">
       <path value="Endpoint.connectionType" />
       <fixedCoding>
-        <system value="http://terminology.hl7.org/CodeSystem/endpoint-connection-type" />
-        <code value="hl7-fhir-rest" />
+        <system value="http://vzvz.nl/fhir/CodeSystem/koppeltaal-endpoint-connection-type" />
+        <code value="hti-smart-on-fhir" />
       </fixedCoding>
+      <binding>
+        <strength value="extensible" />
+        <valueSet value="http://vzvz.nl/fhir/ValueSet/endpoint-connection-type" />
+      </binding>
     </element>
     <element id="Endpoint.managingOrganization">
       <path value="Endpoint.managingOrganization" />
