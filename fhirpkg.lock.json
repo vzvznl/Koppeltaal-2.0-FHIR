@@ -1,9 +1,9 @@
 {
-  "updated": "2023-08-17T10:33:30.4965087+02:00",
+  "updated": "2023-09-26T11:37:55.9136273+02:00",
   "dependencies": {
-    "nictiz.fhir.nl.r4.zib2020": "0.7.0-beta.1",
+    "nictiz.fhir.nl.r4.zib2020": "0.9.0-beta.1",
     "hl7.fhir.r4.core": "4.0.1",
-    "nictiz.fhir.nl.r4.nl-core": "0.7.0-beta.1"
+    "nictiz.fhir.nl.r4.nl-core": "0.9.0-beta.1"
   },
   "missing": {}
 }
