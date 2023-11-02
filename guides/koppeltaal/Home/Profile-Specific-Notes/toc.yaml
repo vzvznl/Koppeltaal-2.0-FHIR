@@ -8,3 +8,5 @@
   filename: Patient.page.md
 - name: Subscription
   filename: Subscription.page.md
+- name: Task
+  filename: Task.page.md
