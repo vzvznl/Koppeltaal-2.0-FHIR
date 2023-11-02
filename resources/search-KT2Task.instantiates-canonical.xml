@@ -3,12 +3,12 @@
   <id value="search-task-instantiates-canonical" />
   <meta>
     <versionId value="2" />
-    <lastUpdated value="2023-03-14T13:08:10.8158843+00:00" />
+    <lastUpdated value="2023-11-02T09:48:09.6593061+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/SearchParameter/task-instantiates-canonical" />
-  <version value="0.8.1" />
-  <name value="KT2_SearchInstantiates" />
-  <status value="active" />
+  <version value="0.8.2" />
+  <name value="KT2_SearchInstantiatesCanonical" />
+  <status value="retired" />
   <experimental value="false" />
   <date value="2023-03-14" />
   <publisher value="VZVZ" />
@@ -21,6 +21,7 @@
     </telecom>
   </contact>
   <description value="Instantiates FHIR protocol or definition" />
+  <purpose value="This search parameter is no longer in use as of 2023-11-02." />
   <code value="instantiates-canonical" />
   <base value="Task" />
   <type value="reference" />
