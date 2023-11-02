@@ -13,13 +13,19 @@
         "reference": "Device/device-volledig",
         "type": "Device"
       }
+    },
+    {
+      "url": "http://vzvz.nl/fhir/StructureDefinition/instantiates",
+      "valueReference": {
+        "reference": "https://int-381-kt2-sprint-7.minddistrict.dev/catalogue/E0E49199-B329-4A52-8B9C-7635E59B8EE2",
+        "type": "ActivityDefinition"
+      }
     }
   ],
   "identifier" : {
     "system": "http://koppeltaal-systeem.nl/koppeltaal-TaskIdentifier",
     "value": "54321"
   },
-  "instantiatesCanonical": "https://int-381-kt2-sprint-7.minddistrict.dev/catalogue/E0E49199-B329-4A52-8B9C-7635E59B8EE2",
   "for": {
     "identifier": {
         "use": "official",

@@ -13,6 +13,13 @@
         "reference": "Device/device-volledig",
         "type": "Device"
       }
+    },
+    {
+      "url": "http://vzvz.nl/fhir/StructureDefinition/instantiates",
+      "valueReference": {
+        "reference": "https://int-381-kt2-sprint-7.minddistrict.dev/catalogue/6bea89a73b3d48d0963d627d93d071c2",
+        "type": "ActivityDefinition"
+      }
     }
   ],
   "identifier": [
@@ -21,7 +28,6 @@
       "value": "1234"
     }
   ],
-  "instantiatesCanonical": "https://int-381-kt2-sprint-7.minddistrict.dev/catalogue/6bea89a73b3d48d0963d627d93d071c2",
   "partOf": {
     "reference": "Task/task-overkoepelend"
   },
