@@ -46,8 +46,7 @@
     </element>
     <element id="Task.instantiatesCanonical">
       <path value="Task.instantiatesCanonical" />
-      <comment value="see [Canonical References](https://hl7.org/fhir/references.html#canonical)" />
-      <min value="1" />
+      <comment value="As of 2023-11-02 this element is no longer used in Koppeltaal 2.0. Use the extension `instantiates` instead." />
       <type>
         <code value="canonical" />
         <targetProfile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2ActivityDefinition" />
