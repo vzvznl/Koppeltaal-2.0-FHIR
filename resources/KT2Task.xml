@@ -3,7 +3,7 @@
   <id value="KT2Task" />
   <meta>
     <versionId value="13" />
-    <lastUpdated value="2023-09-11T09:48:48.280994+00:00" />
+    <lastUpdated value="2023-11-02T10:12:31.5755439+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Task" />
   <version value="0.8.0" />
@@ -39,6 +39,18 @@
         <code value="Extension" />
         <profile value="http://koppeltaal.nl/fhir/StructureDefinition/resource-origin" />
       </type>
+    </element>
+    <element id="Task.extension:instantiates">
+      <path value="Task.extension" />
+      <sliceName value="instantiates" />
+      <short value="Reference to ActivityDefinition" />
+      <definition value="Reference to the ActivityDefinition, which conforms to the KT2_ActivityDefinition profile." />
+      <comment value="Use this extension to refer to the ActivityDefinition it instantiates." />
+      <type>
+        <code value="Extension" />
+        <profile value="http://vzvz/fhir/StructureDefinition/instantiates" />
+      </type>
+      <isModifier value="false" />
     </element>
     <element id="Task.identifier">
       <path value="Task.identifier" />
