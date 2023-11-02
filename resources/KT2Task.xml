@@ -3,7 +3,7 @@
   <id value="KT2Task" />
   <meta>
     <versionId value="13" />
-    <lastUpdated value="2023-11-02T10:12:31.5755439+00:00" />
+    <lastUpdated value="2023-11-02T10:44:36.5132625+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Task" />
   <version value="0.8.0" />
@@ -48,7 +48,7 @@
       <comment value="Use this extension to refer to the ActivityDefinition it instantiates." />
       <type>
         <code value="Extension" />
-        <profile value="http://vzvz/fhir/StructureDefinition/instantiates" />
+        <profile value="http://vzvz.nl/fhir/StructureDefinition/instantiates" />
       </type>
       <isModifier value="false" />
     </element>
