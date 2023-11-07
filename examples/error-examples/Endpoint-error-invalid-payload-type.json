@@ -1,6 +1,6 @@
 {
   "resourceType": "Endpoint",
-  "id": "endpoint-task",
+  "id": "endpoint-error-invalid-payload-type",
   "meta": {
     "profile": [
       "http://koppeltaal.nl/fhir/StructureDefinition/KT2Endpoint"
