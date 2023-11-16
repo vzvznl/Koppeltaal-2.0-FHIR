@@ -10,7 +10,7 @@
     {
       "url": "http://vzvz.nl/fhir/StructureDefinition/instantiates",
       "valueReference": {
-        "reference": "https://int-381-kt2-sprint-7.minddistrict.dev/catalogue/6bea89a73b3d48d0963d627d93d071c2",
+        "reference": "ActivityDefinition/activitydefinition123",
         "type": "ActivityDefinition"
       }
     }
