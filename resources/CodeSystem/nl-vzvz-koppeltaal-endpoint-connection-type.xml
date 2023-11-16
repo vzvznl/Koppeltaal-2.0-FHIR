@@ -16,7 +16,7 @@
     <use value="official" />
     <value value="http://vzvz.nl/fhir/CodeSystem/koppeltaal-endpoint-connection-type" />
   </identifier>
-  <version value="0.1"/>
+  <version value="0.1" />
   <name value="KoppeltaalEndpointConnectionType" />
   <title value="Koppeltaal Endpoint Connection Type" />
   <status value="draft" />
@@ -31,10 +31,10 @@
     </telecom>
   </contact>
   <description value="Type of endpoint connection as used in Koppeltaal" />
-  <caseSensitive value="true"/>
-  <content value="complete"/>
+  <caseSensitive value="true" />
+  <content value="complete" />
   <concept>
-    <code value="hti-smart-on-fhir"/>
+    <code value="hti-smart-on-fhir" />
     <display value="HTI Smart on FHIR" />
   </concept>
 </CodeSystem>
