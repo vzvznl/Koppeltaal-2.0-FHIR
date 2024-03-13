@@ -6,5 +6,7 @@
   filename: Country-Codes.md
 - name: Examples
   filename: Examples.md
+- name: Strict use of Name Information
+  filename: Strict-use-of-nameinformation.md
 - name: Index
   filename: Index.page.md
