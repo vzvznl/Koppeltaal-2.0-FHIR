@@ -6,26 +6,28 @@
       "http://koppeltaal.nl/fhir/StructureDefinition/KT2Device"
     ]
   },
-  "identifier": {
-    "system": "http://vzvz.nl/fhir/NamingSystem/koppeltaal-client-id",
-    "value": "1234-abcd-efef-123456789"
-  },
+  "identifier": [
+    {
+      "system": "http://vzvz.nl/fhir/NamingSystem/koppeltaal-client-id",
+      "value": "1234-abcd-efef-123456789"
+    }
+  ],
   "status": "active",
   "deviceName": [
-          {
-            "name": "Testteam 6",
-            "type": "user-friendly-name"
-          }
-        ],
-  "type" : {
-      "coding" : [
-        {
-          "system" : "http://snomed.info/sct",
-          "code" : "86967005",
-          "display": "tool"
-        }
-      ]
-   },
+    {
+      "name": "Testteam 6",
+      "type": "user-friendly-name"
+    }
+  ],
+  "type": {
+    "coding": [
+      {
+        "system": "http://snomed.info/sct",
+        "code": "86967005",
+        "display": "tool"
+      }
+    ]
+  },
   "extension": [
     {
       "url": "http://koppeltaal.nl/fhir/StructureDefinition/resource-origin",
