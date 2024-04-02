@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ImplementationGuide xmlns="http://hl7.org/fhir">
+   <id value="koppeltaal-ig-0.12.0-beta.1"/>
+   <url value="http://TODO"/>
+   <version value="0.12.0-beta.1"/>
+   <status value="active"/>
+   <experimental value="false"/>
+   <date value="2024-04-02+02:00"/>
+   <publisher value="VZVZ"/>
+   <packageId value="koppeltaalv2.00"/>
+   <fhirVersion value="4.0.1"/>
+   <dependsOn>
+      <uri value="https://simplifier.net/packages/nictiz.fhir.nl.r4.zib2020"/>
+      <packageId value="nictiz.fhir.nl.r4.zib2020"/>
+      <version value="0.10.0-beta.1"/>
+   </dependsOn>
+   <dependsOn>
+      <uri value="https://simplifier.net/packages/nictiz.fhir.nl.r4.nl-core"/>
+      <packageId value="nictiz.fhir.nl.r4.nl-core"/>
+      <version value="0.10.0-beta.1"/>
+   </dependsOn>
+   <global>
+      <type value="Organization"/>
+      <profile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Organization"/>
+   </global>
+   <global>
+      <type value="Extension"/>
+      <profile value="http://vzvz.nl/fhir/StructureDefinition/instantiates"/>
+   </global>
+   <global>
+      <type value="Patient"/>
+      <profile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Patient"/>
+   </global>
+   <global>
+      <type value="CareTeam"/>
+      <profile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2CareTeam"/>
+   </global>
+   <global>
+      <type value="AuditEvent"/>
+      <profile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2AuditEvent"/>
+   </global>
+   <global>
+      <type value="Extension"/>
+      <profile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2EndpointExtension"/>
+   </global>
+   <global>
+      <type value="Device"/>
+      <profile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Device"/>
+   </global>
+   <global>
+      <type value="Extension"/>
+      <profile value="http://koppeltaal.nl/fhir/StructureDefinition/request-id"/>
+   </global>
+   <global>
+      <type value="Practitioner"/>
+      <profile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Practitioner"/>
+   </global>
+   <global>
+      <type value="Extension"/>
+      <profile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2PublisherId"/>
+   </global>
+   <global>
+      <type value="ActivityDefinition"/>
+      <profile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2ActivityDefinition"/>
+   </global>
+   <global>
+      <type value="Endpoint"/>
+      <profile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Endpoint"/>
+   </global>
+   <global>
+      <type value="Extension"/>
+      <profile value="http://koppeltaal.nl/fhir/StructureDefinition/correlation-id"/>
+   </global>
+   <global>
+      <type value="Extension"/>
+      <profile value="http://koppeltaal.nl/fhir/StructureDefinition/resource-origin"/>
+   </global>
+   <global>
+      <type value="Task"/>
+      <profile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Task"/>
+   </global>
+   <global>
+      <type value="Extension"/>
+      <profile value="http://koppeltaal.nl/fhir/StructureDefinition/trace-id"/>
+   </global>
+   <global>
+      <type value="Subscription"/>
+      <profile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Subscription"/>
+   </global>
+</ImplementationGuide>

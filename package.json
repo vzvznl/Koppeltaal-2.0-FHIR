@@ -7,7 +7,7 @@
     "4.0.1"
   ],
   "dependencies": {
-    "nictiz.fhir.nl.r4.zib2020": "0.9.0-beta.1",
-    "nictiz.fhir.nl.r4.nl-core": "0.9.0-beta.1"
+    "nictiz.fhir.nl.r4.zib2020": "0.10.0-beta.1",
+    "nictiz.fhir.nl.r4.nl-core": "0.10.0-beta.1"
   }
 }
