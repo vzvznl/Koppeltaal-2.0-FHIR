@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ImplementationGuide xmlns="http://hl7.org/fhir">
-   <id value="koppeltaal-ig-0.12.0-beta.1"/>
-   <url value="http://TODO"/>
+   <id value="koppeltaal-ig-0.12.0-beta.2"/>
+   <url value="http://koppeltaal.nl/fhir/ImplementationGuide"/>
    <version value="0.12.0-beta.2"/>
    <status value="active"/>
    <experimental value="false"/>
