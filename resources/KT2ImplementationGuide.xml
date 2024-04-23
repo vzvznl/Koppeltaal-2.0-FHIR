@@ -2,7 +2,7 @@
 <ImplementationGuide xmlns="http://hl7.org/fhir">
    <id value="koppeltaal-ig-v0.12.0-beta.3"/>
    <url value="http://koppeltaal.nl/fhir/ImplementationGuide"/>
-   <version value="v0.12.0-beta.4"/>
+   <version value="v0.12.0-beta.5"/>
    <status value="active"/>
    <experimental value="false"/>
    <date value="2024-04-23"/>
@@ -67,3 +67,4 @@
       <type value="Endpoint"/>
       <profile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Endpoint"/>
    </global>
+</ImplementationGuide>
