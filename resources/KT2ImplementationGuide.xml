@@ -2,10 +2,10 @@
 <ImplementationGuide xmlns="http://hl7.org/fhir">
    <id value="koppeltaal-ig-v0.12.0-beta.3"/>
    <url value="http://koppeltaal.nl/fhir/ImplementationGuide"/>
-   <version value="v0.12.0-beta.3"/>
+   <version value="v0.12.0-beta.4"/>
    <status value="active"/>
    <experimental value="false"/>
-   <date value="2024-04-18"/>
+   <date value="2024-04-23"/>
    <publisher value="VZVZ"/>
    <packageId value="koppeltaalv2.00"/>
    <fhirVersion value="4.0.1"/>
