@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ImplementationGuide xmlns="http://hl7.org/fhir">
-   <id value="koppeltaal-ig-v0.12.0-beta.3"/>
+   <id value="koppeltaal-ig-0.12.0-beta.5"/>
    <url value="http://koppeltaal.nl/fhir/ImplementationGuide"/>
-   <version value="v0.12.0-beta.5"/>
+   <version value="0.12.0-beta.5"/>
+   <name value="Koppeltaal_2.0_IG"/>
    <status value="active"/>
    <experimental value="false"/>
-   <date value="2024-04-23"/>
+   <date value="2024-04-29"/>
    <publisher value="VZVZ"/>
    <packageId value="koppeltaalv2.00"/>
    <fhirVersion value="4.0.1"/>
@@ -66,5 +67,25 @@
    <global>
       <type value="Endpoint"/>
       <profile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Endpoint"/>
+   </global>
+   <global>
+      <type value="Extension"/>
+      <profile value="http://koppeltaal.nl/fhir/StructureDefinition/correlation-id"/>
+   </global>
+   <global>
+      <type value="Extension"/>
+      <profile value="http://koppeltaal.nl/fhir/StructureDefinition/resource-origin"/>
+   </global>
+   <global>
+      <type value="Task"/>
+      <profile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Task"/>
+   </global>
+   <global>
+      <type value="Extension"/>
+      <profile value="http://koppeltaal.nl/fhir/StructureDefinition/trace-id"/>
+   </global>
+   <global>
+      <type value="Subscription"/>
+      <profile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Subscription"/>
    </global>
 </ImplementationGuide>
