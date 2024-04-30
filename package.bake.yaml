@@ -11,12 +11,6 @@ move-to-snapshot-structure-definition:
   - action: snapshot
   - target: staging
 
-move-examples:
-  - category: Instance
-  - files: /examples/**
-  - move: /package/examples
-  - target: staging
-
 # If you don't have YamlGen files this step will be skipped.
 yaml-gen:
   - files: /**/*.gen.yaml
@@ -27,13 +21,26 @@ yaml-gen:
 to-json: 
   - source: staging
   - transform: json
+  - target: output
 
+move-examples:
+  - category: Instance
+  - files: /examples/**
+  - move: /package/examples
+  - target: output
+
+move-other:
+  - files: /resources/**/*.md
+  - move: /package/other
+  - target: output
+  
 manifest:
   - files: package.json
   - move: /package
+  - target: output
 
 index-file:
   - source: output
-  - files: /package/**/*.json
+  - files: /package/**/*.*
   - action: create-package-index
   - move: /package
