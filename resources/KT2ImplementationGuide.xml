@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ImplementationGuide xmlns="http://hl7.org/fhir">
-   <id value="koppeltaal-ig-0.12.0-beta.6"/>
+   <id value="koppeltaal-ig-koppeltaalv2.00"/>
    <url value="http://koppeltaal.nl/fhir/ImplementationGuide"/>
-   <version value="0.12.0-beta.6"/>
+   <version value="0.12.0"/>
    <name value="Koppeltaal_2.0_IG"/>
    <status value="active"/>
    <experimental value="false"/>
-   <date value="2024-04-29"/>
+   <date value="2024-05-02"/>
    <publisher value="VZVZ"/>
    <packageId value="koppeltaalv2.00"/>
    <fhirVersion value="4.0.1"/>
