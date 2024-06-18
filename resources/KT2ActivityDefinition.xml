@@ -3,7 +3,7 @@
   <id value="KT2ActivityDefinition" />
   <meta>
     <versionId value="13" />
-    <lastUpdated value="2023-11-02T10:14:40.9473414+00:00" />
+    <lastUpdated value="2024-06-18T10:06:41.5443251+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2ActivityDefinition" />
   <version value="0.8.0" />
@@ -126,6 +126,16 @@
     <element id="ActivityDefinition.effectivePeriod">
       <path value="ActivityDefinition.effectivePeriod" />
       <max value="0" />
+    </element>
+    <element id="ActivityDefinition.topic">
+      <path value="ActivityDefinition.topic" />
+      <short value="E.g. Self-Treatment and Self-Assessment, etc." />
+      <definition value="Descriptive topics related to the content of the activity. The topic is used to indicate that the activity is intended or suitable for initialization by patients." />
+      <binding>
+        <strength value="extensible" />
+        <description value="High-level categorization of the definition, used for indicating special patient initialised activities" />
+        <valueSet value="http://vzvz.nl/fhir/ValueSet/koppeltaal-definition-topic" />
+      </binding>
     </element>
     <element id="ActivityDefinition.author">
       <path value="ActivityDefinition.author" />
