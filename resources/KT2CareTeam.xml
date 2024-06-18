@@ -46,6 +46,8 @@
     </element>
     <element id="CareTeam.subject">
       <path value="CareTeam.subject" />
+      <short value="Patient treated by this care team" />
+      <min value="1" />
       <type>
         <code value="Reference" />
         <targetProfile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Patient" />
