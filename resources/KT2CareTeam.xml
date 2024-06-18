@@ -61,19 +61,6 @@
       <path value="CareTeam.participant" />
       <comment value="WARNING: `allSlices` is a display bug in Simplifier.net. There is no `allSlices` slice. Firely is already notified of this bug." />
     </element>
-    <element id="CareTeam.participant:contactperson">
-      <path value="CareTeam.participant" />
-      <sliceName value="contactperson" />
-      <comment value="This element is not used in the context of Koppeltaal 2.0" />
-    </element>
-    <element id="CareTeam.participant:contactperson.onBehalfOf">
-      <path value="CareTeam.participant.onBehalfOf" />
-      <comment value="This element is not used in the context of Koppeltaal 2.0" />
-    </element>
-    <element id="CareTeam.participant:contactperson.period">
-      <path value="CareTeam.participant.period" />
-      <comment value="This element is not used in the context of Koppeltaal 2.0" />
-    </element>
     <element id="CareTeam.participant:patient">
       <path value="CareTeam.participant" />
       <sliceName value="patient" />
@@ -90,6 +77,19 @@
       <path value="CareTeam.participant" />
       <sliceName value="healthcareProfessional" />
       <comment value="This slice is not used in the context of Koppeltaal 2.0" />
+    </element>
+    <element id="CareTeam.participant:contactperson">
+      <path value="CareTeam.participant" />
+      <sliceName value="contactperson" />
+      <comment value="This element is not used in the context of Koppeltaal 2.0" />
+    </element>
+    <element id="CareTeam.participant:contactperson.onBehalfOf">
+      <path value="CareTeam.participant.onBehalfOf" />
+      <comment value="This element is not used in the context of Koppeltaal 2.0" />
+    </element>
+    <element id="CareTeam.participant:contactperson.period">
+      <path value="CareTeam.participant.period" />
+      <comment value="This element is not used in the context of Koppeltaal 2.0" />
     </element>
     <element id="CareTeam.participant:kt2healthcareProfessional">
       <path value="CareTeam.participant" />
