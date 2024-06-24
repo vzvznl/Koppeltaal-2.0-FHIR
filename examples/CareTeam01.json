@@ -13,5 +13,10 @@
       "value": "1234"
     }
   ],
-  "status": "active"
+  "status": "active",
+    "subject": {
+    "reference": "Patient/patient-met-resource-origin",
+    "type": "Patient",
+    "display": "Patient, Berta Botje"
+  },
 }
