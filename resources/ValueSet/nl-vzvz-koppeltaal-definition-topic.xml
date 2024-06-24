@@ -3,7 +3,7 @@
 <ValueSet xmlns="http://hl7.org/fhir">
   <id value="koppeltaal-definition-topic"/> 
   <meta> 
-    <lastUpdated value="2019-11-01T09:29:23.356+11:00"/> 
+    <lastUpdated value="2024-06-18T00:00:00+02:00"/> 
     <profile value="http://hl7.org/fhir/StructureDefinition/shareablevalueset"/> 
   </meta> 
   <url value="http://vzvz.nl/fhir/ValueSet/koppeltaal-definition-topic"/> 
@@ -11,7 +11,7 @@
     <use value="official"/>
     <value value="http://vzvz.nl/fhir/ValueSet/koppeltaal-definition-topic"/> 
   </identifier> 
-  <version value="4.0.1"/> 
+  <version value="0.9.0"/> 
   <name value="KoppeltaalDefinitionTopic"/> 
   <title value="Koppeltaal Definition Topic"/> 
   <status value="draft"/> 
