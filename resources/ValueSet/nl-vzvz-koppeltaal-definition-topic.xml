@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <ValueSet xmlns="http://hl7.org/fhir">
   <id value="koppeltaal-definition-topic"/> 
   <meta> 
@@ -11,7 +10,7 @@
     <use value="official"/>
     <value value="http://vzvz.nl/fhir/ValueSet/koppeltaal-definition-topic"/> 
   </identifier> 
-  <version value="0.9.0"/> 
+  <version value="0.9.1"/> 
   <name value="KoppeltaalDefinitionTopic"/> 
   <title value="Koppeltaal Definition Topic"/> 
   <status value="draft"/> 
@@ -28,6 +27,9 @@
   <description value="High-level categorization of the definition, used for indicating special patient initialised activities"/> 
   <immutable value="true"/> 
   <compose> 
+    <include>
+      <system value="http://terminology.hl7.org/CodeSystem/definition-topic"/>
+    </include>
     <include> 
       <system value="http://vzvz.nl/fhir/CodeSystem/koppeltaal-definition-topic"/> 
     </include> 

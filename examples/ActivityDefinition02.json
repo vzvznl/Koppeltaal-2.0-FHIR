@@ -32,5 +32,13 @@
   "title": "Routine outcome monitoring",
   "subtitle": "voor GGZ Testland",
   "status": "active",
-  "description": "Vragenlijst ROM"
+  "description": "Vragenlijst ROM",
+  "topic": [
+    {
+      "coding": {
+        "system": "http://vzvz.nl/fhir/CodeSystem/koppeltaal-definition-topic",
+        "code": "self-assesment"
+      }
+    }
+  ]
 }
