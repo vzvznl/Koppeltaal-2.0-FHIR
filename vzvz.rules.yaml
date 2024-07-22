@@ -56,8 +56,10 @@
   filter: url.exists() and ImplementationGuide.exists().not()
   # Excluding IGs for now, since they have a Simplifier.net canonical
   status: "Checking if canonical URL starts with correct base"
-  predicate: url.startsWith('http://vzvz.nl/') or url.startsWith('http://nictiz.nl/') or url.startsWith('http://fhir.nl/') or url.startsWith('urn:oid') or url.startsWith('http://terminology.hl7.org')
+  predicate: url.startsWith('http://vzvz.nl/') or url.startsWith('http://koppeltaal.nl/') or url.startsWith('http://nictiz.nl/') or url.startsWith('http://fhir.nl/') or url.startsWith('urn:oid') or url.startsWith('http://terminology.hl7.org')
   error-message: "Canonical URL doesn't start with correct base"
+  files:
+    - /resources/**.xml
 
 # - name: StructureDefinition.id_starts_with_nl-vzvz
 #   status: "Checking if id starts with correct prefix for VZVZ canonical URL"
