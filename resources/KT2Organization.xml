@@ -3,7 +3,7 @@
   <id value="KT2Organization" />
   <meta>
     <versionId value="11" />
-    <lastUpdated value="2023-01-24T13:06:17.2184528+00:00" />
+    <lastUpdated value="2024-07-18T00:57:33.7792789+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Organization" />
   <version value="0.8.0" />
@@ -28,21 +28,9 @@
   <baseDefinition value="http://nictiz.nl/fhir/StructureDefinition/nl-core-HealthcareProvider-Organization" />
   <derivation value="constraint" />
   <differential>
-    <element id="Organization.extension">
-      <path value="Organization.extension" />
-      <slicing>
-        <discriminator>
-          <type value="value" />
-          <path value="url" />
-        </discriminator>
-        <rules value="open" />
-      </slicing>
-      <min value="0" />
-    </element>
     <element id="Organization.extension:resource-origin">
       <path value="Organization.extension" />
       <sliceName value="resource-origin" />
-      <min value="0" />
       <type>
         <code value="Extension" />
         <profile value="http://koppeltaal.nl/fhir/StructureDefinition/resource-origin" />

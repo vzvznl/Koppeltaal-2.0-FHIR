@@ -3,7 +3,7 @@
   <id value="KT2Device" />
   <meta>
     <versionId value="9" />
-    <lastUpdated value="2023-02-07T12:25:05.6203243+00:00" />
+    <lastUpdated value="2024-07-18T00:57:32.3348846+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Device" />
   <version value="0.8.1" />
@@ -28,21 +28,9 @@
   <baseDefinition value="http://hl7.org/fhir/StructureDefinition/Device" />
   <derivation value="constraint" />
   <differential>
-    <element id="Device.extension">
-      <path value="Device.extension" />
-      <slicing>
-        <discriminator>
-          <type value="value" />
-          <path value="url" />
-        </discriminator>
-        <rules value="open" />
-      </slicing>
-      <min value="0" />
-    </element>
     <element id="Device.extension:resource-origin">
       <path value="Device.extension" />
       <sliceName value="resource-origin" />
-      <min value="0" />
       <type>
         <code value="Extension" />
         <profile value="http://koppeltaal.nl/fhir/StructureDefinition/resource-origin" />

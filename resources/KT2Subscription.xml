@@ -3,7 +3,7 @@
   <id value="KT2Subscription" />
   <meta>
     <versionId value="5" />
-    <lastUpdated value="2023-01-24T13:06:53.1725719+00:00" />
+    <lastUpdated value="2024-07-18T00:57:37.1452391+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Subscription" />
   <version value="0.8.0" />
@@ -28,21 +28,9 @@
   <baseDefinition value="http://hl7.org/fhir/StructureDefinition/Subscription" />
   <derivation value="constraint" />
   <differential>
-    <element id="Subscription.extension">
-      <path value="Subscription.extension" />
-      <slicing>
-        <discriminator>
-          <type value="value" />
-          <path value="url" />
-        </discriminator>
-        <rules value="open" />
-      </slicing>
-      <min value="0" />
-    </element>
     <element id="Subscription.extension:resource-origin">
       <path value="Subscription.extension" />
       <sliceName value="resource-origin" />
-      <min value="0" />
       <type>
         <code value="Extension" />
         <profile value="http://koppeltaal.nl/fhir/StructureDefinition/resource-origin" />
