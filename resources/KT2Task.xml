@@ -3,7 +3,7 @@
   <id value="KT2Task" />
   <meta>
     <versionId value="13" />
-    <lastUpdated value="2023-11-02T10:44:36.5132625+00:00" />
+    <lastUpdated value="2024-07-15T13:55:12.9022612+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Task" />
   <version value="0.8.0" />
@@ -136,6 +136,7 @@
         <targetProfile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2CareTeam" />
         <targetProfile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Patient" />
         <targetProfile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Practitioner" />
+        <targetProfile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2RelatedPerson" />
       </type>
     </element>
     <element id="Task.location">
