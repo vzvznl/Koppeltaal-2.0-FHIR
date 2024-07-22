@@ -25,7 +25,7 @@
       <profile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Organization"/>
    </global>
    <global>
-      <type value="Extension"/>
+      <type value="StructureDefinition"/>
       <profile value="http://vzvz.nl/fhir/StructureDefinition/instantiates"/>
    </global>
    <global>
@@ -41,7 +41,7 @@
       <profile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2AuditEvent"/>
    </global>
    <global>
-      <type value="Extension"/>
+      <type value="StructureDefinition"/>
       <profile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2EndpointExtension"/>
    </global>
    <global>
@@ -49,7 +49,7 @@
       <profile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Device"/>
    </global>
    <global>
-      <type value="Extension"/>
+      <type value="StructureDefinition"/>
       <profile value="http://koppeltaal.nl/fhir/StructureDefinition/request-id"/>
    </global>
    <global>
@@ -57,7 +57,7 @@
       <profile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Practitioner"/>
    </global>
    <global>
-      <type value="Extension"/>
+      <type value="StructureDefinition"/>
       <profile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2PublisherId"/>
    </global>
    <global>
@@ -69,11 +69,11 @@
       <profile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Endpoint"/>
    </global>
    <global>
-      <type value="Extension"/>
+      <type value="StructureDefinition"/>
       <profile value="http://koppeltaal.nl/fhir/StructureDefinition/correlation-id"/>
    </global>
    <global>
-      <type value="Extension"/>
+      <type value="StructureDefinition"/>
       <profile value="http://koppeltaal.nl/fhir/StructureDefinition/resource-origin"/>
    </global>
    <global>
@@ -81,7 +81,7 @@
       <profile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Task"/>
    </global>
    <global>
-      <type value="Extension"/>
+      <type value="StructureDefinition"/>
       <profile value="http://koppeltaal.nl/fhir/StructureDefinition/trace-id"/>
    </global>
    <global>
