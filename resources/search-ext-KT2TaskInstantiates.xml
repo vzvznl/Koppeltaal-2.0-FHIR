@@ -30,4 +30,5 @@
   <chain value="publisherId" />
   <chain value="owner" />
   <chain value="topic" />
+  <chain value="participant" />
 </SearchParameter>
