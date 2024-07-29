@@ -12,7 +12,7 @@
         {
           "code": "DAUC",
           "system": "http://terminology.hl7.org/CodeSystem/v3-RoleCode",
-          "display": "daughter"
+          "display": "Daughter"
         }
       ]
     }
@@ -45,9 +45,25 @@
       }
     }
   ],
+  "gender": "female",
+  "birthDate": "1980-07-29",
   "active": true,
   "patient": {
     "reference": "Patient/patient-met-resource-origin",
     "display": "Patient, Berta Botje"
-  }
+  },
+  "communication": [
+    {
+      "language": {
+        "coding": [
+          {
+            "system": "http://tools.ietf.org/html/bcp47",
+            "code": "en",
+            "display": "English"
+          }
+        ]
+      },
+      "preferred": true
+    }
+  ]
 }
