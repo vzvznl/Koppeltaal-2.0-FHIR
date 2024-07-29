@@ -2,7 +2,7 @@
 <StructureDefinition xmlns="http://hl7.org/fhir">
   <id value="KT2CareTeam" />
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2CareTeam" />
-  <version value="0.9.0" />
+  <version value="0.10.0" />
   <name value="KT2_CareTeam" />
   <status value="draft" />
   <date value="2023-01-24" />
@@ -61,6 +61,11 @@
       <path value="CareTeam.participant" />
       <comment value="WARNING: `allSlices` is a display bug in Simplifier.net. There is no `allSlices` slice. Firely is already notified of this bug." />
     </element>
+    <element id="CareTeam.participant:contactPerson">
+      <path value="CareTeam.participant" />
+      <sliceName value="contactPerson" />
+      <max value="0" />
+    </element>
     <element id="CareTeam.participant:patient">
       <path value="CareTeam.participant" />
       <sliceName value="patient" />
@@ -77,12 +82,13 @@
       <path value="CareTeam.participant" />
       <sliceName value="healthcareProfessional" />
       <comment value="This slice is not used in the context of Koppeltaal 2.0" />
+      <max value="0" />
     </element>
-    <element id="CareTeam.participant:contactperson">
+    <element id="CareTeam.participant:kt2contactperson">
       <path value="CareTeam.participant" />
-      <sliceName value="contactperson" />
+      <sliceName value="kt2contactperson" />
     </element>
-    <element id="CareTeam.participant:contactperson.member">
+    <element id="CareTeam.participant:kt2contactperson.member">
       <path value="CareTeam.participant.member" />
       <type>
         <code value="Reference" />
@@ -92,14 +98,14 @@
         <targetProfile value="http://hl7.org/fhir/StructureDefinition/Patient" />
         <targetProfile value="http://hl7.org/fhir/StructureDefinition/Organization" />
         <targetProfile value="http://hl7.org/fhir/StructureDefinition/CareTeam" />
-        <targetProfile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2ReleatedPerson" />
+        <targetProfile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2RelatedPerson" />
       </type>
     </element>
-    <element id="CareTeam.participant:contactperson.onBehalfOf">
+    <element id="CareTeam.participant:kt2contactperson.onBehalfOf">
       <path value="CareTeam.participant.onBehalfOf" />
       <comment value="This element is not used in the context of Koppeltaal 2.0" />
     </element>
-    <element id="CareTeam.participant:contactperson.period">
+    <element id="CareTeam.participant:kt2contactperson.period">
       <path value="CareTeam.participant.period" />
       <comment value="This element is not used in the context of Koppeltaal 2.0" />
     </element>
