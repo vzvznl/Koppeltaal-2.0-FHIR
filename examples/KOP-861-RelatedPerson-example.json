@@ -9,12 +9,12 @@
     {
       "use": "official",
       "system": "urn:oid:2.16.840.1.68469.16.4.3.5.6",
-      "value": "${IdentifierValue}"
+      "value": "878787"
     },
     {
       "use": "usual",
       "system": "http://www.testsysteem.xxx/patientrelatedperson",
-      "value": "${IdentifierValueRP}"
+      "value": "12345"
     }
   ],
   "active": true,
