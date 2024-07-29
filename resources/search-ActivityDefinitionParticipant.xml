@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SearchParameter xmlns="http://hl7.org/fhir">
+  <id value="activityDefinitionParticipant" />
+  <url value="http://koppeltaal.nl/fhir/SearchParameter/activityDefinitionParticipant" />
+  <version value="0.1.0" />
+  <name value="KT2_SearchActivityDefinitionParticipant" />
+  <status value="draft" />
+  <date value="2024-07-29" />
+  <publisher value="VZVZ" />
+  <contact>
+    <name value="VZVZ" />
+    <telecom>
+      <system value="url" />
+      <value value="https://www.vzvz.nl" />
+      <use value="work" />
+    </telecom>
+  </contact>
+  <description value="Find the participant of an ActivityDefinition" />
+  <code value="activityDefinitionParticipant" />
+  <base value="ActivityDefinition" />
+  <type value="reference" />
+  <expression value="ActivityDefinition.participant" />
+  <chain value="ActivityDefinition" />
+</SearchParameter>
