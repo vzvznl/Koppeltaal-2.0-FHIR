@@ -12,7 +12,7 @@
         {
           "code": "DAUC",
           "system": "http://terminology.hl7.org/CodeSystem/v3-RoleCode",
-          "display": "Daughter"
+          "display": "daughter"
         }
       ]
     }
