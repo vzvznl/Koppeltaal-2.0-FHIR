@@ -2,7 +2,7 @@
 <StructureDefinition xmlns="http://hl7.org/fhir">
   <id value="KT2CareTeam" />
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2CareTeam" />
-  <version value="0.10.0" />
+  <version value="0.11.0" />
   <name value="KT2_CareTeam" />
   <status value="draft" />
   <date value="2023-01-24" />
@@ -94,6 +94,7 @@
         <code value="Reference" />
         <targetProfile value="http://hl7.org/fhir/StructureDefinition/Organization" />
         <targetProfile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2RelatedPerson" />
+        <targetProfile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2CareTeam" />
       </type>
     </element>
     <element id="CareTeam.participant:kt2contactperson.onBehalfOf">
