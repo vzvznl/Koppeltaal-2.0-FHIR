@@ -5,3 +5,5 @@ scripts
 packages
 tmp
 .simplifier
+resources/fhirpkg.lock.json
+resources/package.json
