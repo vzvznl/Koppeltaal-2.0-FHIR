@@ -2,7 +2,7 @@
 <StructureDefinition xmlns="http://hl7.org/fhir">
   <id value="KT2RelatedPerson" />
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2RelatedPerson" />
-  <version value="0.9.0" />
+  <version value="0.10.0" />
   <name value="KT2_RelatedPerson" />
   <status value="draft" />
   <fhirVersion value="4.0.1" />
@@ -12,6 +12,10 @@
   <baseDefinition value="http://nictiz.nl/fhir/StructureDefinition/nl-core-ContactPerson" />
   <derivation value="constraint" />
   <differential>
+    <element id="RelatedPerson.active">
+      <path value="RelatedPerson.active" />
+      <min value="1" />
+    </element>
     <element id="RelatedPerson.patient">
       <path value="RelatedPerson.patient" />
       <type>
@@ -43,10 +47,6 @@
     <element id="RelatedPerson.photo">
       <path value="RelatedPerson.photo" />
       <max value="0" />
-    </element>
-    <element id="RelatedPerson.communication">
-      <path value="RelatedPerson.communication" />
-      <min value="1" />
     </element>
   </differential>
 </StructureDefinition>
