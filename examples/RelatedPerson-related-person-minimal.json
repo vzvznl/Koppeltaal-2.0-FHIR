@@ -57,7 +57,7 @@
       "language": {
         "coding": [
           {
-            "system": "http://tools.ietf.org/html/bcp47",
+            "system": "urn:ietf:bcp:47",
             "code": "en",
             "display": "English"
           }
