@@ -17,7 +17,7 @@
         <value value="http://vzvz.nl/fhir/ValueSet/endpoint-connection-type" />
     </identifier>
     <version value="2023-09-26" />
-    <name value="Endpoint connection type ValueSet" />
+    <name value="EndpointConnectionTypeValueSet" />
     <title value="Endpoint connection type ValueSet" />
     <status value="draft" />
     <experimental value="false" />
