@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <SearchParameter xmlns="http://hl7.org/fhir">
-  <id value="activityDefinitionParticipant" />
-  <url value="http://koppeltaal.nl/fhir/SearchParameter/activityDefinitionParticipant" />
+  <id value="search-participant" />
+  <url value="http://koppeltaal.nl/fhir/SearchParameter/participant" />
   <version value="0.1.0" />
-  <name value="KT2_SearchActivityDefinitionParticipant" />
+  <name value="KT2_SearchParticipant" />
   <status value="draft" />
   <date value="2024-07-29" />
   <publisher value="VZVZ" />
@@ -16,7 +16,8 @@
     </telecom>
   </contact>
   <description value="Find the participant of an ActivityDefinition" />
-  <code value="activityDefinitionParticipant" />
+  <purpose value="Search ActivityDefinitions based on participant" />
+  <code value="participant" />
   <base value="ActivityDefinition" />
   <type value="reference" />
   <expression value="ActivityDefinition.participant" />

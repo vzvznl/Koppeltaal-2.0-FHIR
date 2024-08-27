@@ -3,7 +3,7 @@
   <id value="search-task-instantiates" />
   <meta>
     <versionId value="2" />
-    <lastUpdated value="2024-07-16T11:34:33.8236684+00:00" />
+    <lastUpdated value="2024-08-27T12:14:49.5566333+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/SearchParameter/task-instantiates" />
   <version value="0.9.0" />
@@ -28,7 +28,6 @@
   <expression value="Task.extension('http://vzvz.nl/fhir/StructureDefinition/instantiates')" />
   <target value="ActivityDefinition" />
   <chain value="publisherId" />
-  <chain value="owner" />
   <chain value="topic" />
   <chain value="participant" />
 </SearchParameter>
