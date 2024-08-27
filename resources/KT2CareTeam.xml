@@ -70,6 +70,13 @@
       <path value="CareTeam.participant" />
       <sliceName value="patient" />
     </element>
+    <element id="CareTeam.participant:patient.member">
+      <path value="CareTeam.participant.member" />
+      <type>
+        <code value="Reference" />
+        <targetProfile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Patient" />
+      </type>
+    </element>
     <element id="CareTeam.participant:patient.onBehalfOf">
       <path value="CareTeam.participant.onBehalfOf" />
       <comment value="This element is not used in the context of Koppeltaal 2.0" />
@@ -92,9 +99,7 @@
       <path value="CareTeam.participant.member" />
       <type>
         <code value="Reference" />
-        <targetProfile value="http://hl7.org/fhir/StructureDefinition/Organization" />
         <targetProfile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2RelatedPerson" />
-        <targetProfile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2CareTeam" />
       </type>
     </element>
     <element id="CareTeam.participant:kt2contactperson.onBehalfOf">
