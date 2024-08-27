@@ -12,6 +12,10 @@
   <baseDefinition value="http://nictiz.nl/fhir/StructureDefinition/nl-core-ContactPerson" />
   <derivation value="constraint" />
   <differential>
+    <element id="RelatedPerson.identifier">
+      <path value="RelatedPerson.identifier" />
+      <min value="1" />
+    </element>
     <element id="RelatedPerson.active">
       <path value="RelatedPerson.active" />
       <min value="1" />
