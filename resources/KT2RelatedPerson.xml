@@ -27,6 +27,22 @@
       <path value="RelatedPerson.relationship" />
       <min value="1" />
     </element>
+    <element id="RelatedPerson.relationship:role">
+      <path value="RelatedPerson.relationship" />
+      <sliceName value="role" />
+      <binding>
+        <strength value="required" />
+        <valueSet value="http://decor.nictiz.nl/fhir/ValueSet/2.16.840.1.113883.2.4.3.11.60.40.2.3.1.2--20200901000000" />
+      </binding>
+    </element>
+    <element id="RelatedPerson.relationship:relationship">
+      <path value="RelatedPerson.relationship" />
+      <sliceName value="relationship" />
+      <binding>
+        <strength value="required" />
+        <valueSet value="http://decor.nictiz.nl/fhir/ValueSet/2.16.840.1.113883.2.4.3.11.60.40.2.3.1.1--20200901000000" />
+      </binding>
+    </element>
     <element id="RelatedPerson.name">
       <path value="RelatedPerson.name" />
       <min value="1" />
