@@ -4,7 +4,7 @@
   <url value="http://koppeltaal.nl/fhir/SearchParameter/participant" />
   <version value="0.1.0" />
   <name value="KT2_SearchParticipant" />
-  <status value="draft" />
+  <status value="active" />
   <date value="2024-07-29" />
   <publisher value="VZVZ" />
   <contact>
