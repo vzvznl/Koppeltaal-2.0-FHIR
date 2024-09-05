@@ -6,7 +6,7 @@
     <lastUpdated value="2024-09-05T12:15:13.9879889+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Task" />
-  <version value="0.8.0" />
+  <version value="0.8.1" />
   <name value="KT2_Task" />
   <status value="draft" />
   <date value="2023-01-24" />

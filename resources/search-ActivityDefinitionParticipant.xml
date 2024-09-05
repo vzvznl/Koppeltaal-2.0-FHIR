@@ -2,7 +2,7 @@
 <SearchParameter xmlns="http://hl7.org/fhir">
   <id value="search-participant" />
   <url value="http://koppeltaal.nl/fhir/SearchParameter/participant" />
-  <version value="0.1.0" />
+  <version value="0.2.0" />
   <name value="KT2_SearchParticipant" />
   <status value="active" />
   <date value="2024-07-29" />
