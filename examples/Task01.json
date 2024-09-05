@@ -28,9 +28,11 @@
       "value": "1234"
     }
   ],
-  "partOf": {
-    "reference": "Task/task-overkoepelend"
-  },
+  "partOf": [
+    {
+      "reference": "Task/task-overkoepelend"
+    }
+  ],
   "for": {
     "reference": "Patient/patient-volledige-naam-bsn",
     "type": "Patient"

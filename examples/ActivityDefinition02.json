@@ -35,10 +35,12 @@
   "description": "Vragenlijst ROM",
   "topic": [
     {
-      "coding": {
-        "system": "http://vzvz.nl/fhir/CodeSystem/koppeltaal-definition-topic",
-        "code": "self-assesment"
-      }
+      "coding": [
+        {
+          "system": "http://vzvz.nl/fhir/CodeSystem/koppeltaal-definition-topic",
+          "code": "self-assesment"
+        }
+      ]
     }
   ]
 }

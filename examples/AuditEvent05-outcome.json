@@ -2,7 +2,9 @@
   "resourceType": "AuditEvent",
   "id": "audit-event-with-outcome-4",
   "meta": {
-    "profile": "http://koppeltaal.nl/fhir/StructureDefinition/KT2AuditEvent",
+    "profile": [
+      "http://koppeltaal.nl/fhir/StructureDefinition/KT2AuditEvent"
+    ],
     "lastUpdated": "2023-01-10T12:50:22Z",
     "versionId": "1"
   },

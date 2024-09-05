@@ -22,15 +22,17 @@
       }
     }
   ],
-  "identifier" : {
-    "system": "https://irma.app",
-    "value": "54321"
-  },
+  "identifier": [
+    {
+      "system": "https://irma.app",
+      "value": "54321"
+    }
+  ],
   "for": {
     "identifier": {
-        "use": "official",
-        "system": "https://irma.app",
-        "value": "bertabotje01@vzvz.nl"
+      "use": "official",
+      "system": "https://irma.app",
+      "value": "bertabotje01@vzvz.nl"
     },
     "type": "Patient"
   },
@@ -41,20 +43,19 @@
   },
   "requester": {
     "identifier": {
-      "system":"urn:oid:2.16.528.1.1007.3.1",
+      "system": "urn:oid:2.16.528.1.1007.3.1",
       "value": "938273695"
     },
     "type": "Practitioner"
   },
   "owner": {
     "identifier": {
-        "system": "https://irma.app",
-        "value": "bertabotje01@vzvz.nl"
+      "system": "https://irma.app",
+      "value": "bertabotje01@vzvz.nl"
     },
     "type": "Patient"
   },
   "status": "ready",
-
   "authoredOn": "2020-12-31T08:25:05+10:00",
   "lastModified": "2020-12-31T09:45:05+10:00"
 }
