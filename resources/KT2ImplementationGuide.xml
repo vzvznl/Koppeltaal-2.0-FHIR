@@ -2,7 +2,7 @@
 <ImplementationGuide xmlns="http://hl7.org/fhir">
    <id value="koppeltaal-ig-koppeltaalv2.00"/>
    <url value="http://koppeltaal.nl/fhir/ImplementationGuide"/>
-   <version value="0.14.0-beta.6"/>
+   <version value="0.14.0-beta.7"/>
    <name value="Koppeltaal_2.0_IG"/>
    <status value="active"/>
    <experimental value="false"/>
