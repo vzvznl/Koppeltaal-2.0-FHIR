@@ -35,36 +35,37 @@
   "description": "Vragenlijst ROM",
   "topic": [
     {
-      "coding": {
-        "system": "http://vzvz.nl/fhir/CodeSystem/koppeltaal-definition-topic",
-        "code": "self-assesment"
-      }
+      "coding": [
+        {
+          "system": "http://vzvz.nl/fhir/CodeSystem/koppeltaal-definition-topic",
+          "code": "self-assesment"
+        }
+      ]
     }
   ],
   "participant": [
     {
       "type": "related-person",
-      "role": [
-        {
-          "coding": {
+      "role": {
+        "coding": [
+          {
             "system": "http://terminology.hl7.org/CodeSystem/v3-RoleCode",
             "code": "AUNT"
           }
-        }
-      ]
+        ]
+      }
     },
     {
       "type": "practitioner",
-      "role": [
-        {
-          "coding": {
+      "role": {
+        "coding": [
+          {
             "system": "http://snomed.info/sct",
             "code": "224588003",
             "display": "Psychotherapist"
           }
-        }
-      ]
+        ]
+      }
     }
-
   ]
 }

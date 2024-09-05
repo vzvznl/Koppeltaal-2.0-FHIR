@@ -79,14 +79,14 @@
   },
   "communication": [
     {
-      "language": [
-        {
-          "coding": {
+      "language": {
+        "coding": [
+          {
             "system": "urn:ietf:bcp:47",
             "code": "nl"
           }
-        }
-      ]
+        ]
+      }
     }
   ]
 }
