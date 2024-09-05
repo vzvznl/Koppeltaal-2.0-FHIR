@@ -19,7 +19,6 @@
   <purpose value="Search ActivityDefinitions based on participant" />
   <code value="participant" />
   <base value="ActivityDefinition" />
-  <type value="reference" />
-  <expression value="ActivityDefinition.participant" />
-  <chain value="ActivityDefinition" />
+  <type value="token" />
+  <expression value="ActivityDefinition.participant.type" />
 </SearchParameter>
