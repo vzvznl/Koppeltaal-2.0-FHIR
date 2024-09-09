@@ -1,5 +1,5 @@
 <NamingSystem xmlns="http://hl7.org/fhir">
-  <id value="koppeltaal-ClientID" />
+  <id value="koppeltaal-client-id" />
   <name value="KoppeltaalClientID" />
   <status value="draft" />
   <kind value="identifier" />
