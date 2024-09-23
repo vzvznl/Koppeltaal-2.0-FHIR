@@ -1,0 +1,50 @@
+{
+  "resourceType": "CodeSystem",
+  "status": "active",
+  "content": "complete",
+  "name": "KoppeltaalCustomRoles",
+  "id": "koppeltaal-custom-roles",
+  "title": "Koppeltaal Custom Roles",
+  "description": "Temporary solution to provide missing codes. See KOP-864",
+  "url": "http://vzvz.nl/fhir/CodeSystem/koppeltaal-custom-roles",
+  "concept": [
+    {
+      "code": "contact",
+      "display": "Contactpersoon"
+    },
+    {
+      "code": "wetvert",
+      "display": "Wettelijke vertegenwoordiger"
+    }
+  ],
+  "meta": {
+    "profile": [
+      "http://hl7.org/fhir/StructureDefinition/CodeSystem"
+    ]
+  },
+  "date": "2024-09-23T12:00:00+02:00",
+  "publisher": "VZVZ",
+  "contact": [
+    {
+      "name": "VZVZ",
+      "telecom": [
+        {
+          "system": "email",
+          "value": "standaardisatie@vzvz.nl",
+          "use": "work"
+        }
+      ]
+    }
+  ],
+  "copyright": "VZVZ",
+  "language": "nl-NL",
+  "identifier": [
+    {
+      "use": "official",
+      "value": "http://vzvz.nl/fhir/CodeSystem/koppeltaal-custom-roles"
+    }
+  ],
+  "version": "2024-09-23",
+  "experimental": false,
+  "count": 2
+}

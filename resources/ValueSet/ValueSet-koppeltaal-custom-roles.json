@@ -1,0 +1,42 @@
+{
+  "resourceType": "ValueSet",
+  "status": "draft",
+  "name": "KoppeltaalCustomRoles",
+  "id": "koppeltaal-custom-roles",
+  "title": "Koppeltaal Custom Roles",
+  "description": "Temporary solution to provide missing codes. See KOP-864",
+  "url": "http://vzvz.nl/fhir/ValueSet/koppeltaal-custom-roles",
+  "meta": {
+    "profile": [
+      "http://hl7.org/fhir/StructureDefinition/ValueSet"
+    ]
+  },
+  "identifier": [
+    {
+      "use": "official",
+      "value": "http://vzvz.nl/fhir/ValueSet/koppeltaal-custom-roles"
+    }
+  ],
+  "date": "2024-09-23T12:00:00+02:00",
+  "publisher": "VZVZ",
+  "contact": [
+    {
+      "name": "VZVZ",
+      "telecom": [
+        {
+          "system": "email",
+          "value": "standaardisatie@vzvz.nl",
+          "use": "work"
+        }
+      ]
+    }
+  ],
+  "copyright": "VZVZ",
+  "compose": {
+    "include": [
+      {
+        "system": "http://vzvz.nl/fhir/CodeSystem/koppeltaal-custom-roles"
+      }
+    ]
+  }
+}
