@@ -135,8 +135,8 @@
     </element>
     <element id="Task.owner">
       <path value="Task.owner" />
-      <definition value="Practitioner, CareTeam or Patient currently responsible for task execution." />
-      <comment value="In Koppeltaal the patient is usually the person who executes the task.&#xD;&#xA;&#xD;&#xA;Note, this element is not intended to be used for access restriction. That is left to the relavant applications." />
+      <definition value="Practitioner, CareTeam, RelatedPerson or Patient currently responsible for task execution." />
+      <comment value="In Koppeltaal the patient is usually the person who executes the task.&#xD;&#xA;&#xD;&#xA;Note, this element is not intended to be used for access restriction. That is left to the relevant applications." />
       <min value="1" />
       <type>
         <code value="Reference" />
