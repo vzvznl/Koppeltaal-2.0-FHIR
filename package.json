@@ -2,9 +2,24 @@
   "name": "koppeltaalv2.00",
   "version": "0.14.0-beta.9",
   "description": "Draft of used FHIR resource profiles in Koppeltaal 2.0.",
+  "title": "This package contains the Koppeltaal 2.0 profiles",
   "author": "VZVZ",
   "fhirVersions": [
     "4.0.1"
+  ],
+  "jurisdiction": "urn:iso:std:iso:3166#NL",
+  "maintainers": [
+    {
+      "name": "VZVZ"
+    },
+    {
+      "name": "Koppeltaal"
+    }
+  ],
+  "keywords": [
+    "VZVZ",
+    "Koppeltaal",
+    "GGZ"
   ],
   "dependencies": {
     "nictiz.fhir.nl.r4.zib2020": "0.10.0-beta.1",

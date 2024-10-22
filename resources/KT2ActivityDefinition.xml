@@ -3,7 +3,7 @@
   <id value="KT2ActivityDefinition" />
   <meta>
     <versionId value="13" />
-    <lastUpdated value="2024-07-15T13:43:17.9418841+00:00" />
+    <lastUpdated value="2024-10-18T21:08:35.5759835+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2ActivityDefinition" />
   <version value="0.9.0" />
@@ -20,6 +20,13 @@
     </telecom>
   </contact>
   <description value="The (FHIR) ActivityDefinition (resource) describes an eHealth activity that is available for assignment to a patient. When assigning an eHealth activity to a patient, an eHealth Task is created, in which sub-activities are included as contained resources that refer to the main task via Task.partOf." />
+  <jurisdiction>
+    <coding>
+      <system value="urn:iso:std:iso:3166" />
+      <code value="NL" />
+      <display value="Netherlands" />
+    </coding>
+  </jurisdiction>
   <copyright value="VZVZ" />
   <fhirVersion value="4.0.1" />
   <kind value="resource" />
@@ -101,6 +108,7 @@
     </element>
     <element id="ActivityDefinition.jurisdiction">
       <path value="ActivityDefinition.jurisdiction" />
+      <definition value="This element is not used" />
       <max value="0" />
     </element>
     <element id="ActivityDefinition.purpose">
