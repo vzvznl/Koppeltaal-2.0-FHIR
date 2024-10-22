@@ -1,0 +1,85 @@
+{
+  "resourceType": "RelatedPerson",
+  "id": "related-person-contactperson",
+  "meta": {
+    "profile": [
+      "http://koppeltaal.nl/fhir/StructureDefinition/KT2RelatedPerson"
+    ]
+  },
+  "identifier": [
+    {
+      "use": "official",
+      "system": "urn:oid:2.16.840.1.68469.16.4.3.5.6",
+      "value": "55779933"
+    }
+  ],
+  "relationship": [
+    {
+      "coding": [
+        {
+          "code": "DAUC",
+          "system": "http://terminology.hl7.org/CodeSystem/v3-RoleCode",
+          "display": "Daughter"
+        }
+      ]
+    },
+    {
+      "coding": [
+        {
+          "system": "urn:oid:2.16.840.1.113883.2.4.3.11.22.472",
+          "code": "23",
+          "display": "Contactpersoon"
+        }
+      ]
+    }
+  ],
+  "name": [
+    {
+      "given": [
+        "M."
+      ],
+      "_given": [
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier",
+              "valueCode": "IN"
+            }
+          ]
+        }
+      ],
+      "use": "official",
+      "text": "M. Buurvrouw",
+      "family": "Buurvrouw",
+      "_family": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/humanname-own-name",
+            "valueString": "Buurvrouw"
+          }
+        ]
+      }
+    }
+  ],
+  "gender": "female",
+  "birthDate": "1980-07-29",
+  "active": true,
+  "patient": {
+    "reference": "Patient/patient-met-resource-origin",
+    "display": "Patient, Berta Botje"
+  },
+  "communication": [
+    {
+      "language": {
+        "coding": [
+          {
+            "system": "urn:ietf:bcp:47",
+            "code": "en",
+            "display": "English"
+          }
+        ]
+      },
+      "preferred": true
+    }
+  ]
+}
