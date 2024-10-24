@@ -34,7 +34,7 @@
     <element id="RelatedPerson.relationship:role">
       <path value="RelatedPerson.relationship" />
       <sliceName value="role" />
-      <comment value="DO NOT use codes 23 or 24 of the code system defined in this slice to express these roles. Use the code system provided in the `customRole` slice to indicate a contact person or legal guardian.&#xD;&#xA;&#xD;&#xA;When using the `display` element of a code you __MUST__ use the content of the `display` element of the code from the __CodeSystem__. Otherwise, validation will result in errors. Note that the display of the code in the ValueSet can be different." />
+      <comment value="When using the `display` element of a code you __MUST__ use the content of the `display` element of the code from the __CodeSystem__. Otherwise, validation will result in errors. Note that the display of the code in the ValueSet can be different." />
     </element>
     <element id="RelatedPerson.name">
       <path value="RelatedPerson.name" />
