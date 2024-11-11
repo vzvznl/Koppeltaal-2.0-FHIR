@@ -31,15 +31,6 @@
           "display": "Cliëntondersteuner"
         }
       ]
-    },
-    {
-      "coding": [
-        {
-          "system": "http://vzvz.nl/fhir/CodeSystem/koppeltaal-custom-roles",
-          "code": "wetvert",
-          "display": "Wettelijke vertegenwoordiger"
-        }
-      ]
     }
   ],
   "name": [
