@@ -29,6 +29,13 @@
     </element>
     <element id="RelatedPerson.relationship">
       <path value="RelatedPerson.relationship" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="coding.system" />
+        </discriminator>
+        <rules value="closed" />
+      </slicing>
       <min value="1" />
     </element>
     <element id="RelatedPerson.relationship:role">
