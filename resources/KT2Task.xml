@@ -3,7 +3,7 @@
   <id value="KT2Task" />
   <meta>
     <versionId value="13" />
-    <lastUpdated value="2024-09-05T12:15:13.9879889+00:00" />
+    <lastUpdated value="2024-11-25T14:18:35.4925248+00:00" />
   </meta>
   <url value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Task" />
   <version value="0.8.1" />
@@ -97,6 +97,7 @@
     </element>
     <element id="Task.code">
       <path value="Task.code" />
+      <comment value="See [Koppeltaal Implementation Guide](https://simplifier.net/guide/koppeltaal/Home/Profile-Specific-Notes/Task.page.md?version=current) for more information on the ValueSet" />
       <binding>
         <strength value="preferred" />
         <valueSet value="http://vzvz.nl/fhir/ValueSet/koppeltaal-task-code" />

@@ -36,6 +36,7 @@
         </discriminator>
         <rules value="closed" />
       </slicing>
+      <comment value="See [Koppeltaal Implementation Guide](https://simplifier.net/guide/koppeltaal/Home/Profile-Specific-Notes/RelatedPerson.page.md?version=current) for more information on the ValueSet" />
       <min value="1" />
     </element>
     <element id="RelatedPerson.relationship:role">

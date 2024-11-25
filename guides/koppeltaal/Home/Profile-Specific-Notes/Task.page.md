@@ -3,7 +3,7 @@ topic: kt2task
 ---
 # {{page-title}}
 
-{{tree:KT2Task}}
+{{tree:http://koppeltaal.nl/fhir/StructureDefinition/KT2Task}}
 
 ## Reference to ActivityDefinition
 
