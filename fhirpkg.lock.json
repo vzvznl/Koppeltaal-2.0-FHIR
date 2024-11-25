@@ -1,5 +1,5 @@
 {
-  "updated": "2024-10-22T15:46:48.3719652+02:00",
+  "updated": "2024-11-25T15:24:36.2131356+01:00",
   "dependencies": {
     "nictiz.fhir.nl.r4.zib2020": "0.11.0-beta.1",
     "hl7.fhir.r4.core": "4.0.1",
