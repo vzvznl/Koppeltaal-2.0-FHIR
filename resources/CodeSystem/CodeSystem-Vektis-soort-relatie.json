@@ -1,0 +1,94 @@
+{
+  "resourceType": "CodeSystem",
+  "status": "unknown",
+  "content": "complete",
+  "name": "COD472_VEKT_Soort_relatie_client",
+  "id": "2.16.840.1.113883.2.4.3.11.22.472",
+  "title": "COD472-VEKT Soort relatie cliënt",
+  "description": "COD472-VEKT Soort relatie cliënt --- uitsluitend bedoeld voor testdoeleinden!!! Dit is geen volledige lijst noch een door Vektis goedgekeurd uittreksel. Deze lijst is uitsluitend bedoeld voor testen binnen Koppeltaal.",
+  "url": "urn:oid:2.16.840.1.113883.2.4.3.11.22.472",
+  "concept": [
+    {
+      "code": "01",
+      "display": "Eerste relatie/contactpersoon"
+    },
+    {
+      "code": "02",
+      "display": "Tweede relatie/contactpersoon"
+    },
+    {
+      "code": "03",
+      "display": "Curator (juridisch)"
+    },
+    {
+      "code": "04",
+      "display": "Financieel (gemachtigd)"
+    },
+    {
+      "code": "05",
+      "display": "Financieel (toetsing)"
+    },
+    {
+      "code": "06",
+      "display": "Leefeenheid"
+    },
+    {
+      "code": "07",
+      "display": "Hulpverlener"
+    },
+    {
+      "code": "09",
+      "display": "Anders"
+    },
+    {
+      "code": "11",
+      "display": "Voogd"
+    },
+    {
+      "code": "14",
+      "display": "Bewindvoerder"
+    },
+    {
+      "code": "15",
+      "display": "Mentor"
+    },
+    {
+      "code": "19",
+      "display": "Buur"
+    },
+    {
+      "code": "20",
+      "display": "Vriend(in)/kennis"
+    },
+    {
+      "code": "21",
+      "display": "Cliëntondersteuner"
+    },
+    {
+      "code": "23",
+      "display": "Contactpersoon"
+    },
+    {
+      "code": "24",
+      "display": "Wettelijke vertegenwoordiger"
+    }
+  ],
+  "meta": {
+    "profile": [
+      "http://hl7.org/fhir/StructureDefinition/CodeSystem"
+    ]
+  },
+  "date": "2024-11-13T12:00:00+01:00",
+  "publisher": "Nictiz",
+  "language": "nl-NL",
+  "identifier": [
+    {
+      "use": "official",
+      "system": "urn:ietf:rfc:3986",
+      "value": "urn:oid:2.16.840.1.113883.2.4.3.11.22.472"
+    }
+  ],
+  "version": "2024-11-13",
+  "experimental": false,
+  "count": 16
+}
