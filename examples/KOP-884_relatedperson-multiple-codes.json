@@ -139,7 +139,7 @@
             "_country": {
                 "extension": [
                     {
-                        "url": " http://nictiz.nl/fhir/StructureDefinition/ext-CodeSpecification  ",
+                        "url": "http://nictiz.nl/fhir/StructureDefinition/ext-CodeSpecification",
                         "valueCodeableConcept": {
                             "coding": [
                                 {
