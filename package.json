@@ -1,6 +1,6 @@
 {
   "name": "koppeltaalv2.00",
-  "version": "0.14.0-beta.11",
+  "version": "0.14.0-beta.12",
   "description": "Draft of used FHIR resource profiles in Koppeltaal 2.0.",
   "title": "This package contains the Koppeltaal 2.0 profiles",
   "author": "VZVZ",
