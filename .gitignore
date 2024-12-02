@@ -1,10 +1,10 @@
 /koppeltaal.code-workspace
 /koppeltaal.xpr
 archive
-scripts
 packages
 tmp
 .simplifier
 resources/fhirpkg.lock.json
 resources/package.json
 validator_cli.jar
+saxon-config.xml
