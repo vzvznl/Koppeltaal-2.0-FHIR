@@ -38,7 +38,7 @@
       "coding": [
         {
           "system": "http://vzvz.nl/fhir/CodeSystem/koppeltaal-definition-topic",
-          "code": "self-assesment"
+          "code": "self-assessment"
         }
       ]
     }
