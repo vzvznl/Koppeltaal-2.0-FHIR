@@ -32,31 +32,38 @@
       <slicing>
         <discriminator>
           <type value="pattern" />
-          <path value="coding.system" />
+          <path value="coding" />
         </discriminator>
         <rules value="closed" />
       </slicing>
       <comment value="See [Koppeltaal Implementation Guide](https://simplifier.net/guide/koppeltaal/Home/Profile-Specific-Notes/RelatedPerson.page.md?version=current) for more information on the ValueSet" />
       <min value="1" />
-      <patternCodeableConcept>
-        <coding>
-          <system value="urn:oid:2.16.840.1.113883.2.4.3.11.60.40.4.23.1" />
-        </coding>
-        <coding>
-          <system value="urn:oid:2.16.840.1.113883.2.4.3.11.60.40.4.23.1" />
-        </coding>
-        <coding>
-          <system value="http://terminology.hl7.org/CodeSystem/v3-RoleCode" />
-        </coding>
-        <coding>
-          <system value="http://terminology.hl7.org/CodeSystem/v3-NullFlavor" />
-        </coding>
-      </patternCodeableConcept>
     </element>
     <element id="RelatedPerson.relationship:role">
       <path value="RelatedPerson.relationship" />
       <sliceName value="role" />
       <comment value="When using the `display` element of a code you __MUST__ use the content of the `display` element of the code from the __CodeSystem__. Otherwise, validation will result in errors. Note that the display of the code in the ValueSet can be different." />
+    </element>
+    <element id="RelatedPerson.relationship:role.coding">
+      <path value="RelatedPerson.relationship.coding" />
+      <binding>
+        <strength value="required" />
+        <description value="The nature of the relationship between a patient and the related person." />
+        <valueSet value="http://decor.nictiz.nl/fhir/ValueSet/2.16.840.1.113883.2.4.3.11.60.40.2.3.1.2--20200901000000" />
+      </binding>
+    </element>
+    <element id="RelatedPerson.relationship:relationship">
+      <path value="RelatedPerson.relationship" />
+      <sliceName value="relationship" />
+      <comment value="When using the `display` element of a code you __MUST__ use the content of the `display` element of the code from the __CodeSystem__. Otherwise, validation will result in errors. Note that the display of the code in the ValueSet can be different." />
+    </element>
+    <element id="RelatedPerson.relationship:relationship.coding">
+      <path value="RelatedPerson.relationship.coding" />
+      <binding>
+        <strength value="required" />
+        <description value="The nature of the relationship between a patient and the related person." />
+        <valueSet value="http://decor.nictiz.nl/fhir/ValueSet/2.16.840.1.113883.2.4.3.11.60.40.2.3.1.1--20200901000000" />
+      </binding>
     </element>
     <element id="RelatedPerson.name">
       <path value="RelatedPerson.name" />
