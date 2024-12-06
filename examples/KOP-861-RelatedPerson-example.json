@@ -1,5 +1,6 @@
 {
   "resourceType": "RelatedPerson",
+  "id": "relatedperson-example",
   "meta": {
     "profile": [
       "http://koppeltaal.nl/fhir/StructureDefinition/KT2RelatedPerson"
