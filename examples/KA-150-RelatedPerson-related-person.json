@@ -6,6 +6,10 @@
       "http://koppeltaal.nl/fhir/StructureDefinition/KT2RelatedPerson"
     ]
   },
+  "text": {
+    "status": "extensions",
+    "div": "<div xmlns='http://www.w3.org/1999/xhtml'>skipping narratives</div>"
+  },
   "identifier": [
     {
       "use": "official",
