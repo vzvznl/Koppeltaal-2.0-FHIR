@@ -1,0 +1,78 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "KT2EndpointExtension",
+  "meta": {
+    "versionId": "9",
+    "lastUpdated": "2023-01-24T13:04:45.2923549+00:00"
+  },
+  "language": "nl-NL",
+  "url": "http://koppeltaal.nl/fhir/StructureDefinition/KT2EndpointExtension",
+  "version": "0.8.0",
+  "name": "KT2_EndpointExtension",
+  "status": "draft",
+  "date": "2023-01-24",
+  "publisher": "VZVZ",
+  "contact": [
+    {
+      "name": "VZVZ",
+      "telecom": [
+        {
+          "system": "email",
+          "value": "standaardisatie@vzvz.nl",
+          "use": "work"
+        }
+      ]
+    }
+  ],
+  "description": "Reference extension to the service application (endpoint) that provides the eHealth activity.",
+  "jurisdiction": [
+    {
+      "coding": [
+        {
+          "code": "NL",
+          "system": "urn:iso:std:iso:3166",
+          "display": "Netherlands"
+        }
+      ]
+    }
+  ],
+  "copyright": "VZVZ",
+  "fhirVersion": "4.0.1",
+  "kind": "complex-type",
+  "abstract": false,
+  "context": [
+    {
+      "expression": "ActivityDefinition",
+      "type": "element"
+    }
+  ],
+  "type": "Extension",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Extension",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      {
+        "id": "Extension.extension",
+        "path": "Extension.extension",
+        "max": "0"
+      },
+      {
+        "id": "Extension.url",
+        "path": "Extension.url",
+        "fixedUri": "http://koppeltaal.nl/fhir/StructureDefinition/KT2EndpointExtension"
+      },
+      {
+        "id": "Extension.value[x]",
+        "path": "Extension.value[x]",
+        "type": [
+          {
+            "code": "Reference",
+            "targetProfile": [
+              "http://koppeltaal.nl/fhir/StructureDefinition/KT2Endpoint"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
