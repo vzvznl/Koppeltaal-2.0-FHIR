@@ -135,7 +135,7 @@ In het voorbeeld hieronder staat een subtaak voor een `RelatedPerson` die gekopp
 
 ## KT2_Task.code
 
-Met behulp van dit element kan voor een `KT2_Task` de permissie op view worden gezet. Welke betekenis de view permissie bevat kan per applicatie verschillen.
+Met behulp van het `KT2_Task.code` element kan voor een `KT2_Task` de permissie op `view` worden gezet. Wat de exacte betekenis de `view` permissie is kan per applicatie verschillen, aangezien in koppeltaal 2.0 de autorisaties door de applicaties worden uitgevoerd.
 
 ```JSON
 {
