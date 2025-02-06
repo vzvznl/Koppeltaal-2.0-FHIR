@@ -4,38 +4,43 @@ topic: RelatedPerson
 
 # {{page-title}}
 
-De Resource `RelatedPerson` is een nieuwe actor in de Koppeltaal Standaard. Bij een Related Person kunnen allerlei personen zijn, denk aan de volgende Rollen en Relaties.
+The `RelatedPerson` resource is a new actor in the Koppeltaal Standard. A `RelatedPerson` can represent various individuals, such as the following roles and relationships:
 
-* Ouder of Voogd,
-* Gemachtigde
-* Zorg Ondersteuner
-* etc.
+* Parent or Guardian
+* Authorized Representative
+* Care Supporter
 
-In het Element `RelatedPerson.relationship` wordt deze relatie vastgelegd. 
-In het Element `RelatedPerson.patient` bevat de referentie naar de `Patient`. Waarvoor betreffende actor een `RelatedPerson` is.
+The `RelatedPerson.relationship` element specifies this relationship. The `RelatedPerson.patient` element contains the reference to the `Patient` for whom the actor is a `RelatedPerson`.
 
-De `RelatedPerson` kan namens de `Patient` Taken uitvoeren, kan meekijken en ondersteunen bij taken van de `Patient`. Daarnaast heeft de `Patient` en `Practitioner` de mogelijkheid om de `RelatedPerson` toegang te ontzeggen aan een taak die was toegekend aan de `RelatedPerson`. 
+A `RelatedPerson` can perform tasks on behalf of the `Patient`, assist with the `Patient's` tasks, or view them. In addition, the `Patient` and `Practitioner` have the ability to revoke a `RelatedPerson's` access to a task that was assigned to the `RelatedPerson`.
 
-Hieronder wordt beschreven welke elementen een rol spelen bij het uitvoeren, meekijken en ontzeggen van toegang:
+Below is a description of the elements involved in executing tasks, viewing, and revoking access.
 
-## Taak uitvoeren door de RelatedPerson
+### Executing a Task by the RelatedPerson
 
-Wanneer een `RelatedPerson` een taak uitvoert en start via een launch 
- 1. De owner van de `Task` kan een `RelatedPerson` zijn: `Task.owner` = `Reference (KT2_RelatedPerson)` & `Task.for` = `Reference (KT2_Patient)`
- 2. De owner van `Task` kan ook een `CareTeam` waar `CareTeam.subject`= `Reference (KT2_Patient)` & `CareTeam.participant.member` = `Reference(KT2_RelatedPerson)` & `RelatedPerson.patient` = `Reference (KT2_Patient)` & `CareTeam.subject`=`RelatedPerson.patient`. 
+When a `RelatedPerson` executes a task and starts it via a launch:
+1. The owner of the `Task` can be a `RelatedPerson`:
+`Task.owner` = `Reference (KT2_RelatedPerson)`
+`Task.for` = `Reference (KT2_Patient)`
+2. The owner of the `Task` can also be a `CareTeam` where:
+    - `CareTeam.subject` = `Reference (KT2_Patient)`
+    - `CareTeam.participant.member` = `Reference (KT2_RelatedPerson)`
+    - `RelatedPerson.patient` = `Reference (KT2_Patient)`
+    - `CareTeam.subject` = `RelatedPerson.patient`.
 
-Deze condities moeten gecontroleerd worden door de lancerende applicatie.
+These conditions must be verified by the launching application.
 
-## Meekijken en ondersteunen bij een taak van de Patient
-Om het een `RelatedPerson` te laten meekijken met een taak van de patient zijn de volgende voorwaarden noodzakelijk.
+### Viewing and Supporting a Task of the Patient
+The following conditions are necessary for a `RelatedPerson` to view a task of the `Patient`:
+1. The task that the `RelatedPerson` performs should be a sub-task of the main task being performed by the patient:
+    - `Task.partOf` = `Reference (K2_Task)`
+    - `Task.owner` = `Reference (KT2_RelatedPerson)`
+    - `Task.code` = `view`.
 
- 1. De Taak die `RelatedPerson` uitvoert, moet een subtaak zijn van de hoofdtaak die door de Patient wordt uitgevoerd: `Task.partOf` = `Reference (KT2_Task)` & `Task.owner` = `Reference` (KT2_RelatedPerson) & `Task.code`=`view`
+### Revoking Authorization for a Task to be Performed by a RelatedPerson
 
-Het ontzeggen van bevoegdheid om een taak door een `RelatedPerson` te laten uitvoeren
-
-Om duidelijk te maken dat een `RelatedPerson` niet meer bevoegd is tot het uitvoeren of inzien van een taak zijn er de volgende opties:
- 1. `Task.status` = `cancelled` 
- 2. `RelatedPerson.active` = `0` (inactive) 
- 3. `RelatedPerson.patient` <> `Task.owner`
- 4. `CareTeam.participant.kt2contactperson` is verwijderd uit het `CareTeam`
-
+To make it clear that a `RelatedPerson` is no longer authorized to perform or view a task, the following options are available:
+1. `Task.status` = `cancelled`
+2. `RelatedPerson.active` = `0` (inactive)
+3. `RelatedPerson.patient` <> `Task.owner`
+4. `CareTeam.participant.kt2contactperson` is removed from the `CareTeam`.
