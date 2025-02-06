@@ -6,9 +6,9 @@ topic: kt2relatedperson
 {{tree:http://koppeltaal.nl/fhir/StructureDefinition/KT2RelatedPerson}}
 
 ## KT2_RelatedPerson.relationship 
-De relatie(s) die Patient heeft met de RelatedPerson kan aan de hand van verschillende code systems worden vastgelegd, hieronder worden 3-tal voorbeelden worden getoond.
+De relatie(s) die `Patient` heeft met de `RelatedPerson` kan aan de hand van verschillende code systems worden vastgelegd, hieronder worden 3-tal voorbeelden worden getoond.
 
-De Patient kan meerdere relatie types onderhouden met RelatedPerson.
+De `Patient` kan meerdere relatie types onderhouden met `RelatedPerson`.
 
 Example: 
 
@@ -37,12 +37,12 @@ Example:
   }
 ```
 
-De KT2_RelatedPerson.Patient element bevat de referentie naar Patient waar betreffende patient aan gekoppeld is.  Zie hiervoor onderstaand voorbeeld: 
+De `KT2_RelatedPerson.patient` element bevat de referentie naar Patient waar betreffende patient aan gekoppeld is.  Zie hiervoor onderstaand voorbeeld: 
 
 ```JSON
 {
   "patient" : {
-    "reference" : "Patient/{PatientID}"
+    "reference" : "Patient/${PatientID}"
   }
   
 }

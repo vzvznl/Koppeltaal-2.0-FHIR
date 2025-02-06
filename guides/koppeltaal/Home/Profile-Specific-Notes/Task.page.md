@@ -11,37 +11,39 @@ topic: kt2task
 <p><span>⚠️ Warning</span>&nbsp;As of 2023-11-02 the way the ActivityDefinition is referenced is changed!
 </div>
 
-A Task should refer to the ActivityDefinition it instantiates. This provides the possibility to search for Tasks that instantiate a specific instance of an ActivityDefinition, which in turn can be found based on its publisherId.
+A Task should refer to the `ActivityDefinition` it instantiates. This provides the possibility to search for Tasks that instantiate a specific instance of an `ActivityDefinition`, which in turn can be found based on its publisherId.
 
-Using the element `instantiatesCanonical` does not however allow chaining of the search parameters. Therefore this profile contains an extension `instantiates` which should hold the reference to the instantiated ActivityDefinition.
+Using the element `instantiatesCanonical` does not however allow chaining of the search parameters. Therefore this profile contains an extension `instantiates` which should hold the reference to the instantiated `ActivityDefinition`.
 
-The element `instantiatesCanonical` should not be used for this reference. Receivers of a Task instance can ignore any value in the `instantiatesCanonical` and should look for the referred ActivityDefinition in the `instantiates` extension.
+The element `instantiatesCanonical` should not be used for this reference. Receivers of a Task instance can ignore any value in the `instantiatesCanonical` and should look for the referred `ActivityDefinition` in the `instantiates` extension.
 
 ## KT2_Task.owner
 `KT2_Task.owner` bepaalt welke actor uitvoerder is van betreffende taak.
 
-De RelatedPerson kan rechtstreeks als owner aan een taak worden toegekend.
+De `RelatedPerson` kan rechtstreeks als owner aan een taak worden toegekend of via een `CareTeam`.
 
 ```JSON
 {
   "owner": {
-    "reference": "RelatedPerson/$(RelatedPersonId)",
+    "reference": "RelatedPerson/${RelatedPersonId}",
     "display": "KT2 Related Person"
   }
 }
 ```
-Of via een CareTeam 
+ 
 
 ```JSON
 {
   "owner": {
-    "reference": "CareTeam/$(CareTeamId}",
+    "reference": "CareTeam/${CareTeamId}",
     "display": "KT2 CareTeam"
   }
 }
 ```
 
-Voorbeeld:
+### Voorbeeld
+Beneden een voorbeeld met als owner een `RelatedPerson`.
+
 ```JSON
 {
     "resourceType" : "Task",
@@ -104,8 +106,13 @@ Voorbeeld:
 ```
 
 ## KT2_Task.partOf 
-Met behulp van dit element wordt, wanneer een KT2_RelatedPerson meekijkt met een taak van de KT2_Patient wordt de taak van RelatedPerson (KT2_Task.owner= RelatedPerson  die hiervoor gekoppeld als sub task aan een main task van een Patient waar KT2_Task.owner=Patient.  
+Met behulp van dit element wordt een subtaak aangemaakt. De hoofdtaak is is toegewezen aan de patient door `KT2_Task.owner`= `Reference (KT2_Patient)`. De subtaak wordt als volgt opgebouwd.
+* De `KT2_Task.partOf` wijst naar de hoofdtaak.
+* De `KT2_RelatedPerson` die meekijkt wordt de `Task.owner`
+* De `KT2_Task.for` wijst naar de `Patient` van de hoofdtaak.
 
+### Voorbeeld
+In het voorbeeld hieronder staat een subtaak voor een `RelatedPerson` die gekoppeld is aan een `Task` van de patient.
 ```JSON
 {
   "for": {
@@ -128,7 +135,7 @@ Met behulp van dit element wordt, wanneer een KT2_RelatedPerson meekijkt met een
 
 ## KT2_Task.code
 
-Met behulp van dit element kan voor een KT2_Task de permissie op view worden gezet. Welke betekenis de view permissie bevat kan per Applicatie verschillen.
+Met behulp van dit element kan voor een `KT2_Task` de permissie op view worden gezet. Welke betekenis de view permissie bevat kan per applicatie verschillen.
 
 ```JSON
 {

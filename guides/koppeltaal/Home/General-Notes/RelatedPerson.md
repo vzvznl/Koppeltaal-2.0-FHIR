@@ -21,15 +21,15 @@ Hieronder wordt beschreven welke elementen een rol spelen bij het uitvoeren, mee
 ## Taak uitvoeren door de RelatedPerson
 
 Wanneer een `RelatedPerson` een taak uitvoert en start via een launch 
- 1. De owner van de `Task` kan een `RelatedPerson` zijn: `Task.owner` = `Reference` (KT2_RelatedPerson) & `Task.for` = `Reference` (KT2_Patient)
- 2. De owner van `Task` kan ook een `CareTeam` waar `CareTeam.subject`= `Reference` (KT2_Patient) & `CareTeam.participant.kt2contactperson`=Reference(KT2_RelatedPerson) & `RelatedPerson.patient`=Reference (KT2_Patient) & `CareTeam.subject`=`RelatedPerson.patient`. 
+ 1. De owner van de `Task` kan een `RelatedPerson` zijn: `Task.owner` = `Reference (KT2_RelatedPerson)` & `Task.for` = `Reference (KT2_Patient)`
+ 2. De owner van `Task` kan ook een `CareTeam` waar `CareTeam.subject`= `Reference (KT2_Patient)` & `CareTeam.participant.member` = `Reference(KT2_RelatedPerson)` & `RelatedPerson.patient` = `Reference (KT2_Patient)` & `CareTeam.subject`=`RelatedPerson.patient`. 
 
 Deze condities moeten gecontroleerd worden door de lancerende applicatie.
 
 ## Meekijken en ondersteunen bij een taak van de Patient
 Om het een `RelatedPerson` te laten meekijken met een taak van de patient zijn de volgende voorwaarden noodzakelijk.
 
- 1. De Taak die `RelatedPerson` uitvoert, moet een subtaak zijn van de hoofdtaak die door de Patient wordt uitgevoerd: `Task.partOf` = `Reference` (KT2_Task) & `Task.owner` = `Reference` (KT2_RelatedPerson) & `Task.code`=`view`
+ 1. De Taak die `RelatedPerson` uitvoert, moet een subtaak zijn van de hoofdtaak die door de Patient wordt uitgevoerd: `Task.partOf` = `Reference (KT2_Task)` & `Task.owner` = `Reference` (KT2_RelatedPerson) & `Task.code`=`view`
 
 Het ontzeggen van bevoegdheid om een taak door een `RelatedPerson` te laten uitvoeren
 
