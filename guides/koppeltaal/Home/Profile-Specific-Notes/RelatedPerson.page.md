@@ -31,10 +31,10 @@ Example:
           "code": "21",
           "display": "cliëntondersteuner"
         }
-      }
       ]
     }
-  }
+  ]
+}
 ```
 
 De `KT2_RelatedPerson.patient` element bevat de referentie naar Patient waar betreffende patient aan gekoppeld is.  Zie hiervoor onderstaand voorbeeld: 
