@@ -42,7 +42,7 @@ De KT2_RelatedPerson.Patient element bevat de referentie naar Patient waar betre
 ```JSON
 {
   "patient" : {
-    "reference" : "Patients/{PatientID}"
+    "reference" : "Patient/{PatientID}"
   }
   
 }
