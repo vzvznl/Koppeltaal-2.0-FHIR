@@ -15,6 +15,6 @@ Otherwise the subject element remains absent.
 
 For a healthcare professional the only applicable slice of `CareTeam.participant` is the slice `kt2healthcareProfessional`.
 
-This means the reference to the Practitionar should comply with the `KT2_Practitioner` profile.
+This means the reference to the Practitioner should comply with the `KT2_Practitioner` profile.
 
 The `practitioner.role` should comply to the codes defined in the ValueSet [ZorgverlenerRolCodelijst](https://simplifier.net/nictiz-r4-zib2020/2.16.840.1.113883.2.4.3.11.60.40.2.17.1.5--20200901000000).
