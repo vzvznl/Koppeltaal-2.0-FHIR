@@ -14,7 +14,7 @@ Note: for the code `transmit` use
 ```json
 {
     "system": "http://terminology.hl7.org/CodeSystem/iso-21089-lifecycle",
-    "code": "transmit
+    "code": "transmit"
 }
 ```
 
@@ -56,47 +56,53 @@ As mentioned above, there are several agent elements, one for the source, one fo
 
 _source_
 ```json
-"agent": [
+{
+  "agent": [
     {
-        "type": {
-            "coding": {
-                "system": "http://dicom.nema.org/resources/ontology/DCM",
-                "code": "110153"
-            }
-        },
-        "requestor": "true"
+      "type": {
+        "coding": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110153"
+        }
+      },
+      "requestor": "true"
     }
-]
+  ]
+}
 ```
 
 _destination_
 ```json
-"agent": [
+{
+  "agent": [
     {
-        "type": {
-            "coding": {
-                "system": "http://dicom.nema.org/resources/ontology/DCM",
-                "code": "110152"
-            }
-        },
-        "requestor": "false"
+      "type": {
+        "coding": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110152"
+        }
+      },
+      "requestor": "false"
     }
-]
+  ]
+}
 ```
 
 _patient_
 ```json
-"agent": [
+{
+  "agent": [
     {
-        "type": {
-            "coding": {
-                "system": "http://terminology.hl7.org/CodeSystem/v3-RoleClass",
-                "code": "PAT"
-            }
-        },
-        "requestor": "false"
+      "type": {
+        "coding": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-RoleClass",
+          "code": "PAT"
+        }
+      },
+      "requestor": "false"
     }
-]
+  ]
+}
 ```
 
 ## Entity.type

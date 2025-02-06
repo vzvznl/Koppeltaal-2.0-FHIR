@@ -4,6 +4,8 @@
   filename: Restrictions-on-elements.md
 - name: Country Codes
   filename: Country-Codes.md
+- name: Related Person
+  filename: RelatedPerson.md
 - name: Examples
   filename: Examples.md
 - name: Strict use of Name Information

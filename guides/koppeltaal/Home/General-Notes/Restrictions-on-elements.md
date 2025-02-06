@@ -7,7 +7,7 @@ Koppeltaal 2.0 adheres to the principle that elements of FHIR resources that are
 
 Especially the profiles that based on the national nl-core profiles will contain elements that are not defined in the Koppeltaal 2.0 specifications. 
 
-There are three ways this restrictuion on usage is expressed in the various profiles:
+There are three ways this restriction on usage is expressed in the various profiles:
 
 - cardinality set to 0
 - marking with 'not to be used'
@@ -39,7 +39,7 @@ The Identifier data type restricts the use to the elements `use`, `system` and `
 
 ### CodeableConcept and Coding
 
-The `userSelected` element of the Coding data type is not to be used. The Coding data type is also part of the CodeableConcept data type.
+The `userSelected` element of the Coding data type is not to be used. The Coding data type is also part of the `CodeableConcept` data type.
 
 {{render:guides-koppeltaal-assets-coding-restrictions}} 
 
