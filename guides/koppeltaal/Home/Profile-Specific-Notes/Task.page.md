@@ -18,7 +18,7 @@ Using the element `instantiatesCanonical` does not however allow chaining of the
 The element `instantiatesCanonical` should not be used for this reference. Receivers of a Task instance can ignore any value in the `instantiatesCanonical` and should look for the referred ActivityDefinition in the `instantiates` extension.
 
 ## KT2_Task.owner
-KT2_Task.owner bepaalt welke actor uitvoerder is van betreffende taak 
+`KT2_Task.owner` bepaalt welke actor uitvoerder is van betreffende taak.
 
 De RelatedPerson kan rechtstreeks als owner aan een taak worden toegekend.
 
