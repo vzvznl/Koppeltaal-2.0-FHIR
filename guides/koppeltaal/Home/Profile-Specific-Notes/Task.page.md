@@ -41,8 +41,8 @@ De `RelatedPerson` kan rechtstreeks als owner aan een taak worden toegekend of v
 }
 ```
 
-### Voorbeeld
-Beneden een voorbeeld met als owner een `RelatedPerson`.
+### Example
+Example of a Task where the owner is a `RelatedPerson`.
 
 ```JSON
 {
@@ -106,13 +106,16 @@ Beneden een voorbeeld met als owner een `RelatedPerson`.
 ```
 
 ## KT2_Task.partOf 
-Met behulp van dit element wordt een subtaak aangemaakt. De hoofdtaak is is toegewezen aan de patient door `KT2_Task.owner`= `Reference (KT2_Patient)`. De subtaak wordt als volgt opgebouwd.
-* De `KT2_Task.partOf` wijst naar de hoofdtaak.
-* De `KT2_RelatedPerson` die meekijkt wordt de `Task.owner`
-* De `KT2_Task.for` wijst naar de `Patient` van de hoofdtaak.
+This element is used to indicate the reference of a subtask to the main task.
+The main task is assigned to the patient through `KT2_Task.owner`= `Reference (KT2_Patient)`. 
+The subtask is created as follows:
+* `KT2_Task.partOf` references the main task
+* The `KT2_RelatedPerson` who assists becomes the `Task.owner`
+* `KT2_Task.for` references the `Patient` of the main task
 
-### Voorbeeld
-In het voorbeeld hieronder staat een subtaak voor een `RelatedPerson` die gekoppeld is aan een `Task` van de patient.
+### Example
+This example shows a subtask for the `RelatedPerson` assigned in the `Task` of the patient.
+
 ```JSON
 {
   "for": {
@@ -123,7 +126,7 @@ In het voorbeeld hieronder staat een subtaak voor een `RelatedPerson` die gekopp
     "reference": "RelatedPerson/kt2-relatedperson-example",
     "display": "KT2 Related Person"
   },
-  "description": "Sub task for the KI2 Patient performed by a related person.",
+  "description": "Sub task for the KT2 Patient performed by a related person.",
   "partof": [
     {
       "reference": "Task/kt2-maintask-example",
@@ -135,7 +138,10 @@ In het voorbeeld hieronder staat een subtaak voor een `RelatedPerson` die gekopp
 
 ## KT2_Task.code
 
-Met behulp van het `KT2_Task.code` element kan voor een `KT2_Task` de permissie op `view` worden gezet. Wat de exacte betekenis de `view` permissie is kan per applicatie verschillen, aangezien in koppeltaal 2.0 de autorisaties door de applicaties worden uitgevoerd.
+With the `KT2_Task.code` element the permission of a `KT2_Task` can be set to `view`. 
+The exact meaning of the `view` permission can differ per application because authorisations in 
+Koppeltaal 2.0 are defined and executed by the applications.
+
 
 ```JSON
 {
