@@ -44,3 +44,5 @@ To make it clear that a `RelatedPerson` is no longer authorized to perform or vi
 2. `RelatedPerson.active` = `0` (inactive)
 3. `RelatedPerson.patient` <> `Task.owner`
 4. `CareTeam.participant.kt2contactperson` is removed from the `CareTeam`.
+
+For more information on this profile see also {{pagelink:kt2relatedperson}}.
