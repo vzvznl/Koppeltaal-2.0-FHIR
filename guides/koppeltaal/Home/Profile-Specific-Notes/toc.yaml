@@ -6,6 +6,8 @@
   filename: CareTeam.page.md
 - name: Patient
   filename: Patient.page.md
+- name: RelatedPerson
+  filename: RelatedPerson.page.md
 - name: Subscription
   filename: Subscription.page.md
 - name: Task
