@@ -47,3 +47,15 @@ The `KT2_RelatedPerson.patient` element contains the reference to the `Patient` 
   }
 }
 ```
+
+## Unexpected validation Warnings
+<div class="warning">
+<span>⚠️ Warning</span>
+</div>
+Due to an issue with the FHIR profile, the following validation warnings are generated for the `KT2_RelatedPerson` resource:
+
+> This element does not match any known slice defined in the profile http://koppeltaal.nl/fhir/StructureDefinition/KT2RelatedPerson|0.xx.xx
+
+This warning is ignored when the creation or update of the resource is successful. However at the moment a resource contains an error, this warning shows up in the `OperationOutcome`, potentially confusing / obfuscating the process of error assessment. We advise to ignore this _warning_ and focus on the _error_ in the `OperationOutcome` resource. 
+
+Despite the effort to get this warning removed, the implementation team has not succeeded in removing the warning. 
