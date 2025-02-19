@@ -6,6 +6,10 @@
       "http://koppeltaal.nl/fhir/StructureDefinition/KT2RelatedPerson"
     ]
   },
+  "text": {
+    "status": "generated",
+    "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"nl-NL\" lang=\"nl-NL\">RelatedPerson example</div>"
+  },
   "identifier": [
     {
       "use": "official",
@@ -18,16 +22,12 @@
       "value": "12345"
     }
   ],
-  "active": true,
-  "patient": {
-    "reference": "Patient/patient-volledig-adres"
-  },
   "relationship": [
     {
       "coding": [
         {
-          "system": "http://terminology.hl7.org/CodeSystem/v3-RoleCode",
           "code": "MTH",
+          "system": "http://terminology.hl7.org/CodeSystem/v3-RoleCode",
           "display": "Mother"
         }
       ]
@@ -35,8 +35,8 @@
     {
       "coding": [
         {
-          "system": "urn:oid:2.16.840.1.113883.2.4.3.11.22.472",
           "code": "21",
+          "system": "urn:oid:2.16.840.1.113883.2.4.3.11.22.472",
           "display": "Cliëntondersteuner"
         }
       ]
@@ -48,6 +48,19 @@
         {
           "url": "http://hl7.org/fhir/StructureDefinition/humanname-assembly-order",
           "valueCode": "NL2"
+        }
+      ],
+      "given": [
+        "Relatie"
+      ],
+      "_given": [
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier",
+              "valueCode": "BR"
+            }
+          ]
         }
       ],
       "use": "official",
@@ -68,20 +81,7 @@
             "valueString": "Ouder"
           }
         ]
-      },
-      "given": [
-        "Relatie"
-      ],
-      "_given": [
-        {
-          "extension": [
-            {
-              "url": "http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier",
-              "valueCode": "BR"
-            }
-          ]
-        }
-      ]
+      }
     }
   ],
   "telecom": [
@@ -91,11 +91,8 @@
       "use": "home"
     }
   ],
-  "gender": "female",
-  "birthDate": "1950-02-14",
   "address": [
     {
-      "use": "home",
       "line": [
         "1e Jacob van Campenstr to 15 A 2e"
       ],
@@ -125,6 +122,7 @@
           ]
         }
       ],
+      "use": "home",
       "city": "Hoogmade",
       "postalCode": "1012 NX",
       "country": "Nederland",
@@ -135,8 +133,8 @@
             "valueCodeableConcept": {
               "coding": [
                 {
-                  "system": "urn:iso:std:iso:3166",
                   "code": "NL",
+                  "system": "urn:iso:std:iso:3166",
                   "display": "Netherlands"
                 }
               ]
@@ -151,8 +149,8 @@
       "language": {
         "coding": [
           {
-            "system": "http://tools.ietf.org/html/bcp47",
             "code": "en",
+            "system": "http://tools.ietf.org/html/bcp47",
             "display": "English"
           }
         ]
@@ -163,5 +161,11 @@
   "period": {
     "start": "2024-07-10T08:02:05+02:00",
     "end": "2030-02-28T12:20:05+01:00"
-  }
+  },
+  "active": true,
+  "patient": {
+    "reference": "Patient/patient-volledig-adres"
+  },
+  "gender": "female",
+  "birthDate": "1950-02-14"
 }
