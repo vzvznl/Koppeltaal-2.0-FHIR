@@ -17,8 +17,8 @@
       "name": "VZVZ",
       "telecom": [
         {
-          "system": "email",
-          "value": "standaardisatie@vzvz.nl",
+          "system": "url",
+          "value": "https://www.vzvz.nl",
           "use": "work"
         }
       ]
@@ -42,8 +42,8 @@
   "abstract": false,
   "context": [
     {
-      "expression": "ActivityDefinition",
-      "type": "element"
+      "type": "fhirpath",
+      "expression": "ActivityDefinition"
     }
   ],
   "type": "Extension",
@@ -56,11 +56,6 @@
         "path": "Extension",
         "comment": "This extension allows every module vendor to search for tasks with linked to their module.",
         "max": "1"
-      },
-      {
-        "id": "Extension.extension",
-        "path": "Extension.extension",
-        "max": "0"
       },
       {
         "id": "Extension.url",

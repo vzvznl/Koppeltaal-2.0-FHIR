@@ -13,8 +13,8 @@
       "name": "VZVZ",
       "telecom": [
         {
-          "system": "email",
-          "value": "standaardisatie@vzvz.nl",
+          "system": "url",
+          "value": "https://www.vzvz.nl",
           "use": "work"
         }
       ]
@@ -38,8 +38,8 @@
   "abstract": false,
   "context": [
     {
-      "expression": "AuditEvent",
-      "type": "element"
+      "type": "element",
+      "expression": "AuditEvent"
     }
   ],
   "type": "Extension",
@@ -51,11 +51,6 @@
         "id": "Extension",
         "path": "Extension",
         "max": "1"
-      },
-      {
-        "id": "Extension.extension",
-        "path": "Extension.extension",
-        "max": "0"
       },
       {
         "id": "Extension.url",

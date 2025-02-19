@@ -13,8 +13,8 @@
       "name": "VZVZ",
       "telecom": [
         {
-          "system": "email",
-          "value": "standaardisatie@vzvz.nl",
+          "system": "url",
+          "value": "https://www.vzvz.nl",
           "use": "work"
         }
       ]
@@ -38,8 +38,8 @@
   "abstract": false,
   "context": [
     {
-      "expression": "AuditEvent",
-      "type": "element"
+      "type": "fhirpath",
+      "expression": "AuditEvent"
     }
   ],
   "type": "Extension",
@@ -52,11 +52,6 @@
         "path": "Extension",
         "comment": "This traceId is intended to track a log entry across multiple logs",
         "max": "1"
-      },
-      {
-        "id": "Extension.extension",
-        "path": "Extension.extension",
-        "max": "0"
       },
       {
         "id": "Extension.url",

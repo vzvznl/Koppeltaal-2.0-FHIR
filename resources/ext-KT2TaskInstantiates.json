@@ -3,7 +3,7 @@
   "id": "instantiates",
   "language": "nl-NL",
   "url": "http://vzvz.nl/fhir/StructureDefinition/instantiates",
-  "name": "KT2_Instantiates",
+  "name": "Instantiates",
   "status": "draft",
   "publisher": "VZVZ",
   "contact": [
@@ -36,8 +36,8 @@
   "abstract": false,
   "context": [
     {
-      "expression": "Task",
-      "type": "element"
+      "type": "fhirpath",
+      "expression": "Task"
     }
   ],
   "type": "Extension",
@@ -45,11 +45,6 @@
   "derivation": "constraint",
   "differential": {
     "element": [
-      {
-        "id": "Extension.extension",
-        "path": "Extension.extension",
-        "max": "0"
-      },
       {
         "id": "Extension.url",
         "path": "Extension.url",
@@ -59,7 +54,7 @@
         "id": "Extension.value[x]",
         "path": "Extension.value[x]",
         "short": "Reference to a KT2ActivityDefinition",
-        "definition": "Use this reference rather than the element `Task.instantiatesCanonical` to refer to the ActivityDefinition which is instantiated by this Task.",
+        "definition": "Use this reference rather than the element `Task.instantiatesCanonical` to refer to the ActivityDefintion which is instantiated by this Task.",
         "min": 1,
         "type": [
           {
