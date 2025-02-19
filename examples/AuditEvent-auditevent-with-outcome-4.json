@@ -1,20 +1,22 @@
 {
   "resourceType": "AuditEvent",
-  "id": "audit-event-with-outcome-4",
+  "id": "auditevent-with-outcome-4",
   "meta": {
     "profile": [
       "http://koppeltaal.nl/fhir/StructureDefinition/KT2AuditEvent"
-    ],
-    "lastUpdated": "2023-01-10T12:50:22Z",
-    "versionId": "1"
+    ]
+  },
+  "text": {
+    "status": "generated",
+    "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"nl-NL\" lang=\"nl-NL\">Example of AuditEvent with create Operation resulting in outcome code 4</div>"
   },
   "extension": [
     {
-      "url": "http://koppeltaal.nl/fhir/StructureDefinition/resource-origin",
       "valueReference": {
         "reference": "Device/device-volledig",
         "type": "Device"
-      }
+      },
+      "url": "http://koppeltaal.nl/fhir/StructureDefinition/resource-origin"
     },
     {
       "url": "http://koppeltaal.nl/fhir/StructureDefinition/request-id",
@@ -23,29 +25,25 @@
     {
       "url": "http://koppeltaal.nl/fhir/StructureDefinition/trace-id",
       "valueId": "decc45dd65cb97ea25e6d2a53e067f09"
+    },
+    {
+      "url": "http://koppeltaal.nl/fhir/StructureDefinition/correlation-id",
+      "valueId": "58aafb4e-0283-4c12-b95f-16be1425c96c"
     }
   ],
-  "type": {
-    "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
-    "code": "rest",
-    "display": "RESTful Operation"
-  },
   "subtype": [
     {
-      "system": "http://hl7.org/fhir/restful-interaction",
-      "code": "create"
+      "code": "create",
+      "system": "http://hl7.org/fhir/restful-interaction"
     }
   ],
-  "action": "C",
-  "recorded": "2023-01-10T12:50:22+01:00",
-  "outcome": "4",
   "agent": [
     {
       "type": {
         "coding": [
           {
-            "system": "http://dicom.nema.org/resources/ontology/DCM",
-            "code": "110153"
+            "code": "110153",
+            "system": "http://dicom.nema.org/resources/ontology/DCM"
           }
         ]
       },
@@ -56,34 +54,34 @@
     }
   ],
   "source": {
-    "site": "domein1",
     "observer": {
       "reference": "Device/device-volledig",
       "type": "Device"
     },
     "type": [
       {
-        "system": "http://terminology.hl7.org/CodeSystem/security-source-type",
         "code": "4",
+        "system": "http://terminology.hl7.org/CodeSystem/security-source-type",
         "display": "Application Server"
       }
-    ]
+    ],
+    "site": "domein1"
   },
   "entity": [
     {
       "what": {
-        "reference": "#o1"
+        "reference": "#no-matching-profile"
       },
       "type": {
-        "system": "http://hl7.org/fhir/resource-types",
         "code": "OperationOutcome",
+        "system": "http://hl7.org/fhir/resource-types",
         "display": "OperationOutcome"
       }
     },
     {
       "type": {
-        "system": "http://hl7.org/fhir/resource-types",
         "code": "Patient",
+        "system": "http://hl7.org/fhir/resource-types",
         "display": "Patient"
       }
     }
@@ -91,14 +89,23 @@
   "contained": [
     {
       "resourceType": "OperationOutcome",
+      "id": "no-matching-profile",
       "issue": [
         {
           "code": "invalid",
           "severity": "error",
           "diagnostics": "No matching profile"
         }
-      ],
-      "id": "o1"
+      ]
     }
-  ]
+  ],
+  "language": "nl-NL",
+  "type": {
+    "code": "rest",
+    "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+    "display": "RESTful Operation"
+  },
+  "action": "C",
+  "recorded": "2023-01-10T12:50:22+01:00",
+  "outcome": "4"
 }
