@@ -1,45 +1,33 @@
 {
   "resourceType": "SearchParameter",
-  "id": "correlation-id",
+  "id": "search-correlation-id",
   "meta": {
     "lastUpdated": "2023-07-10T08:36:17.8901013+00:00"
   },
   "url": "http://koppeltaal.nl/fhir/SearchParameter/correlation-id",
-  "contact": [
-    {
-      "telecom": [
-        {
-          "system": "email",
-          "value": "standaardisatie@vzvz.nl",
-          "use": "work"
-        }
-      ],
-      "name": "VZVZ"
-    }
-  ],
-  "jurisdiction": [
-    {
-      "coding": [
-        {
-          "code": "NL",
-          "system": "urn:iso:std:iso:3166",
-          "display": "Netherlands"
-        }
-      ]
-    }
-  ],
-  "base": [
-    "AuditEvent"
-  ],
   "version": "0.1.0",
   "name": "KT2_SearchCorrelationId",
   "status": "active",
   "experimental": false,
   "date": "2023-07-10",
   "publisher": "VZVZ",
-  "language": "nl-NL",
+  "contact": [
+    {
+      "name": "VZVZ",
+      "telecom": [
+        {
+          "system": "url",
+          "value": "https://www.vzvz.nl",
+          "use": "work"
+        }
+      ]
+    }
+  ],
   "description": "Search correlationId for tracking audit events",
   "code": "correlationId",
+  "base": [
+    "AuditEvent"
+  ],
   "type": "token",
   "expression": "AuditEvent.extension('http://koppeltaal.nl/fhir/StructureDefinition/correlation-id')",
   "xpath": "f:AuditEvent/f:extension[@url='http://koppeltaal.nl/fhir/StructureDefinition/correlation-id']",

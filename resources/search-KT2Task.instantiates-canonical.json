@@ -1,0 +1,43 @@
+{
+  "resourceType": "SearchParameter",
+  "id": "search-task-instantiates-canonical",
+  "meta": {
+    "versionId": "2",
+    "lastUpdated": "2023-11-02T09:48:09.6593061+00:00"
+  },
+  "url": "http://koppeltaal.nl/fhir/SearchParameter/task-instantiates-canonical",
+  "version": "0.8.2",
+  "name": "KT2_SearchInstantiatesCanonical",
+  "status": "retired",
+  "experimental": false,
+  "date": "2023-03-14",
+  "publisher": "VZVZ",
+  "contact": [
+    {
+      "name": "VZVZ",
+      "telecom": [
+        {
+          "system": "url",
+          "value": "https://www.vzvz.nl",
+          "use": "work"
+        }
+      ]
+    }
+  ],
+  "description": "Instantiates FHIR protocol or definition",
+  "purpose": "This search parameter is no longer in use as of 2023-11-02.",
+  "code": "instantiates-canonical",
+  "base": [
+    "Task"
+  ],
+  "type": "reference",
+  "expression": "Task.instantiatesCanonical",
+  "xpath": "f:Task/f:instantiatesCanonical",
+  "xpathUsage": "normal",
+  "target": [
+    "ActivityDefinition"
+  ],
+  "chain": [
+    "publisherId"
+  ]
+}

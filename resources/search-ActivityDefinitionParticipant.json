@@ -2,41 +2,29 @@
   "resourceType": "SearchParameter",
   "id": "search-participant",
   "url": "http://koppeltaal.nl/fhir/SearchParameter/participant",
-  "contact": [
-    {
-      "telecom": [
-        {
-          "system": "email",
-          "value": "standaardisatie@vzvz.nl",
-          "use": "work"
-        }
-      ],
-      "name": "VZVZ"
-    }
-  ],
-  "jurisdiction": [
-    {
-      "coding": [
-        {
-          "code": "NL",
-          "system": "urn:iso:std:iso:3166",
-          "display": "Netherlands"
-        }
-      ]
-    }
-  ],
-  "base": [
-    "ActivityDefinition"
-  ],
   "version": "0.2.0",
   "name": "KT2_SearchParticipant",
   "status": "active",
   "date": "2024-07-29",
   "publisher": "VZVZ",
-  "language": "nl-NL",
+  "contact": [
+    {
+      "name": "VZVZ",
+      "telecom": [
+        {
+          "system": "url",
+          "value": "https://www.vzvz.nl",
+          "use": "work"
+        }
+      ]
+    }
+  ],
   "description": "Find the participant of an ActivityDefinition",
   "purpose": "Search ActivityDefinitions based on participant",
   "code": "participant",
+  "base": [
+    "ActivityDefinition"
+  ],
   "type": "token",
   "expression": "ActivityDefinition.participant.type"
 }
