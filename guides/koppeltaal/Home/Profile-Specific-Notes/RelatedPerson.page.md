@@ -52,6 +52,7 @@ The `KT2_RelatedPerson.patient` element contains the reference to the `Patient` 
 <div class="warning">
 <span>⚠️ Warning</span>
 </div>
+
 Due to an issue with the FHIR profile, the following validation warnings are generated for the `KT2_RelatedPerson` resource:
 
 > This element does not match any known slice defined in the profile http://koppeltaal.nl/fhir/StructureDefinition/KT2RelatedPerson|0.xx.xx
