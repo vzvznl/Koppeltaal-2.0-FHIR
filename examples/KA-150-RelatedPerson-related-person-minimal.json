@@ -6,6 +6,10 @@
       "http://koppeltaal.nl/fhir/StructureDefinition/KT2RelatedPerson"
     ]
   },
+  "text": {
+    "status": "generated",
+    "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"nl-NL\" lang=\"nl-NL\">Example of a RelatedPerson mimimal</div>"
+  },
   "identifier": [
     {
       "use": "official",
