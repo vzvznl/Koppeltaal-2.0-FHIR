@@ -1,30 +1,34 @@
 {
   "resourceType": "Task",
-  "id": "task-overkoepelend",
+  "id": "task-met-view-code",
   "meta": {
     "profile": [
       "http://koppeltaal.nl/fhir/StructureDefinition/KT2Task"
     ]
   },
+  "text": {
+    "status": "generated",
+    "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"nl-NL\" lang=\"nl-NL\">Task met view code</div>"
+  },
   "extension": [
     {
-      "url": "http://koppeltaal.nl/fhir/StructureDefinition/resource-origin",
       "valueReference": {
         "reference": "Device/device-volledig",
         "type": "Device"
-      }
+      },
+      "url": "http://koppeltaal.nl/fhir/StructureDefinition/resource-origin"
     },
     {
-      "url": "http://vzvz.nl/fhir/StructureDefinition/instantiates",
       "valueReference": {
         "reference": "ActivityDefinition/activitydefinition234",
         "type": "ActivityDefinition"
-      }
+      },
+      "url": "http://vzvz.nl/fhir/StructureDefinition/instantiates"
     }
   ],
   "identifier": [
     {
-      "system": "https://irma.app",
+      "system": "http://koppeltaal-systeem.nl/koppeltaal-TaskIdentifier",
       "value": "54321"
     }
   ],
@@ -36,8 +40,6 @@
     },
     "type": "Patient"
   },
-  "intent": "order",
-  "priority": "routine",
   "executionPeriod": {
     "start": "2021-01-11T08:25:05+10:00"
   },
@@ -55,7 +57,17 @@
     },
     "type": "Patient"
   },
-  "status": "ready",
+  "intent": "order",
+  "priority": "routine",
+  "code": {
+    "coding": [
+      {
+        "code": "view",
+        "system": "http://vzvz.nl/fhir/CodeSystem/koppeltaal-task-code"
+      }
+    ]
+  },
+  "status": "in-progress",
   "authoredOn": "2020-12-31T08:25:05+10:00",
   "lastModified": "2020-12-31T09:45:05+10:00"
 }

@@ -6,20 +6,24 @@
       "http://koppeltaal.nl/fhir/StructureDefinition/KT2Task"
     ]
   },
+  "text": {
+    "status": "generated",
+    "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"nl-NL\" lang=\"nl-NL\">Example of a task in progress</div>"
+  },
   "extension": [
     {
-      "url": "http://koppeltaal.nl/fhir/StructureDefinition/resource-origin",
       "valueReference": {
         "reference": "Device/device-volledig",
         "type": "Device"
-      }
+      },
+      "url": "http://koppeltaal.nl/fhir/StructureDefinition/resource-origin"
     },
     {
-      "url": "http://vzvz.nl/fhir/StructureDefinition/instantiates",
       "valueReference": {
         "reference": "ActivityDefinition/activitydefinition234",
         "type": "ActivityDefinition"
-      }
+      },
+      "url": "http://vzvz.nl/fhir/StructureDefinition/instantiates"
     }
   ],
   "identifier": [
@@ -36,8 +40,6 @@
     },
     "type": "Patient"
   },
-  "intent": "order",
-  "priority": "routine",
   "executionPeriod": {
     "start": "2021-01-11T08:25:05+10:00"
   },
@@ -55,6 +57,9 @@
     },
     "type": "Patient"
   },
+  "language": "nl-NL",
+  "intent": "order",
+  "priority": "routine",
   "status": "in-progress",
   "authoredOn": "2020-12-31T08:25:05+10:00",
   "lastModified": "2020-12-31T09:45:05+10:00"
