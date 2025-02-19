@@ -6,6 +6,10 @@
       "http://koppeltaal.nl/fhir/StructureDefinition/KT2CareTeam"
     ]
   },
+  "text": {
+    "status": "generated",
+    "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"nl-NL\" lang=\"nl-NL\">Example of CareTeam that has a RelatedPerson as one of the participants</div>"
+  },
   "identifier": [
     {
       "use": "official",
@@ -89,6 +93,7 @@
       "url": "http://koppeltaal.nl/fhir/StructureDefinition/resource-origin"
     }
   ],
+  "language": "nl-NL",
   "status": "active",
   "name": "Careteam met related person"
 }
