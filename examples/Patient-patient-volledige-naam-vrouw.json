@@ -1,0 +1,461 @@
+{
+  "resourceType": "Patient",
+  "id": "patient-volledige-naam-vrouw",
+  "meta": {
+    "profile": [
+      "http://nictiz.nl/fhir/StructureDefinition/nl-core-Patient"
+    ]
+  },
+  "text": {
+    "status": "generated",
+    "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"nl-NL\" lang=\"nl-NL\">Example of Patient with full name and maiden name</div>"
+  },
+  "extension": [
+    {
+      "extension": [
+        {
+          "url": "code",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "code": "0001",
+                "system": "urn:oid:2.16.840.1.113883.2.4.4.16.32",
+                "display": "Nederlandse"
+              }
+            ]
+          }
+        }
+      ],
+      "url": "http://hl7.org/fhir/StructureDefinition/patient-nationality"
+    }
+  ],
+  "identifier": [
+    {
+      "system": "http://fhir.nl/fhir/NamingSystem/bsn",
+      "value": "111222333"
+    }
+  ],
+  "name": [
+    {
+      "given": [
+        "Johanna",
+        "Petronella",
+        "Maria"
+      ],
+      "_given": [
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier",
+              "valueCode": "BR"
+            }
+          ]
+        },
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier",
+              "valueCode": "BR"
+            }
+          ]
+        },
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier",
+              "valueCode": "BR"
+            }
+          ]
+        }
+      ],
+      "use": "official",
+      "text": "Johanna Petronella Maria (Jo) van Putten-van der Giessen",
+      "family": "van Putten-van der Giessen",
+      "_family": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix",
+            "valueString": "van"
+          },
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/humanname-own-name",
+            "valueString": "Putten"
+          },
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/humanname-partner-prefix",
+            "valueString": "van der"
+          },
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/humanname-partner-name",
+            "valueString": "Giessen"
+          }
+        ]
+      }
+    },
+    {
+      "given": [
+        "Jo"
+      ],
+      "use": "usual"
+    }
+  ],
+  "telecom": [
+    {
+      "system": "phone",
+      "_system": {
+        "extension": [
+          {
+            "url": "http://nictiz.nl/fhir/StructureDefinition/ext-CodeSpecification",
+            "valueCodeableConcept": {
+              "coding": [
+                {
+                  "code": "MC",
+                  "system": "http://terminology.hl7.org/CodeSystem/v3-AddressUse",
+                  "display": "mobile contact"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "value": "+31611234567"
+    },
+    {
+      "system": "email",
+      "value": "giesput@myweb.nl",
+      "use": "home"
+    }
+  ],
+  "address": [
+    {
+      "extension": [
+        {
+          "url": "http://nictiz.nl/fhir/StructureDefinition/ext-AddressInformation.AddressType",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "code": "HP",
+                "system": "http://terminology.hl7.org/CodeSystem/v3-AddressUse",
+                "display": "Primary Home"
+              }
+            ]
+          }
+        }
+      ],
+      "line": [
+        "1e Jacob van Campenstr 15"
+      ],
+      "_line": [
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetName",
+              "valueString": "1e Jacob van Campenstr"
+            },
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-houseNumber",
+              "valueString": "15"
+            }
+          ]
+        }
+      ],
+      "use": "home",
+      "type": "both",
+      "city": "Hoogmade",
+      "district": "Kaag en Braassem",
+      "postalCode": "1012 NX",
+      "country": "Nederland",
+      "_country": {
+        "extension": [
+          {
+            "valueCodeableConcept": {
+              "coding": [
+                {
+                  "code": "NL",
+                  "system": "urn:iso:std:iso:3166",
+                  "display": "Netherlands",
+                  "version": "2020-10-26T00:00:00"
+                }
+              ]
+            },
+            "url": "http://nictiz.nl/fhir/StructureDefinition/ext-CodeSpecification"
+          }
+        ]
+      }
+    }
+  ],
+  "contact": [
+    {
+      "relationship": [
+        {
+          "coding": [
+            {
+              "code": "01",
+              "system": "urn:oid:2.16.840.1.113883.2.4.3.11.22.472",
+              "display": "Eerste relatie/contactpersoon"
+            }
+          ]
+        },
+        {
+          "coding": [
+            {
+              "code": "07",
+              "system": "urn:oid:2.16.840.1.113883.2.4.3.11.22.472",
+              "display": "Hulpverlener"
+            }
+          ]
+        }
+      ],
+      "name": {
+        "given": [
+          "J.",
+          "P.",
+          "M."
+        ],
+        "_given": [
+          {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier",
+                "valueCode": "IN"
+              }
+            ]
+          },
+          {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier",
+                "valueCode": "IN"
+              }
+            ]
+          },
+          {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier",
+                "valueCode": "IN"
+              }
+            ]
+          }
+        ],
+        "use": "official",
+        "text": "J.P.M. van Putten-van der Giessen",
+        "family": "van Putten-van der Giessen",
+        "_family": {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix",
+              "valueString": "van"
+            },
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/humanname-own-name",
+              "valueString": "Putten"
+            },
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/humanname-partner-prefix",
+              "valueString": "van der"
+            },
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/humanname-partner-name",
+              "valueString": "Giessen"
+            }
+          ]
+        }
+      },
+      "telecom": [
+        {
+          "system": "phone",
+          "_system": {
+            "extension": [
+              {
+                "url": "http://nictiz.nl/fhir/StructureDefinition/ext-CodeSpecification",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "code": "MC",
+                      "system": "http://terminology.hl7.org/CodeSystem/v3-AddressUse",
+                      "display": "mobile contact"
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "value": "+31611234567"
+        },
+        {
+          "system": "email",
+          "value": "giesput@myweb.nl",
+          "use": "work"
+        }
+      ],
+      "address": {
+        "extension": [
+          {
+            "url": "http://nictiz.nl/fhir/StructureDefinition/ext-AddressInformation.AddressType",
+            "valueCodeableConcept": {
+              "coding": [
+                {
+                  "code": "HP",
+                  "system": "http://terminology.hl7.org/CodeSystem/v3-AddressUse",
+                  "display": "Primary Home"
+                }
+              ]
+            }
+          }
+        ],
+        "line": [
+          "1e Jacob van Campenstr 15"
+        ],
+        "_line": [
+          {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetName",
+                "valueString": "1e Jacob van Campenstr"
+              },
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-houseNumber",
+                "valueString": "15"
+              }
+            ]
+          }
+        ],
+        "use": "home",
+        "type": "both",
+        "city": "Hoogmade",
+        "district": "Kaag en Braassem",
+        "postalCode": "1012 NX",
+        "country": "Nederland",
+        "_country": {
+          "extension": [
+            {
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "code": "6030",
+                    "system": "urn:oid:2.16.840.1.113883.2.4.4.16.34",
+                    "display": "Nederland",
+                    "version": "2020-04-01T00:00:00"
+                  }
+                ]
+              },
+              "url": "http://nictiz.nl/fhir/StructureDefinition/ext-CodeSpecification"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "communication": [
+    {
+      "extension": [
+        {
+          "extension": [
+            {
+              "url": "level",
+              "valueCoding": {
+                "code": "G",
+                "system": "http://terminology.hl7.org/CodeSystem/v3-LanguageAbilityProficiency",
+                "display": "Good"
+              }
+            },
+            {
+              "url": "type",
+              "valueCoding": {
+                "code": "RSP",
+                "system": "http://terminology.hl7.org/CodeSystem/v3-LanguageAbilityMode",
+                "display": "Received spoken"
+              }
+            }
+          ],
+          "url": "http://hl7.org/fhir/StructureDefinition/patient-proficiency"
+        },
+        {
+          "extension": [
+            {
+              "url": "level",
+              "valueCoding": {
+                "code": "F",
+                "system": "http://terminology.hl7.org/CodeSystem/v3-LanguageAbilityProficiency",
+                "display": "Fair"
+              }
+            },
+            {
+              "url": "type",
+              "valueCoding": {
+                "code": "ESP",
+                "system": "http://terminology.hl7.org/CodeSystem/v3-LanguageAbilityMode",
+                "display": "Expressed spoken"
+              }
+            }
+          ],
+          "url": "http://hl7.org/fhir/StructureDefinition/patient-proficiency"
+        },
+        {
+          "extension": [
+            {
+              "url": "level",
+              "valueCoding": {
+                "code": "G",
+                "system": "http://terminology.hl7.org/CodeSystem/v3-LanguageAbilityProficiency",
+                "display": "Good"
+              }
+            },
+            {
+              "url": "type",
+              "valueCoding": {
+                "code": "RWR",
+                "system": "http://terminology.hl7.org/CodeSystem/v3-LanguageAbilityMode",
+                "display": "Received written"
+              }
+            }
+          ],
+          "url": "http://hl7.org/fhir/StructureDefinition/patient-proficiency"
+        },
+        {
+          "url": "http://nictiz.nl/fhir/StructureDefinition/ext-Comment",
+          "valueString": "Bij gesprek met arts zoon uitnodigen voor vertalen"
+        }
+      ],
+      "language": {
+        "coding": [
+          {
+            "code": "nl",
+            "system": "urn:oid:1.0.639.1",
+            "display": "Nederlands"
+          }
+        ]
+      }
+    }
+  ],
+  "language": "nl-NL",
+  "gender": "female",
+  "_gender": {
+    "extension": [
+      {
+        "url": "http://nictiz.nl/fhir/StructureDefinition/ext-CodeSpecification",
+        "valueCodeableConcept": {
+          "coding": [
+            {
+              "code": "F",
+              "system": "http://terminology.hl7.org/CodeSystem/v3-AdministrativeGender",
+              "display": "Female"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "birthDate": "1934-04-28",
+  "deceasedBoolean": false,
+  "maritalStatus": {
+    "coding": [
+      {
+        "code": "D",
+        "system": "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus",
+        "display": "Divorced"
+      }
+    ]
+  }
+}

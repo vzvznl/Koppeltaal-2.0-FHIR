@@ -1,0 +1,80 @@
+{
+  "resourceType": "Patient",
+  "id": "patient-botje-minimaal",
+  "meta": {
+    "profile": [
+      "http://koppeltaal.nl/fhir/StructureDefinition/KT2Patient"
+    ]
+  },
+  "text": {
+    "status": "generated",
+    "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"nl-NL\" lang=\"nl-NL\">Bare minimum of Patient elements populated</div>"
+  },
+  "identifier": [
+    {
+      "use": "usual",
+      "system": "http://local/systeemnaamuitgave",
+      "value": "BerendBotje-01"
+    },
+    {
+      "use": "official",
+      "system": "http://irma.app",
+      "value": "berendbotje01@vzvz.nl"
+    }
+  ],
+  "name": [
+    {
+      "given": [
+        "Berend"
+      ],
+      "_given": [
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier",
+              "valueCode": "BR"
+            }
+          ]
+        }
+      ],
+      "use": "official",
+      "text": "Berend Botje",
+      "family": "Botje",
+      "_family": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/humanname-own-name",
+            "valueString": "Botje"
+          }
+        ]
+      }
+    }
+  ],
+  "telecom": [
+    {
+      "system": "email",
+      "value": "berendbotje01@vzvz.nl",
+      "use": "home"
+    }
+  ],
+  "language": "nl-NL",
+  "active": true,
+  "gender": "male",
+  "_gender": {
+    "extension": [
+      {
+        "url": "http://nictiz.nl/fhir/StructureDefinition/ext-CodeSpecification",
+        "valueCodeableConcept": {
+          "coding": [
+            {
+              "code": "M",
+              "system": "http://terminology.hl7.org/CodeSystem/v3-AdministrativeGender",
+              "display": "Male"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "birthDate": "1970-12-20"
+}
