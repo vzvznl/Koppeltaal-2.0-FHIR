@@ -34,9 +34,9 @@ function make_package() {
     # mkdir -p "${ROOT_DIR}/packages/${project}/examples"
    
     if [[ -d "${ROOT_DIR}/resources/${project}" ]]; then 
-        cp -R "${ROOT_DIR}/resources/${project}/" "${ROOT_DIR}/packages/${project}/resources"
+        cp -R "${ROOT_DIR}/resources/${project}" "${ROOT_DIR}/packages/${project}"
     else
-        cp -R "${ROOT_DIR}"/resources/ "${ROOT_DIR}/packages/${project}/resources"
+        cp -iR "${ROOT_DIR}"/resources/* "${ROOT_DIR}/packages/${project}/resources"
     fi
 
     # # if there is an ImplementationGuide resource, move it to a special directory
@@ -60,12 +60,10 @@ function make_package() {
         cp "${ROOT_DIR}/fhirpkg.lock.json" "${ROOT_DIR}/packages/${project}/fhirpkg.lock.json"
     fi
     cd "${ROOT_DIR}/packages/${project}"
-
     # # convert it to json outside of the bake app because somehow that doesn't seem to work
     # # note, fhir push only accepts relative paths
     # fhir push ./ig/*ImplementationGuide*.xml
     # fhir save ./ig/ImplementationGuide.json --json
-
     echo "Build package for ${project}"
 
     package_name=$(cat package.json| jq .name | cut -d '"' -f2)
@@ -78,7 +76,9 @@ function make_package() {
     # so no more bake script. But you need to 'disable' the script otherwise it's picked up automatically.
 
     # fhir bake "${ROOT_DIR}/package.bake.yaml" --input "." --output "${ROOT_DIR}/packages/${project}" --debug
-    fhir bake --input "." --output "${ROOT_DIR}/packages/${project}"
+    mkdir -p "${ROOT_DIR}/packages/${project}/tmp"
+
+    fhir bake --input "." --output "${ROOT_DIR}/packages/${project}/tmp"
 
     if [[ -d package/examples ]]; then
         for f in $( grep -Fl '"NamingSystem"' package/examples/*); do
@@ -87,7 +87,7 @@ function make_package() {
     fi
 
     # remove empty directories e.g. examples if this is left empty after the previous move
-    find package -type d -empty -delete
+    find package -type d -empty -delete 2>&1 >> /dev/null
 
     # copy the IG resource here because bake refuses to do that
     # cp ./ig/*.json ./package/
@@ -97,9 +97,15 @@ function make_package() {
     # 2024-09-09 HvdL remove the name argument. Somehow it throws an error
     # while it also takes the package filename from the package.json information
     # fhir pack --name "${package_file}"
+    cd "${ROOT_DIR}/packages/${project}/tmp"
+
+    # 2025-02-19 HvdL copy the package.json because it's not added automatically any more
+    cp ../package.json .
+    cp ../fhir*lock*.json .
     fhir pack
 
-    mv "${ROOT_DIR}/packages/${project}"/*.tgz "${ROOT_DIR}"/packages/
+    mv "${ROOT_DIR}/packages/${project}"/tmp/*.tgz "${ROOT_DIR}"/packages/
+    mv "${ROOT_DIR}/packages/${project}"/tmp/* "${ROOT_DIR}"/packages/${project}"
 
     reload-package "${package_name}" "${package_version}"
     echo ""
