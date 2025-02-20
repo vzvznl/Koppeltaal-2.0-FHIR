@@ -13,6 +13,10 @@ publish="${1:-0}"
 
 . ${ME_DIR}/local-paths.sh
 
+saxon_11="$saxonPath/saxon-he-11.4.jar"
+saxon="${saxon_11}"
+
+
 function resultMessage {
   r=$1
   shift
@@ -38,15 +42,6 @@ function make_package() {
     else
         cp -iR "${ROOT_DIR}"/resources/* "${ROOT_DIR}/packages/${project}/resources"
     fi
-
-    # # if there is an ImplementationGuide resource, move it to a special directory
-    # mv -f "${ROOT_DIR}/packages/${project}"/resources/*ImplementationGuide* "${ROOT_DIR}/packages/${project}/ig/"
-
-    # if [[ -d "${ROOT_DIR}/examples/${project}" ]]; then 
-    #     cp -R "${ROOT_DIR}/examples/${project}"/* "${ROOT_DIR}/packages/${project}/examples"
-    # else
-    #     cp -R "${ROOT_DIR}"/examples/* "${ROOT_DIR}/packages/${project}/examples"
-    # fi
 
     if [[ -e "${ROOT_DIR}/package-${project}.json" ]]; then
         cp "${ROOT_DIR}/package-${project}.json" "${ROOT_DIR}/packages/${project}/package.json"
@@ -104,11 +99,11 @@ function make_package() {
     cp ../fhir*lock*.json .
     fhir pack
 
-    mv "${ROOT_DIR}/packages/${project}"/tmp/*.tgz "${ROOT_DIR}"/packages/
-    mv "${ROOT_DIR}/packages/${project}"/tmp/* "${ROOT_DIR}"/packages/${project}"
+    mv "${ROOT_DIR}"/packages/"${project}"/tmp/*.tgz "${ROOT_DIR}"/packages/
+    mv "${ROOT_DIR}"/packages/"${project}"/tmp/* "${ROOT_DIR}"/packages/"${project}"
 
     reload-package "${package_name}" "${package_version}"
-    echo ""
+    echo ''
 }
 
 function remove-installed-package {
@@ -185,8 +180,6 @@ function publish_package() {
 }
 
 
-saxon_11="$saxonPath/saxon-he-11.4.jar"
-saxon="${saxon_11}"
 
 function transform {
     local inFile="$1"
