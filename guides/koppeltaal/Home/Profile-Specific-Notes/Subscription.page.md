@@ -3,7 +3,7 @@ topic: kt2subscription
 ---
 # {{page-title}}
 
-{{tree:KT2Subscription}}
+{{tree:http://koppeltaal.nl/fhir/StructureDefinition/KT2Subscription}}
 
 ## Beware of loops
 
