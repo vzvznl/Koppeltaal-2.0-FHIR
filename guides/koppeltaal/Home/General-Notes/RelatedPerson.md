@@ -16,6 +16,7 @@ A `RelatedPerson` can perform tasks on behalf of the `Patient`, assist with the 
 
 Below is a description of the elements involved in executing tasks, viewing, and revoking access.
 
+
 ### Executing a Task by the RelatedPerson
 
 When a `RelatedPerson` executes a task and starts it via a launch:
