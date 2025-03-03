@@ -43,7 +43,6 @@ The following conditions are necessary for a `RelatedPerson` to view a task of t
 To make it clear that a `RelatedPerson` is no longer authorized to perform or view a task, the following options are available:
 1. `Task.status` = `cancelled`
 2. `RelatedPerson.active` = `0` (inactive)
-3. `RelatedPerson.patient` <> `Task.owner`
-4. `CareTeam.participant.kt2contactperson` is removed from the `CareTeam`.
+3. `CareTeam.participant.kt2contactperson` is removed from the `CareTeam`.
 
 For more information on this profile see also {{pagelink:kt2relatedperson}}.
