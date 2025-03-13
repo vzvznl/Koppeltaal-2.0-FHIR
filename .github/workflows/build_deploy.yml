@@ -42,7 +42,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: true
-          tags: localhost:5000/GIDSOpenStandaarden/fhir-builder:latest
+          tags: localhost:5000/gidsopenstandaarden/fhir-builder:latest
       - name: Checkout
         uses: actions/checkout@v4
       - name: Build
@@ -51,7 +51,7 @@ jobs:
           FHIR_EMAIL: ${{ secrets.FHIR_EMAIL }}
         run: |
           mkdir -p ./output
-          docker run -v ${PWD}:/src -e FHIR_PASSWORD=${FHIR_PASSWORD} -e FHIR_EMAIL=${FHIR_EMAIL}  localhost:5000/GIDSOpenStandaarden/fhir-builder:latest
+          docker run -v ${PWD}:/src -e FHIR_PASSWORD=${FHIR_PASSWORD} -e FHIR_EMAIL=${FHIR_EMAIL}  localhost:5000/gidsopenstandaarden/fhir-builder:latest
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
