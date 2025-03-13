@@ -52,7 +52,26 @@ jobs:
         run: |
           mkdir -p ./output
           docker run -v ${PWD}:/src -e FHIR_PASSWORD=${FHIR_PASSWORD} -e FHIR_EMAIL=${FHIR_EMAIL}  localhost:5000/gidsopenstandaarden/fhir-builder:latest
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: version
+        run: $(cat package.json| jq .version | cut -d '"' -f2)
+        id: version
+      - name: release
+        uses: actions/create-release@v1
+        id: create_release
         with:
-          path: './packages/*.tgz'
+          draft: false
+          prerelease: false
+          release_name: ${{ steps.version.outputs.version }}
+          tag_name: ${{ github.ref }}
+          body_path: CHANGELOG.md
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - name: upload FHIR package
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./packages/koppeltaalv2.00.${{ steps.version.outputs.version }}.tgz
+          asset_name: koppeltaalv2.00.0.14.0.tgz
+          asset_content_type: application/gzip
