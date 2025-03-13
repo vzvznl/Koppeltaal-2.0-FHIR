@@ -11,13 +11,12 @@
     <xd:doc scope="stylesheet">
         <xd:desc>
             <xd:p><xd:b>Created on:</xd:b> Mar 28, 2024</xd:p>
-            <xd:p><xd:b>Author:</xd:b> helma</xd:p>
+            <xd:p><xd:b>Author:</xd:b>helma</xd:p>
             <xd:p/>
         </xd:desc>
     </xd:doc>
 
-    <xsl:variable name="projectsDir"
-        >file:///Users/helma/Documents/_projects/vzvz/Koppeltaal-2.0-FHIR</xsl:variable>
+    <xsl:param name="projectsDir" select="'..'"/>
     <xsl:variable name="resources" select="concat($projectsDir, '/resources/?select=*.xml')"/>
     <xsl:param name="files" select="uri-collection($resources)"/>
     <xsl:param name="version" select="'0.12.0-beta.1'"/>
