@@ -62,7 +62,7 @@ jobs:
         with:
           draft: true
           prerelease: false
-          release_name: ${{ steps.version.outputs.version }}
+          release_name: ${{ steps.version.outputs.stdout }}
           tag_name: ${{ github.ref }}
           body_path: CHANGELOG.md
         env:
@@ -73,6 +73,6 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./packages/koppeltaalv2.00.${{ steps.version.outputs.version }}.tgz
-          asset_name: koppeltaalv2.00.0.14.0.tgz
+          asset_path: ./packages/koppeltaalv2.00.${{ steps.version.outputs.stdout }}.tgz
+          asset_name: koppeltaalv2.00.${{ steps.version.outputs.stdout }}.tgz
           asset_content_type: application/gzip
