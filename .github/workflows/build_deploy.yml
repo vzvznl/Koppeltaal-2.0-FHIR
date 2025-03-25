@@ -71,6 +71,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
       - name: upload FHIR package
+        id: upload
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -79,3 +80,7 @@ jobs:
           asset_path: ./packages/koppeltaalv2.00.${{ steps.version.outputs.version }}.tgz
           asset_name: koppeltaalv2.00.${{ steps.version.outputs.version }}.tgz
           asset_content_type: application/gzip
+      - name: Download URL
+        run: |
+          echo "Download URL is: ${{ steps.upload.outputs.browser_download_url }}"
+        
