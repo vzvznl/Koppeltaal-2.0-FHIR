@@ -54,8 +54,11 @@ jobs:
           mkdir -p ./output
           docker run -v ${PWD}:/src -e FHIR_PASSWORD=${FHIR_PASSWORD} -e FHIR_EMAIL=${FHIR_EMAIL}  localhost:5000/gidsopenstandaarden/fhir-builder:latest
       - name: version
-        run: VERSION=`cat package.json | jq .version | cut -d '"' -f2` ; echo version=$VERSION >> $GITHUB_OUTPUT
         id: version
+        run: |
+          echo -n "version=" > $GITHUB_OUTPUT
+          cat package.json | jq .version | cut -d '"' -f2 >> $GITHUB_OUTPUT
+          cat $GITHUB_OUTPUT
       - name: release
         uses: actions/create-release@v1
         id: create_release
