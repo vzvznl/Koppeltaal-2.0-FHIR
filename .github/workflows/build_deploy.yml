@@ -54,7 +54,7 @@ jobs:
           mkdir -p ./output
           docker run -v ${PWD}:/src -e FHIR_PASSWORD=${FHIR_PASSWORD} -e FHIR_EMAIL=${FHIR_EMAIL}  localhost:5000/gidsopenstandaarden/fhir-builder:latest
       - name: version
-        run: cat package.json | jq .version | cut -d '"' -f2
+        run: VERSION=`cat package.json | jq .version | cut -d '"' -f2` ; echo version=$VERSION >> $GITHUB_OUTPUT
         id: version
       - name: release
         uses: actions/create-release@v1
@@ -62,7 +62,7 @@ jobs:
         with:
           draft: true
           prerelease: false
-          release_name: ${{ steps.version.outputs.stdout }}
+          release_name: ${{ steps.version.outputs.version }}
           tag_name: ${{ github.ref }}
           body_path: CHANGELOG.md
         env:
@@ -74,5 +74,5 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./packages/koppeltaalv2.00.${{ steps.version.outputs.stdout }}.tgz
-          asset_name: koppeltaalv2.00.${{ steps.version.outputs.stdout }}.tgz
+          asset_name: koppeltaalv2.00.${{ steps.version.outputs.version }}.tgz
           asset_content_type: application/gzip
