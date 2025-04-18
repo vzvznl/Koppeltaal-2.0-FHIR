@@ -7,13 +7,13 @@
     "status": "draft",
     "date": "2023-01-24",
     "publisher": "VZVZ",
-    "contact":  [
+    "contact": [
         {
             "name": "VZVZ",
-            "telecom":  [
+            "telecom": [
                 {
-                    "system": "url",
-                    "value": "https://www.vzvz.nl",
+                    "system": "email",
+                    "value": "standaardisatie@vzvz.nl",
                     "use": "work"
                 }
             ]
@@ -27,15 +27,15 @@
     "baseDefinition": "http://nictiz.nl/fhir/StructureDefinition/nl-core-CareTeam",
     "derivation": "constraint",
     "differential": {
-        "element":  [
+        "element": [
             {
                 "id": "CareTeam.extension:resource-origin",
                 "path": "CareTeam.extension",
                 "sliceName": "resource-origin",
-                "type":  [
+                "type": [
                     {
                         "code": "Extension",
-                        "profile":  [
+                        "profile": [
                             "http://koppeltaal.nl/fhir/StructureDefinition/resource-origin"
                         ]
                     }
@@ -62,10 +62,10 @@
                 "path": "CareTeam.subject",
                 "short": "Patient treated by this care team",
                 "min": 1,
-                "type":  [
+                "type": [
                     {
                         "code": "Reference",
-                        "targetProfile":  [
+                        "targetProfile": [
                             "http://koppeltaal.nl/fhir/StructureDefinition/KT2Patient"
                         ]
                     }
@@ -95,10 +95,10 @@
             {
                 "id": "CareTeam.participant:patient.member",
                 "path": "CareTeam.participant.member",
-                "type":  [
+                "type": [
                     {
                         "code": "Reference",
-                        "targetProfile":  [
+                        "targetProfile": [
                             "http://koppeltaal.nl/fhir/StructureDefinition/KT2Patient"
                         ]
                     }
@@ -187,10 +187,10 @@
                 "id": "CareTeam.participant:kt2healthcareProfessional.member",
                 "path": "CareTeam.participant.member",
                 "comment": "This element is used in Koppeltaal 2.0 to refer to the Practitioner who is member of the team",
-                "type":  [
+                "type": [
                     {
                         "code": "Reference",
-                        "targetProfile":  [
+                        "targetProfile": [
                             "http://koppeltaal.nl/fhir/StructureDefinition/KT2Practitioner"
                         ]
                     }
@@ -220,10 +220,10 @@
                 "id": "CareTeam.managingOrganization",
                 "path": "CareTeam.managingOrganization",
                 "max": "1",
-                "type":  [
+                "type": [
                     {
                         "code": "Reference",
-                        "targetProfile":  [
+                        "targetProfile": [
                             "http://koppeltaal.nl/fhir/StructureDefinition/KT2Organization"
                         ]
                     }
