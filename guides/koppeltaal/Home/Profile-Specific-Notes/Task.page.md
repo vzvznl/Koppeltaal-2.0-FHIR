@@ -22,27 +22,24 @@ The element `instantiatesCanonical` should not be used for this reference. Recei
 
 The `RelatedPerson` can be assigned as the owner of a task either directly or through a `CareTeam`.
 
-```JSON
-{
-  "owner": {
-    "reference": "RelatedPerson/${RelatedPersonId}",
-    "display": "KT2 Related Person"
-  }
-}
-```
- 
+## KT2_Task.partOf 
+This element is used to indicate the reference of a subtask to the main task.
+The main task is assigned to the patient through `KT2_Task.owner`= `Reference (KT2_Patient)`. 
+The subtask is created as follows:
+* KT2_Task.partOf` references the main task
+* The `KT2_RelatedPerson` who assists becomes the `Task.owner`
+* KT2_Task.for` references the `Patient` of the main task
 
-```JSON
-{
-  "owner": {
-    "reference": "CareTeam/${CareTeamId}",
-    "display": "KT2 CareTeam"
-  }
-}
-```
+## KT2_Task.code
+
+With the `KT2_Task.code` element the permission of a `KT2_Task` can be set to `view`. 
+The exact meaning of the `view` permission can differ per application because authorisations in 
+Koppeltaal 2.0 are defined and executed by the applications.
 
 ### Example
-Example of a Task where the owner is a `RelatedPerson`.
+This example shows a subtask for the `RelatedPerson` assigned in the `Task` of the patient.
+
+
 
 ```JSON
 {
@@ -102,50 +99,5 @@ Example of a Task where the owner is a `RelatedPerson`.
     "status" : "ready",
     "authoredOn" : "2024-07-30T08:25:05+02:00",
     "lastModified" : "2024-07-30T09:45:05+02:00"
-}
-```
-
-## KT2_Task.partOf 
-This element is used to indicate the reference of a subtask to the main task.
-The main task is assigned to the patient through `KT2_Task.owner`= `Reference (KT2_Patient)`. 
-The subtask is created as follows:
-* `KT2_Task.partOf` references the main task
-* The `KT2_RelatedPerson` who assists becomes the `Task.owner`
-* `KT2_Task.for` references the `Patient` of the main task
-
-### Example
-This example shows a subtask for the `RelatedPerson` assigned in the `Task` of the patient.
-
-```JSON
-{
-  "for": {
-    "reference": "Patient/kt2-patient-example",
-    "display": "KT2 Patient"
-  },
-  "owner": {
-    "reference": "RelatedPerson/kt2-relatedperson-example",
-    "display": "KT2 Related Person"
-  },
-  "description": "Sub task for the KT2 Patient performed by a related person.",
-  "partof": [
-    {
-      "reference": "Task/kt2-maintask-example",
-      "display": "Main Task"
-    }
-  ]
-}
-```
-
-## KT2_Task.code
-
-With the `KT2_Task.code` element the permission of a `KT2_Task` can be set to `view`. 
-The exact meaning of the `view` permission can differ per application because authorisations in 
-Koppeltaal 2.0 are defined and executed by the applications.
-
-
-```JSON
-{
-  "code": "view",
-  "display": "This task can be viewed"
 }
 ```
