@@ -17,4 +17,4 @@ RUN wget https://repo1.maven.org/maven2/org/xmlresolver/xmlresolver/5.3.0/xmlres
 ENV DEBUG=1
 
 
-ENTRYPOINT ["zsh", "./run-scripts.sh"]
+ENTRYPOINT ["zsh", "./fhir-build.sh"]
