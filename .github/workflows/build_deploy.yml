@@ -77,7 +77,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./packages/koppeltaalv2.00.${{ steps.version.outputs.version }}.tgz
+          asset_path: ./koppeltaalv2.00.${{ steps.version.outputs.version }}.tgz
           asset_name: koppeltaalv2.00.${{ steps.version.outputs.version }}.tgz
           asset_content_type: application/gzip
       - name: Download URL
