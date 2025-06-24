@@ -21,11 +21,12 @@ move-active-terminology-xml:
   - files: /resources/**/*.xml
   - move: /package/
   - target: staging
-#move-examples:
-#  - category: Instance
-#  - files: /examples/*.json
-#  - move: /package/examples
-#  - target: staging
+
+yaml-gen:
+  - files: /generated-resources/*.gen.yaml
+  - action: yamlgen
+  - move: /package/
+  - target: staging
 
 to-json:
   - source: staging
