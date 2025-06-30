@@ -21,13 +21,7 @@ build: login install-dependencies build-ig convert-ig pack
 # Login to FHIR
 .PHONY: login
 login:
-	@if [ -f /run/secrets/fhir_password ]; then \
-		echo "Using FHIR password from secret mount"; \
-		$(FHIR) login email=$(FHIR_EMAIL) password=$$(cat /run/secrets/fhir_password); \
-	else \
-		echo "Using FHIR password from environment"; \
-		$(FHIR) login email=$(FHIR_EMAIL) password=$(FHIR_PASSWORD); \
-	fi
+	$(FHIR) login email=$(FHIR_EMAIL) password=$(FHIR_PASSWORD)
 
 # Install dependencies
 .PHONY: install-dependencies

@@ -46,19 +46,13 @@ jobs:
           tags: localhost:5000/gidsopenstandaarden/fhir-builder:latest
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Create secret file
-        run: |
-          echo "${{ secrets.FHIR_PASSWORD }}" > fhir_password.txt
       - name: Build
         env:
           FHIR_EMAIL: ${{ secrets.FHIR_EMAIL }}
+          FHIR_PASSWORD: ${{ secrets.FHIR_PASSWORD }}
         run: |
           mkdir -p ./output
-          docker run -v ${PWD}:/src -e FHIR_EMAIL=${FHIR_EMAIL} --secret id=fhir_password,src=./fhir_password.txt localhost:5000/gidsopenstandaarden/fhir-builder:latest
-      - name: Clean up secret file
-        if: always()
-        run: |
-          rm -f fhir_password.txt
+          docker run -v ${PWD}:/src -e FHIR_EMAIL=${FHIR_EMAIL} -e FHIR_PASSWORD=${FHIR_PASSWORD} localhost:5000/gidsopenstandaarden/fhir-builder:latest
       - name: version
         id: version
         run: |
