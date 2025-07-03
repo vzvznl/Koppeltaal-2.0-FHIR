@@ -1,2 +1,0 @@
-- Constraint failed: dom-6: 'A resource should have narrative for robust management'
-- NO_VALID_DISPLAY_FOUND_LANG_NONE
