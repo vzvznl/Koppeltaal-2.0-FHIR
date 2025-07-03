@@ -53,6 +53,9 @@ jobs:
         run: |
           mkdir -p ./output
           docker run -v ${PWD}:/src -e FHIR_EMAIL=${FHIR_EMAIL} -e FHIR_PASSWORD=${FHIR_PASSWORD} localhost:5000/gidsopenstandaarden/fhir-builder:latest
+          # Rename package to include version
+          VERSION=$(grep '^version:' sushi-config.yaml | sed 's/version: //')
+          mv ./output/package.tgz ./output/koppeltaalv2-${VERSION}.tgz
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
@@ -64,7 +67,7 @@ jobs:
       - name: version
         id: version
         run: |
-          VERSION=$(cat package.json | jq -r .version)
+          VERSION=$(grep '^version:' sushi-config.yaml | sed 's/version: //')
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Version: $VERSION"
       - name: Setup Node.js
@@ -74,9 +77,9 @@ jobs:
           registry-url: 'https://npm.pkg.github.com'
       - name: Publish to GitHub Packages
         run: |
-          # Extract the package to publish it
+          # Extract the package created by build-ig
           mkdir -p npm-publish
-          tar -xzf ./koppeltaalv2.00.${{ steps.version.outputs.version }}.tgz -C npm-publish
+          tar -xzf ./output/koppeltaalv2-${{ steps.version.outputs.version }}.tgz -C npm-publish
           cd npm-publish/package
           
           # Get the repository owner (org or user)
@@ -113,7 +116,7 @@ jobs:
           tag_name: v${{ steps.version.outputs.version }}
           body_path: CHANGELOG.md
           files: |
-            ./koppeltaalv2.00.${{ steps.version.outputs.version }}.tgz
+            ./output/koppeltaalv2-${{ steps.version.outputs.version }}.tgz
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
