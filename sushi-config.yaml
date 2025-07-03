@@ -1,7 +1,7 @@
 id: Koppeltaal
 name: KoppeltaalIG
 title: Koppeltaal 2.0 Implementation Guide
-description: Example Implementation Guide for getting started with SUSHI
+description: Koppeltaal 2.0 Implementation Guide
 canonical: http://koppeltaal.nl/fhir
 fhirVersion: 4.0.1
 FSHOnly: false
