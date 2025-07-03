@@ -1,4 +1,4 @@
-id: Koppeltaal
+id: koppeltaal # Needs to be lower-case
 name: KoppeltaalIG
 title: Koppeltaal 2.0 Implementation Guide
 description: Koppeltaal 2.0 Implementation Guide
