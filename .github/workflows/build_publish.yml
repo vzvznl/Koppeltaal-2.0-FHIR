@@ -1,4 +1,4 @@
-name: Publish to Simplifier
+name: Build (and Publish) FHIR packages to Simplifier
 
 on:
   # Manual trigger only
@@ -20,20 +20,20 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
-      
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      
+
       - name: Build Docker image
         uses: docker/build-push-action@v6
         with:
           context: .
           load: true
           tags: koppeltaal-builder:latest
-      
+
       - name: Run make publish
         env:
           FHIR_EMAIL: ${{ secrets.FHIR_EMAIL }}
@@ -46,7 +46,7 @@ jobs:
             -e FHIR_PASSWORD=${FHIR_PASSWORD} \
             koppeltaal-builder:latest \
             publish
-      
+
       - name: Summary
         if: always()
         run: |

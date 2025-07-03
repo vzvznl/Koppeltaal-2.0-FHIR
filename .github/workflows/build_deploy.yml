@@ -68,7 +68,7 @@ jobs:
         run: |
           # Extract the package created by build-ig
           mkdir -p npm-publish
-          tar -xzf ./output/koppeltaalv2-${{ steps.version.outputs.version }}.tgz -C npm-publish
+          tar -xzf ./output/package.tgz -C npm-publish
           cd npm-publish/package
           
           # Get the repository owner (org or user)
