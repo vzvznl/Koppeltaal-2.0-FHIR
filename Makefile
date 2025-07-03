@@ -37,7 +37,6 @@ build-ig:
 	@echo "Building Implementation Guide..."
 	java -jar /usr/local/publisher.jar -ig ig.ini
 	@echo "Renaming package to include version..."
-	@ls ./output
 	@cp ./output/package.tgz ./output/koppeltaalv2-$(VERSION).tgz
 
 # Publish package to Simplifier.net, not tested.
