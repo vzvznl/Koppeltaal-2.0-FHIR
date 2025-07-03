@@ -4,8 +4,8 @@
 FHIR := fhir
 DOTNET_TOOLS := $(HOME)/.dotnet/tools
 
-# Fetch version from sushi-config.yaml
-export VERSION := $(shell grep '^version:' sushi-config.yaml | sed 's/version: //')
+# Fetch version from package.json
+export VERSION := $(shell jq -r '.version' package.json)
 
 # Export PATH with dotnet tools
 export PATH := $(PATH):$(DOTNET_TOOLS)
