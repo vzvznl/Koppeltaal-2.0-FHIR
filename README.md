@@ -14,3 +14,10 @@ Data is exchanged between different type of applications. In Koppeltaal, the ter
 
 All FHIR resources of one healthcare provider can be accessed via the Koppeltaal (FHIR Resource) Provider for those service-providing applications that are connected to Koppeltaal. We use common concepts and standards that are based on HL7/FHIR.
 
+## Build and run locally
+```bash
+docker run -it --entrypoint /bin/bash -e FHIR_PASSWORD=.. -v ${PWD}:/data simplifier
+
+cd /data
+make
+```
