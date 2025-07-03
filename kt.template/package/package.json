@@ -1,0 +1,11 @@
+{
+    "name" : "kt.template",
+    "type" : "fhir.template",
+    "license" : "CC0-1.0",
+    "description" : "Koppeltaal FHIR IG Template",
+    "base" : "fhir.base.template",
+    "dependencies" : {
+      "fhir.base.template" : "current"
+    },
+    "version" : "0.1.0"
+  }
