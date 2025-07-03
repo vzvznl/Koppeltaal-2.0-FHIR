@@ -73,6 +73,7 @@ jobs:
     name: Deploy to GitHub Pages
     needs: build
     runs-on: ubuntu-latest
+    permissions: write-all
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -139,10 +140,11 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  create-release:
-    name: Create Draft Release
+  create-release-main:
+    name: Create Release (Main)
     needs: build
     runs-on: ubuntu-latest
+    permissions: write-all
     if: github.ref == 'refs/heads/main'
     steps:
       - name: Download artifacts
@@ -153,10 +155,35 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          draft: true
+          draft: false
           prerelease: false
           name: ${{ needs.build.outputs.version }}
           tag_name: v${{ needs.build.outputs.version }}
+          body_path: CHANGELOG.md
+          files: |
+            ./output/koppeltaalv2-${{ needs.build.outputs.version }}.tgz
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+  create-release-branch:
+    name: Create Draft Release (Branch)
+    needs: build
+    runs-on: ubuntu-latest
+    permissions: write-all
+    if: github.ref != 'refs/heads/main'
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: fhir-package
+      
+      - name: Create Draft Release
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: true
+          prerelease: false
+          name: ${{ needs.build.outputs.version }}-${{ github.ref_name }}
+          tag_name: v${{ needs.build.outputs.version }}-${{ github.ref_name }}-${{ github.run_number }}
           body_path: CHANGELOG.md
           files: |
             ./output/koppeltaalv2-${{ needs.build.outputs.version }}.tgz
