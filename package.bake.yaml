@@ -28,6 +28,11 @@ move-examples:
   - move: /package/examples
   - target: staging
 
+move-readme:
+  - files: README.md
+  - move: /package/
+  - target: staging
+
 to-json:
   - source: staging
   - category: Resource
