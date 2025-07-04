@@ -65,17 +65,28 @@ jobs:
           VERSION=$(cat package.json | jq -r .version)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Version: $VERSION"
-      - name: Create Release
-        if: always()
-        uses: softprops/action-gh-release@v1
+      - name: release
+        uses: actions/create-release@v1
+        id: create_release
         with:
           draft: true
           prerelease: false
-          name: ${{ steps.version.outputs.version }}
-          tag_name: v${{ steps.version.outputs.version }}
+          release_name: ${{ steps.version.outputs.version }}
+          tag_name: ${{ github.ref }}
           body_path: CHANGELOG.md
-          files: |
-            ./koppeltaalv2.00.${{ steps.version.outputs.version }}.tgz
         env:
           GITHUB_TOKEN: ${{ github.token }}
-
+      - name: upload FHIR package
+        id: upload
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./koppeltaalv2.00.${{ steps.version.outputs.version }}.tgz
+          asset_name: koppeltaalv2.00.${{ steps.version.outputs.version }}.tgz
+          asset_content_type: application/gzip
+      - name: Download URL
+        run: |
+          echo "Download URL is: ${{ steps.upload.outputs.browser_download_url }}"
+        
