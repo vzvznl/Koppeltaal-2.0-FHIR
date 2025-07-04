@@ -2,30 +2,31 @@
     "resourceType": "CodeSystem",
     "id": "2.16.840.1.113883.2.4.3.11.22.472",
     "meta": {
-        "profile": [
+        "profile":  [
             "http://hl7.org/fhir/StructureDefinition/CodeSystem"
         ]
     },
     "language": "nl-NL",
     "url": "urn:oid:2.16.840.1.113883.2.4.3.11.22.472",
-    "identifier": [
+    "identifier":  [
         {
             "use": "official",
             "system": "urn:ietf:rfc:3986",
             "value": "urn:oid:2.16.840.1.113883.2.4.3.11.22.472"
         }
     ],
-    "version": "2024-11-13",
+    "version": "2024-09-04",
     "name": "COD472_VEKT_Soort_relatie_client",
     "title": "COD472-VEKT Soort relatie cliënt",
     "status": "unknown",
     "experimental": false,
-    "date": "2024-11-13T12:00:00+01:00",
+    "date": "11/13/2024 11:00:00",
     "publisher": "Nictiz",
     "description": "COD472-VEKT Soort relatie cliënt --- uitsluitend bedoeld voor testdoeleinden!!! Dit is geen volledige lijst noch een door Vektis goedgekeurd uittreksel. Deze lijst is uitsluitend bedoeld voor testen binnen Koppeltaal.",
+    "caseSensitive": false,
     "content": "complete",
     "count": 16,
-    "concept": [
+    "concept":  [
         {
             "code": "01",
             "display": "Eerste relatie/contactpersoon"
