@@ -65,10 +65,6 @@ jobs:
         id: version
         run: |
           VERSION=$(cat package.json | jq -r .version)
-          # For non-main branches, append the short commit hash to make version unique
-          if [ "${{ github.ref_name }}" != "main" ]; then
-            VERSION="${VERSION}-${GITHUB_SHA::7}"
-          fi
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Version: $VERSION"
       - name: Setup Node.js
@@ -87,8 +83,7 @@ jobs:
           REPO_OWNER=$(echo "${{ github.repository }}" | cut -d'/' -f1)
           
           # Update package.json to include GitHub registry info and ensure it's scoped
-          # Also update the version to match what we calculated earlier
-          jq --arg owner "@$REPO_OWNER" --arg version "${{ steps.version.outputs.version }}" '.name = $owner + "/" + .name | .version = $version | .publishConfig = {"registry": "https://npm.pkg.github.com", "access": "restricted"}' package.json > package.json.tmp && mv package.json.tmp package.json
+          jq --arg owner "@$REPO_OWNER" '.name = $owner + "/" + .name | .publishConfig = {"registry": "https://npm.pkg.github.com", "access": "restricted"}' package.json > package.json.tmp && mv package.json.tmp package.json
           
           # Publish the package as private (restricted access)
           npm publish --access restricted
