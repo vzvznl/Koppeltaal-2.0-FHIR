@@ -9,9 +9,8 @@ WORKDIR /src
 
 RUN curl -L https://github.com/HL7/fhir-ig-publisher/releases/latest/download/publisher.jar -o /usr/local/publisher.jar
 
-# FHIR_EMAIL can stay as ENV since it's not sensitive
 ENV FHIR_EMAIL=roland@headease.nl
-# FHIR_PASSWORD will be provided via secret mount at build time
+ENV FHIR_PASSWORD=...
 ENV saxonPath=/root/.ant/lib/
 RUN mkdir -p ${saxonPath}
 RUN wget https://repo1.maven.org/maven2/net/sf/saxon/Saxon-HE/11.4/Saxon-HE-11.4.jar -O ${saxonPath}/saxon-he-11.4.jar
