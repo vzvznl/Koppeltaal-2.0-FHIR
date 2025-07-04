@@ -87,9 +87,14 @@ menu:
     Examples: examples.html
     Strict use of Name Information: strict-use-of-nameinformation.html
   Profile Specific Notes:
+    ActivityDefinition: StructureDefinition-KT2ActivityDefinition.html
     AuditEvent: StructureDefinition-KT2AuditEvent.html
     CareTeam: StructureDefinition-KT2CareTeam.html
+    Device: StructureDefinition-KT2Device.html
+    Endpoint: StructureDefinition-KT2Endpoint.html
+    Organization: StructureDefinition-KT2Organization.html
     Patient: StructureDefinition-KT2Patient.html
+    Practitioner: StructureDefinition-KT2Practitioner.html
     RelatedPerson: StructureDefinition-KT2RelatedPerson.html
     Subscription: StructureDefinition-KT2Subscription.html
     Task: StructureDefinition-KT2Task.html
