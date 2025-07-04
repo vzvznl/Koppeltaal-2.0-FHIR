@@ -53,7 +53,7 @@ jobs:
           mkdir -p ./output
           docker run -v ${PWD}:/src -e FHIR_PASSWORD=${FHIR_PASSWORD} -e FHIR_EMAIL=${FHIR_EMAIL}  localhost:5000/gidsopenstandaarden/fhir-builder:latest
       - name: version
-        run: cat package.json | jq .version | cut -d '"' -f2
+        run: $(cat package.json| jq .version | cut -d '"' -f2)
         id: version
       - name: release
         uses: actions/create-release@v1
