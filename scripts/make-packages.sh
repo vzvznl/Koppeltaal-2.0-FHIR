@@ -5,8 +5,6 @@ ME_DIR="$( cd "$( dirname "${(%):-%x}" )" && pwd )"
 # assume we are in scripts
 ROOT_DIR="$( dirname "$ME_DIR" )"
 
-echo "ROOT_DIR is ${ROOT_DIR}"
-
 rm -rf "${ROOT_DIR}/packages"
 
 # publish packages?
@@ -15,7 +13,7 @@ publish="${1:-0}"
 
 . ${ME_DIR}/local-paths.sh
 
-saxon_11="$saxonPath/saxon-he-11.4.jar:$saxonPath/xmlresolver-5.3.0.jar"
+saxon_11="$saxonPath/saxon-he-11.4.jar"
 saxon="${saxon_11}"
 
 
@@ -38,8 +36,8 @@ function make_package() {
     mkdir -p "${ROOT_DIR}/packages/${project}/resources"
     # mkdir -p "${ROOT_DIR}/packages/${project}/ig"
     # mkdir -p "${ROOT_DIR}/packages/${project}/examples"
-
-    if [[ -d "${ROOT_DIR}/resources/${project}" ]]; then
+   
+    if [[ -d "${ROOT_DIR}/resources/${project}" ]]; then 
         cp -R "${ROOT_DIR}/resources/${project}" "${ROOT_DIR}/packages/${project}"
     else
         cp -iR "${ROOT_DIR}"/resources/* "${ROOT_DIR}/packages/${project}/resources"
@@ -56,7 +54,7 @@ function make_package() {
     else
         cp "${ROOT_DIR}/fhirpkg.lock.json" "${ROOT_DIR}/packages/${project}/fhirpkg.lock.json"
     fi
-    cd "${ROOT_DIR}/packages/${project}" || exit
+    cd "${ROOT_DIR}/packages/${project}"
     # # convert it to json outside of the bake app because somehow that doesn't seem to work
     # # note, fhir push only accepts relative paths
     # fhir push ./ig/*ImplementationGuide*.xml
@@ -75,7 +73,7 @@ function make_package() {
     # fhir bake "${ROOT_DIR}/package.bake.yaml" --input "." --output "${ROOT_DIR}/packages/${project}" --debug
     mkdir -p "${ROOT_DIR}/packages/${project}/tmp"
 
-    fhir bake --input "${ROOT_DIR}/packages/${project}" --output "${ROOT_DIR}/packages/${project}/tmp"
+    fhir bake --input "." --output "${ROOT_DIR}/packages/${project}/tmp"
 
     if [[ -d package/examples ]]; then
         for f in $( grep -Fl '"NamingSystem"' package/examples/*); do
@@ -90,7 +88,7 @@ function make_package() {
     # cp ./ig/*.json ./package/
 
     rm -rf ./examples ./resources ./ig
-
+    
     # 2024-09-09 HvdL remove the name argument. Somehow it throws an error
     # while it also takes the package filename from the package.json information
     # fhir pack --name "${package_file}"
@@ -148,7 +146,7 @@ function reload_packages {
     for d in "${ROOT_DIR}"/packages/*/package.json ; do
         package_name=$(cat "$d" | jq .name | cut -d '"' -f2)
         package_version=$(cat "$d" | jq .version | cut -d '"' -f2)
-
+        
         reload-package "${package_name}" "${package_version}"
     done
   else
@@ -160,7 +158,7 @@ function publish_package() {
     for p in "${ROOT_DIR}"/packages/*.tgz ; do
         package_name=$(basename ${p%.*} )
         echo "Publishing package $(basename ${p%.*} )"
-
+        
         fhir publish-package "${p}"
 
         releasenotes_file="${ROOT_DIR}/packages/${package_name}_releasenotes.md"
@@ -223,7 +221,7 @@ function transform {
             $localParams
         fi
 
-        # Note: geen quotes rondom de parameters,
+        # Note: geen quotes rondom de parameters, 
         # want dan worden ze gezien als '1' parameter
         java -cp "${saxon}" net.sf.saxon.Transform \
             -s:"${inFile}" \
@@ -265,10 +263,10 @@ package_version=$(cat package.json| jq .version | cut -d '"' -f2)
 
 echo "package_version = ${package_version}"
 
-transform ${ME_DIR}/ImplementationGuide.xml ${ME_DIR}/generateIG.xsl resources/KT2ImplementationGuide.xml version=$package_version projectsDir=${ROOT_DIR}
+transform ${ME_DIR}/ImplementationGuide.xml ${ME_DIR}/generateIG.xsl resources/KT2ImplementationGuide.xml version=$package_version
 
 make_package koppeltaal
 
-#if [[ "$publish" == "publish" ]]; then
-#    publish_package
-#fi
+if [[ "$publish" == "publish" ]]; then 
+    publish_package
+fi
