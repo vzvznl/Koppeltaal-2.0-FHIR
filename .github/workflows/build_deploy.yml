@@ -59,28 +59,6 @@ jobs:
           VERSION=$(cat package.json | jq -r .version)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Version: $VERSION"
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          registry-url: 'https://npm.pkg.github.com'
-      - name: Publish to GitHub Packages
-        run: |
-          # Extract the package to publish it
-          mkdir -p npm-publish
-          tar -xzf ./koppeltaalv2.00.${{ steps.version.outputs.version }}.tgz -C npm-publish
-          cd npm-publish/package
-          
-          # Get the repository owner (org or user)
-          REPO_OWNER=$(echo "${{ github.repository }}" | cut -d'/' -f1)
-          
-          # Update package.json to include GitHub registry info and ensure it's scoped
-          jq --arg owner "@$REPO_OWNER" '.name = $owner + "/" + .name | .publishConfig = {"registry": "https://npm.pkg.github.com", "access": "restricted"}' package.json > package.json.tmp && mv package.json.tmp package.json
-          
-          # Publish the package as private (restricted access)
-          npm publish --access restricted
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Create Release
         if: always()
         uses: softprops/action-gh-release@v1
