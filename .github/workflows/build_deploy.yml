@@ -56,9 +56,9 @@ jobs:
       - name: version
         id: version
         run: |
-          VERSION=$(cat package.json | jq -r .version)
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "Version: $VERSION"
+          echo -n "version=" > $GITHUB_OUTPUT
+          cat package.json | jq .version | cut -d '"' -f2 >> $GITHUB_OUTPUT
+          cat $GITHUB_OUTPUT
       - name: release
         uses: actions/create-release@v1
         id: create_release
