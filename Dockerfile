@@ -1,6 +1,7 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0
 
-RUN dotnet tool install -g firely.terminal && apt-get update && apt install -y make jq default-jdk python3 python3-pip python3-yaml
+RUN dotnet tool install -g firely.terminal && apt-get update && apt install -y zsh jq default-jdk
+RUN PATH=$PATH:$HOME/.dotnet/tools && fhir install nictiz.fhir.nl.r4.zib2020 0.11.0-beta.1
 
 RUN mkdir "/src"
 WORKDIR /src
@@ -16,4 +17,4 @@ RUN wget https://repo1.maven.org/maven2/org/xmlresolver/xmlresolver/5.3.0/xmlres
 ENV DEBUG=1
 
 
-ENTRYPOINT ["make", "build"]
+ENTRYPOINT ["zsh", "./fhir-build.sh"]
