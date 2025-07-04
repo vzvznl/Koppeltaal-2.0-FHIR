@@ -1,9 +1,9 @@
 name: Build (and Deploy) FHIR packages
 
 on:
-  # Runs on pushes to all branches
+  # Runs on pushes targeting the default branch
   push:
-    branches: ["**"]
+    branches: ["main", "autobuild"]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -84,11 +84,9 @@ jobs:
           
           # Calculate the publish version
           PUBLISH_VERSION="${{ steps.version.outputs.version }}"
-          # For non-main branches, append the branch name and short commit hash to make version unique
+          # For non-main branches, append the short commit hash to make version unique
           if [ "${{ github.ref_name }}" != "main" ]; then
-            # Sanitize branch name for npm version (replace / with -, remove special chars)
-            BRANCH_NAME=$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9._-]/-/g')
-            PUBLISH_VERSION="${PUBLISH_VERSION}-${BRANCH_NAME}-${GITHUB_SHA::7}"
+            PUBLISH_VERSION="${PUBLISH_VERSION}-${GITHUB_SHA::7}"
           fi
           
           # Update package.json to include GitHub registry info and ensure it's scoped
