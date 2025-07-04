@@ -1,0 +1,70 @@
+{
+  "resourceType": "Task",
+  "id": "task-met-overkoepelende-task",
+  "meta": {
+    "profile": [
+      "http://koppeltaal.nl/fhir/StructureDefinition/KT2Task"
+    ]
+  },
+  "text": {
+    "status": "generated",
+    "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"nl-NL\" lang=\"nl-NL\">Example of a sub task, part of another task</div>"
+  },
+  "extension": [
+    {
+      "valueReference": {
+        "reference": "Device/device-volledig",
+        "type": "Device"
+      },
+      "url": "http://koppeltaal.nl/fhir/StructureDefinition/resource-origin"
+    },
+    {
+      "valueReference": {
+        "reference": "ActivityDefinition/activitydefinition123",
+        "type": "ActivityDefinition"
+      },
+      "url": "http://vzvz.nl/fhir/StructureDefinition/instantiates"
+    }
+  ],
+  "identifier": [
+    {
+      "system": "http://koppeltaal.nl/taskIdentifier",
+      "value": "1234"
+    }
+  ],
+  "partOf": [
+    {
+      "reference": "Task/task-overkoepelend"
+    }
+  ],
+  "for": {
+    "reference": "Patient/patient-volledige-naam-bsn",
+    "type": "Patient"
+  },
+  "executionPeriod": {
+    "start": "2023-01-20T08:25:05+01:00",
+    "end": "2023-01-21T08:25:05+01:00"
+  },
+  "requester": {
+    "reference": "Practitioner/practitioner-minimaal",
+    "type": "Practitioner"
+  },
+  "owner": {
+    "reference": "Patient/patient-volledige-naam-bsn",
+    "type": "Patient"
+  },
+  "language": "nl-NL",
+  "intent": "order",
+  "priority": "routine",
+  "code": {
+    "coding": [
+      {
+        "code": "fulfill",
+        "system": "http://hl7.org/fhir/CodeSystem/task-code"
+      }
+    ]
+  },
+  "status": "ready",
+  "authoredOn": "2023-01-19T08:25:05+01:00",
+  "lastModified": "2023-01-19T09:45:05+01:00"
+}

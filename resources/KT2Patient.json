@@ -1,0 +1,260 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "KT2Patient",
+  "meta": {
+    "versionId": "9",
+    "lastUpdated": "2024-03-13T14:21:00.4204722+00:00"
+  },
+  "url": "http://koppeltaal.nl/fhir/StructureDefinition/KT2Patient",
+  "version": "0.8.0",
+  "name": "KT2_Patient",
+  "status": "draft",
+  "date": "2023-01-24",
+  "publisher": "VZVZ",
+  "contact": [
+    {
+      "name": "VZVZ",
+      "telecom": [
+        {
+          "system": "url",
+          "value": "https://www.vzvz.nl",
+          "use": "work"
+        }
+      ]
+    }
+  ],
+  "description": "The (FHIR) Patient (resource) is a representation of a person who is being treated by the Healthcare Provider to whom eHealth activities are assigned.",
+  "copyright": "VZVZ",
+  "fhirVersion": "4.0.1",
+  "kind": "resource",
+  "abstract": false,
+  "type": "Patient",
+  "baseDefinition": "http://nictiz.nl/fhir/StructureDefinition/nl-core-Patient",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      {
+        "id": "Patient.extension:nationality",
+        "path": "Patient.extension",
+        "sliceName": "nationality",
+        "max": "0"
+      },
+      {
+        "id": "Patient.extension:resource-origin",
+        "path": "Patient.extension",
+        "sliceName": "resource-origin",
+        "type": [
+          {
+            "code": "Extension",
+            "profile": [
+              "http://koppeltaal.nl/fhir/StructureDefinition/resource-origin"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Patient.identifier",
+        "path": "Patient.identifier",
+        "min": 1
+      },
+      {
+        "id": "Patient.active",
+        "path": "Patient.active",
+        "min": 1
+      },
+      {
+        "id": "Patient.name",
+        "path": "Patient.name",
+        "min": 1,
+        "constraint": [
+          {
+            "key": "kt2pnu-1",
+            "severity": "error",
+            "human": "Patient name use must not be empty",
+            "expression": "use.hasValue()"
+          }
+        ]
+      },
+      {
+        "id": "Patient.name:nameInformation",
+        "path": "Patient.name",
+        "sliceName": "nameInformation",
+        "comment": "This `.name` element represents a Dutch name according to the [zib NameInformation (v1.1, 2020)](https://zibs.nl/wiki/NameInformation-v1.1(2020EN)) (except for the GivenName concept). A Dutch name is represented in FHIR as an ordinary international name, but is augmented using extensions to specify how the last name is built up according to the Dutch rules. See the guidance on `.family` and on `.extension:nameUsage` for more information. Systems that need to work in a Dutch context **MUST** support these extensions as specified here. In addition, systems **MUST** use the core elements according to the FHIR specifications to provide compatibility outside Dutch contexts. It is encouraged to provide a representation of the full name in the `.text` element.\r\n\r\n**Note 1**: The zib cannot be represented straightforward in FHIR. Especially note the guidance on `.given` on how to map the FirstNames and Initials concepts, and on `.prefix`/`.suffix` on how to map the Titles concept.\r\n\r\n**Note 2**: This element should only contain a person's _official_ names. The GivenName concept is represented in another `.name` element with `.name.use` = _usual_.\r\n\r\n**Note 3**: The examples illustrate how the zib is mapped to FHIR."
+      },
+      {
+        "id": "Patient.name:nameInformation.text",
+        "path": "Patient.name.text",
+        "comment": "This element is not used in the context of Koppeltaal 2.0"
+      },
+      {
+        "id": "Patient.name:nameInformation.family",
+        "path": "Patient.name.family",
+        "min": 1
+      },
+      {
+        "id": "Patient.name:nameInformation.given",
+        "path": "Patient.name.given",
+        "min": 1
+      },
+      {
+        "id": "Patient.name:nameInformation.prefix",
+        "path": "Patient.name.prefix",
+        "comment": "This element is not used in the context of Koppeltaal 2.0"
+      },
+      {
+        "id": "Patient.name:nameInformation.suffix",
+        "path": "Patient.name.suffix",
+        "comment": "This element is not used in the context of Koppeltaal 2.0"
+      },
+      {
+        "id": "Patient.name:nameInformation.period",
+        "path": "Patient.name.period",
+        "comment": "This element is not used in the context of Koppeltaal 2.0"
+      },
+      {
+        "id": "Patient.name:nameInformation-GivenName",
+        "path": "Patient.name",
+        "sliceName": "nameInformation-GivenName"
+      },
+      {
+        "id": "Patient.name:nameInformation-GivenName.text",
+        "path": "Patient.name.text",
+        "comment": "This element is not used in the context of Koppeltaal 2.0"
+      },
+      {
+        "id": "Patient.telecom:telephoneNumbers",
+        "path": "Patient.telecom",
+        "sliceName": "telephoneNumbers"
+      },
+      {
+        "id": "Patient.telecom:telephoneNumbers.rank",
+        "path": "Patient.telecom.rank",
+        "comment": "This element is not used in the context of Koppeltaal 2.0"
+      },
+      {
+        "id": "Patient.telecom:telephoneNumbers.period",
+        "path": "Patient.telecom.period",
+        "comment": "This element is not used in the context of Koppeltaal 2.0"
+      },
+      {
+        "id": "Patient.telecom:emailAddresses",
+        "path": "Patient.telecom",
+        "sliceName": "emailAddresses"
+      },
+      {
+        "id": "Patient.telecom:emailAddresses.rank",
+        "path": "Patient.telecom.rank",
+        "comment": "This element is not used in the context of Koppeltaal 2.0"
+      },
+      {
+        "id": "Patient.telecom:emailAddresses.period",
+        "path": "Patient.telecom.period",
+        "comment": "This element is not used in the context of Koppeltaal 2.0"
+      },
+      {
+        "id": "Patient.gender",
+        "path": "Patient.gender",
+        "min": 1
+      },
+      {
+        "id": "Patient.birthDate",
+        "path": "Patient.birthDate",
+        "min": 1
+      },
+      {
+        "id": "Patient.deceased[x]",
+        "path": "Patient.deceased[x]",
+        "max": "0"
+      },
+      {
+        "id": "Patient.address.extension:addressType",
+        "path": "Patient.address.extension",
+        "sliceName": "addressType",
+        "comment": "This element is not used in the context of Koppeltaal 2.0"
+      },
+      {
+        "id": "Patient.address.type",
+        "path": "Patient.address.type",
+        "comment": "This element is not used in the context of Koppeltaal 2.0"
+      },
+      {
+        "id": "Patient.address.text",
+        "path": "Patient.address.text",
+        "comment": "This element is not used in the context of Koppeltaal 2.0"
+      },
+      {
+        "id": "Patient.address.district",
+        "path": "Patient.address.district",
+        "comment": "This element is not used in the context of Koppeltaal 2.0"
+      },
+      {
+        "id": "Patient.address.state",
+        "path": "Patient.address.state",
+        "comment": "This element is not used in the context of Koppeltaal 2.0"
+      },
+      {
+        "id": "Patient.address.country.extension:countryCode",
+        "path": "Patient.address.country.extension",
+        "sliceName": "countryCode",
+        "comment": "See [Koppeltaal Implementation Guide](https://simplifier.net/guide/koppeltaal/Home/General-Notes/Country-Codes.md?version=current) for more information."
+      },
+      {
+        "id": "Patient.address.country.extension:countryCode.value[x]",
+        "path": "Patient.address.country.extension.value[x]",
+        "comment": "See [Koppeltaal Implementation Guide](https://simplifier.net/guide/koppeltaal/Home/General-Notes/Country-Codes.md?version=current) for more information."
+      },
+      {
+        "id": "Patient.address.period",
+        "path": "Patient.address.period",
+        "comment": "This element is not used in the context of Koppeltaal 2.0"
+      },
+      {
+        "id": "Patient.maritalStatus",
+        "path": "Patient.maritalStatus",
+        "max": "0"
+      },
+      {
+        "id": "Patient.multipleBirth[x]",
+        "path": "Patient.multipleBirth[x]",
+        "max": "0"
+      },
+      {
+        "id": "Patient.photo",
+        "path": "Patient.photo",
+        "max": "0"
+      },
+      {
+        "id": "Patient.contact",
+        "path": "Patient.contact",
+        "max": "0"
+      },
+      {
+        "id": "Patient.communication",
+        "path": "Patient.communication",
+        "max": "0"
+      },
+      {
+        "id": "Patient.generalPractitioner",
+        "path": "Patient.generalPractitioner",
+        "max": "0"
+      },
+      {
+        "id": "Patient.managingOrganization",
+        "path": "Patient.managingOrganization",
+        "type": [
+          {
+            "code": "Reference",
+            "targetProfile": [
+              "http://koppeltaal.nl/fhir/StructureDefinition/KT2Organization"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Patient.link",
+        "path": "Patient.link",
+        "max": "0"
+      }
+    ]
+  }
+}

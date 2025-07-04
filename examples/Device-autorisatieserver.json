@@ -1,0 +1,36 @@
+{
+  "resourceType": "Device",
+  "id": "autorisatieserver",
+  "meta": {
+    "profile": [
+      "http://koppeltaal.nl/fhir/StructureDefinition/KT2Device"
+    ]
+  },
+  "text": {
+    "status": "generated",
+    "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"nl-NL\" lang=\"nl-NL\">Example of Device indicating an authorisation server</div>"
+  },
+  "identifier": [
+    {
+      "system": "http://vzvz.nl/fhir/NamingSystem/koppeltaal-client-id",
+      "value": "autorisatieserver"
+    }
+  ],
+  "deviceName": [
+    {
+      "name": "Autorisatieserver",
+      "type": "user-friendly-name"
+    }
+  ],
+  "language": "nl-NL",
+  "type": {
+    "coding": [
+      {
+        "code": "9096001",
+        "system": "http://snomed.info/sct",
+        "display": "support"
+      }
+    ]
+  },
+  "status": "active"
+}

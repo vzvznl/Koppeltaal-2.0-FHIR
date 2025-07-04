@@ -1,0 +1,302 @@
+{
+    "resourceType": "StructureDefinition",
+    "id": "KT2ActivityDefinition",
+    "meta": {
+        "versionId": "13",
+        "lastUpdated": "2024-10-18T21:08:35.5759835+00:00"
+    },
+    "url": "http://koppeltaal.nl/fhir/StructureDefinition/KT2ActivityDefinition",
+    "version": "0.9.0",
+    "name": "KT2_ActivityDefinition",
+    "status": "draft",
+    "date": "2023-01-24",
+    "publisher": "VZVZ",
+    "contact": [
+        {
+            "name": "VZVZ",
+            "telecom": [
+                {
+                    "system": "url",
+                    "value": "https://www.vzvz.nl",
+                    "use": "work"
+                }
+            ]
+        }
+    ],
+    "description": "The (FHIR) ActivityDefinition (resource) describes an eHealth activity that is available for assignment to a patient. When assigning an eHealth activity to a patient, an eHealth Task is created, in which sub-activities are included as contained resources that refer to the main task via Task.partOf.",
+    "jurisdiction": [
+        {
+            "coding": [
+                {
+                    "system": "urn:iso:std:iso:3166",
+                    "code": "NL",
+                    "display": "Netherlands"
+                }
+            ]
+        }
+    ],
+    "copyright": "VZVZ",
+    "fhirVersion": "4.0.1",
+    "kind": "resource",
+    "abstract": false,
+    "type": "ActivityDefinition",
+    "baseDefinition": "http://hl7.org/fhir/StructureDefinition/ActivityDefinition",
+    "derivation": "constraint",
+    "differential": {
+        "element": [
+            {
+                "id": "ActivityDefinition",
+                "path": "ActivityDefinition",
+                "short": "Description of an eHealth activity",
+                "comment": "The (FHIR) ActivityDefinition describes an eHealth activity available to assign to a patient. The assignment of an eHealth activity to a patient creates an eHealth Task (Task resource). This task can contain sub activities as contained resources which refer to the main task using the Task.partOf element."
+            },
+            {
+                "id": "ActivityDefinition.extension",
+                "path": "ActivityDefinition.extension",
+                "min": 1
+            },
+            {
+                "id": "ActivityDefinition.extension:endpoint",
+                "path": "ActivityDefinition.extension",
+                "sliceName": "endpoint",
+                "short": "Endpoint to the service application",
+                "definition": "Mandatory reference to the service application (endpoint) that provides the eHealth activity. Can be more than one endpoint.",
+                "min": 1,
+                "type": [
+                    {
+                        "code": "Extension",
+                        "profile": [
+                            "http://koppeltaal.nl/fhir/StructureDefinition/KT2EndpointExtension"
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": "ActivityDefinition.extension:resource-origin",
+                "path": "ActivityDefinition.extension",
+                "sliceName": "resource-origin",
+                "type": [
+                    {
+                        "code": "Extension",
+                        "profile": [
+                            "http://koppeltaal.nl/fhir/StructureDefinition/resource-origin"
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": "ActivityDefinition.extension:publisherId",
+                "path": "ActivityDefinition.extension",
+                "sliceName": "publisherId",
+                "type": [
+                    {
+                        "code": "Extension",
+                        "profile": [
+                            "http://koppeltaal.nl/fhir/StructureDefinition/KT2PublisherId"
+                        ]
+                    }
+                ],
+                "isModifier": false
+            },
+            {
+                "id": "ActivityDefinition.url",
+                "path": "ActivityDefinition.url",
+                "min": 1
+            },
+            {
+                "id": "ActivityDefinition.title",
+                "path": "ActivityDefinition.title",
+                "min": 1
+            },
+            {
+                "id": "ActivityDefinition.experimental",
+                "path": "ActivityDefinition.experimental",
+                "max": "0"
+            },
+            {
+                "id": "ActivityDefinition.subject[x]",
+                "path": "ActivityDefinition.subject[x]",
+                "max": "0"
+            },
+            {
+                "id": "ActivityDefinition.date",
+                "path": "ActivityDefinition.date",
+                "max": "0"
+            },
+            {
+                "id": "ActivityDefinition.publisher",
+                "path": "ActivityDefinition.publisher",
+                "max": "0"
+            },
+            {
+                "id": "ActivityDefinition.contact",
+                "path": "ActivityDefinition.contact",
+                "max": "0"
+            },
+            {
+                "id": "ActivityDefinition.useContext",
+                "path": "ActivityDefinition.useContext",
+                "definition": "The context for the content of the eHealth activity",
+                "comment": "E.g. the activity is targeted to a certain age group",
+                "max": "0"
+            },
+            {
+                "id": "ActivityDefinition.jurisdiction",
+                "path": "ActivityDefinition.jurisdiction",
+                "definition": "This element is not used",
+                "max": "0"
+            },
+            {
+                "id": "ActivityDefinition.purpose",
+                "path": "ActivityDefinition.purpose",
+                "max": "0"
+            },
+            {
+                "id": "ActivityDefinition.usage",
+                "path": "ActivityDefinition.usage",
+                "max": "0"
+            },
+            {
+                "id": "ActivityDefinition.copyright",
+                "path": "ActivityDefinition.copyright",
+                "max": "0"
+            },
+            {
+                "id": "ActivityDefinition.approvalDate",
+                "path": "ActivityDefinition.approvalDate",
+                "max": "0"
+            },
+            {
+                "id": "ActivityDefinition.lastReviewDate",
+                "path": "ActivityDefinition.lastReviewDate",
+                "max": "0"
+            },
+            {
+                "id": "ActivityDefinition.effectivePeriod",
+                "path": "ActivityDefinition.effectivePeriod",
+                "max": "0"
+            },
+            {
+                "id": "ActivityDefinition.topic",
+                "path": "ActivityDefinition.topic",
+                "short": "E.g. Self-Treatment and Self-Assessment, etc.",
+                "definition": "Descriptive topics related to the content of the activity. The topic is used to indicate that the activity is intended or suitable for initialization by patients.",
+                "binding": {
+                    "strength": "extensible",
+                    "description": "High-level categorization of the definition, used for indicating special patient initialised activities",
+                    "valueSet": "http://vzvz.nl/fhir/ValueSet/koppeltaal-definition-topic"
+                }
+            },
+            {
+                "id": "ActivityDefinition.author",
+                "path": "ActivityDefinition.author",
+                "max": "0"
+            },
+            {
+                "id": "ActivityDefinition.editor",
+                "path": "ActivityDefinition.editor",
+                "max": "0"
+            },
+            {
+                "id": "ActivityDefinition.reviewer",
+                "path": "ActivityDefinition.reviewer",
+                "max": "0"
+            },
+            {
+                "id": "ActivityDefinition.endorser",
+                "path": "ActivityDefinition.endorser",
+                "max": "0"
+            },
+            {
+                "id": "ActivityDefinition.relatedArtifact",
+                "path": "ActivityDefinition.relatedArtifact",
+                "max": "0"
+            },
+            {
+                "id": "ActivityDefinition.library",
+                "path": "ActivityDefinition.library",
+                "max": "0"
+            },
+            {
+                "id": "ActivityDefinition.kind",
+                "path": "ActivityDefinition.kind",
+                "max": "0"
+            },
+            {
+                "id": "ActivityDefinition.profile",
+                "path": "ActivityDefinition.profile",
+                "max": "0"
+            },
+            {
+                "id": "ActivityDefinition.intent",
+                "path": "ActivityDefinition.intent",
+                "max": "0"
+            },
+            {
+                "id": "ActivityDefinition.priority",
+                "path": "ActivityDefinition.priority",
+                "max": "0"
+            },
+            {
+                "id": "ActivityDefinition.doNotPerform",
+                "path": "ActivityDefinition.doNotPerform",
+                "max": "0"
+            },
+            {
+                "id": "ActivityDefinition.timing[x]",
+                "path": "ActivityDefinition.timing[x]",
+                "max": "0"
+            },
+            {
+                "id": "ActivityDefinition.location",
+                "path": "ActivityDefinition.location",
+                "max": "0"
+            },
+            {
+                "id": "ActivityDefinition.product[x]",
+                "path": "ActivityDefinition.product[x]",
+                "max": "0"
+            },
+            {
+                "id": "ActivityDefinition.quantity",
+                "path": "ActivityDefinition.quantity",
+                "max": "0"
+            },
+            {
+                "id": "ActivityDefinition.dosage",
+                "path": "ActivityDefinition.dosage",
+                "max": "0"
+            },
+            {
+                "id": "ActivityDefinition.bodySite",
+                "path": "ActivityDefinition.bodySite",
+                "max": "0"
+            },
+            {
+                "id": "ActivityDefinition.specimenRequirement",
+                "path": "ActivityDefinition.specimenRequirement",
+                "max": "0"
+            },
+            {
+                "id": "ActivityDefinition.observationRequirement",
+                "path": "ActivityDefinition.observationRequirement",
+                "max": "0"
+            },
+            {
+                "id": "ActivityDefinition.observationResultRequirement",
+                "path": "ActivityDefinition.observationResultRequirement",
+                "max": "0"
+            },
+            {
+                "id": "ActivityDefinition.transform",
+                "path": "ActivityDefinition.transform",
+                "max": "0"
+            },
+            {
+                "id": "ActivityDefinition.dynamicValue",
+                "path": "ActivityDefinition.dynamicValue",
+                "max": "0"
+            }
+        ]
+    }
+}

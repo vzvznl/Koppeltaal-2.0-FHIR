@@ -1,0 +1,71 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "correlation-id",
+  "language": "nl-NL",
+  "url": "http://koppeltaal.nl/fhir/StructureDefinition/correlation-id",
+  "version": "0.8.0",
+  "name": "KT2_CorrelationId",
+  "status": "draft",
+  "date": "2023-01-24",
+  "publisher": "VZVZ",
+  "contact": [
+    {
+      "name": "VZVZ",
+      "telecom": [
+        {
+          "system": "url",
+          "value": "https://www.vzvz.nl",
+          "use": "work"
+        }
+      ]
+    }
+  ],
+  "description": "The correlation-id is an identifier related to the message and the workflow it's part of",
+  "jurisdiction": [
+    {
+      "coding": [
+        {
+          "code": "NL",
+          "system": "urn:iso:std:iso:3166",
+          "display": "Netherlands"
+        }
+      ]
+    }
+  ],
+  "copyright": "VZVZ",
+  "fhirVersion": "4.0.1",
+  "kind": "complex-type",
+  "abstract": false,
+  "context": [
+    {
+      "type": "element",
+      "expression": "AuditEvent"
+    }
+  ],
+  "type": "Extension",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Extension",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      {
+        "id": "Extension",
+        "path": "Extension",
+        "max": "1"
+      },
+      {
+        "id": "Extension.url",
+        "path": "Extension.url",
+        "fixedUri": "http://koppeltaal.nl/fhir/StructureDefinition/correlation-id"
+      },
+      {
+        "id": "Extension.value[x]",
+        "path": "Extension.value[x]",
+        "type": [
+          {
+            "code": "id"
+          }
+        ]
+      }
+    ]
+  }
+}
