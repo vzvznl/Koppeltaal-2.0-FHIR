@@ -52,4 +52,3 @@ Due to an issue with the FHIR profile, the following validation warnings are gen
 This information notification is ignored when the creation or update of the resource is successful. However at the moment a resource contains an error, this information warning shows up in the `OperationOutcome`, potentially confusing / obfuscating the process of error assessment. We advise to ignore this _warning_ and focus on the _error_ in the `OperationOutcome` resource. 
 
 Despite the effort to get this notification removed, the implementation team has not succeeded in removing the information notification. 
-</div>
