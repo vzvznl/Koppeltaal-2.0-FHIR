@@ -1,4 +1,4 @@
-name: Build (and Deploy) FHIR packages
+name: Build and Deploy static content to Pages with Docker
 
 on:
   # Runs on pushes targeting the default branch
