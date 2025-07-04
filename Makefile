@@ -33,7 +33,6 @@ install-dependencies:
 .PHONY: convert-ig
 convert-ig:
 	@echo "Converting package.json to ImplementationGuide..."
-	@mkdir -p generated-resources
 	python3 scripts/convert_package_to_ig.py package.json generated-resources/KT2ImplementationGuide.gen.yaml
 
 # Pack FHIR resources
