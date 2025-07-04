@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ImplementationGuide xmlns="http://hl7.org/fhir">
+   <id value="koppeltaal-ig-koppeltaalv2.00"/>
+   <url value="http://koppeltaal.nl/fhir/ImplementationGuide"/>
+   <version value="0.14.1"/>
+   <name value="Koppeltaal_2.0_IG"/>
+   <status value="active"/>
+   <experimental value="false"/>
+   <date value="2025-04-18"/>
+   <publisher value="VZVZ"/>
+   <packageId value="koppeltaalv2.00"/>
+   <fhirVersion value="4.0.1"/>
+   <dependsOn>
+      <uri value="https://simplifier.net/packages/nictiz.fhir.nl.r4.zib2020"/>
+      <packageId value="nictiz.fhir.nl.r4.zib2020"/>
+      <version value="0.10.0-beta.1"/>
+   </dependsOn>
+   <dependsOn>
+      <uri value="https://simplifier.net/packages/nictiz.fhir.nl.r4.nl-core"/>
+      <packageId value="nictiz.fhir.nl.r4.nl-core"/>
+      <version value="0.10.0-beta.1"/>
+   </dependsOn>
+</ImplementationGuide>

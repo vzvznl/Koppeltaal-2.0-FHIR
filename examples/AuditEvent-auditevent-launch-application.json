@@ -1,0 +1,77 @@
+{
+  "resourceType": "AuditEvent",
+  "id": "auditevent-launch-application",
+  "meta": {
+    "profile": [
+      "http://koppeltaal.nl/fhir/StructureDefinition/KT2AuditEvent"
+    ]
+  },
+  "text": {
+    "status": "generated",
+    "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"nl-NL\" lang=\"nl-NL\">Example of AuditEvent on application launch</div>"
+  },
+  "subtype": [
+    {
+      "code": "110120",
+      "system": "http://dicom.nema.org/resources/ontology/DCM",
+      "display": "Application Start"
+    }
+  ],
+  "agent": [
+    {
+      "who": {
+        "reference": "Device/device-volledig",
+        "type": "Device"
+      },
+      "type": {
+        "coding": [
+          {
+            "code": "110151",
+            "system": "http://dicom.nema.org/resources/ontology/DCM",
+            "display": "Application Launcher"
+          }
+        ]
+      },
+      "requestor": true
+    }
+  ],
+  "source": {
+    "observer": {
+      "reference": "Device/ba33314a-795a-4777-bef8-e6611f6be645",
+      "type": "Device"
+    },
+    "site": "Koppeltaal Domein X"
+  },
+  "entity": [
+    {
+      "what": {
+        "reference": "Device/device-volledig",
+        "type": "Device"
+      },
+      "type": {
+        "code": "Device",
+        "system": "http://hl7.org/fhir/resource-types",
+        "display": "Device"
+      }
+    }
+  ],
+  "extension": [
+    {
+      "url": "http://koppeltaal.nl/fhir/StructureDefinition/trace-id",
+      "valueId": "8385f600-9bf7-4b96-8467-268070c27677"
+    },
+    {
+      "url": "http://koppeltaal.nl/fhir/StructureDefinition/request-id",
+      "valueId": "L4t9tLExU6oQr3cT"
+    }
+  ],
+  "language": "nl-NL",
+  "type": {
+    "code": "110100",
+    "system": "http://dicom.nema.org/resources/ontology/DCM",
+    "display": "Application Activity"
+  },
+  "action": "E",
+  "recorded": "2023-01-19T23:42:24+00:00",
+  "outcome": "0"
+}

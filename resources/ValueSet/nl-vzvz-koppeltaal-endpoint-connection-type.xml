@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ValueSet xmlns="http://hl7.org/fhir">
+    <id value="endpoint-connection-type" />
+    <meta>
+        <versionId value="1" />
+        <lastUpdated value="2023-09-26T12:00:00+02:00" />
+        <profile value="http://hl7.org/fhir/StructureDefinition/ValueSet" />
+    </meta>
+    <extension url="http://hl7.org/fhir/StructureDefinition/resource-effectivePeriod">
+        <valuePeriod>
+            <start value="2023-09-26T12:00:00+02:00" />
+        </valuePeriod>
+    </extension>
+    <url value="http://vzvz.nl/fhir/ValueSet/endpoint-connection-type" />
+    <identifier>
+        <use value="official" />
+        <value value="http://vzvz.nl/fhir/ValueSet/endpoint-connection-type" />
+    </identifier>
+    <version value="2023-09-26" />
+    <name value="EndpointConnectionTypeValueSet" />
+    <title value="Endpoint connection type ValueSet" />
+    <status value="draft" />
+    <experimental value="false" />
+    <date value="2023-09-26T12:00:00+02:00" />
+    <publisher value="VZVZ" />
+    <contact>
+        <name value="VZVZ" />
+        <telecom>
+            <system value="email" />
+            <value value="standaardisatie@vzvz.nl" />
+        </telecom>
+    </contact>
+    <description value="Endpoint connection type ValueSet" />
+    <compose>
+        <include>
+            <system value="http://vzvz.nl/fhir/CodeSystem/koppeltaal-endpoint-connection-type" />
+        </include>
+        <include>
+            <system value="http://hl7.org/fhir/ValueSet/endpoint-connection-type" />
+        </include>
+    </compose>
+</ValueSet>

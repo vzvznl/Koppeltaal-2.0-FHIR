@@ -1,0 +1,37 @@
+<Patient xmlns="http://hl7.org/fhir">
+    <id value="patient-fout-empty-use" />
+    <meta>
+        <profile value="http://koppeltaal.nl/fhir/StructureDefinition/KT2Patient" />
+    </meta>
+    <identifier>
+        <use value="official" />
+        <system value="http://fhir.nl/fhir/NamingSystem/bsn" />
+        <value value="0123456789" />
+    </identifier>
+    <identifier>
+        <use value="usual" />
+        <system value="https://irma.app" />
+        <value value="bertabotje1@vzvz.nl" />
+    </identifier>
+    <active value="true" />
+    <name>
+        <given value="Berta" />
+    </name>
+    <telecom>
+        <system value="email" />
+        <value value="bertabotje1@vzvz.nl" />
+        <use value="home" />
+    </telecom>
+    <gender value="female">
+        <extension url="http://nictiz.nl/fhir/StructureDefinition/ext-CodeSpecification">
+            <valueCodeableConcept>
+                <coding>
+                    <system value="http://terminology.hl7.org/CodeSystem/v3-AdministrativeGender" />
+                    <code value="F" />
+                    <display value="Female" />
+                </coding>
+            </valueCodeableConcept>
+        </extension>
+    </gender>
+    <birthDate value="1970-12-21" />
+</Patient>

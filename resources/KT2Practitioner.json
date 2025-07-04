@@ -1,0 +1,204 @@
+{
+    "resourceType": "StructureDefinition",
+    "id": "KT2Practitioner",
+    "meta": {
+        "versionId": "7",
+        "lastUpdated": "2024-04-09T14:56:44.5474462+00:00"
+    },
+    "url": "http://koppeltaal.nl/fhir/StructureDefinition/KT2Practitioner",
+    "version": "0.8.0",
+    "name": "KT2_Practitioner",
+    "status": "draft",
+    "date": "2023-01-24",
+    "publisher": "VZVZ",
+    "contact": [
+        {
+            "name": "VZVZ",
+            "telecom": [
+                {
+                    "system": "url",
+                    "value": "https://www.vzvz.nl",
+                    "use": "work"
+                }
+            ]
+        }
+    ],
+    "description": "The (FHIR) Practitioner (resource) is a representation of a person who is directly or indirectly involved in the provision of health care.",
+    "copyright": "VZVZ",
+    "fhirVersion": "4.0.1",
+    "kind": "resource",
+    "abstract": false,
+    "type": "Practitioner",
+    "baseDefinition": "http://nictiz.nl/fhir/StructureDefinition/nl-core-HealthProfessional-Practitioner",
+    "derivation": "constraint",
+    "differential": {
+        "element": [
+            {
+                "id": "Practitioner.extension:resource-origin",
+                "path": "Practitioner.extension",
+                "sliceName": "resource-origin",
+                "type": [
+                    {
+                        "code": "Extension",
+                        "profile": [
+                            "http://koppeltaal.nl/fhir/StructureDefinition/resource-origin"
+                        ]
+                    }
+                ],
+                "isModifier": false
+            },
+            {
+                "id": "Practitioner.identifier",
+                "path": "Practitioner.identifier",
+                "min": 1
+            },
+            {
+                "id": "Practitioner.active",
+                "path": "Practitioner.active",
+                "min": 1
+            },
+            {
+                "id": "Practitioner.name",
+                "path": "Practitioner.name",
+                "min": 1,
+                "constraint": [
+                    {
+                        "key": "kt2pnu-1",
+                        "severity": "error",
+                        "human": "Practitioner name use must not be empty",
+                        "expression": "use.hasValue()"
+                    }
+                ]
+            },
+            {
+                "id": "Practitioner.name:nameInformation",
+                "path": "Practitioner.name",
+                "sliceName": "nameInformation",
+                "comment": "This `.name` element represents a Dutch name according to the [zib NameInformation (v1.1, 2020)](https://zibs.nl/wiki/NameInformation-v1.1(2020EN)) (except for the GivenName concept). A Dutch name is represented in FHIR as an ordinary international name, but is augmented using extensions to specify how the last name is built up according to the Dutch rules. See the guidance on `.family` and on `.extension:nameUsage` for more information. Systems that need to work in a Dutch context **MUST** support these extensions as specified here. In addition, systems **MUST** use the core elements according to the FHIR specifications to provide compatibility outside Dutch contexts. It is encouraged to provide a representation of the full name in the `.text` element.\r\n\r\n**Note 1**: The zib cannot be represented straightforward in FHIR. Especially note the guidance on `.given` on how to map the FirstNames and Initials concepts, and on `.prefix`/`.suffix` on how to map the Titles concept.\r\n\r\n**Note 2**: This element should only contain a person's _official_ names. The GivenName concept is represented in another `.name` element with `.name.use` = _usual_.\r\n\r\n**Note 3**: The examples illustrate how the zib is mapped to FHIR."
+            },
+            {
+                "id": "Practitioner.name:nameInformation.extension:nameUsage",
+                "path": "Practitioner.name.extension",
+                "sliceName": "nameUsage",
+                "comment": "This element is not used in the context of Koppeltaal 2.0"
+            },
+            {
+                "id": "Practitioner.name:nameInformation.text",
+                "path": "Practitioner.name.text",
+                "comment": "This element is not used in the context of Koppeltaal 2.0"
+            },
+            {
+                "id": "Practitioner.name:nameInformation.family",
+                "path": "Practitioner.name.family",
+                "min": 1
+            },
+            {
+                "id": "Practitioner.name:nameInformation.given",
+                "path": "Practitioner.name.given",
+                "min": 1
+            },
+            {
+                "id": "Practitioner.name:nameInformation.prefix",
+                "path": "Practitioner.name.prefix",
+                "comment": "This element is not used in the context of Koppeltaal 2.0"
+            },
+            {
+                "id": "Practitioner.name:nameInformation.suffix",
+                "path": "Practitioner.name.suffix",
+                "comment": "This element is not used in the context of Koppeltaal 2.0"
+            },
+            {
+                "id": "Practitioner.name:nameInformation.period",
+                "path": "Practitioner.name.period",
+                "comment": "This element is not used in the context of Koppeltaal 2.0"
+            },
+            {
+                "id": "Practitioner.name:nameInformation-GivenName",
+                "path": "Practitioner.name",
+                "sliceName": "nameInformation-GivenName"
+            },
+            {
+                "id": "Practitioner.name:nameInformation-GivenName.text",
+                "path": "Practitioner.name.text",
+                "comment": "This element is not used in the context of Koppeltaal 2.0"
+            },
+            {
+                "id": "Practitioner.name:nameInformation-GivenName.period",
+                "path": "Practitioner.name.period",
+                "comment": "This element is not used in the context of Koppeltaal 2.0"
+            },
+            {
+                "id": "Practitioner.telecom",
+                "path": "Practitioner.telecom",
+                "min": 1
+            },
+            {
+                "id": "Practitioner.telecom:telephoneNumbers",
+                "path": "Practitioner.telecom",
+                "sliceName": "telephoneNumbers"
+            },
+            {
+                "id": "Practitioner.telecom:telephoneNumbers.extension:comment",
+                "path": "Practitioner.telecom.extension",
+                "sliceName": "comment",
+                "comment": "This element is not used in the context of Koppeltaal 2.0"
+            },
+            {
+                "id": "Practitioner.telecom:telephoneNumbers.use",
+                "path": "Practitioner.telecom.use",
+                "comment": "This element is not used in the context of Koppeltaal 2.0"
+            },
+            {
+                "id": "Practitioner.telecom:telephoneNumbers.rank",
+                "path": "Practitioner.telecom.rank",
+                "comment": "This element is not used in the context of Koppeltaal 2.0"
+            },
+            {
+                "id": "Practitioner.telecom:telephoneNumbers.period",
+                "path": "Practitioner.telecom.period",
+                "comment": "This element is not used in the context of Koppeltaal 2.0"
+            },
+            {
+                "id": "Practitioner.telecom:emailAddresses",
+                "path": "Practitioner.telecom",
+                "sliceName": "emailAddresses",
+                "min": 1
+            },
+            {
+                "id": "Practitioner.telecom:emailAddresses.use",
+                "path": "Practitioner.telecom.use",
+                "comment": "This element is not used in the context of Koppeltaal 2.0"
+            },
+            {
+                "id": "Practitioner.telecom:emailAddresses.rank",
+                "path": "Practitioner.telecom.rank",
+                "comment": "This element is not used in the context of Koppeltaal 2.0"
+            },
+            {
+                "id": "Practitioner.telecom:emailAddresses.period",
+                "path": "Practitioner.telecom.period",
+                "comment": "This element is not used in the context of Koppeltaal 2.0"
+            },
+            {
+                "id": "Practitioner.address",
+                "path": "Practitioner.address",
+                "max": "0"
+            },
+            {
+                "id": "Practitioner.photo",
+                "path": "Practitioner.photo",
+                "max": "0"
+            },
+            {
+                "id": "Practitioner.qualification",
+                "path": "Practitioner.qualification",
+                "max": "0"
+            },
+            {
+                "id": "Practitioner.communication",
+                "path": "Practitioner.communication",
+                "max": "0"
+            }
+        ]
+    }
+}

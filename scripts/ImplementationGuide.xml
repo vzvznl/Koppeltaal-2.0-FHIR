@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ImplementationGuide xmlns="http://hl7.org/fhir"> 
+    <id value="example"/>
+    <url value="http://koppeltaal.nl/fhir/ImplementationGuide"/>
+    <version value="0.12"/> 
+    <name value="Koppeltaal_2.0_IG"/> 
+    <status value="active"/> 
+    <experimental value="false"/> 
+    <date value="2024-03-28"/> 
+    <publisher value="VZVZ"/> 
+    <packageId value="koppeltaalv2.00"/>
+    <fhirVersion value="4.0.1"/> 
+    <dependsOn>  
+        <uri value="https://simplifier.net/packages/nictiz.fhir.nl.r4.zib2020"/> 
+        <packageId value="nictiz.fhir.nl.r4.zib2020"/>
+        <version value="0.10.0-beta.1"/>
+    </dependsOn>
+    <dependsOn>  
+        <uri value="https://simplifier.net/packages/nictiz.fhir.nl.r4.nl-core"/> 
+        <packageId value="nictiz.fhir.nl.r4.nl-core"/>
+        <version value="0.10.0-beta.1"/>
+    </dependsOn>
+    <global> 
+        <type value="Patient"/> 
+        <profile value="http://hl7.org/fhir/us/core/StructureDefinition/patient"/> 
+    </global> 
+</ImplementationGuide> 
