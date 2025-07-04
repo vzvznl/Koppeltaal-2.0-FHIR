@@ -7,6 +7,16 @@ on:
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+    inputs:
+      publish_to_simplifier:
+        description: 'Publish to Simplifier.net'
+        required: false
+        type: boolean
+        default: false
+      publish_reason:
+        description: 'Reason for publishing (if publish is enabled)'
+        required: false
+        default: 'Manual publish'
 
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
@@ -25,65 +35,102 @@ concurrency:
 
 jobs:
   build:
-    permissions: write-all
-    services:
-      registry:
-        image: registry:2
-        ports:
-          - 5000:5000
+    name: Build FHIR Package
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     steps:
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-        with:
-          driver-opts: network=host
-      - name: Build and push to local registry
-        uses: docker/build-push-action@v6
-        with:
-          push: true
-          tags: localhost:5000/gidsopenstandaarden/fhir-builder:latest
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Build
+      
+      - name: Get version
+        id: version
+        run: |
+          VERSION=$(grep '^version:' sushi-config.yaml | sed 's/version: //')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Build Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          tags: koppeltaal-builder:latest
+      
+      - name: Build FHIR Package
         env:
           FHIR_EMAIL: ${{ secrets.FHIR_EMAIL }}
           FHIR_PASSWORD: ${{ secrets.FHIR_PASSWORD }}
         run: |
-          mkdir -p ./output
-          docker run -v ${PWD}:/src -e FHIR_EMAIL=${FHIR_EMAIL} -e FHIR_PASSWORD=${FHIR_PASSWORD} localhost:5000/gidsopenstandaarden/fhir-builder:latest
-      - name: Upload artifact
+          # Run the build using the Docker container
+          docker run -v ${PWD}:/src -e FHIR_EMAIL=${FHIR_EMAIL} -e FHIR_PASSWORD=${FHIR_PASSWORD} koppeltaal-builder:latest build
+      
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: fhir-package
+          path: |
+            ./output/
+            ./sushi-config.yaml
+            ./package.json
+            ./CHANGELOG.md
+          retention-days: 7
+
+  deploy-pages:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    permissions: write-all
+    if: github.ref == 'refs/heads/main'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: fhir-package
+      
+      - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Upload entire repository
           path: './output'
+      
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-      - name: version
-        id: version
-        run: |
-          VERSION=$(cat package.json | jq -r .version)
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "Version: $VERSION"
+
+  publish-npm:
+    name: Publish to GitHub Packages
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: fhir-package
+      
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
           registry-url: 'https://npm.pkg.github.com'
+      
       - name: Publish to GitHub Packages
         run: |
-          # Extract the package to publish it
+          # Extract the package created by build-ig
           mkdir -p npm-publish
-          tar -xzf ./koppeltaalv2.00.${{ steps.version.outputs.version }}.tgz -C npm-publish
+          tar -xzf ./output/package.tgz -C npm-publish
           cd npm-publish/package
           
           # Get the repository owner (org or user)
           REPO_OWNER=$(echo "${{ github.repository }}" | cut -d'/' -f1)
           
           # Calculate the publish version
-          PUBLISH_VERSION="${{ steps.version.outputs.version }}"
+          PUBLISH_VERSION="${{ needs.build.outputs.version }}"
           # For non-main branches, append the branch name and short commit hash to make version unique
           if [ "${{ github.ref_name }}" != "main" ]; then
             # Sanitize branch name for npm version (replace / with -, remove special chars)
@@ -103,17 +150,94 @@ jobs:
           fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  create-release-main:
+    name: Create Release (Main)
+    needs: build
+    runs-on: ubuntu-latest
+    permissions: write-all
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: fhir-package
+      
       - name: Create Release
-        if: always()
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: false
+          prerelease: false
+          name: ${{ needs.build.outputs.version }}
+          tag_name: v${{ needs.build.outputs.version }}
+          body_path: CHANGELOG.md
+          files: |
+            ./output/koppeltaalv2-${{ needs.build.outputs.version }}.tgz
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+  create-release-branch:
+    name: Create Draft Release (Branch)
+    needs: build
+    runs-on: ubuntu-latest
+    permissions: write-all
+    if: github.ref != 'refs/heads/main'
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: fhir-package
+      
+      - name: Create Draft Release
         uses: softprops/action-gh-release@v1
         with:
           draft: true
           prerelease: false
-          name: ${{ steps.version.outputs.version }}
-          tag_name: v${{ steps.version.outputs.version }}
+          name: ${{ needs.build.outputs.version }}-${{ github.ref_name }}
+          tag_name: v${{ needs.build.outputs.version }}-${{ github.ref_name }}-${{ github.run_number }}
           body_path: CHANGELOG.md
           files: |
-            ./koppeltaalv2.00.${{ steps.version.outputs.version }}.tgz
+            ./output/koppeltaalv2-${{ needs.build.outputs.version }}.tgz
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
+  publish-simplifier:
+    name: Publish to Simplifier.net
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.publish_to_simplifier == 'true'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          tags: koppeltaal-builder:latest
+
+      - name: Run make publish
+        env:
+          FHIR_EMAIL: ${{ secrets.FHIR_EMAIL }}
+          FHIR_PASSWORD: ${{ secrets.FHIR_PASSWORD }}
+        run: |
+          echo "Publishing FHIR package to Simplifier.net..."
+          docker run \
+            -v ${PWD}:/src \
+            -e FHIR_EMAIL=${FHIR_EMAIL} \
+            -e FHIR_PASSWORD=${FHIR_PASSWORD} \
+            koppeltaal-builder:latest \
+            publish
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## Publish Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Triggered by**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Reason**: ${{ github.event.inputs.publish_reason }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY

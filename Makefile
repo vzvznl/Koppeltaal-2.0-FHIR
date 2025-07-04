@@ -16,7 +16,7 @@ all: build
 
 # Build target
 .PHONY: build
-build: login install-dependencies build-ig convert-ig pack
+build: install-dependencies build-ig
 
 # Login to FHIR
 .PHONY: login
@@ -36,17 +36,13 @@ install-dependencies:
 build-ig:
 	@echo "Building Implementation Guide..."
 	java -jar /usr/local/publisher.jar -ig ig.ini
+	@echo "Copying package to: ./output/koppeltaalv2-$(VERSION).tgz"
+	@cp ./output/package.tgz ./output/koppeltaalv2-$(VERSION).tgz
 
-# Convert ImplementationGuide back to package.json
-.PHONY: convert-ig
-convert-ig:
-	@echo "Converting ImplementationGuide to package.json..."
-	python3 scripts/convert_ig_to_package.py output/ImplementationGuide-Koppeltaal.json package.json
-
-# Pack FHIR resources
-.PHONY: pack
-pack:
-	$(FHIR) pack
+# Publish package to Simplifier.net, not tested.
+.PHONY: publish
+publish: login
+	$(FHIR) publish-package ./output/koppeltaalv2-$(VERSION).tgz
 
 # Show version
 .PHONY: version
@@ -62,12 +58,13 @@ clean:
 .PHONY: help
 help:
 	@echo "Available targets:"
-	@echo "  build    - Run the complete FHIR build process (login, install, build-ig, convert-ig, pack)"
+	@echo "  build    - Run the complete FHIR build process (install, build-ig)"
 	@echo "  login    - Login to FHIR registry"
 	@echo "  install-dependencies  - Install FHIR dependencies"
 	@echo "  build-ig - Build Implementation Guide using FHIR publisher"
 	@echo "  convert-ig  - Convert ImplementationGuide JSON back to package.json"
 	@echo "  pack     - Pack FHIR resources"
+	@echo "  publish  - Publish package to Simplifier.net (requires login)"
 	@echo "  version  - Show the current version from package.json"
 	@echo "  clean    - Clean build artifacts (not implemented)"
 	@echo "  help     - Show this help message"

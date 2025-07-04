@@ -19,5 +19,8 @@ RUN wget https://repo1.maven.org/maven2/org/xmlresolver/xmlresolver/5.3.0/xmlres
 
 ENV DEBUG=1
 
+# Copy entrypoint script
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-ENTRYPOINT ["make", "build"]
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
