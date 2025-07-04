@@ -35,7 +35,7 @@ install-dependencies:
 .PHONY: build-ig
 build-ig:
 	@echo "Building Implementation Guide..."
-	java -jar /usr/local/publisher.jar -ig ig.ini
+	java -jar /src/publisher.jar -ig ig.ini
 
 # Convert ImplementationGuide back to package.json
 .PHONY: convert-ig

@@ -7,7 +7,7 @@ RUN npm install -g fsh-sushi
 RUN mkdir "/src"
 WORKDIR /src
 
-RUN curl -L https://github.com/HL7/fhir-ig-publisher/releases/latest/download/publisher.jar -o /usr/local/publisher.jar
+RUN curl -L https://github.com/HL7/fhir-ig-publisher/releases/latest/download/publisher.jar -o publisher.jar
 
 ENV FHIR_EMAIL=roland@headease.nl
 ENV FHIR_PASSWORD=...
