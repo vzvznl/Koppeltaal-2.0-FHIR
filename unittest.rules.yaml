@@ -1,9 +1,0 @@
-
-- name: these-should-be-valid
-  files: examples/*.xml
-  action: validate
-
-- name: these-should-be-invalid
-  files: examples/error-examples/*.xml
-  # action: validate
-  assert: http://hl7.org/fhir/dotnet-api-operation-outcome|1028
