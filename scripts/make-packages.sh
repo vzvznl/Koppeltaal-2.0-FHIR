@@ -84,9 +84,7 @@ function make_package() {
     fi
 
     # remove empty directories e.g. examples if this is left empty after the previous move
-    if [[ -d package ]]; then
-      find package -type d -empty -delete 2>&1 >> /dev/null
-    fi
+    find package -type d -empty -delete 2>&1 >> /dev/null
 
     # copy the IG resource here because bake refuses to do that
     # cp ./ig/*.json ./package/
