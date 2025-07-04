@@ -1,6 +1,6 @@
 {
   "name": "koppeltaalv2.00",
-  "version": "1.4.2",
+  "version": "0.14.1",
   "description": "Draft of used FHIR resource profiles in Koppeltaal 2.0.",
   "title": "This package contains the Koppeltaal 2.0 profiles",
   "author": "VZVZ",
@@ -23,7 +23,6 @@
   ],
   "dependencies": {
     "nictiz.fhir.nl.r4.zib2020": "0.11.0-beta.1",
-    "nictiz.fhir.nl.r4.nl-core": "0.11.0-beta.1",
-    "vzvz.fhir.nl-vzvz-core": "0.2.2"
+    "nictiz.fhir.nl.r4.nl-core": "0.11.0-beta.1"
   }
 }

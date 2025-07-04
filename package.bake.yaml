@@ -1,31 +1,31 @@
-move-resources:
+move-active-resources-json:
   - category: Conformance
-  - files: /output/*.json
+  - files: /resources/*.json
   - move: /package/
   - target: staging
 
-move-terminology:
+move-active-resources-xml:
+  - category: Conformance
+  - files: /resources/*.xml
+  - move: /package/
+  - target: staging
+
+move-active-terminology-json:
   - category: Terminology
-  - files: /output/*.json
+  - files: /resources/**/*.json
   - move: /package/
   - target: staging
 
-move-profile:
-  - category: Profile
-  - files: /output/*.json
+move-active-terminology-xml:
+  - category: Terminology
+  - files: /resources/**/*.xml
   - move: /package/
   - target: staging
 
-move-extension:
-  - category: Extension
-  - files: /output/*.json
+yaml-gen:
+  - files: /generated-resources/*.gen.yaml
+  - action: yamlgen
   - move: /package/
-  - target: staging
-
-move-examples:
-  - category: Instance
-  - files: /output/*.json
-  - move: /package/examples
   - target: staging
 
 to-json:
