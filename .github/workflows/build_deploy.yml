@@ -180,7 +180,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
 
   create-release-branch:
-    name: Create Draft Release (Branch)
+    name: Create Pre-release (Branch)
     needs: build
     runs-on: ubuntu-latest
     permissions: write-all
@@ -194,11 +194,11 @@ jobs:
         with:
           name: fhir-package
       
-      - name: Create Draft Release
+      - name: Create Pre-release
         uses: softprops/action-gh-release@v1
         with:
-          draft: true
-          prerelease: false
+          draft: false
+          prerelease: true
           name: ${{ needs.build.outputs.version }}-${{ github.ref_name }}
           tag_name: v${{ needs.build.outputs.version }}-${{ github.ref_name }}-${{ github.run_number }}
           body_path: CHANGELOG.md
