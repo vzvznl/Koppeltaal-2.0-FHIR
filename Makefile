@@ -4,8 +4,11 @@
 FHIR := fhir
 DOTNET_TOOLS := $(HOME)/.dotnet/tools
 
-# Fetch version from package.json
-export VERSION := $(shell jq -r '.version' package.json)
+# Fetch version from sushi-config.yaml with error handling
+export VERSION := $(shell grep '^version:' sushi-config.yaml | sed 's/version: //' | tr -d '[:space:]')
+ifeq ($(VERSION),)
+$(error "Could not extract version from sushi-config.yaml")
+endif
 
 # Export PATH with dotnet tools
 export PATH := $(PATH):$(DOTNET_TOOLS)
@@ -34,10 +37,15 @@ install-dependencies:
 # Build Implementation Guide
 .PHONY: build-ig
 build-ig:
-	@echo "Building Implementation Guide..."
+	@echo "Building Implementation Guide with version $(VERSION)..."
 	java -jar /usr/local/publisher.jar -ig ig.ini
-	@echo "Copying package to: ./output/koppeltaalv2-$(VERSION).tgz"
+	@if [ ! -f ./output/package.tgz ]; then \
+		echo "ERROR: Build did not create ./output/package.tgz"; \
+		exit 1; \
+	fi
+	@echo "Copying package.tgz to: ./output/koppeltaalv2-$(VERSION).tgz"
 	@cp ./output/package.tgz ./output/koppeltaalv2-$(VERSION).tgz
+	@echo "Successfully created: ./output/koppeltaalv2-$(VERSION).tgz"
 
 # Publish package to Simplifier.net, not tested.
 .PHONY: publish
