@@ -1,7 +1,7 @@
-id: koppeltaal # Needs to be lower-case
+id: koppeltaal
 name: KoppeltaalIG
-title: Koppeltaal 2.0 Implementation Guide
-description: Koppeltaal 2.0 Implementation Guide
+title: Koppeltaal 2.0 Implementation Guide (Full Documentation)
+description: Koppeltaal 2.0 Implementation Guide - Full package with narratives and documentation
 canonical: http://koppeltaal.nl/fhir
 fhirVersion: 4.0.1
 FSHOnly: false

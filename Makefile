@@ -17,9 +17,13 @@ export PATH := $(PATH):$(DOTNET_TOOLS)
 .PHONY: all
 all: build
 
-# Build target
+# Build target (full documentation package)
 .PHONY: build
 build: install-dependencies build-ig
+
+# Build minimal package (without narratives)
+.PHONY: build-minimal
+build-minimal: install-dependencies build-ig-minimal
 
 # Login to FHIR
 .PHONY: login
@@ -34,10 +38,10 @@ install-dependencies:
 	@unzip -o nictiz-packages/nictiz.fhir.nl.r4-with-snapshots.zip -d $(HOME)/.fhir/packages/
 	@echo "Nictiz packages installed successfully"
 
-# Build Implementation Guide
+# Build Implementation Guide (Full with documentation)
 .PHONY: build-ig
 build-ig:
-	@echo "Building Implementation Guide with version $(VERSION)..."
+	@echo "Building Full Implementation Guide with version $(VERSION)..."
 	java -jar /usr/local/publisher.jar -ig ig.ini
 	@if [ ! -f ./output/package.tgz ]; then \
 		echo "ERROR: Build did not create ./output/package.tgz"; \
@@ -46,6 +50,25 @@ build-ig:
 	@echo "Copying package.tgz to: ./output/koppeltaalv2-$(VERSION).tgz"
 	@cp ./output/package.tgz ./output/koppeltaalv2-$(VERSION).tgz
 	@echo "Successfully created: ./output/koppeltaalv2-$(VERSION).tgz"
+
+# Build Implementation Guide (Minimal for servers)
+.PHONY: build-ig-minimal
+build-ig-minimal:
+	@echo "Building Minimal Implementation Guide with version $(VERSION)..."
+	@mkdir -p output-minimal
+	@cp sushi-config-minimal.yaml sushi-config.yaml.bak
+	@cp sushi-config-minimal.yaml sushi-config.yaml
+	java -jar /usr/local/publisher.jar -ig ig.ini -generation-off
+	@mv sushi-config.yaml.bak sushi-config.yaml
+	@if [ ! -f ./output/package.tgz ]; then \
+		echo "ERROR: Minimal build did not create ./output/package.tgz"; \
+		exit 1; \
+	fi
+	@echo "Moving minimal package to output-minimal..."
+	@mv ./output/package.tgz ./output-minimal/package.tgz
+	@echo "Copying package.tgz to: ./output-minimal/koppeltaalv2-$(VERSION)-minimal.tgz"
+	@cp ./output-minimal/package.tgz ./output-minimal/koppeltaalv2-$(VERSION)-minimal.tgz
+	@echo "Successfully created: ./output-minimal/koppeltaalv2-$(VERSION)-minimal.tgz"
 
 # Publish package to Simplifier.net, not tested.
 .PHONY: publish
@@ -66,13 +89,13 @@ clean:
 .PHONY: help
 help:
 	@echo "Available targets:"
-	@echo "  build    - Run the complete FHIR build process (install, build-ig)"
+	@echo "  build    - Run the complete FHIR build process (full documentation package)"
+	@echo "  build-minimal - Build minimal package without narratives (for FHIR servers)"
 	@echo "  login    - Login to FHIR registry"
 	@echo "  install-dependencies  - Install FHIR dependencies"
-	@echo "  build-ig - Build Implementation Guide using FHIR publisher"
-	@echo "  convert-ig  - Convert ImplementationGuide JSON back to package.json"
-	@echo "  pack     - Pack FHIR resources"
+	@echo "  build-ig - Build Implementation Guide using FHIR publisher (full)"
+	@echo "  build-ig-minimal - Build Implementation Guide using FHIR publisher (minimal)"
 	@echo "  publish  - Publish package to Simplifier.net (requires login)"
-	@echo "  version  - Show the current version from package.json"
+	@echo "  version  - Show the current version from sushi-config.yaml"
 	@echo "  clean    - Clean build artifacts (not implemented)"
 	@echo "  help     - Show this help message"
