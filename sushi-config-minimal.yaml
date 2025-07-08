@@ -49,13 +49,7 @@ parameters: # see https://confluence.hl7.org/display/FHIR/Implementation+Guide+P
     - http://vzvz.nl/fhir/
   version-comparison: "n/a"
   usage-stats-opt-out: true
-  # MINIMAL PACKAGE PARAMETERS
-  generate-narrative: false       # Disable narrative generation
-  generate-examples: false       # Don't generate examples
-  generate-snapshot: true        # We still need snapshots for validation
-  generate-xml: false           # Minimal package uses JSON only
-  generate-turtle: false        # Minimal package doesn't need turtle
-  no-narrative: true            # Alternative parameter to disable narratives
+  # MINIMAL PACKAGE PARAMETERS - narratives disabled via IG Publisher CLI flag
 
 # No menu section for minimal package - we don't need HTML menus
 

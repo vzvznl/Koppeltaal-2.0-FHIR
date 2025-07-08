@@ -41,11 +41,10 @@ This project uses a dual-build approach to generate two different packages from 
 - Includes all narrative content
 
 ### Minimal Package (sushi-config-minimal.yaml)
-- `generate-narrative: false` - Disables narrative generation
-- `generate-examples: false` - Excludes examples
-- `generate-xml: false` - JSON only
-- `generate-turtle: false` - No turtle format
+- Uses IG Publisher CLI flag `-generation-off` to disable narrative generation
 - No `pages` section - No HTML documentation
+- No `menu` section - No navigation menus
+- Identical resource generation, but without HTML narratives
 
 ## GitHub Actions Integration
 
