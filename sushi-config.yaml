@@ -7,7 +7,7 @@ fhirVersion: 4.0.1
 FSHOnly: false
 applyExtensionMetadataToRoot: false
 status: draft
-version: 1.4.2
+version: 1.4.3
 copyrightYear: 2024+
 releaseLabel: ci-build
 # license: CC0-1.0 # https://www.hl7.org/fhir/valueset-spdx-license.html
@@ -18,15 +18,15 @@ publisher:
   url: https://vzvz.nl
 
 dependencies:
-    nictiz.fhir.nl.r4.zib2020:
-      version: 0.11.0-beta.1
-      uri: http://simplifier.net/packages/nictiz.fhir.nl.r4.zib2020#0.11.0-beta.1
-    nictiz.fhir.nl.r4.nl-core:
-      version: 0.11.0-beta.1
-      uri: http://simplifier.net/packages/nictiz.fhir.nl.r4.nl-core#0.11.0-beta.1
-    vzvz.fhir.nl-vzvz-core:
-      version: 0.2.2
-      uri: https://simplifier.net/packages/vzvz.fhir.nl-vzvz-core@0.2.2
+  nictiz.fhir.nl.r4.zib2020:
+    version: 0.11.0-beta.1
+    uri: http://simplifier.net/packages/nictiz.fhir.nl.r4.zib2020#0.11.0-beta.1
+  nictiz.fhir.nl.r4.nl-core:
+    version: 0.11.0-beta.1
+    uri: http://simplifier.net/packages/nictiz.fhir.nl.r4.nl-core#0.11.0-beta.1
+  vzvz.fhir.nl-vzvz-core:
+    version: 0.2.2
+    uri: https://simplifier.net/packages/vzvz.fhir.nl-vzvz-core@0.2.2
 
 pages:
   index.md:
@@ -41,11 +41,11 @@ pages:
     info-relatedperson.md:
       title: RelatedPerson
     examples.md:
-        title: Examples
+      title: Examples
     strict-use-of-nameinformation.md:
       title: Strict use of Name Information
 
-parameters:  # see https://confluence.hl7.org/display/FHIR/Implementation+Guide+Parameters
+parameters: # see https://confluence.hl7.org/display/FHIR/Implementation+Guide+Parameters
   apply-contact: false
   apply-jurisdiction: false
   apply-publisher: false
