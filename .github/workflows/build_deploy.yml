@@ -279,8 +279,8 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
 
   create-release-branch:
-    name: Create Pre-release (Branch)
-    needs: [build-full, build-minimal]
+    name: Create Pre-release (Branch - Minimal Package)
+    needs: build-minimal
     runs-on: ubuntu-latest
     permissions: write-all
     if: github.ref != 'refs/heads/main'
@@ -288,28 +288,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       
-      - name: Download full build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: fhir-package-full
-          path: ./full-build
-      
       - name: Download minimal build artifacts
         uses: actions/download-artifact@v4
         with:
           name: fhir-package-minimal
           path: ./minimal-build
       
-      - name: Create Pre-release
+      - name: Create Pre-release (Minimal Package Only)
         uses: softprops/action-gh-release@v1
         with:
           draft: false
           prerelease: true
-          name: ${{ needs.build-full.outputs.version }}-${{ github.ref_name }}
-          tag_name: v${{ needs.build-full.outputs.version }}-${{ github.ref_name }}-${{ github.run_number }}
-          body_path: ./full-build/CHANGELOG.md
+          name: ${{ needs.build-minimal.outputs.version }}-minimal-${{ github.ref_name }}
+          tag_name: v${{ needs.build-minimal.outputs.version }}-minimal-${{ github.ref_name }}-${{ github.run_number }}
+          body_path: ./minimal-build/CHANGELOG.md
           files: |
-            ./full-build/output/koppeltaalv2-${{ needs.build-full.outputs.version }}.tgz
             ./minimal-build/output-minimal/koppeltaalv2-${{ needs.build-minimal.outputs.version }}-minimal.tgz
         env:
           GITHUB_TOKEN: ${{ github.token }}
