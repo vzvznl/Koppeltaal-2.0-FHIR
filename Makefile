@@ -76,10 +76,33 @@ pack-minimal:
 	@find output -name "*.json" -type f -not -name "*usage-stats*" -not -name "*qa*" -not -name "*manifest*" -not -name "*fragment*" -not -name "*canonicals*" -not -name "*list*" -not -name "*expansions*" -exec cp {} output-minimal/ \;
 	@echo "Stripping snapshots, narratives, and mappings from StructureDefinition files..."
 	@python3 scripts/strip_snapshots.py output-minimal/
+	@echo "Verifying stripping was successful..."
+	@if [ -f output-minimal/StructureDefinition-KT2Patient.json ]; then \
+		SIZE=$$(wc -c < output-minimal/StructureDefinition-KT2Patient.json); \
+		if [ $$SIZE -gt 50000 ]; then \
+			echo "ERROR: StructureDefinition-KT2Patient.json is still $$SIZE bytes (should be < 50KB after stripping)"; \
+			exit 1; \
+		fi; \
+		echo "SUCCESS: StructureDefinition-KT2Patient.json is $$SIZE bytes (properly stripped)"; \
+	fi
 	@echo "Copying package.json to output-minimal..."
 	@cp package.json output-minimal/
-	@echo "Creating minimal package with Firely CLI..."
-	cd output-minimal && $(FHIR) restore && $(FHIR) pack
+	@echo "Creating minimal package manually (avoiding Firely CLI snapshot regeneration)..."
+	@echo "Preparing package structure..."
+	@mkdir -p output-minimal/package
+	@echo "Moving stripped JSON files to package directory..."
+	@find output-minimal -maxdepth 1 -name "*.json" -type f ! -name "package.json" -exec mv {} output-minimal/package/ \;
+	@echo "Moving package.json to package directory..."
+	@mv output-minimal/package.json output-minimal/package/
+	@echo "Creating .index.json..."
+	@cd output-minimal && python3 ../scripts/create_index.py
+	@echo "Creating package tarball..."
+	@cd output-minimal && tar -czf koppeltaal.$(VERSION).tgz package/
+	@echo "Verifying minimal package was created..."
+	@if [ ! -f output-minimal/*.tgz ]; then \
+		echo "ERROR: Minimal package creation failed - no .tgz file found"; \
+		exit 1; \
+	fi
 	@echo "Renaming generated package for GitHub Actions compatibility..."
 	@cd output-minimal && \
 	for file in *.tgz; do \
