@@ -212,7 +212,7 @@ jobs:
       
       - name: Publish Minimal Package to GitHub Packages
         run: |
-          # Extract the package created by build-ig
+          # Extract the package created by build-ig-minimal
           mkdir -p npm-publish
           tar -xzf ./output-minimal/package.tgz -C npm-publish
           cd npm-publish/package
