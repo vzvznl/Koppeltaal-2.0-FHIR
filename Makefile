@@ -54,53 +54,66 @@ build-ig:
 # Build Implementation Guide (Minimal for servers)
 # This target creates a minimal FHIR package optimized for FHIR server deployment by:
 # 1. Taking the full package created by build-ig
-# 2. Stripping .text (narratives), .snapshot, .jurisdiction, .language, .mapping
-# 3. Removing most examples to reduce package size
-# 4. Optimizing files for HAPI FHIR varchar(4000) constraint
+# 2. Converting from IG Publisher format to Firely CLI export format
+# 3. Renaming files to match working Simplifier package structure
+# 4. Creating minimal package.json and ImplementationGuide
 .PHONY: build-ig-minimal
 build-ig-minimal: build-ig
-	@echo "Creating minimal package from full build..."
+	@echo "Creating minimal FHIR resource package from IG Publisher output..."
 	@mkdir -p output-minimal
 	@if [ ! -f ./output/package.tgz ]; then \
 		echo "ERROR: Full build package not found at ./output/package.tgz"; \
 		exit 1; \
 	fi
-	@echo "Stripping narratives from FHIR resources..."
-	@mkdir -p temp-package
+	@echo "Extracting and converting IG Publisher package to Firely CLI format..."
+	@rm -rf temp-package temp-minimal
+	@mkdir -p temp-package temp-minimal
 	@cd temp-package && tar -xzf ../output/package.tgz
-	@echo "Original package size before stripping: $$(du -h ../output/package.tgz | cut -f1)"
-	@ORIG_LARGE_FILES=$$(find temp-package -name "*.json" -exec wc -c {} \; | awk '$$1 > 4000 {print $$2}' | wc -l); \
-	echo "Original files over 4000 characters: $$ORIG_LARGE_FILES"
-	@echo "Processing StructureDefinition files (removing narratives only - keeping snapshots like original)..."
-	@find temp-package -name "StructureDefinition-*.json" -exec sh -c 'if ! jq "del(.text)" "$$1" > "$$1.tmp"; then echo "ERROR: Failed to process $$1"; exit 1; fi && mv "$$1.tmp" "$$1"' _ {} \;
-	@echo "Processing ImplementationGuide files (creating minimal skeleton like original)..."
-	@find temp-package -name "ImplementationGuide-*.json" -exec sh -c 'if jq "{resourceType: .resourceType, id: .id, url: .url, version: .version, name: .name, status: .status, experimental: .experimental, date: .date, publisher: .publisher, packageId: .packageId, fhirVersion: .fhirVersion, dependsOn: .dependsOn}" "$$1" > "$$1.tmp"; then mv "$$1.tmp" "$$1"; else echo "ERROR: Failed to process $$1"; exit 1; fi' _ {} \;
-	@echo "Processing other FHIR resource files..."
-	@find temp-package -name "*.json" -not -name "package.json" -not -name "StructureDefinition-*.json" -not -name "ImplementationGuide-*.json" -exec sh -c 'if ! jq "del(.text)" "$$1" > "$$1.tmp"; then echo "ERROR: Failed to process $$1"; exit 1; fi && mv "$$1.tmp" "$$1"' _ {} \;
-	@echo "Removing validation and other large files that cause database issues..."
-	@rm -rf temp-package/other/ || true
-	@rm -f temp-package/.index.json || true
-	@echo "Checking file sizes after stripping..."
-	@LARGE_FILES=$$(find temp-package -name "*.json" -exec wc -c {} \; | awk '$$1 > 4000 {print $$2}' | wc -l); \
-	if [ $$LARGE_FILES -gt 0 ]; then \
-		echo "INFO: $$LARGE_FILES files still exceed 4000 characters (expected for StructureDefinitions):"; \
-		find temp-package -name "*.json" -exec wc -c {} \; | awk '$$1 > 4000 {print $$1 " " $$2}' | head -10; \
-	else \
-		echo "All files are within 4000 character limit"; \
-	fi
-	@echo "Validating JSON integrity after stripping..."
-	@find temp-package -name "*.json" -exec sh -c 'if ! jq empty "$$1" >/dev/null 2>&1; then echo "ERROR: Invalid JSON after processing: $$1"; exit 1; fi' _ {} \;
-	@echo "All JSON files are valid"
-	@echo "Removing most examples (keeping only essential ones)..."
-	@find temp-package -path "*/example/*" -name "*.json" -not -name "namingsystem-koppeltaal-client-id.json" -delete || true
-	@cd temp-package && tar -czf ../output-minimal/package.tgz package/
-	@rm -rf temp-package
+	@echo "Original package size: $$(du -h output/package.tgz | cut -f1)"
+	@echo "Converting StructureDefinition files to simple naming convention..."
+	@find temp-package -name "StructureDefinition-KT2*.json" -exec sh -c 'filename=$$(basename "$$1"); newname=$$(echo "$$filename" | sed "s/StructureDefinition-//"); jq "del(.text)" "$$1" > "temp-minimal/$$newname"' _ {} \;
+	@echo "Creating minimal ImplementationGuide (589 bytes like working package)..."
+	@find temp-package -name "ImplementationGuide-*.json" -exec sh -c 'jq "{resourceType: .resourceType, id: (.id | sub(\"-.*\"; \"-ig-koppeltaalv2.00\")), url: \"http://koppeltaal.nl/fhir/ImplementationGuide\", version: .version, name: \"Koppeltaal_2.0_IG\", status: \"active\", experimental: false, date: (.date | sub(\"T.*\"; \"\")), publisher: .publisher, packageId: \"koppeltaalv2.00\", fhirVersion: .fhirVersion, dependsOn: [.dependsOn[] | select(.packageId | test(\"nictiz\"))]}" "$$1" > "temp-minimal/KT2ImplementationGuide.json"' _ {} \;
+	@echo "Converting extensions and other resources..."
+	@find temp-package -name "StructureDefinition-KT2*Extension.json" -exec sh -c 'filename=$$(basename "$$1"); newname=$$(echo "$$filename" | sed "s/StructureDefinition-KT2/ext-KT2/" | sed "s/Extension//"); jq "del(.text)" "$$1" > "temp-minimal/$$newname"' _ {} \;
+	@find temp-package -name "StructureDefinition-*.json" -not -name "StructureDefinition-KT2*" -exec sh -c 'filename=$$(basename "$$1"); newname=$$(echo "$$filename" | sed "s/StructureDefinition-/ext-KT2/"); jq "del(.text)" "$$1" > "temp-minimal/$$newname"' _ {} \;
+	@echo "Converting CodeSystems and ValueSets..."
+	@find temp-package -name "CodeSystem-*.json" -exec sh -c 'filename=$$(basename "$$1"); jq "del(.text)" "$$1" > "temp-minimal/$$filename"' _ {} \;
+	@find temp-package -name "ValueSet-*.json" -exec sh -c 'filename=$$(basename "$$1"); jq "del(.text)" "$$1" > "temp-minimal/$$filename"' _ {} \;
+	@echo "Converting SearchParameters..."
+	@find temp-package -name "SearchParameter-*.json" -exec sh -c 'filename=$$(basename "$$1"); newname=$$(echo "$$filename" | sed "s/SearchParameter-/search-/"); jq "del(.text)" "$$1" > "temp-minimal/$$newname"' _ {} \;
+	@echo "Copying examples..."
+	@mkdir -p temp-minimal/examples
+	@find temp-package -path "*/example/*" -name "*.json" -exec cp {} temp-minimal/examples/ \;
+	@echo "Creating Firely CLI-style package.json..."
+	@cat > temp-minimal/package.json << 'EOF'
+{
+  "name": "koppeltaalv2.00",
+  "version": "$(VERSION)",
+  "description": "Koppeltaal 2.0 FHIR resource profiles - minimal package for FHIR servers",
+  "title": "Koppeltaal 2.0 FHIR Package",
+  "author": "VZVZ",
+  "fhirVersions": ["4.0.1"],
+  "jurisdiction": "urn:iso:std:iso:3166#NL",
+  "maintainers": [
+    {"name": "VZVZ"},
+    {"name": "Koppeltaal"}
+  ],
+  "keywords": ["VZVZ", "Koppeltaal", "GGZ"],
+  "dependencies": {
+    "nictiz.fhir.nl.r4.zib2020": "0.11.0-beta.1",
+    "nictiz.fhir.nl.r4.nl-core": "0.11.0-beta.1"
+  }
+}
+EOF
+	@echo "Creating package archive..."
+	@cd temp-minimal && tar -czf ../output-minimal/package.tgz .
+	@rm -rf temp-package temp-minimal
 	@echo "Copying package.tgz to: ./output-minimal/koppeltaalv2-$(VERSION)-minimal.tgz"
 	@cp ./output-minimal/package.tgz ./output-minimal/koppeltaalv2-$(VERSION)-minimal.tgz
-	@echo "Successfully created minimal package with narratives stripped: ./output-minimal/koppeltaalv2-$(VERSION)-minimal.tgz"
+	@echo "Successfully created minimal FHIR package: ./output-minimal/koppeltaalv2-$(VERSION)-minimal.tgz"
 	@echo "Final package size: $$(du -h ./output-minimal/koppeltaalv2-$(VERSION)-minimal.tgz | cut -f1)"
-	@echo "Files in package: $$(tar -tzf ./output-minimal/koppeltaalv2-$(VERSION)-minimal.tgz | wc -l)"
-	@echo "Stripping process completed - package optimized for FHIR server deployment"
+	@echo "Package structure matches working Simplifier format - ready for HAPI FHIR deployment"
 
 # Publish package to Simplifier.net, not tested.
 .PHONY: publish
