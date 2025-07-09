@@ -1,12 +1,13 @@
 # Koppeltaal-2.0-FHIR
-FHIR resource
+
+FHIR resource profiles for Koppeltaal 2.0 implementation.
 
 Deze repository is gekoppeld aan https://simplifier.net/koppeltaalv2.0 en houdt deze in sync.
 Simplifier importeert alleen xml, json, images, css, yaml en markdown file types.
 
 ----
 
-Koppeltaal v2.0
+## Koppeltaal v2.0
 
 The objective of the Koppeltaal foundation includes a limitation for the exchange of data by means of the word 'internal'. This limitation means that data exchange always takes place under the responsibility of one healthcare provider.
 
@@ -16,7 +17,12 @@ All FHIR resources of one healthcare provider can be accessed via the Koppeltaal
 
 ## Build Process
 
-This project uses a Makefile to automate the FHIR Implementation Guide build process. The build system reads the version from `sushi-config.yaml` and creates a versioned package.
+This project uses a **dual-build approach** to generate two different packages from the same source:
+
+1. **Full Documentation Package** - For GitHub Pages and human consumption
+2. **Minimal Server Package** - For HAPI FHIR servers (solves VARCHAR(4000) database issues)
+
+See [BUILD.md](BUILD.md) for detailed technical information.
 
 ### Prerequisites
 
@@ -43,11 +49,14 @@ The easiest way to build the project is using Docker, which includes all necessa
 docker build . -t koppeltaal-builder
 ```
 
-#### Run the build
+#### Run the builds
 
 ```bash
-# Run default build process
+# Build full documentation package
 docker run -e FHIR_EMAIL=your-email -e FHIR_PASSWORD=your-password -v ${PWD}:/src koppeltaal-builder
+
+# Build minimal server package (solves VARCHAR(4000) database issues)
+docker run -e FHIR_EMAIL=your-email -e FHIR_PASSWORD=your-password -v ${PWD}:/src koppeltaal-builder build-minimal
 ```
 
 ### Using the Makefile
@@ -58,23 +67,64 @@ The Makefile provides several targets to manage the build process. You can run t
 
 | Target | Description | Docker Command |
 |--------|-------------|----------------|
-| `build` | Complete build process (default) | `docker run -e FHIR_EMAIL=... -e FHIR_PASSWORD=... -v ${PWD}:/src koppeltaal-builder` |
+| `build` | Full documentation package (default) | `docker run -e FHIR_EMAIL=... -e FHIR_PASSWORD=... -v ${PWD}:/src koppeltaal-builder` |
+| `build-minimal` | Minimal server package | `docker run -e FHIR_EMAIL=... -e FHIR_PASSWORD=... -v ${PWD}:/src koppeltaal-builder build-minimal` |
 | `build-ig` | Build Implementation Guide only | `docker run -e FHIR_EMAIL=... -e FHIR_PASSWORD=... -v ${PWD}:/src koppeltaal-builder build-ig` |
 | `version` | Show current version | `docker run -v ${PWD}:/src koppeltaal-builder version` |
 | `publish` | Publish to Simplifier.net | `docker run -e FHIR_EMAIL=... -e FHIR_PASSWORD=... -v ${PWD}:/src koppeltaal-builder publish` |
 | `help` | Display available targets | `docker run -v ${PWD}:/src koppeltaal-builder help` |
 
-The build process:
-1. Installs FHIR dependencies (Nictiz packages)
-2. Builds the Implementation Guide using the FHIR publisher
-3. Creates a versioned package: `output/koppeltaalv2-{VERSION}.tgz`
-
 ### Build Output
 
-The build process creates:
-- FHIR Implementation Guide in the `output/` directory
-- A versioned package file: `output/koppeltaalv2-{VERSION}.tgz`
-- HTML documentation files for GitHub Pages deployment
+The build process creates two different packages:
+
+#### Full Documentation Package
+- **Location**: `output/koppeltaalv2-{VERSION}.tgz`
+- **Purpose**: GitHub Pages, human documentation
+- **Features**: Complete HTML documentation, full snapshots
+- **Size**: Larger due to complete narratives and snapshots
+
+#### Minimal Server Package
+- **Location**: `output-minimal/koppeltaalv2-{VERSION}-minimal.tgz`
+- **Purpose**: HAPI FHIR server deployment
+- **Features**: Differential-only StructureDefinitions, no narratives
+- **Size**: ~184KB (optimized for database constraints)
+
+### Package Selection Guide
+
+#### Use Full Package For:
+- Documentation websites
+- GitHub Pages
+- Human-readable guides
+- Complete IG Publisher output
+
+#### Use Minimal Package For:
+- HAPI FHIR server deployment ✅
+- Production FHIR servers
+- Automated processing
+- Database loading (solves VARCHAR(4000) errors)
+
+**HAPI Configuration Example:**
+```yaml
+implementationguides:
+  kt2:
+    name: koppeltaal
+    version: 1.4.5-beta.002
+    packageUrl: https://github.com/.../koppeltaalv2-1.4.5-beta.002-minimal.tgz
+    fetchDependencies: false
+    installMode: STORE_AND_INSTALL
+```
+
+### Troubleshooting
+
+#### VARCHAR(4000) Database Errors
+**Problem**: `value too long for type character varying(4000)`
+
+**Solution**: 
+- ✅ Use the **minimal package** (`koppeltaalv2-{VERSION}-minimal.tgz`)
+- ❌ Don't use the full package for HAPI FHIR servers
+
+The minimal package strips snapshots and narratives to match the working Simplifier format.
 
 ### Advanced Usage
 
@@ -95,8 +145,11 @@ If you have all prerequisites installed locally, you can run Make commands direc
 export FHIR_EMAIL=your-email
 export FHIR_PASSWORD=your-password
 
-# Run build
+# Build full documentation package
 make build
+
+# Build minimal server package
+make build-minimal
 
 # Show version
 make version
@@ -104,3 +157,25 @@ make version
 # Other targets
 make help
 ```
+
+#### File Size Verification
+
+To verify the minimal package is properly stripped:
+
+```bash
+# Check that minimal files are ~1KB (not 8KB)
+du -h output-minimal/package/ext-KT2CorrelationId.json
+
+# Compare package sizes
+du -h output/koppeltaalv2-*.tgz          # Full package
+du -h output-minimal/koppeltaalv2-*.tgz  # Minimal package (should be ~184KB)
+```
+
+## Technical Details
+
+- **Single Source**: Uses one `sushi-config.yaml` for both builds
+- **Dual Output**: Generates both full and minimal packages
+- **Database Compatible**: Minimal package solves VARCHAR(4000) constraint issues
+- **Original Approach**: Restores working method from commit 13d0e43
+
+For complete technical details, see [BUILD.md](BUILD.md).

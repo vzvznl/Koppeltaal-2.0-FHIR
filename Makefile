@@ -51,52 +51,46 @@ build-ig:
 	@cp ./output/package.tgz ./output/koppeltaalv2-$(VERSION).tgz
 	@echo "Successfully created: ./output/koppeltaalv2-$(VERSION).tgz"
 
-# Build Implementation Guide (Minimal for servers)
+# Build Implementation Guide (Minimal for servers using original FSH approach)
 # This target creates a minimal FHIR package optimized for FHIR server deployment by:
-# 1. Taking the full package created by build-ig
-# 2. Converting from IG Publisher format to Firely CLI export format
-# 3. Renaming files to match working Simplifier package structure
-# 4. Creating minimal package.json and ImplementationGuide
+# 1. Using SUSHI/IG Publisher to generate resources first
+# 2. Converting IG Publisher output back to package.json using Python script
+# 3. Using Firely CLI pack to create final package (original working approach from commit 13d0e43)
 .PHONY: build-ig-minimal
-build-ig-minimal: build-ig
-	@echo "Creating minimal FHIR resource package from IG Publisher output..."
+build-ig-minimal: install-dependencies build-ig convert-ig-minimal pack-minimal
+
+# Convert ImplementationGuide back to package.json for minimal package using Python script
+.PHONY: convert-ig-minimal
+convert-ig-minimal:
+	@echo "Converting ImplementationGuide to minimal package.json using Python script..."
+	@python3 scripts/convert_ig_to_package.py output/ImplementationGuide-Koppeltaal.json package.json
+
+# Pack FHIR resources for minimal package using Firely CLI with snapshot stripping
+.PHONY: pack-minimal
+pack-minimal:
+	@echo "Creating minimal FHIR package using Firely CLI (without snapshots)..."
 	@mkdir -p output-minimal
-	@if [ ! -f ./output/package.tgz ]; then \
-		echo "ERROR: Full build package not found at ./output/package.tgz"; \
-		exit 1; \
-	fi
-	@echo "Extracting and converting IG Publisher package to Firely CLI format..."
-	@rm -rf temp-package temp-minimal
-	@mkdir -p temp-package temp-minimal
-	@cd temp-package && tar -xzf ../output/package.tgz
-	@echo "Original package size: $$(du -h output/package.tgz | cut -f1)"
-	@echo "Converting StructureDefinition files to simple naming convention..."
-	@find temp-package -name "StructureDefinition-KT2*.json" -exec sh -c 'filename=$$(basename "$$1"); newname=$$(echo "$$filename" | sed "s/StructureDefinition-//"); jq "del(.text)" "$$1" > "temp-minimal/$$newname"' _ {} \;
-	@echo "Creating minimal ImplementationGuide (589 bytes like working package)..."
-	@find temp-package -name "ImplementationGuide-*.json" -exec sh -c 'jq "{resourceType: .resourceType, id: (.id | sub(\"-.*\"; \"-ig-koppeltaal\")), url: \"http://koppeltaal.nl/fhir/ImplementationGuide\", version: .version, name: \"Koppeltaal_2.0_IG\", status: \"active\", experimental: false, date: (.date | sub(\"T.*\"; \"\")), publisher: .publisher, packageId: \"koppeltaal\", fhirVersion: .fhirVersion, dependsOn: [.dependsOn[] | select(.packageId | test(\"nictiz\"))]}" "$$1" > "temp-minimal/KT2ImplementationGuide.json"' _ {} \;
-	@echo "Converting extensions and other resources..."
-	@find temp-package -name "StructureDefinition-KT2*Extension.json" -exec sh -c 'filename=$$(basename "$$1"); newname=$$(echo "$$filename" | sed "s/StructureDefinition-KT2/ext-KT2/" | sed "s/Extension//"); jq "del(.text)" "$$1" > "temp-minimal/$$newname"' _ {} \;
-	@find temp-package -name "StructureDefinition-*.json" -not -name "StructureDefinition-KT2*" -exec sh -c 'filename=$$(basename "$$1"); newname=$$(echo "$$filename" | sed "s/StructureDefinition-/ext-KT2/"); jq "del(.text)" "$$1" > "temp-minimal/$$newname"' _ {} \;
-	@echo "Converting CodeSystems and ValueSets..."
-	@find temp-package -name "CodeSystem-*.json" -exec sh -c 'filename=$$(basename "$$1"); jq "del(.text)" "$$1" > "temp-minimal/$$filename"' _ {} \;
-	@find temp-package -name "ValueSet-*.json" -exec sh -c 'filename=$$(basename "$$1"); jq "del(.text)" "$$1" > "temp-minimal/$$filename"' _ {} \;
-	@echo "Converting SearchParameters..."
-	@find temp-package -name "SearchParameter-*.json" -exec sh -c 'filename=$$(basename "$$1"); newname=$$(echo "$$filename" | sed "s/SearchParameter-/search-/"); jq "del(.text)" "$$1" > "temp-minimal/$$newname"' _ {} \;
-	@echo "Copying examples..."
-	@mkdir -p temp-minimal/examples
-	@find temp-package -path "*/example/*" -name "*.json" -exec cp {} temp-minimal/examples/ \;
-	@echo "Creating Firely CLI-style package.json..."
-	@echo '{"name": "koppeltaal", "version": "$(VERSION)", "description": "Koppeltaal 2.0 FHIR resource profiles - minimal package for FHIR servers", "title": "Koppeltaal 2.0 FHIR Package", "author": "VZVZ", "fhirVersions": ["4.0.1"], "jurisdiction": "urn:iso:std:iso:3166#NL", "maintainers": [{"name": "VZVZ"}, {"name": "Koppeltaal"}], "keywords": ["VZVZ", "Koppeltaal", "GGZ"], "dependencies": {"nictiz.fhir.nl.r4.zib2020": "0.11.0-beta.1", "nictiz.fhir.nl.r4.nl-core": "0.11.0-beta.1"}}' > temp-minimal/package.json
-	@echo "Creating .index.json for NPM package compatibility..."
-	@find temp-minimal -name "*.json" -not -name "package.json" -exec basename {} \; | jq -R -s 'split("\n") | map(select(. != "")) | {"index": {"package": ., "files": .}}' > temp-minimal/.index.json
-	@echo "Creating package archive..."
-	@mkdir -p temp-minimal-package/package
-	@cp -r temp-minimal/* temp-minimal-package/package/
-	@cd temp-minimal-package && tar -czf ../output-minimal/package.tgz .
-	@rm -rf temp-package temp-minimal temp-minimal-package
-	@echo "Copying package.tgz to: ./output-minimal/koppeltaalv2-$(VERSION)-minimal.tgz"
-	@cp ./output-minimal/package.tgz ./output-minimal/koppeltaalv2-$(VERSION)-minimal.tgz
+	@echo "Restoring package dependencies..."
+	$(FHIR) restore
+	@echo "Copying FHIR resources from output to output-minimal..."
+	@find output -name "*.json" -type f -not -name "*usage-stats*" -not -name "*qa*" -not -name "*manifest*" -not -name "*fragment*" -not -name "*canonicals*" -not -name "*list*" -not -name "*expansions*" -exec cp {} output-minimal/ \;
+	@echo "Stripping snapshots, narratives, and mappings from StructureDefinition files..."
+	@python3 scripts/strip_snapshots.py output-minimal/
+	@echo "Copying package.json to output-minimal..."
+	@cp package.json output-minimal/
+	@echo "Creating minimal package with Firely CLI..."
+	cd output-minimal && $(FHIR) restore && $(FHIR) pack
+	@echo "Renaming generated package for GitHub Actions compatibility..."
+	@cd output-minimal && \
+	for file in *.tgz; do \
+		if [ -f "$$file" ]; then \
+			cp "$$file" package.tgz; \
+			cp "$$file" koppeltaalv2-$(VERSION)-minimal.tgz; \
+			break; \
+		fi; \
+	done
 	@echo "Successfully created minimal FHIR package: ./output-minimal/koppeltaalv2-$(VERSION)-minimal.tgz"
+	@echo "Package also available as: ./output-minimal/package.tgz"
 	@echo "Final package size: $$(du -h ./output-minimal/koppeltaalv2-$(VERSION)-minimal.tgz | cut -f1)"
 	@echo "Package structure matches working Simplifier format - ready for HAPI FHIR deployment"
 
