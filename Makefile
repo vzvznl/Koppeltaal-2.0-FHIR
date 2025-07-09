@@ -63,7 +63,7 @@ build-ig-minimal: install-dependencies build-ig convert-ig-minimal pack-minimal
 .PHONY: convert-ig-minimal
 convert-ig-minimal:
 	@echo "Converting ImplementationGuide to minimal package.json using Python script..."
-	@python3 scripts/convert_ig_to_package.py output/ImplementationGuide-Koppeltaal.json package.json
+	@python3 scripts/convert_ig_to_package.py output/ImplementationGuide-koppeltaal.json package.json
 
 # Pack FHIR resources for minimal package using Firely CLI with snapshot stripping
 .PHONY: pack-minimal
