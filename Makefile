@@ -71,10 +71,15 @@ build-ig-minimal: build-ig
 	@echo "Original package size before stripping: $$(du -h ../output/package.tgz | cut -f1)"
 	@ORIG_LARGE_FILES=$$(find temp-package -name "*.json" -exec wc -c {} \; | awk '$$1 > 4000 {print $$2}' | wc -l); \
 	echo "Original files over 4000 characters: $$ORIG_LARGE_FILES"
-	@echo "Processing StructureDefinition files (removing snapshots, narratives, and metadata)..."
-	@find temp-package -name "StructureDefinition-*.json" -exec sh -c 'if ! jq "del(.text) | del(.snapshot) | del(.jurisdiction) | del(.language) | del(.mapping) | del(.contact) | del(.publisher) | del(.description) | del(.purpose) | del(.copyright)" "$$1" > "$$1.tmp"; then echo "ERROR: Failed to process $$1"; exit 1; fi && mv "$$1.tmp" "$$1"' _ {} \;
+	@echo "Processing StructureDefinition files (removing narratives only - keeping snapshots like original)..."
+	@find temp-package -name "StructureDefinition-*.json" -exec sh -c 'if ! jq "del(.text)" "$$1" > "$$1.tmp"; then echo "ERROR: Failed to process $$1"; exit 1; fi && mv "$$1.tmp" "$$1"' _ {} \;
+	@echo "Processing ImplementationGuide files (creating minimal skeleton like original)..."
+	@find temp-package -name "ImplementationGuide-*.json" -exec sh -c 'if jq "{resourceType: .resourceType, id: .id, url: .url, version: .version, name: .name, status: .status, experimental: .experimental, date: .date, publisher: .publisher, packageId: .packageId, fhirVersion: .fhirVersion, dependsOn: .dependsOn}" "$$1" > "$$1.tmp"; then mv "$$1.tmp" "$$1"; else echo "ERROR: Failed to process $$1"; exit 1; fi' _ {} \;
 	@echo "Processing other FHIR resource files..."
-	@find temp-package -name "*.json" -not -name "package.json" -not -name "StructureDefinition-*.json" -exec sh -c 'if ! jq "del(.text)" "$$1" > "$$1.tmp"; then echo "ERROR: Failed to process $$1"; exit 1; fi && mv "$$1.tmp" "$$1"' _ {} \;
+	@find temp-package -name "*.json" -not -name "package.json" -not -name "StructureDefinition-*.json" -not -name "ImplementationGuide-*.json" -exec sh -c 'if ! jq "del(.text)" "$$1" > "$$1.tmp"; then echo "ERROR: Failed to process $$1"; exit 1; fi && mv "$$1.tmp" "$$1"' _ {} \;
+	@echo "Removing validation and other large files that cause database issues..."
+	@rm -rf temp-package/other/ || true
+	@rm -f temp-package/.index.json || true
 	@echo "Checking file sizes after stripping..."
 	@LARGE_FILES=$$(find temp-package -name "*.json" -exec wc -c {} \; | awk '$$1 > 4000 {print $$2}' | wc -l); \
 	if [ $$LARGE_FILES -gt 0 ]; then \
