@@ -73,7 +73,7 @@ build-ig-minimal: build-ig
 	@echo "Converting StructureDefinition files to simple naming convention..."
 	@find temp-package -name "StructureDefinition-KT2*.json" -exec sh -c 'filename=$$(basename "$$1"); newname=$$(echo "$$filename" | sed "s/StructureDefinition-//"); jq "del(.text)" "$$1" > "temp-minimal/$$newname"' _ {} \;
 	@echo "Creating minimal ImplementationGuide (589 bytes like working package)..."
-	@find temp-package -name "ImplementationGuide-*.json" -exec sh -c 'jq "{resourceType: .resourceType, id: (.id | sub(\"-.*\"; \"-ig-koppeltaalv2.00\")), url: \"http://koppeltaal.nl/fhir/ImplementationGuide\", version: .version, name: \"Koppeltaal_2.0_IG\", status: \"active\", experimental: false, date: (.date | sub(\"T.*\"; \"\")), publisher: .publisher, packageId: \"koppeltaalv2.00\", fhirVersion: .fhirVersion, dependsOn: [.dependsOn[] | select(.packageId | test(\"nictiz\"))]}" "$$1" > "temp-minimal/KT2ImplementationGuide.json"' _ {} \;
+	@find temp-package -name "ImplementationGuide-*.json" -exec sh -c 'jq "{resourceType: .resourceType, id: (.id | sub(\"-.*\"; \"-ig-koppeltaal\")), url: \"http://koppeltaal.nl/fhir/ImplementationGuide\", version: .version, name: \"Koppeltaal_2.0_IG\", status: \"active\", experimental: false, date: (.date | sub(\"T.*\"; \"\")), publisher: .publisher, packageId: \"koppeltaal\", fhirVersion: .fhirVersion, dependsOn: [.dependsOn[] | select(.packageId | test(\"nictiz\"))]}" "$$1" > "temp-minimal/KT2ImplementationGuide.json"' _ {} \;
 	@echo "Converting extensions and other resources..."
 	@find temp-package -name "StructureDefinition-KT2*Extension.json" -exec sh -c 'filename=$$(basename "$$1"); newname=$$(echo "$$filename" | sed "s/StructureDefinition-KT2/ext-KT2/" | sed "s/Extension//"); jq "del(.text)" "$$1" > "temp-minimal/$$newname"' _ {} \;
 	@find temp-package -name "StructureDefinition-*.json" -not -name "StructureDefinition-KT2*" -exec sh -c 'filename=$$(basename "$$1"); newname=$$(echo "$$filename" | sed "s/StructureDefinition-/ext-KT2/"); jq "del(.text)" "$$1" > "temp-minimal/$$newname"' _ {} \;
@@ -86,7 +86,9 @@ build-ig-minimal: build-ig
 	@mkdir -p temp-minimal/examples
 	@find temp-package -path "*/example/*" -name "*.json" -exec cp {} temp-minimal/examples/ \;
 	@echo "Creating Firely CLI-style package.json..."
-	@echo '{"name": "koppeltaalv2.00", "version": "$(VERSION)", "description": "Koppeltaal 2.0 FHIR resource profiles - minimal package for FHIR servers", "title": "Koppeltaal 2.0 FHIR Package", "author": "VZVZ", "fhirVersions": ["4.0.1"], "jurisdiction": "urn:iso:std:iso:3166#NL", "maintainers": [{"name": "VZVZ"}, {"name": "Koppeltaal"}], "keywords": ["VZVZ", "Koppeltaal", "GGZ"], "dependencies": {"nictiz.fhir.nl.r4.zib2020": "0.11.0-beta.1", "nictiz.fhir.nl.r4.nl-core": "0.11.0-beta.1"}}' > temp-minimal/package.json
+	@echo '{"name": "koppeltaal", "version": "$(VERSION)", "description": "Koppeltaal 2.0 FHIR resource profiles - minimal package for FHIR servers", "title": "Koppeltaal 2.0 FHIR Package", "author": "VZVZ", "fhirVersions": ["4.0.1"], "jurisdiction": "urn:iso:std:iso:3166#NL", "maintainers": [{"name": "VZVZ"}, {"name": "Koppeltaal"}], "keywords": ["VZVZ", "Koppeltaal", "GGZ"], "dependencies": {"nictiz.fhir.nl.r4.zib2020": "0.11.0-beta.1", "nictiz.fhir.nl.r4.nl-core": "0.11.0-beta.1"}}' > temp-minimal/package.json
+	@echo "Creating .index.json for NPM package compatibility..."
+	@find temp-minimal -name "*.json" -not -name "package.json" -exec basename {} \; | jq -R -s 'split("\n") | map(select(. != "")) | {"index": {"package": ., "files": .}}' > temp-minimal/.index.json
 	@echo "Creating package archive..."
 	@mkdir -p temp-minimal-package/package
 	@cp -r temp-minimal/* temp-minimal-package/package/

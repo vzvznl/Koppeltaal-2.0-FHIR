@@ -75,7 +75,7 @@ The minimal build performs **format conversion**:
 3. **Creates Firely CLI-style package.json**:
    ```json
    {
-     "name": "koppeltaalv2.00",
+     "name": "koppeltaal",
      "version": "1.4.5-beta.002",
      "fhirVersions": ["4.0.1"],
      "dependencies": {
@@ -143,7 +143,7 @@ Use the **minimal package** for:
 ```yaml
 implementationguides:
   kt2:
-    name: koppeltaalv2.00
+    name: koppeltaal
     version: 1.4.5-beta.002
     packageUrl: https://github.com/.../koppeltaalv2-1.4.5-beta.002-minimal.tgz
     fetchDependencies: false
@@ -170,7 +170,7 @@ kt2:
   
 # ✅ WORKS (Our minimal package - same format)  
 kt2:
-  name: koppeltaalv2.00
+  name: koppeltaal
   version: 1.4.5-beta.002
   packageUrl: .../koppeltaalv2-1.4.5-beta.002-minimal.tgz
 
