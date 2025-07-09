@@ -1,7 +1,7 @@
 id: koppeltaal
 name: KoppeltaalIG
-title: Koppeltaal 2.0 Implementation Guide (Minimal Package)
-description: Koppeltaal 2.0 Implementation Guide - Minimal package without narratives for FHIR servers
+title: Koppeltaal 2.0 Implementation Guide (Full Documentation)
+description: Koppeltaal 2.0 Implementation Guide - Full package with narratives and documentation
 canonical: http://koppeltaal.nl/fhir
 fhirVersion: 4.0.1
 FSHOnly: false
@@ -28,7 +28,22 @@ dependencies:
     version: 0.2.2
     uri: https://simplifier.net/packages/vzvz.fhir.nl-vzvz-core@0.2.2
 
-# No pages section for minimal package - we don't need HTML documentation
+pages:
+  index.md:
+    title: Home
+  general-notes.md:
+    based-on-nl-core-profiles.md:
+      title: Based on nl-core profiles
+    restrictions-on-elements.md:
+      title: Restriction on usage of elements
+    country-codes.md:
+      title: Country Codes
+    info-relatedperson.md:
+      title: RelatedPerson
+    examples.md:
+      title: Examples
+    strict-use-of-nameinformation.md:
+      title: Strict use of Name Information
 
 parameters: # see https://confluence.hl7.org/display/FHIR/Implementation+Guide+Parameters
   apply-contact: false
@@ -39,6 +54,10 @@ parameters: # see https://confluence.hl7.org/display/FHIR/Implementation+Guide+P
   path-resource:
     - input/resources
     - fsh-generated/resources
+  path-pages:
+    - input/pagecontent
+    - input/intro-notes
+    - fsh-generated/includes
   special-url:
     - http://vzvz.nl/fhir/StructureDefinition/instantiates
     - http://vzvz.nl/fhir/ValueSet/endpoint-connection-type
@@ -49,9 +68,37 @@ parameters: # see https://confluence.hl7.org/display/FHIR/Implementation+Guide+P
     - http://vzvz.nl/fhir/
   version-comparison: "n/a"
   usage-stats-opt-out: true
-  # MINIMAL PACKAGE PARAMETERS - narratives disabled via IG Publisher CLI flag
 
-# No menu section for minimal package - we don't need HTML menus
+# ╭────────────────────────────────────────────menu.xml────────────────────────────────────────────╮
+# │ The menu property will be used to generate the input/menu.xml file. The menu is represented    │
+# │ as a simple structure where the YAML key is the menu item name and the value is the URL.       │
+# │ The IG publisher currently only supports one level deep on sub-menus. To provide a             │
+# │ custom menu.xml file, do not include this property and include a `menu.xml` file in            │
+# │ input/includes. To use a provided input/includes/menu.xml file, delete the "menu"              │
+# │ property below.                                                                                │
+# ╰────────────────────────────────────────────────────────────────────────────────────────────────╯
+menu:
+  Home: index.html
+  General Notes:
+    Based on nl-core profiles: based-on-nl-core-profiles.html
+    Restriction on usage of elements: restrictions-on-elements.html
+    Country Codes: country-codes.html
+    Related Person: info-relatedperson.html
+    Examples: examples.html
+    Strict use of Name Information: strict-use-of-nameinformation.html
+  Profile Specific Notes:
+    ActivityDefinition: StructureDefinition-KT2ActivityDefinition.html
+    AuditEvent: StructureDefinition-KT2AuditEvent.html
+    CareTeam: StructureDefinition-KT2CareTeam.html
+    Device: StructureDefinition-KT2Device.html
+    Endpoint: StructureDefinition-KT2Endpoint.html
+    Organization: StructureDefinition-KT2Organization.html
+    Patient: StructureDefinition-KT2Patient.html
+    Practitioner: StructureDefinition-KT2Practitioner.html
+    RelatedPerson: StructureDefinition-KT2RelatedPerson.html
+    Subscription: StructureDefinition-KT2Subscription.html
+    Task: StructureDefinition-KT2Task.html
+  Artifacts: artifacts.html
 
 instanceOptions:
   manualSliceOrdering: true # true | false
