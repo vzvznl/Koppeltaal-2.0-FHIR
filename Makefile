@@ -86,26 +86,7 @@ build-ig-minimal: build-ig
 	@mkdir -p temp-minimal/examples
 	@find temp-package -path "*/example/*" -name "*.json" -exec cp {} temp-minimal/examples/ \;
 	@echo "Creating Firely CLI-style package.json..."
-	@cat > temp-minimal/package.json << 'EOF'
-{
-  "name": "koppeltaalv2.00",
-  "version": "$(VERSION)",
-  "description": "Koppeltaal 2.0 FHIR resource profiles - minimal package for FHIR servers",
-  "title": "Koppeltaal 2.0 FHIR Package",
-  "author": "VZVZ",
-  "fhirVersions": ["4.0.1"],
-  "jurisdiction": "urn:iso:std:iso:3166#NL",
-  "maintainers": [
-    {"name": "VZVZ"},
-    {"name": "Koppeltaal"}
-  ],
-  "keywords": ["VZVZ", "Koppeltaal", "GGZ"],
-  "dependencies": {
-    "nictiz.fhir.nl.r4.zib2020": "0.11.0-beta.1",
-    "nictiz.fhir.nl.r4.nl-core": "0.11.0-beta.1"
-  }
-}
-EOF
+	@echo '{"name": "koppeltaalv2.00", "version": "$(VERSION)", "description": "Koppeltaal 2.0 FHIR resource profiles - minimal package for FHIR servers", "title": "Koppeltaal 2.0 FHIR Package", "author": "VZVZ", "fhirVersions": ["4.0.1"], "jurisdiction": "urn:iso:std:iso:3166#NL", "maintainers": [{"name": "VZVZ"}, {"name": "Koppeltaal"}], "keywords": ["VZVZ", "Koppeltaal", "GGZ"], "dependencies": {"nictiz.fhir.nl.r4.zib2020": "0.11.0-beta.1", "nictiz.fhir.nl.r4.nl-core": "0.11.0-beta.1"}}' > temp-minimal/package.json
 	@echo "Creating package archive..."
 	@cd temp-minimal && tar -czf ../output-minimal/package.tgz .
 	@rm -rf temp-package temp-minimal
