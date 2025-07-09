@@ -90,7 +90,7 @@ jobs:
       - name: Get version
         id: version
         run: |
-          VERSION=$(grep '^version:' sushi-config-minimal.yaml | sed 's/version: //')
+          VERSION=$(grep '^version:' sushi-config.yaml | sed 's/version: //')
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Version: $VERSION"
       
@@ -118,7 +118,7 @@ jobs:
           name: fhir-package-minimal
           path: |
             ./output-minimal/
-            ./sushi-config-minimal.yaml
+            ./sushi-config.yaml
             ./CHANGELOG.md
           retention-days: 7
 

@@ -52,25 +52,40 @@ build-ig:
 	@echo "Successfully created: ./output/koppeltaalv2-$(VERSION).tgz"
 
 # Build Implementation Guide (Minimal for servers)
+# This target creates a minimal FHIR package optimized for FHIR server deployment by:
+# 1. Taking the full package created by build-ig
+# 2. Stripping .text (narratives), .snapshot, .jurisdiction, .language, .mapping
+# 3. Removing most examples to reduce package size
+# 4. Optimizing files for HAPI FHIR varchar(4000) constraint
 .PHONY: build-ig-minimal
-build-ig-minimal:
-	@echo "Building Minimal Implementation Guide with version $(VERSION)..."
+build-ig-minimal: build-ig
+	@echo "Creating minimal package from full build..."
 	@mkdir -p output-minimal
-	@cp sushi-config-minimal.yaml sushi-config.yaml.bak
-	@cp sushi-config-minimal.yaml sushi-config.yaml
-	java -jar /usr/local/publisher.jar -ig ig.ini -generation-off
-	@mv sushi-config.yaml.bak sushi-config.yaml
 	@if [ ! -f ./output/package.tgz ]; then \
-		echo "ERROR: Minimal build did not create ./output/package.tgz"; \
+		echo "ERROR: Full build package not found at ./output/package.tgz"; \
 		exit 1; \
 	fi
 	@echo "Stripping narratives from FHIR resources..."
 	@mkdir -p temp-package
 	@cd temp-package && tar -xzf ../output/package.tgz
+	@echo "Original package size before stripping: $$(du -h ../output/package.tgz | cut -f1)"
+	@ORIG_LARGE_FILES=$$(find temp-package -name "*.json" -exec wc -c {} \; | awk '$$1 > 4000 {print $$2}' | wc -l); \
+	echo "Original files over 4000 characters: $$ORIG_LARGE_FILES"
 	@echo "Processing StructureDefinition files (removing snapshots, narratives, and metadata)..."
-	@find temp-package -name "StructureDefinition-*.json" -exec sh -c 'jq "del(.text) | del(.snapshot) | del(.jurisdiction) | del(.language) | del(.mapping)" "$$1" > "$$1.tmp" && mv "$$1.tmp" "$$1"' _ {} \;
+	@find temp-package -name "StructureDefinition-*.json" -exec sh -c 'if ! jq "del(.text) | del(.snapshot) | del(.jurisdiction) | del(.language) | del(.mapping) | del(.contact) | del(.publisher) | del(.description) | del(.purpose) | del(.copyright)" "$$1" > "$$1.tmp"; then echo "ERROR: Failed to process $$1"; exit 1; fi && mv "$$1.tmp" "$$1"' _ {} \;
 	@echo "Processing other FHIR resource files..."
-	@find temp-package -name "*.json" -not -name "package.json" -not -name "StructureDefinition-*.json" -exec sh -c 'jq "del(.text)" "$$1" > "$$1.tmp" && mv "$$1.tmp" "$$1"' _ {} \; 2>/dev/null || true
+	@find temp-package -name "*.json" -not -name "package.json" -not -name "StructureDefinition-*.json" -exec sh -c 'if ! jq "del(.text)" "$$1" > "$$1.tmp"; then echo "ERROR: Failed to process $$1"; exit 1; fi && mv "$$1.tmp" "$$1"' _ {} \;
+	@echo "Checking file sizes after stripping..."
+	@LARGE_FILES=$$(find temp-package -name "*.json" -exec wc -c {} \; | awk '$$1 > 4000 {print $$2}' | wc -l); \
+	if [ $$LARGE_FILES -gt 0 ]; then \
+		echo "INFO: $$LARGE_FILES files still exceed 4000 characters (expected for StructureDefinitions):"; \
+		find temp-package -name "*.json" -exec wc -c {} \; | awk '$$1 > 4000 {print $$1 " " $$2}' | head -10; \
+	else \
+		echo "All files are within 4000 character limit"; \
+	fi
+	@echo "Validating JSON integrity after stripping..."
+	@find temp-package -name "*.json" -exec sh -c 'if ! jq empty "$$1" >/dev/null 2>&1; then echo "ERROR: Invalid JSON after processing: $$1"; exit 1; fi' _ {} \;
+	@echo "All JSON files are valid"
 	@echo "Removing most examples (keeping only essential ones)..."
 	@find temp-package -path "*/example/*" -name "*.json" -not -name "namingsystem-koppeltaal-client-id.json" -delete || true
 	@cd temp-package && tar -czf ../output-minimal/package.tgz package/
@@ -78,6 +93,9 @@ build-ig-minimal:
 	@echo "Copying package.tgz to: ./output-minimal/koppeltaalv2-$(VERSION)-minimal.tgz"
 	@cp ./output-minimal/package.tgz ./output-minimal/koppeltaalv2-$(VERSION)-minimal.tgz
 	@echo "Successfully created minimal package with narratives stripped: ./output-minimal/koppeltaalv2-$(VERSION)-minimal.tgz"
+	@echo "Final package size: $$(du -h ./output-minimal/koppeltaalv2-$(VERSION)-minimal.tgz | cut -f1)"
+	@echo "Files in package: $$(tar -tzf ./output-minimal/koppeltaalv2-$(VERSION)-minimal.tgz | wc -l)"
+	@echo "Stripping process completed - package optimized for FHIR server deployment"
 
 # Publish package to Simplifier.net, not tested.
 .PHONY: publish
