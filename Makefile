@@ -64,11 +64,20 @@ build-ig-minimal:
 		echo "ERROR: Minimal build did not create ./output/package.tgz"; \
 		exit 1; \
 	fi
-	@echo "Moving minimal package to output-minimal..."
-	@mv ./output/package.tgz ./output-minimal/package.tgz
+	@echo "Stripping narratives from FHIR resources..."
+	@mkdir -p temp-package
+	@cd temp-package && tar -xzf ../output/package.tgz
+	@echo "Processing StructureDefinition files (removing snapshots, narratives, and metadata)..."
+	@find temp-package -name "StructureDefinition-*.json" -exec sh -c 'jq "del(.text) | del(.snapshot) | del(.jurisdiction) | del(.language) | del(.mapping)" "$$1" > "$$1.tmp" && mv "$$1.tmp" "$$1"' _ {} \;
+	@echo "Processing other FHIR resource files..."
+	@find temp-package -name "*.json" -not -name "package.json" -not -name "StructureDefinition-*.json" -exec sh -c 'jq "del(.text)" "$$1" > "$$1.tmp" && mv "$$1.tmp" "$$1"' _ {} \; 2>/dev/null || true
+	@echo "Removing most examples (keeping only essential ones)..."
+	@find temp-package -path "*/example/*" -name "*.json" -not -name "namingsystem-koppeltaal-client-id.json" -delete || true
+	@cd temp-package && tar -czf ../output-minimal/package.tgz package/
+	@rm -rf temp-package
 	@echo "Copying package.tgz to: ./output-minimal/koppeltaalv2-$(VERSION)-minimal.tgz"
 	@cp ./output-minimal/package.tgz ./output-minimal/koppeltaalv2-$(VERSION)-minimal.tgz
-	@echo "Successfully created: ./output-minimal/koppeltaalv2-$(VERSION)-minimal.tgz"
+	@echo "Successfully created minimal package with narratives stripped: ./output-minimal/koppeltaalv2-$(VERSION)-minimal.tgz"
 
 # Publish package to Simplifier.net, not tested.
 .PHONY: publish

@@ -41,10 +41,11 @@ This project uses a dual-build approach to generate two different packages from 
 - Includes all narrative content
 
 ### Minimal Package (sushi-config-minimal.yaml)
-- Uses IG Publisher CLI flag `-generation-off` to disable narrative generation
+- Uses IG Publisher CLI flag `-generation-off` to disable HTML page generation
+- **Post-processes package to strip `.text` narratives from all FHIR resources**
 - No `pages` section - No HTML documentation
 - No `menu` section - No navigation menus
-- Identical resource generation, but without HTML narratives
+- Identical resource generation, but with narratives completely removed
 
 ## GitHub Actions Integration
 
@@ -77,9 +78,18 @@ artifact: fhir-package-minimal
 # Build full documentation package
 make build
 
-# Build minimal server package
+# Build minimal server package (with narrative stripping)
 make build-minimal
 ```
+
+### Narrative Stripping Process
+The minimal build performs these steps:
+1. Runs IG Publisher with `-generation-off`
+2. Extracts the generated package
+3. **Strips `.text` fields from all FHIR resources using `jq`**
+4. Repackages the cleaned resources
+
+This ensures StructureDefinitions go from ~430KB to ~10KB by removing HTML narratives.
 
 ### Docker Usage
 ```bash
