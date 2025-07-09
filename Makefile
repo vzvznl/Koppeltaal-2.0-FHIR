@@ -74,8 +74,8 @@ pack-minimal:
 	$(FHIR) restore
 	@echo "Copying FHIR resources from output to output-minimal..."
 	@find output -name "*.json" -type f -not -name "*usage-stats*" -not -name "*qa*" -not -name "*manifest*" -not -name "*fragment*" -not -name "*canonicals*" -not -name "*list*" -not -name "*expansions*" -exec cp {} output-minimal/ \;
-	@echo "Stripping snapshots, narratives, and mappings from StructureDefinition files..."
-	@python3 scripts/strip_snapshots.py output-minimal/
+	@echo "Stripping narratives, snapshots, and mappings from FHIR resources..."
+	@python3 scripts/strip_narratives.py output-minimal/
 	@echo "Verifying stripping was successful..."
 	@if [ -f output-minimal/StructureDefinition-KT2Patient.json ]; then \
 		SIZE=$$(wc -c < output-minimal/StructureDefinition-KT2Patient.json); \
