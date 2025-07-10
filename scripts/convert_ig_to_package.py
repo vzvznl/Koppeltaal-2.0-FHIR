@@ -31,8 +31,9 @@ def convert_ig_to_package(ig_path='output/ImplementationGuide-Koppeltaal.json', 
     with open(ig_path, 'r') as f:
         ig = json.load(f)
 
-    # Update only version from ImplementationGuide
+    # Update version and name from ImplementationGuide
     package['version'] = ig.get('version', package.get('version', '0.0.0'))
+    package['name'] = ig.get('id', package.get('name', 'koppeltaal'))
 
     # Update dependencies from FHIR format, ignoring hl7ext
     package['dependencies'] = {}
