@@ -24,9 +24,10 @@ dependencies:
   nictiz.fhir.nl.r4.nl-core:
     version: 0.11.0-beta.1
     uri: http://simplifier.net/packages/nictiz.fhir.nl.r4.nl-core#0.11.0-beta.1
-  vzvz.fhir.nl-vzvz-core:
-    version: 0.2.2
-    uri: https://simplifier.net/packages/vzvz.fhir.nl-vzvz-core@0.2.2
+  # vzvz.fhir.nl-vzvz-core dependency removed to match working 0.14.0 behavior
+  # vzvz.fhir.nl-vzvz-core:
+  #   version: 0.2.2
+  #   uri: https://simplifier.net/packages/vzvz.fhir.nl-vzvz-core@0.2.2
 
 pages:
   index.md:
