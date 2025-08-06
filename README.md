@@ -108,9 +108,9 @@ The build process creates two different packages:
 ```yaml
 implementationguides:
   kt2:
-    name: koppeltaal
+    name: koppeltaalv2.00  # Must match Simplifier package name
     version: 1.4.5-beta.002
-    packageUrl: https://github.com/.../koppeltaalv2-1.4.5-beta.002-minimal.tgz
+    packageUrl: https://github.com/{owner}/Koppeltaal-2.0-FHIR/releases/download/v1.4.5-beta.002/koppeltaalv2-1.4.5-beta.002-minimal.tgz
     fetchDependencies: false
     installMode: STORE_AND_INSTALL
 ```
@@ -171,11 +171,65 @@ du -h output/koppeltaalv2-*.tgz          # Full package
 du -h output-minimal/koppeltaalv2-*.tgz  # Minimal package (should be ~184KB)
 ```
 
+## GitHub Releases and CI/CD
+
+### Release Types
+
+#### Main Branch Releases (Stable)
+When pushed to `main` branch:
+- **Full Release**: Contains both full and minimal packages
+- **Release Name**: Version number (e.g., `1.4.5`)
+- **Tag**: `v{version}` (e.g., `v1.4.5`)
+- **Assets**:
+  - `koppeltaalv2-{version}.tgz` - Full documentation package
+  - `koppeltaalv2-{version}-minimal.tgz` - Minimal server package
+
+#### Branch Pre-releases (Testing)
+When pushed to any other branch:
+- **Pre-release**: Only contains minimal package
+- **Release Name**: `{version}-minimal-{branch-name}`
+- **Tag**: `v{version}-minimal-{branch-name}-{run-number}`
+- **Assets**:
+  - `koppeltaalv2-{version}-minimal.tgz` - Minimal server package only
+
+### Package URLs
+
+#### For Stable Releases
+```yaml
+# Minimal package (recommended for HAPI)
+packageUrl: https://github.com/{owner}/{repo}/releases/download/v{version}/koppeltaalv2-{version}-minimal.tgz
+
+# Full package (for documentation)
+packageUrl: https://github.com/{owner}/{repo}/releases/download/v{version}/koppeltaalv2-{version}.tgz
+```
+
+**Example (GIDSOpenStandaarden):**
+```yaml
+# Minimal package
+packageUrl: https://github.com/GIDSOpenStandaarden/Koppeltaal-2.0-FHIR/releases/download/v1.4.5/koppeltaalv2-1.4.5-minimal.tgz
+```
+
+#### For Pre-releases
+```yaml
+# Pattern
+packageUrl: https://github.com/{owner}/{repo}/releases/download/v{version}-minimal-{branch}-{run}/koppeltaalv2-{version}-minimal.tgz
+
+# Example (test-beta-release branch, run 82)
+packageUrl: https://github.com/GIDSOpenStandaarden/Koppeltaal-2.0-FHIR/releases/download/v1.4.5-beta.002-minimal-test-beta-release-82/koppeltaalv2-1.4.5-beta.002-minimal.tgz
+```
+
+### GitHub Packages (NPM)
+The CI/CD also publishes to GitHub Packages:
+- **Main branch**: Public access
+- **Other branches**: Restricted access
+- **Package names**: Scoped to repository owner (e.g., `@{owner}/koppeltaalv2.00`)
+
 ## Technical Details
 
 - **Single Source**: Uses one `sushi-config.yaml` for both builds
 - **Dual Output**: Generates both full and minimal packages
 - **Database Compatible**: Minimal package solves VARCHAR(4000) constraint issues
-- **Original Approach**: Restores working method from commit 13d0e43
+- **Package ID**: `koppeltaalv2.00` to match Simplifier registry
+- **CI/CD**: Automated builds and releases via GitHub Actions
 
 For complete technical details, see [BUILD.md](BUILD.md).

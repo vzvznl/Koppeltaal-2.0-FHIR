@@ -106,16 +106,61 @@ StructureDefinition-correlation-id.json: 8.0KB (with snapshots + narratives)
 
 ## GitHub Actions Integration
 
-The CI/CD pipeline builds both packages:
+The CI/CD pipeline automatically builds, tests, and releases packages:
 
-### Jobs
-1. **`build-full`** - Builds full documentation package
-2. **`build-minimal`** - Builds minimal server package
+### Build Jobs
+1. **`build-full`** - Builds full documentation package with narratives
+2. **`build-minimal`** - Builds minimal server package (snapshot-free)
 
-### Expected Outputs
-- **Full Package**: `./output/koppeltaalv2-{version}.tgz`
-- **Minimal Package**: `./output-minimal/koppeltaalv2-{version}-minimal.tgz`
-- **GitHub Actions**: Both packages available as `package.tgz` in respective directories
+### Release Strategy
+
+#### Main Branch (Stable Releases)
+When code is pushed to `main`:
+1. Builds both full and minimal packages
+2. Deploys full package to GitHub Pages
+3. Creates a **stable release** with both packages
+4. Publishes both packages to GitHub Packages (NPM)
+
+**Release format:**
+- **Name**: `{version}` (e.g., `1.4.5`)
+- **Tag**: `v{version}` (e.g., `v1.4.5`)
+- **Assets**:
+  - `koppeltaalv2-{version}.tgz` - Full documentation package
+  - `koppeltaalv2-{version}-minimal.tgz` - Minimal server package
+
+#### Branch Builds (Pre-releases)
+When code is pushed to any other branch:
+1. Builds both packages but only releases the minimal
+2. Creates a **pre-release** with minimal package only
+3. Publishes packages to GitHub Packages with restricted access
+
+**Pre-release format:**
+- **Name**: `{version}-minimal-{branch-name}`
+- **Tag**: `v{version}-minimal-{branch-name}-{run-number}`
+- **Assets**:
+  - `koppeltaalv2-{version}-minimal.tgz` - Minimal package only
+
+### Package URLs
+
+#### Stable Release URLs
+```bash
+# Minimal package (for HAPI servers)
+https://github.com/GIDSOpenStandaarden/Koppeltaal-2.0-FHIR/releases/download/v1.4.5/koppeltaalv2-1.4.5-minimal.tgz
+
+# Full package (for documentation)
+https://github.com/GIDSOpenStandaarden/Koppeltaal-2.0-FHIR/releases/download/v1.4.5/koppeltaalv2-1.4.5.tgz
+```
+
+#### Pre-release URLs
+```bash
+# Example for test-beta-release branch, run 82
+https://github.com/GIDSOpenStandaarden/Koppeltaal-2.0-FHIR/releases/download/v1.4.5-beta.002-minimal-test-beta-release-82/koppeltaalv2-1.4.5-beta.002-minimal.tgz
+```
+
+### Artifacts
+- **build-full**: Creates `fhir-package-full` artifact
+- **build-minimal**: Creates `fhir-package-minimal` artifact
+- Both artifacts contain the built packages and metadata
 
 ## Local Development
 
@@ -157,9 +202,9 @@ Use the **minimal package** for:
 ```yaml
 implementationguides:
   kt2:
-    name: koppeltaal
+    name: koppeltaalv2.00  # Must match Simplifier package name
     version: 1.4.5-beta.002
-    packageUrl: https://github.com/.../koppeltaalv2-1.4.5-beta.002-minimal.tgz
+    packageUrl: https://github.com/GIDSOpenStandaarden/Koppeltaal-2.0-FHIR/releases/download/v1.4.5-beta.002/koppeltaalv2-1.4.5-beta.002-minimal.tgz
     fetchDependencies: false
     installMode: STORE_AND_INSTALL
 ```
@@ -212,9 +257,15 @@ This proven approach ensures compatibility with HAPI FHIR servers while maintain
 - No separate minimal configuration needed
 - Stripping happens at build time via Makefile
 
+### Package Naming
+- **Package ID**: `koppeltaalv2.00` (matches Simplifier registry)
+- **Previous ID**: `koppeltaal` (generic, caused conflicts)
+- **HAPI Config**: Must use `name: koppeltaalv2.00` to match package
+
 ### Makefile Targets
 - `make build` - Full IG Publisher package
 - `make build-minimal` - Stripped minimal package
 - `make install-dependencies` - Install required FHIR packages
+- `make version` - Show current version from sushi-config.yaml
 
 This approach ensures compatibility with both human documentation needs and FHIR server requirements while solving the VARCHAR(4000) database constraint issue by matching the proven working Simplifier package format.
