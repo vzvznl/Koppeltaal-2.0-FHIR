@@ -1,13 +1,13 @@
-id: koppeltaal # Needs to be lower-case
+id: koppeltaalv2.00
 name: KoppeltaalIG
-title: Koppeltaal 2.0 Implementation Guide
-description: Koppeltaal 2.0 Implementation Guide
+title: Koppeltaal 2.0 Implementation Guide (Full Documentation)
+description: Koppeltaal 2.0 Implementation Guide - Full package with narratives and documentation
 canonical: http://koppeltaal.nl/fhir
 fhirVersion: 4.0.1
 FSHOnly: false
 applyExtensionMetadataToRoot: false
 status: draft
-version: 1.4.4
+version: 1.4.5-beta.002
 copyrightYear: 2024+
 releaseLabel: ci-build
 # license: CC0-1.0 # https://www.hl7.org/fhir/valueset-spdx-license.html
@@ -24,9 +24,10 @@ dependencies:
   nictiz.fhir.nl.r4.nl-core:
     version: 0.11.0-beta.1
     uri: http://simplifier.net/packages/nictiz.fhir.nl.r4.nl-core#0.11.0-beta.1
-  vzvz.fhir.nl-vzvz-core:
-    version: 0.2.2
-    uri: https://simplifier.net/packages/vzvz.fhir.nl-vzvz-core@0.2.2
+  # vzvz.fhir.nl-vzvz-core dependency removed to match working 0.14.0 behavior
+  # vzvz.fhir.nl-vzvz-core:
+  #   version: 0.2.2
+  #   uri: https://simplifier.net/packages/vzvz.fhir.nl-vzvz-core@0.2.2
 
 pages:
   index.md:
