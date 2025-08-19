@@ -38,16 +38,9 @@ install-dependencies:
 	@unzip -o nictiz-packages/nictiz.fhir.nl.r4-with-snapshots.zip -d $(HOME)/.fhir/packages/
 	@echo "Nictiz packages installed successfully"
 
-# Generate snapshots for all StructureDefinitions
-.PHONY: generate-snapshots
-generate-snapshots: login
-	@echo "Generating snapshots for StructureDefinitions..."
-	@cd fsh-generated/resources && $(FHIR) inflate --here --snapshot --force
-	@echo "Snapshots generated successfully"
-
 # Build Implementation Guide (Full with documentation)
 .PHONY: build-ig
-build-ig: generate-snapshots
+build-ig:
 	@echo "Building Full Implementation Guide with version $(VERSION)..."
 	java -jar /usr/local/publisher.jar -ig ig.ini
 	@if [ ! -f ./output/package.tgz ]; then \
@@ -74,7 +67,7 @@ convert-ig-minimal:
 
 # Pack FHIR resources for minimal package using Firely CLI with snapshot stripping
 .PHONY: pack-minimal
-pack-minimal:
+pack-minimal: login
 	@echo "Creating minimal FHIR package using Firely CLI (without snapshots)..."
 	@mkdir -p output-minimal
 	@echo "Restoring package dependencies..."
@@ -92,6 +85,9 @@ pack-minimal:
 		fi; \
 		echo "SUCCESS: StructureDefinition-KT2Patient.json is $$SIZE bytes (properly stripped)"; \
 	fi
+	@echo "Generating snapshots for StructureDefinitions..."
+	@cd output-minimal && $(FHIR) inflate --here --snapshot --force && cd ..
+	@echo "Snapshots generated successfully"
 	@echo "Copying package.json to output-minimal..."
 	@cp package.json output-minimal/
 	@echo "Creating minimal package manually (avoiding Firely CLI snapshot regeneration)..."
@@ -147,7 +143,6 @@ help:
 	@echo "  build-minimal - Build minimal package without narratives (for FHIR servers)"
 	@echo "  login    - Login to FHIR registry"
 	@echo "  install-dependencies  - Install FHIR dependencies"
-	@echo "  generate-snapshots - Generate snapshots for all StructureDefinitions"
 	@echo "  build-ig - Build Implementation Guide using FHIR publisher (full)"
 	@echo "  build-ig-minimal - Build Implementation Guide using FHIR publisher (minimal)"
 	@echo "  publish  - Publish package to Simplifier.net (requires login)"

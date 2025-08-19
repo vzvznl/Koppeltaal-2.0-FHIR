@@ -20,10 +20,10 @@ def strip_narratives_from_file(file_path):
         if resource_type == 'StructureDefinition':
             sections_removed = []
 
-            # # Remove snapshot section
-            # if 'snapshot' in data:
-            #     del data['snapshot']
-            #     sections_removed.append('snapshot')
+            # Remove snapshot section
+            if 'snapshot' in data:
+                del data['snapshot']
+                sections_removed.append('snapshot')
 
             # Remove mapping section
             if 'mapping' in data:
