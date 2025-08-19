@@ -280,7 +280,9 @@ jobs:
 
   create-release-branch:
     name: Create Pre-release (Branch)
-    needs: build-minimal
+    needs:
+     - build-minimal
+     - build-full
     runs-on: ubuntu-latest
     permissions: write-all
     if: github.ref != 'refs/heads/main'
