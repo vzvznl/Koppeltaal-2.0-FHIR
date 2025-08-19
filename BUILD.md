@@ -154,7 +154,7 @@ https://github.com/GIDSOpenStandaarden/Koppeltaal-2.0-FHIR/releases/download/v1.
 #### Pre-release URLs
 ```bash
 # Example for test-beta-release branch, run 82
-https://github.com/GIDSOpenStandaarden/Koppeltaal-2.0-FHIR/releases/download/v1.4.5-beta.002-minimal-test-beta-release-82/koppeltaalv2-1.4.5-beta.002-minimal.tgz
+https://github.com/GIDSOpenStandaarden/Koppeltaal-2.0-FHIR/releases/download/v1.4.5-beta.002-minimal-test-beta-release-82/koppeltaalv2-1.4.5-beta.003-minimal.tgz
 ```
 
 ### Artifacts
@@ -203,8 +203,8 @@ Use the **minimal package** for:
 implementationguides:
   kt2:
     name: koppeltaalv2.00  # Must match Simplifier package name
-    version: 1.4.5-beta.002
-    packageUrl: https://github.com/GIDSOpenStandaarden/Koppeltaal-2.0-FHIR/releases/download/v1.4.5-beta.002/koppeltaalv2-1.4.5-beta.002-minimal.tgz
+    version: 1.4.5-beta.003
+    packageUrl: https://github.com/GIDSOpenStandaarden/Koppeltaal-2.0-FHIR/releases/download/v1.4.5-beta.002/koppeltaalv2-1.4.5-beta.003-minimal.tgz
     fetchDependencies: false
     installMode: STORE_AND_INSTALL
 ```
