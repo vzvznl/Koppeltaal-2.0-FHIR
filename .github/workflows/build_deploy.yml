@@ -288,6 +288,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Download full build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: fhir-package-full
+          path: ./full-build
+
       - name: Download minimal build artifacts
         uses: actions/download-artifact@v4
         with:
@@ -311,9 +317,9 @@ jobs:
           prerelease: true
           name: ${{ needs.build-minimal.outputs.version }}-${{ github.ref_name }}
           tag_name: v${{ needs.build-minimal.outputs.version }}-${{ github.ref_name }}-${{ github.run_number }}
-          body_path: ./build/CHANGELOG.md
+          body_path: ./full-build/CHANGELOG.md
           files: |
-            ./build/output/koppeltaalv2-${{ needs.build-minimal.outputs.version }}.tgz
+            ./full-build/output/koppeltaalv2-${{ needs.build-minimal.outputs.version }}.tgz
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
