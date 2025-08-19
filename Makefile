@@ -38,9 +38,16 @@ install-dependencies:
 	@unzip -o nictiz-packages/nictiz.fhir.nl.r4-with-snapshots.zip -d $(HOME)/.fhir/packages/
 	@echo "Nictiz packages installed successfully"
 
+# Generate snapshots for all StructureDefinitions
+.PHONY: generate-snapshots
+generate-snapshots:
+	@echo "Generating snapshots for StructureDefinitions..."
+	@cd fsh-generated/resources && $(FHIR) inflate --here --snapshot --force
+	@echo "Snapshots generated successfully"
+
 # Build Implementation Guide (Full with documentation)
 .PHONY: build-ig
-build-ig:
+build-ig: generate-snapshots
 	@echo "Building Full Implementation Guide with version $(VERSION)..."
 	java -jar /usr/local/publisher.jar -ig ig.ini
 	@if [ ! -f ./output/package.tgz ]; then \
@@ -53,7 +60,7 @@ build-ig:
 
 # Build Implementation Guide (Minimal for servers using original FSH approach)
 # This target creates a minimal FHIR package optimized for FHIR server deployment by:
-# 1. Using SUSHI/IG Publisher to generate resources first
+# 1. Using SUSHI/IG Publisher to generate resources first (includes snapshot generation)
 # 2. Converting IG Publisher output back to package.json using Python script
 # 3. Using Firely CLI pack to create final package (original working approach from commit 13d0e43)
 .PHONY: build-ig-minimal
@@ -140,6 +147,7 @@ help:
 	@echo "  build-minimal - Build minimal package without narratives (for FHIR servers)"
 	@echo "  login    - Login to FHIR registry"
 	@echo "  install-dependencies  - Install FHIR dependencies"
+	@echo "  generate-snapshots - Generate snapshots for all StructureDefinitions"
 	@echo "  build-ig - Build Implementation Guide using FHIR publisher (full)"
 	@echo "  build-ig-minimal - Build Implementation Guide using FHIR publisher (minimal)"
 	@echo "  publish  - Publish package to Simplifier.net (requires login)"
