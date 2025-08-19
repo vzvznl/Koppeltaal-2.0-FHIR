@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Script to strip narratives, --snapshots--, and other large content from FHIR JSON files
+Script to strip narratives and other large content from FHIR JSON files
 This creates minimal packages suitable for HAPI FHIR server deployment
 """
 
@@ -8,9 +8,10 @@ import json
 import os
 import sys
 import glob
+import argparse
 
-def strip_narratives_from_file(file_path):
-    """Remove snapshot, mapping, and text sections from FHIR JSON files"""
+def strip_narratives_from_file(file_path, keep_snapshots=False):
+    """Remove text and optionally snapshot sections from FHIR JSON files"""
     try:
         with open(file_path, 'r') as f:
             data = json.load(f)
@@ -20,8 +21,8 @@ def strip_narratives_from_file(file_path):
         if resource_type == 'StructureDefinition':
             sections_removed = []
 
-            # Remove snapshot section
-            if 'snapshot' in data:
+            # Remove snapshot section only if not keeping snapshots
+            if not keep_snapshots and 'snapshot' in data:
                 del data['snapshot']
                 sections_removed.append('snapshot')
 
@@ -49,6 +50,8 @@ def strip_narratives_from_file(file_path):
 
             if sections_removed:
                 print(f"Removed {', '.join(sections_removed)} from {os.path.basename(file_path)}")
+            elif keep_snapshots:
+                print(f"Kept snapshot in {os.path.basename(file_path)}")
 
             # Write back the stripped file (compact format to save space)
             with open(file_path, 'w') as f:
@@ -114,11 +117,13 @@ def strip_narratives_from_file(file_path):
         return False
 
 def main():
-    if len(sys.argv) != 2:
-        print("Usage: python3 strip_narratives.py <directory>")
-        sys.exit(1)
-
-    directory = sys.argv[1]
+    parser = argparse.ArgumentParser(description='Strip narratives and optionally snapshots from FHIR JSON files')
+    parser.add_argument('directory', help='Directory containing JSON files to process')
+    parser.add_argument('--keep-snapshots', action='store_true', 
+                        help='Keep snapshot sections in StructureDefinitions (removes only text and mappings)')
+    
+    args = parser.parse_args()
+    directory = args.directory
 
     if not os.path.isdir(directory):
         print(f"Error: {directory} is not a directory")
@@ -132,10 +137,12 @@ def main():
         sys.exit(1)
 
     print(f"Processing {len(json_files)} JSON files in {directory}")
+    if args.keep_snapshots:
+        print("Keeping snapshots in StructureDefinitions")
 
     processed = 0
     for file_path in json_files:
-        if strip_narratives_from_file(file_path):
+        if strip_narratives_from_file(file_path, args.keep_snapshots):
             processed += 1
 
     print(f"Successfully processed {processed} FHIR resource files")
