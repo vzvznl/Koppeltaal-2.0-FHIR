@@ -42,24 +42,24 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
+
       - name: Get version
         id: version
         run: |
           VERSION=$(grep '^version:' sushi-config.yaml | sed 's/version: //')
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Version: $VERSION"
-      
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      
+
       - name: Build Docker image
         uses: docker/build-push-action@v6
         with:
           context: .
           load: true
           tags: koppeltaal-builder:latest
-      
+
       - name: Build Full FHIR Package
         env:
           FHIR_EMAIL: ${{ secrets.FHIR_EMAIL }}
@@ -67,7 +67,7 @@ jobs:
         run: |
           # Run the build using the Docker container with full config
           docker run -v ${PWD}:/src -e FHIR_EMAIL=${FHIR_EMAIL} -e FHIR_PASSWORD=${FHIR_PASSWORD} koppeltaal-builder:latest build
-      
+
       - name: Upload full build artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -86,24 +86,24 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
+
       - name: Get version
         id: version
         run: |
           VERSION=$(grep '^version:' sushi-config.yaml | sed 's/version: //')
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Version: $VERSION"
-      
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      
+
       - name: Build Docker image
         uses: docker/build-push-action@v6
         with:
           context: .
           load: true
           tags: koppeltaal-builder:latest
-      
+
       - name: Build Minimal FHIR Package
         env:
           FHIR_EMAIL: ${{ secrets.FHIR_EMAIL }}
@@ -111,7 +111,7 @@ jobs:
         run: |
           # Run the build using the Docker container with minimal config
           docker run -v ${PWD}:/src -e FHIR_EMAIL=${FHIR_EMAIL} -e FHIR_PASSWORD=${FHIR_PASSWORD} koppeltaal-builder:latest build-minimal
-      
+
       - name: Upload minimal build artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -136,12 +136,12 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: fhir-package-full
-      
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: './output'
-      
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
@@ -155,13 +155,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: fhir-package-full
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
           registry-url: 'https://npm.pkg.github.com'
-      
+
       - name: Publish Full Package to GitHub Packages
         run: |
           # Extract the package created by build-ig
@@ -203,13 +203,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: fhir-package-minimal
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
           registry-url: 'https://npm.pkg.github.com'
-      
+
       - name: Publish Minimal Package to GitHub Packages
         run: |
           # Extract the package created by build-ig-minimal
@@ -251,19 +251,19 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
+
       - name: Download full build artifacts
         uses: actions/download-artifact@v4
         with:
           name: fhir-package-full
           path: ./full-build
-      
+
       - name: Download minimal build artifacts
         uses: actions/download-artifact@v4
         with:
           name: fhir-package-minimal
           path: ./minimal-build
-      
+
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
@@ -279,7 +279,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
 
   create-release-branch:
-    name: Create Pre-release (Branch - Minimal Package)
+    name: Create Pre-release (Branch)
     needs: build-minimal
     runs-on: ubuntu-latest
     permissions: write-all
@@ -287,14 +287,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
+
       - name: Download minimal build artifacts
         uses: actions/download-artifact@v4
         with:
           name: fhir-package-minimal
           path: ./minimal-build
-      
-      - name: Create Pre-release (Minimal Package Only)
+
+      - name: Create Pre-release (Minimal Package)
         uses: softprops/action-gh-release@v1
         with:
           draft: false
@@ -304,6 +304,16 @@ jobs:
           body_path: ./minimal-build/CHANGELOG.md
           files: |
             ./minimal-build/output-minimal/koppeltaalv2-${{ needs.build-minimal.outputs.version }}-minimal.tgz
+      - name: Create Pre-release (Full Package)
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: false
+          prerelease: true
+          name: ${{ needs.build-minimal.outputs.version }}-${{ github.ref_name }}
+          tag_name: v${{ needs.build-minimal.outputs.version }}-${{ github.ref_name }}-${{ github.run_number }}
+          body_path: ./build/CHANGELOG.md
+          files: |
+            ./build/output/koppeltaalv2-${{ needs.build-minimal.outputs.version }}.tgz
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
