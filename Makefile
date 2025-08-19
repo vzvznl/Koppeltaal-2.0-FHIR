@@ -40,7 +40,7 @@ install-dependencies:
 
 # Generate snapshots for all StructureDefinitions
 .PHONY: generate-snapshots
-generate-snapshots:
+generate-snapshots: login
 	@echo "Generating snapshots for StructureDefinitions..."
 	@cd fsh-generated/resources && $(FHIR) inflate --here --snapshot --force
 	@echo "Snapshots generated successfully"
