@@ -18,8 +18,6 @@ publisher:
   url: https://vzvz.nl
 
 dependencies:
-  hl7.fhir.uv.extensions.r4:
-    version: 5.1.0
   nictiz.fhir.nl.r4.zib2020:
     version: 0.11.0-beta.1
     uri: http://simplifier.net/packages/nictiz.fhir.nl.r4.zib2020#0.11.0-beta.1
