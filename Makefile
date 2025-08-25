@@ -96,7 +96,7 @@ pack-minimal: login
 	@echo "Creating .index.json..."
 	@cd output-minimal && python3 ../scripts/create_index.py
 	@echo "Creating package tarball..."
-	@cd output-minimal && tar -czf koppeltaal.$(VERSION).tgz package/
+	@cd output-minimal && tar -czf koppeltaalv2.$(VERSION).tgz package/
 	@echo "Verifying minimal package was created..."
 	@if [ ! -f output-minimal/*.tgz ]; then \
 		echo "ERROR: Minimal package creation failed - no .tgz file found"; \
