@@ -43,6 +43,8 @@ install-dependencies:
 build-ig:
 	@echo "Building Full Implementation Guide with version $(VERSION)..."
 	java -jar /usr/local/publisher.jar -ig ig.ini
+	@echo "Fixing extension version references..."
+	@python3 scripts/fix_extension_versions.py output
 	@if [ ! -f ./output/package.tgz ]; then \
 		echo "ERROR: Build did not create ./output/package.tgz"; \
 		exit 1; \
