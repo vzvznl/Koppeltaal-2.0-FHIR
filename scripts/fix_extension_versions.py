@@ -2,31 +2,24 @@
 """
 Fix incorrect extension version references in generated FHIR profiles.
 
-The IG Publisher incorrectly generates snapshots with version 5.2.0 for 
-HL7 FHIR R4 extensions when it should use version 4.0.1.
+The IG Publisher incorrectly generates snapshots with versions for 
+HL7 FHIR R4 extensions. These versions cause resolution errors.
+This script removes version suffixes from extension profile references.
 """
 
 import json
 import sys
 from pathlib import Path
 
-# Map of extensions that should use R4 version
-R4_EXTENSIONS = {
-    "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix": "4.0.1",
-    "http://hl7.org/fhir/StructureDefinition/humanname-own-name": "4.0.1",
-    "http://hl7.org/fhir/StructureDefinition/humanname-partner-prefix": "4.0.1",
-    "http://hl7.org/fhir/StructureDefinition/humanname-partner-name": "4.0.1",
-    "http://hl7.org/fhir/StructureDefinition/humanname-assembly-order": "4.0.1",
-    "http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier": "4.0.1",
-}
-
-def fix_extension_version(profile_url, old_version, new_version):
-    """Fix extension version in a profile URL."""
-    if f"|{old_version}" in profile_url:
-        base_url = profile_url.split("|")[0]
-        if base_url in R4_EXTENSIONS:
-            return f"{base_url}|{R4_EXTENSIONS[base_url]}"
-    return profile_url
+# Extensions that should have versions removed
+EXTENSIONS_TO_FIX = [
+    "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix",
+    "http://hl7.org/fhir/StructureDefinition/humanname-own-name",
+    "http://hl7.org/fhir/StructureDefinition/humanname-partner-prefix",
+    "http://hl7.org/fhir/StructureDefinition/humanname-partner-name",
+    "http://hl7.org/fhir/StructureDefinition/humanname-assembly-order",
+    "http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier",
+]
 
 def process_element(element):
     """Process a single element in the snapshot/differential."""
@@ -39,13 +32,13 @@ def process_element(element):
                 profiles = type_elem["profile"]
                 new_profiles = []
                 for profile in profiles:
-                    # Fix version 5.2.0 references
-                    if "|5.2.0" in profile or "|5.1.0" in profile:
+                    # Remove version from extension profiles
+                    if "|" in profile:
                         base_url = profile.split("|")[0]
-                        if base_url in R4_EXTENSIONS:
-                            new_profile = f"{base_url}|{R4_EXTENSIONS[base_url]}"
-                            print(f"  Fixed: {profile} -> {new_profile}")
-                            new_profiles.append(new_profile)
+                        if base_url in EXTENSIONS_TO_FIX:
+                            # Remove the version suffix entirely
+                            print(f"  Removing version: {profile} -> {base_url}")
+                            new_profiles.append(base_url)
                             modified = True
                         else:
                             new_profiles.append(profile)
