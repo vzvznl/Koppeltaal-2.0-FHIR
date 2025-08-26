@@ -37,6 +37,8 @@ install-dependencies:
 	@mkdir -p $(HOME)/.fhir/packages
 	@unzip -o nictiz-packages/nictiz.fhir.nl.r4-with-snapshots.zip -d $(HOME)/.fhir/packages/
 	@echo "Nictiz packages installed successfully"
+	@echo "Fixing 4.0.x versions in nictiz packages (for Publisher 2.0.15 compatibility)..."
+	@python3 scripts/fix_nictiz_dependencies.py
 
 # Build Implementation Guide (Full with documentation)
 .PHONY: build-ig
@@ -98,7 +100,7 @@ pack-minimal: login
 	@echo "Creating package tarball..."
 	@cd output-minimal && tar -czf koppeltaalv2.$(VERSION).tgz package/
 	@echo "Verifying minimal package was created..."
-	@if [ ! -f output-minimal/*.tgz ]; then \
+	@if ! ls output-minimal/*.tgz >/dev/null 2>&1; then \
 		echo "ERROR: Minimal package creation failed - no .tgz file found"; \
 		exit 1; \
 	fi

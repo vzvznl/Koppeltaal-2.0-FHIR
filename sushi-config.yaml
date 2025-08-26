@@ -18,6 +18,8 @@ publisher:
   url: https://vzvz.nl
 
 dependencies:
+  # Note: hl7.fhir.r4.core dependency is provided by nictiz packages
+  # The fix_nictiz_dependencies.py script fixes the "4.0.x" version issue
   nictiz.fhir.nl.r4.zib2020:
     version: 0.11.0-beta.1
     uri: http://simplifier.net/packages/nictiz.fhir.nl.r4.zib2020#0.11.0-beta.1
