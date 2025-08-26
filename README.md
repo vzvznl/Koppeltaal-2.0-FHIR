@@ -109,8 +109,8 @@ The build process creates two different packages:
 implementationguides:
   kt2:
     name: koppeltaalv2.00  # Must match Simplifier package name
-    version: 1.4.5-beta.006
-    packageUrl: https://github.com/{owner}/Koppeltaal-2.0-FHIR/releases/download/v1.4.5-beta.002/koppeltaalv2-1.4.5-beta.006-minimal.tgz
+    version: 1.4.5-beta.005
+    packageUrl: https://github.com/{owner}/Koppeltaal-2.0-FHIR/releases/download/v1.4.5-beta.002/koppeltaalv2-1.4.5-beta.005-minimal.tgz
     fetchDependencies: false
     installMode: STORE_AND_INSTALL
 ```
@@ -215,7 +215,7 @@ packageUrl: https://github.com/GIDSOpenStandaarden/Koppeltaal-2.0-FHIR/releases/
 packageUrl: https://github.com/{owner}/{repo}/releases/download/v{version}-minimal-{branch}-{run}/koppeltaalv2-{version}-minimal.tgz
 
 # Example (test-beta-release branch, run 82)
-packageUrl: https://github.com/GIDSOpenStandaarden/Koppeltaal-2.0-FHIR/releases/download/v1.4.5-beta.002-minimal-test-beta-release-82/koppeltaalv2-1.4.5-beta.006-minimal.tgz
+packageUrl: https://github.com/GIDSOpenStandaarden/Koppeltaal-2.0-FHIR/releases/download/v1.4.5-beta.002-minimal-test-beta-release-82/koppeltaalv2-1.4.5-beta.005-minimal.tgz
 ```
 
 ### GitHub Packages (NPM)

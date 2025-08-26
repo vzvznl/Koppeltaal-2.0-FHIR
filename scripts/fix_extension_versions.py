@@ -1,25 +1,37 @@
 #!/usr/bin/env python3
 """
-Fix incorrect extension version references in generated FHIR profiles.
+Fix incorrect version references in generated FHIR profiles.
 
-The IG Publisher incorrectly generates snapshots with versions for 
-HL7 FHIR R4 extensions. These versions cause resolution errors.
-This script removes version suffixes from extension profile references.
+The IG Publisher incorrectly generates snapshots with R5 versions for 
+HL7 FHIR R4 resources. These versions cause resolution errors.
+This script removes or fixes version suffixes from HL7 FHIR references.
 """
 
 import json
 import sys
 from pathlib import Path
 
-# Extensions that should have versions removed
-EXTENSIONS_TO_FIX = [
-    "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix",
-    "http://hl7.org/fhir/StructureDefinition/humanname-own-name",
-    "http://hl7.org/fhir/StructureDefinition/humanname-partner-prefix",
-    "http://hl7.org/fhir/StructureDefinition/humanname-partner-name",
-    "http://hl7.org/fhir/StructureDefinition/humanname-assembly-order",
-    "http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier",
-]
+def fix_hl7_reference(reference_url):
+    """Fix HL7 FHIR reference versions."""
+    if "|" in reference_url:
+        base_url = reference_url.split("|")[0]
+        version = reference_url.split("|")[1]
+        
+        # Check if this is an HL7 FHIR resource that should have version removed/fixed
+        if base_url.startswith("http://hl7.org/fhir/"):
+            # For R5 versions (5.x.x), remove version entirely for R4 compatibility
+            if version.startswith("5."):
+                print(f"  Removing R5 version: {reference_url} -> {base_url}")
+                return base_url, True
+            # For explicit 4.0.x versions, keep them
+            elif version.startswith("4.0"):
+                return reference_url, False
+            else:
+                # Remove other problematic versions
+                print(f"  Removing version: {reference_url} -> {base_url}")
+                return base_url, True
+    
+    return reference_url, False
 
 def process_element(element):
     """Process a single element in the snapshot/differential."""
@@ -32,19 +44,19 @@ def process_element(element):
                 profiles = type_elem["profile"]
                 new_profiles = []
                 for profile in profiles:
-                    # Remove version from extension profiles
-                    if "|" in profile:
-                        base_url = profile.split("|")[0]
-                        if base_url in EXTENSIONS_TO_FIX:
-                            # Remove the version suffix entirely
-                            print(f"  Removing version: {profile} -> {base_url}")
-                            new_profiles.append(base_url)
-                            modified = True
-                        else:
-                            new_profiles.append(profile)
-                    else:
-                        new_profiles.append(profile)
+                    fixed_profile, was_fixed = fix_hl7_reference(profile)
+                    new_profiles.append(fixed_profile)
+                    if was_fixed:
+                        modified = True
                 type_elem["profile"] = new_profiles
+    
+    # Check binding.valueSet references
+    if "binding" in element and "valueSet" in element["binding"]:
+        valueset = element["binding"]["valueSet"]
+        fixed_valueset, was_fixed = fix_hl7_reference(valueset)
+        if was_fixed:
+            element["binding"]["valueSet"] = fixed_valueset
+            modified = True
     
     return modified
 
