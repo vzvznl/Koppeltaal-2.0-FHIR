@@ -26,6 +26,21 @@ on:
         required: false
         type: boolean
         default: false
+      run_validation:
+        description: 'Run validation tests with Newman'
+        required: false
+        type: boolean
+        default: true
+      fhir_server_url:
+        description: 'Override FHIR server URL for validation (optional)'
+        required: false
+        type: string
+        default: ''
+      skip_generation:
+        description: 'Skip generation and only run validation'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -34,6 +49,7 @@ jobs:
   generate-test-suite:
     name: Generate Koppeltaal 2.0 Test Suite
     runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.skip_generation != 'true' }}
     
     steps:
       - name: Checkout repository
@@ -117,19 +133,44 @@ jobs:
   validate-test-suite:
     name: Validate Test Suite with Newman
     runs-on: ubuntu-latest
-    needs: generate-test-suite
-    if: success()
+    needs: [generate-test-suite]
+    if: |
+      always() && 
+      (needs.generate-test-suite.result == 'success' || needs.generate-test-suite.result == 'skipped') &&
+      github.event.inputs.run_validation != 'false'
     
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         
-      - name: Download Postman collection artifact
+      - name: Setup Python (if generation was skipped)
+        if: needs.generate-test-suite.result == 'skipped'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          
+      - name: Generate resources locally (if generation was skipped)
+        if: needs.generate-test-suite.result == 'skipped'
+        run: |
+          echo "🧪 Generating test resources locally..."
+          python scripts/generate_test_resources.py
+          
+          echo "📮 Generating Postman collection..."
+          DELAY="${{ github.event.inputs.request_delay || 500 }}"
+          AUTH_FLAG=""
+          if [ "${{ github.event.inputs.include_auth }}" = "true" ]; then
+            AUTH_FLAG="--include-auth"
+          fi
+          python scripts/generate_postman_collection.py --delay "$DELAY" $AUTH_FLAG
+          
+      - name: Download Postman collection artifact (if available)
+        if: needs.generate-test-suite.result == 'success'
         uses: actions/download-artifact@v4
         with:
           name: postman-collection
           
-      - name: Download test resources artifact
+      - name: Download test resources artifact (if available)
+        if: needs.generate-test-suite.result == 'success'
         uses: actions/download-artifact@v4
         with:
           name: koppeltaal-test-resources
@@ -158,11 +199,18 @@ jobs:
       - name: Check if FHIR server is configured
         id: check-server
         env:
-          FHIR_SERVER: ${{ secrets.TEST_FHIR_SERVER_URL }}
+          FHIR_SERVER_OVERRIDE: ${{ github.event.inputs.fhir_server_url }}
+          FHIR_SERVER_SECRET: ${{ secrets.TEST_FHIR_SERVER_URL }}
         run: |
-          if [ -n "$FHIR_SERVER" ]; then
+          # Use override URL if provided, otherwise use secret
+          if [ -n "$FHIR_SERVER_OVERRIDE" ]; then
+            echo "server_url=$FHIR_SERVER_OVERRIDE" >> $GITHUB_OUTPUT
             echo "has_server=true" >> $GITHUB_OUTPUT
-            echo "✅ FHIR server is configured"
+            echo "✅ Using override FHIR server: $FHIR_SERVER_OVERRIDE"
+          elif [ -n "$FHIR_SERVER_SECRET" ]; then
+            echo "server_url=$FHIR_SERVER_SECRET" >> $GITHUB_OUTPUT
+            echo "has_server=true" >> $GITHUB_OUTPUT
+            echo "✅ Using secret FHIR server"
           else
             echo "has_server=false" >> $GITHUB_OUTPUT
             echo "⚠️ No FHIR server configured - skipping Newman tests"
@@ -171,12 +219,10 @@ jobs:
       - name: Run Newman tests (if server configured)
         if: steps.check-server.outputs.has_server == 'true'
         continue-on-error: true
-        env:
-          FHIR_SERVER: ${{ secrets.TEST_FHIR_SERVER_URL }}
         run: |
           echo "🧪 Running Newman tests..."
           newman run koppeltaal-tests.postman_collection.json \
-            --env-var "fhir_base_url=$FHIR_SERVER" \
+            --env-var "fhir_base_url=${{ steps.check-server.outputs.server_url }}" \
             --reporters cli,json \
             --reporter-json-export newman-results.json \
             --bail
@@ -199,6 +245,11 @@ jobs:
           # Add test results if Newman ran
           if [ -f newman-results.json ]; then
             echo "### 🧪 Test Results" >> $GITHUB_STEP_SUMMARY
+            if [ -n "${{ github.event.inputs.fhir_server_url }}" ]; then
+              echo "**Server:** ${{ github.event.inputs.fhir_server_url }} (override)" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "**Server:** Configured via secret" >> $GITHUB_STEP_SUMMARY
+            fi
             TOTAL=$(jq '.run.stats.assertions.total' newman-results.json)
             FAILED=$(jq '.run.stats.assertions.failed' newman-results.json)
             if [ "$FAILED" -eq 0 ]; then
