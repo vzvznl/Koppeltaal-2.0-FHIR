@@ -26,6 +26,8 @@ on:
 
 permissions:
   contents: read
+  checks: write
+  pull-requests: write
   
 jobs:
   run-fhir-tests:
@@ -124,6 +126,7 @@ jobs:
             
       - name: Parse test results
         if: always()
+        id: test-results
         run: |
           if [ -f newman-results.json ]; then
             echo "📊 Test Results Summary:"
@@ -138,6 +141,11 @@ jobs:
             echo "Passed: $PASSED"
             echo "Failed: $FAILED"
             
+            # Set outputs for summary
+            echo "total=$TOTAL" >> $GITHUB_OUTPUT
+            echo "passed=$PASSED" >> $GITHUB_OUTPUT
+            echo "failed=$FAILED" >> $GITHUB_OUTPUT
+            
             # List failed tests if any
             if [ "$FAILED" -gt 0 ]; then
               echo ""
@@ -146,6 +154,9 @@ jobs:
             fi
           else
             echo "⚠️ No test results file found"
+            echo "total=0" >> $GITHUB_OUTPUT
+            echo "passed=0" >> $GITHUB_OUTPUT
+            echo "failed=0" >> $GITHUB_OUTPUT
           fi
           
       - name: Upload test results
@@ -168,13 +179,15 @@ jobs:
           retention-days: 30
           
       - name: Publish test results
-        if: always()
+        if: always() && github.actor != 'dependabot[bot]'
         uses: dorny/test-reporter@v1
+        continue-on-error: true
         with:
           name: Newman Test Results
           path: newman-junit.xml
           reporter: java-junit
           fail-on-error: false
+          only-summary: false
           
       - name: Create summary
         if: always()
@@ -188,21 +201,18 @@ jobs:
           echo "- **Test filter:** ${{ github.event.inputs.test_filter || 'All resources' }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
-          if [ -f newman-results.json ]; then
-            TOTAL=$(jq '.run.stats.assertions.total' newman-results.json)
-            PASSED=$(jq '.run.stats.assertions.pending' newman-results.json)
-            FAILED=$(jq '.run.stats.assertions.failed' newman-results.json)
-            DURATION=$(jq '.run.timings.completed - .run.timings.started' newman-results.json)
+          if [ "${{ steps.test-results.outputs.total }}" != "0" ]; then
+            DURATION=$(jq '.run.timings.completed - .run.timings.started' newman-results.json 2>/dev/null || echo "N/A")
             
             echo "### 📊 Results" >> $GITHUB_STEP_SUMMARY
             echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
             echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
-            echo "| Total Tests | $TOTAL |" >> $GITHUB_STEP_SUMMARY
-            echo "| ✅ Passed | $PASSED |" >> $GITHUB_STEP_SUMMARY
-            echo "| ❌ Failed | $FAILED |" >> $GITHUB_STEP_SUMMARY
+            echo "| Total Tests | ${{ steps.test-results.outputs.total }} |" >> $GITHUB_STEP_SUMMARY
+            echo "| ✅ Passed | ${{ steps.test-results.outputs.passed }} |" >> $GITHUB_STEP_SUMMARY
+            echo "| ❌ Failed | ${{ steps.test-results.outputs.failed }} |" >> $GITHUB_STEP_SUMMARY
             echo "| ⏱️ Duration | ${DURATION}ms |" >> $GITHUB_STEP_SUMMARY
             
-            if [ "$FAILED" -gt 0 ]; then
+            if [ "${{ steps.test-results.outputs.failed }}" -gt "0" ]; then
               echo "" >> $GITHUB_STEP_SUMMARY
               echo "### ❌ Failed Tests" >> $GITHUB_STEP_SUMMARY
               jq -r '.run.failures[] | "- **\(.source.name)**: \(.error.message)"' newman-results.json 2>/dev/null >> $GITHUB_STEP_SUMMARY || echo "No failure details available" >> $GITHUB_STEP_SUMMARY
