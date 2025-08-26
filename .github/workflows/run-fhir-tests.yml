@@ -5,9 +5,10 @@ on:
   workflow_dispatch:
     inputs:
       fhir_server_url:
-        description: 'FHIR Server Base URL (e.g., https://server.fire.ly/r4)'
-        required: true
+        description: 'FHIR Server Base URL (leave empty to use TEST_FHIR_SERVER_URL secret)'
+        required: false
         type: string
+        default: ''
       auth_token:
         description: 'Bearer token for authentication (optional)'
         required: false
@@ -65,6 +66,17 @@ jobs:
           fi
           python scripts/generate_postman_collection.py $AUTH_FLAG
           
+      - name: Set FHIR server URL
+        id: set-url
+        run: |
+          if [ -n "${{ github.event.inputs.fhir_server_url }}" ]; then
+            echo "FHIR_URL=${{ github.event.inputs.fhir_server_url }}" >> $GITHUB_OUTPUT
+            echo "Using provided FHIR server URL: ${{ github.event.inputs.fhir_server_url }}"
+          else
+            echo "FHIR_URL=${{ secrets.TEST_FHIR_SERVER_URL }}" >> $GITHUB_OUTPUT
+            echo "Using TEST_FHIR_SERVER_URL secret"
+          fi
+          
       - name: Prepare environment file
         run: |
           cat > postman-env.json <<EOF
@@ -73,7 +85,7 @@ jobs:
             "values": [
               {
                 "key": "fhir_base_url",
-                "value": "${{ github.event.inputs.fhir_server_url }}",
+                "value": "${{ steps.set-url.outputs.FHIR_URL }}",
                 "enabled": true
               },
               {
@@ -170,7 +182,7 @@ jobs:
           echo "## 🧪 FHIR Test Execution Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 🔧 Configuration" >> $GITHUB_STEP_SUMMARY
-          echo "- **FHIR Server:** ${{ github.event.inputs.fhir_server_url }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **FHIR Server:** ${{ steps.set-url.outputs.FHIR_URL }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Authentication:** ${{ github.event.inputs.auth_token && 'Enabled' || 'Disabled' }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Stop on failure:** ${{ github.event.inputs.stop_on_failure }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Test filter:** ${{ github.event.inputs.test_filter || 'All resources' }}" >> $GITHUB_STEP_SUMMARY

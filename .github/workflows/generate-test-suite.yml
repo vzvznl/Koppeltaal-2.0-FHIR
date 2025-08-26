@@ -155,15 +155,16 @@ jobs:
           
           echo "Collection validation passed!"
           
-      - name: Run Newman tests (dry run)
-        if: false  # Disabled by default as it requires a FHIR server
+      - name: Run Newman tests (if server configured)
+        if: ${{ secrets.TEST_FHIR_SERVER_URL != '' }}
+        continue-on-error: true
         run: |
-          echo "🧪 Running Newman tests..."
-          # This would run against a test FHIR server if available
-          # newman run koppeltaal-tests.postman_collection.json \
-          #   --env-var "fhir_base_url=${{ secrets.TEST_FHIR_SERVER_URL }}" \
-          #   --reporters cli,json \
-          #   --reporter-json-export newman-results.json
+          echo "🧪 Running Newman tests against ${{ secrets.TEST_FHIR_SERVER_URL }}..."
+          newman run koppeltaal-tests.postman_collection.json \
+            --env-var "fhir_base_url=${{ secrets.TEST_FHIR_SERVER_URL }}" \
+            --reporters cli,json \
+            --reporter-json-export newman-results.json \
+            --bail
           
       - name: Create summary
         run: |
@@ -179,6 +180,20 @@ jobs:
           echo "- Request delay: ${{ github.event.inputs.request_delay || 500 }}ms" >> $GITHUB_STEP_SUMMARY
           echo "- Authentication: ${{ github.event.inputs.include_auth || false }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Add test results if Newman ran
+          if [ -f newman-results.json ]; then
+            echo "### 🧪 Test Results" >> $GITHUB_STEP_SUMMARY
+            TOTAL=$(jq '.run.stats.assertions.total' newman-results.json)
+            FAILED=$(jq '.run.stats.assertions.failed' newman-results.json)
+            if [ "$FAILED" -eq 0 ]; then
+              echo "✅ All $TOTAL tests passed!" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "⚠️ $FAILED out of $TOTAL tests failed" >> $GITHUB_STEP_SUMMARY
+            fi
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
+          
           echo "### 📥 Downloads" >> $GITHUB_STEP_SUMMARY
           echo "- [Postman Collection](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
           echo "- [Test Resources](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
