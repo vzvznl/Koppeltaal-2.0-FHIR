@@ -34,8 +34,8 @@ concurrency:
 
 
 jobs:
-  build-full:
-    name: Build FHIR Package (Full with Documentation)
+  build:
+    name: Build FHIR Packages (Full and Minimal)
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
@@ -60,13 +60,13 @@ jobs:
           load: true
           tags: koppeltaal-builder:latest
 
-      - name: Build Full FHIR Package
+      - name: Build FHIR Packages
         env:
           FHIR_EMAIL: ${{ secrets.FHIR_EMAIL }}
           FHIR_PASSWORD: ${{ secrets.FHIR_PASSWORD }}
         run: |
-          # Run the build using the Docker container with full config
-          docker run -v ${PWD}:/src -e FHIR_EMAIL=${FHIR_EMAIL} -e FHIR_PASSWORD=${FHIR_PASSWORD} koppeltaal-builder:latest build
+          # Run build-minimal which produces both full (./output) and minimal (./output-minimal) packages
+          docker run -v ${PWD}:/src -e FHIR_EMAIL=${FHIR_EMAIL} -e FHIR_PASSWORD=${FHIR_PASSWORD} koppeltaal-builder:latest build-minimal
 
       - name: Upload full build artifacts
         uses: actions/upload-artifact@v4
@@ -77,40 +77,6 @@ jobs:
             ./sushi-config.yaml
             ./CHANGELOG.md
           retention-days: 7
-
-  build-minimal:
-    name: Build FHIR Package (Minimal for Servers)
-    runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.version.outputs.version }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Get version
-        id: version
-        run: |
-          VERSION=$(grep '^version:' sushi-config.yaml | sed 's/version: //')
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "Version: $VERSION"
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build Docker image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          load: true
-          tags: koppeltaal-builder:latest
-
-      - name: Build Minimal FHIR Package
-        env:
-          FHIR_EMAIL: ${{ secrets.FHIR_EMAIL }}
-          FHIR_PASSWORD: ${{ secrets.FHIR_PASSWORD }}
-        run: |
-          # Run the build using the Docker container with minimal config
-          docker run -v ${PWD}:/src -e FHIR_EMAIL=${FHIR_EMAIL} -e FHIR_PASSWORD=${FHIR_PASSWORD} koppeltaal-builder:latest build-minimal
 
       - name: Upload minimal build artifacts
         uses: actions/upload-artifact@v4
@@ -124,7 +90,7 @@ jobs:
 
   deploy-pages:
     name: Deploy to GitHub Pages
-    needs: build-full
+    needs: build
     runs-on: ubuntu-latest
     permissions: write-all
     if: github.ref == 'refs/heads/main'
@@ -148,7 +114,7 @@ jobs:
 
   publish-npm-full:
     name: Publish Full Package to GitHub Packages
-    needs: build-full
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Download full build artifacts
@@ -173,7 +139,7 @@ jobs:
           REPO_OWNER=$(echo "${{ github.repository }}" | cut -d'/' -f1)
           
           # Calculate the publish version
-          PUBLISH_VERSION="${{ needs.build-full.outputs.version }}"
+          PUBLISH_VERSION="${{ needs.build.outputs.version }}"
           # For non-main branches, append the branch name and short commit hash to make version unique
           if [ "${{ github.ref_name }}" != "main" ]; then
             # Sanitize branch name for npm version (replace / with -, remove special chars)
@@ -196,7 +162,7 @@ jobs:
 
   publish-npm-minimal:
     name: Publish Minimal Package to GitHub Packages
-    needs: build-minimal
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Download minimal build artifacts
@@ -221,7 +187,7 @@ jobs:
           REPO_OWNER=$(echo "${{ github.repository }}" | cut -d'/' -f1)
           
           # Calculate the publish version
-          PUBLISH_VERSION="${{ needs.build-minimal.outputs.version }}-minimal"
+          PUBLISH_VERSION="${{ needs.build.outputs.version }}-minimal"
           # For non-main branches, append the branch name and short commit hash to make version unique
           if [ "${{ github.ref_name }}" != "main" ]; then
             # Sanitize branch name for npm version (replace / with -, remove special chars)
@@ -244,7 +210,7 @@ jobs:
 
   create-release-main:
     name: Create Release (Main)
-    needs: [build-full, build-minimal]
+    needs: build
     runs-on: ubuntu-latest
     permissions: write-all
     if: github.ref == 'refs/heads/main'
@@ -269,20 +235,18 @@ jobs:
         with:
           draft: false
           prerelease: false
-          name: ${{ needs.build-full.outputs.version }}
-          tag_name: v${{ needs.build-full.outputs.version }}
+          name: ${{ needs.build.outputs.version }}
+          tag_name: v${{ needs.build.outputs.version }}
           body_path: ./full-build/CHANGELOG.md
           files: |
-            ./full-build/output/koppeltaalv2-${{ needs.build-full.outputs.version }}.tgz
-            ./minimal-build/output-minimal/koppeltaalv2-${{ needs.build-minimal.outputs.version }}-minimal.tgz
+            ./full-build/output/koppeltaalv2-${{ needs.build.outputs.version }}.tgz
+            ./minimal-build/output-minimal/koppeltaalv2-${{ needs.build.outputs.version }}-minimal.tgz
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
   create-release-branch:
     name: Create Pre-release (Branch)
-    needs:
-     - build-minimal
-     - build-full
+    needs: build
     runs-on: ubuntu-latest
     permissions: write-all
     if: github.ref != 'refs/heads/main'
@@ -307,27 +271,27 @@ jobs:
         with:
           draft: false
           prerelease: true
-          name: ${{ needs.build-minimal.outputs.version }}-minimal-${{ github.ref_name }}
-          tag_name: v${{ needs.build-minimal.outputs.version }}-minimal-${{ github.ref_name }}-${{ github.run_number }}
+          name: ${{ needs.build.outputs.version }}-minimal-${{ github.ref_name }}
+          tag_name: v${{ needs.build.outputs.version }}-minimal-${{ github.ref_name }}-${{ github.run_number }}
           body_path: ./minimal-build/CHANGELOG.md
           files: |
-            ./minimal-build/output-minimal/koppeltaalv2-${{ needs.build-minimal.outputs.version }}-minimal.tgz
+            ./minimal-build/output-minimal/koppeltaalv2-${{ needs.build.outputs.version }}-minimal.tgz
       - name: Create Pre-release (Full Package)
         uses: softprops/action-gh-release@v1
         with:
           draft: false
           prerelease: true
-          name: ${{ needs.build-minimal.outputs.version }}-${{ github.ref_name }}
-          tag_name: v${{ needs.build-minimal.outputs.version }}-${{ github.ref_name }}-${{ github.run_number }}
+          name: ${{ needs.build.outputs.version }}-${{ github.ref_name }}
+          tag_name: v${{ needs.build.outputs.version }}-${{ github.ref_name }}-${{ github.run_number }}
           body_path: ./full-build/CHANGELOG.md
           files: |
-            ./full-build/output/koppeltaalv2-${{ needs.build-minimal.outputs.version }}.tgz
+            ./full-build/output/koppeltaalv2-${{ needs.build.outputs.version }}.tgz
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
   publish-simplifier:
     name: Publish to Simplifier.net
-    needs: build-full
+    needs: build
     runs-on: ubuntu-latest
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.publish_to_simplifier == 'true'
     steps:
