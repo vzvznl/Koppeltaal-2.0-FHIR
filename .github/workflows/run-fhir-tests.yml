@@ -1,0 +1,226 @@
+name: Run FHIR Tests with Newman
+
+on:
+  # Manual trigger only - requires FHIR server URL
+  workflow_dispatch:
+    inputs:
+      fhir_server_url:
+        description: 'FHIR Server Base URL (leave empty to use TEST_FHIR_SERVER_URL secret)'
+        required: false
+        type: string
+        default: ''
+      auth_token:
+        description: 'Bearer token for authentication (optional)'
+        required: false
+        type: string
+      stop_on_failure:
+        description: 'Stop on first test failure'
+        required: false
+        type: boolean
+        default: false
+      test_filter:
+        description: 'Filter tests by resource type (e.g., Patient, Organization)'
+        required: false
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+  
+jobs:
+  run-fhir-tests:
+    name: Execute FHIR Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          
+      - name: Install Newman and reporters
+        run: |
+          npm install -g newman
+          npm install -g newman-reporter-htmlextra
+          npm install -g newman-reporter-junitfull
+          
+      - name: Generate fresh test resources
+        run: |
+          echo "🧪 Generating test resources..."
+          python scripts/generate_test_resources.py
+          
+      - name: Generate Postman collection
+        run: |
+          echo "📮 Generating Postman collection..."
+          AUTH_FLAG=""
+          if [ -n "${{ github.event.inputs.auth_token }}" ]; then
+            AUTH_FLAG="--include-auth"
+          fi
+          python scripts/generate_postman_collection.py $AUTH_FLAG
+          
+      - name: Set FHIR server URL
+        id: set-url
+        run: |
+          if [ -n "${{ github.event.inputs.fhir_server_url }}" ]; then
+            echo "FHIR_URL=${{ github.event.inputs.fhir_server_url }}" >> $GITHUB_OUTPUT
+            echo "Using provided FHIR server URL: ${{ github.event.inputs.fhir_server_url }}"
+          else
+            echo "FHIR_URL=${{ secrets.TEST_FHIR_SERVER_URL }}" >> $GITHUB_OUTPUT
+            echo "Using TEST_FHIR_SERVER_URL secret"
+          fi
+          
+      - name: Prepare environment file
+        run: |
+          cat > postman-env.json <<EOF
+          {
+            "name": "FHIR Test Environment",
+            "values": [
+              {
+                "key": "fhir_base_url",
+                "value": "${{ steps.set-url.outputs.FHIR_URL }}",
+                "enabled": true
+              },
+              {
+                "key": "access_token",
+                "value": "${{ github.event.inputs.auth_token }}",
+                "enabled": true
+              }
+            ]
+          }
+          EOF
+          
+      - name: Run Newman tests
+        id: newman
+        continue-on-error: true
+        run: |
+          BAIL_FLAG=""
+          if [ "${{ github.event.inputs.stop_on_failure }}" = "true" ]; then
+            BAIL_FLAG="--bail"
+          fi
+          
+          FOLDER_FLAG=""
+          if [ -n "${{ github.event.inputs.test_filter }}" ]; then
+            FOLDER_FLAG="--folder ${{ github.event.inputs.test_filter }}"
+          fi
+          
+          newman run koppeltaal-tests.postman_collection.json \
+            --environment postman-env.json \
+            --reporters cli,json,htmlextra,junitfull \
+            --reporter-json-export newman-results.json \
+            --reporter-htmlextra-export newman-report.html \
+            --reporter-junitfull-export newman-junit.xml \
+            --color on \
+            --verbose \
+            $BAIL_FLAG \
+            $FOLDER_FLAG
+            
+      - name: Parse test results
+        if: always()
+        run: |
+          if [ -f newman-results.json ]; then
+            echo "📊 Test Results Summary:"
+            echo "========================"
+            
+            # Extract statistics
+            TOTAL=$(jq '.run.stats.assertions.total' newman-results.json)
+            PASSED=$(jq '.run.stats.assertions.pending' newman-results.json)
+            FAILED=$(jq '.run.stats.assertions.failed' newman-results.json)
+            
+            echo "Total assertions: $TOTAL"
+            echo "Passed: $PASSED"
+            echo "Failed: $FAILED"
+            
+            # List failed tests if any
+            if [ "$FAILED" -gt 0 ]; then
+              echo ""
+              echo "❌ Failed assertions:"
+              jq -r '.run.failures[] | "- \(.source.name): \(.error.message)"' newman-results.json 2>/dev/null || echo "No failure details available"
+            fi
+          else
+            echo "⚠️ No test results file found"
+          fi
+          
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: newman-test-results
+          path: |
+            newman-results.json
+            newman-report.html
+            newman-junit.xml
+          retention-days: 30
+          
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: newman-html-report
+          path: newman-report.html
+          retention-days: 30
+          
+      - name: Publish test results
+        if: always()
+        uses: dorny/test-reporter@v1
+        with:
+          name: Newman Test Results
+          path: newman-junit.xml
+          reporter: java-junit
+          fail-on-error: false
+          
+      - name: Create summary
+        if: always()
+        run: |
+          echo "## 🧪 FHIR Test Execution Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔧 Configuration" >> $GITHUB_STEP_SUMMARY
+          echo "- **FHIR Server:** ${{ steps.set-url.outputs.FHIR_URL }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Authentication:** ${{ github.event.inputs.auth_token && 'Enabled' || 'Disabled' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Stop on failure:** ${{ github.event.inputs.stop_on_failure }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Test filter:** ${{ github.event.inputs.test_filter || 'All resources' }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ -f newman-results.json ]; then
+            TOTAL=$(jq '.run.stats.assertions.total' newman-results.json)
+            PASSED=$(jq '.run.stats.assertions.pending' newman-results.json)
+            FAILED=$(jq '.run.stats.assertions.failed' newman-results.json)
+            DURATION=$(jq '.run.timings.completed - .run.timings.started' newman-results.json)
+            
+            echo "### 📊 Results" >> $GITHUB_STEP_SUMMARY
+            echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
+            echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+            echo "| Total Tests | $TOTAL |" >> $GITHUB_STEP_SUMMARY
+            echo "| ✅ Passed | $PASSED |" >> $GITHUB_STEP_SUMMARY
+            echo "| ❌ Failed | $FAILED |" >> $GITHUB_STEP_SUMMARY
+            echo "| ⏱️ Duration | ${DURATION}ms |" >> $GITHUB_STEP_SUMMARY
+            
+            if [ "$FAILED" -gt 0 ]; then
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "### ❌ Failed Tests" >> $GITHUB_STEP_SUMMARY
+              jq -r '.run.failures[] | "- **\(.source.name)**: \(.error.message)"' newman-results.json 2>/dev/null >> $GITHUB_STEP_SUMMARY || echo "No failure details available" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "### ⚠️ Test Execution Failed" >> $GITHUB_STEP_SUMMARY
+            echo "No test results were generated. Check the logs for errors." >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📥 Artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "- [Download HTML Report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
+          echo "- [Download Full Results](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
+          
+      - name: Set job status
+        if: always()
+        run: |
+          if [ "${{ steps.newman.outcome }}" = "failure" ]; then
+            echo "❌ Tests failed"
+            exit 1
+          fi
