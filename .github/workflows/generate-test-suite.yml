@@ -155,13 +155,28 @@ jobs:
           
           echo "Collection validation passed!"
           
-      - name: Run Newman tests (if server configured)
-        if: ${{ secrets.TEST_FHIR_SERVER_URL != '' }}
-        continue-on-error: true
+      - name: Check if FHIR server is configured
+        id: check-server
+        env:
+          FHIR_SERVER: ${{ secrets.TEST_FHIR_SERVER_URL }}
         run: |
-          echo "🧪 Running Newman tests against ${{ secrets.TEST_FHIR_SERVER_URL }}..."
+          if [ -n "$FHIR_SERVER" ]; then
+            echo "has_server=true" >> $GITHUB_OUTPUT
+            echo "✅ FHIR server is configured"
+          else
+            echo "has_server=false" >> $GITHUB_OUTPUT
+            echo "⚠️ No FHIR server configured - skipping Newman tests"
+          fi
+          
+      - name: Run Newman tests (if server configured)
+        if: steps.check-server.outputs.has_server == 'true'
+        continue-on-error: true
+        env:
+          FHIR_SERVER: ${{ secrets.TEST_FHIR_SERVER_URL }}
+        run: |
+          echo "🧪 Running Newman tests..."
           newman run koppeltaal-tests.postman_collection.json \
-            --env-var "fhir_base_url=${{ secrets.TEST_FHIR_SERVER_URL }}" \
+            --env-var "fhir_base_url=$FHIR_SERVER" \
             --reporters cli,json \
             --reporter-json-export newman-results.json \
             --bail
