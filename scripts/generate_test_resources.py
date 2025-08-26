@@ -642,25 +642,44 @@ class TestResourceGenerator:
         related_person["birthDate"] = f"{birth_year:04d}-{birth_month:02d}-{birth_day:02d}"
         
         # relationship - required (1..*) - should have two elements per the example
-        # First: personal relationship (v3-RoleCode)
+        # First: personal relationship (v3-RoleCode) - using Dutch ZIB2020 ValueSet
         personal_relationship_options = [
-            ("MTH", "mother"),
-            ("FTH", "father"),
-            ("DAUC", "daughter"),
-            ("SONC", "son"),
-            ("SIB", "sibling"),
-            ("DOMPART", "domestic partner"),
-            ("FRND", "friend"),
-            ("NBOR", "neighbor")
+            ("MTH", "Mother"),  # Moeder
+            ("FTH", "Father"),  # Vader
+            ("DAUC", "Daughter"),  # Dochter
+            ("SONC", "Son"),  # Zoon
+            ("BRO", "Brother"),  # Broer
+            ("SIS", "Sister"),  # Zuster
+            ("DOMPART", "Domestic partner"),  # Partner
+            ("HUSB", "Husband"),  # Echtgenoot
+            ("WIFE", "Wife"),  # Echtgenote
+            ("AUNT", "Aunt"),  # Tante
+            ("UNCLE", "Uncle"),  # Oom
+            ("NEPHEW", "Nephew"),  # Neef
+            ("NIECE", "Niece"),  # Nicht
+            ("GRFTH", "Grandfather"),  # Opa
+            ("GRMTH", "Grandmother"),  # Oma
         ]
         personal_code, personal_display = random.choice(personal_relationship_options)
         
-        # Second: professional role (Dutch support roles)
+        # Second: professional role (Dutch support roles) - COD472_VEKT_Soort_relatie_client
         professional_role_options = [
+            ("01", "Eerste relatie/contactpersoon"),
+            ("02", "Tweede relatie/contactpersoon"),
+            ("03", "Curator (juridisch)"),
+            ("04", "Financieel (gemachtigd)"),
+            ("05", "Financieel (toetsing)"),
+            ("06", "Leefeenheid"),
+            ("07", "Hulpverlener"),
+            ("09", "Anders"),
+            ("11", "Voogd"),
+            ("14", "Bewindvoerder"),
+            ("15", "Mentor"),
+            ("19", "Buur"),
+            ("20", "Vriend(in)/kennis"),
             ("21", "Cliëntondersteuner"),
-            ("22", "Mantelzorger"),
-            ("23", "Vrijwilliger"),
-            ("24", "Professionele ondersteuner")
+            ("23", "Contactpersoon"),
+            ("24", "Wettelijke vertegenwoordiger")
         ]
         prof_code, prof_display = random.choice(professional_role_options)
         
