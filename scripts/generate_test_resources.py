@@ -157,7 +157,7 @@ class TestResourceGenerator:
                     "url": "http://hl7.org/fhir/StructureDefinition/humanname-own-name",
                     "valueString": family_base
                 })
-            
+
             # Add _given extension when include_extensions is True
             if include_extensions:
                 name["_given"] = [{
@@ -470,6 +470,88 @@ class TestResourceGenerator:
 
         return task
 
+    def generate_endpoint(self, variant="minimal"):
+        """Generate Endpoint resource."""
+        endpoint = {
+            "resourceType": "Endpoint",
+            "meta": {
+                "profile": ["http://koppeltaal.nl/fhir/StructureDefinition/KT2Endpoint"]
+            },
+            "status": "active",
+            "connectionType": {
+              "code": "hti-smart-on-fhir",
+              "system": "http://vzvz.nl/fhir/CodeSystem/koppeltaal-endpoint-connection-type"
+            },
+            "payloadType": [{
+                "coding": [{
+                    "system": "http://terminology.hl7.org/CodeSystem/endpoint-payload-type",
+                    "code": "any"
+                }]
+            }]
+        }
+
+        if variant == "minimal":
+            # Required fields: status, connectionType, payloadType, address, managingOrganization
+            # Note: name is NOT required
+            endpoint["address"] = f"https://example.org/fhir/endpoint/{uuid.uuid4().hex[:8]}"
+            endpoint["managingOrganization"] = {
+                "reference": "Organization/org-test-001"
+            }
+
+        elif variant == "maximal":
+            # Include optional fields
+            endpoint["identifier"] = [{
+                "system": "http://example.org/endpoints",
+                "value": f"EP-{uuid.uuid4().hex[:8].upper()}"
+            }]
+            endpoint["name"] = "Test Endpoint - Full"  # Optional field
+            endpoint["address"] = f"https://example.org/fhir/endpoint/{uuid.uuid4().hex[:8]}"
+            endpoint["managingOrganization"] = {
+                "reference": "Organization/org-test-001",
+                "display": "Test Zorgorganisatie"
+            }
+            endpoint["header"] = [
+                "Authorization: Bearer {{access_token}}",
+                "X-Api-Key: {{api_key}}"
+            ]
+
+        elif variant == "invalid-missing-status":
+            # Missing required status field
+            del endpoint["status"]
+            endpoint["address"] = f"https://example.org/fhir/endpoint/{uuid.uuid4().hex[:8]}"
+            endpoint["managingOrganization"] = {
+                "reference": "Organization/org-test-001"
+            }
+
+        elif variant == "invalid-missing-payloadtype":
+            # Missing required payloadType field
+            del endpoint["payloadType"]
+            endpoint["address"] = f"https://example.org/fhir/endpoint/{uuid.uuid4().hex[:8]}"
+            endpoint["managingOrganization"] = {
+                "reference": "Organization/org-test-001"
+            }
+
+        elif variant == "invalid-wrong-connectiontype":
+            # Wrong connectionType (must be hti-smart-on-fhir)
+            endpoint["connectionType"] = {
+                "system": "http://terminology.hl7.org/CodeSystem/http-verb",
+                "code": "GET",
+                "display": "GET"
+            }
+            endpoint["address"] = f"https://example.org/fhir/endpoint/{uuid.uuid4().hex[:8]}"
+            endpoint["managingOrganization"] = {
+                "reference": "Organization/org-test-001"
+            }
+
+        elif variant == "invalid-missing-address":
+            # Missing required address field
+            endpoint["managingOrganization"] = {
+                "reference": "Organization/org-test-001"
+            }
+            # Note: address is intentionally not included
+
+        return endpoint
+
     def generate_activity_definition(self, variant="minimal"):
         """Generate ActivityDefinition resource."""
         activity = {
@@ -609,7 +691,7 @@ class TestResourceGenerator:
                 "profile": ["http://koppeltaal.nl/fhir/StructureDefinition/KT2RelatedPerson"]
             }
         }
-        
+
         # Required fields
         # identifier - required (1..*)
         related_person["identifier"] = [{
@@ -617,30 +699,30 @@ class TestResourceGenerator:
             "system": "https://irma.app",
             "value": f"relatedperson.{random.randint(1000, 9999)}@example.nl"
         }]
-        
+
         # active - required (1..1)
         related_person["active"] = True
-        
+
         # name - required (1..*) with Dutch name extensions
         # Always use a variant that includes extensions (required for RelatedPerson)
         name_data = self.generate_dutch_name(variant="simple", include_extensions=True)
         related_person["name"] = [name_data]
-        
+
         # patient - required (1..1) - must reference a Patient
         related_person["patient"] = {
             "reference": "Patient/patient-test-001",
             "display": "Test Patient"
         }
-        
+
         # gender - required (1..1)
         related_person["gender"] = random.choice(["male", "female", "other"])
-        
+
         # birthDate - required (1..1)
         birth_year = random.randint(1940, 2010)
         birth_month = random.randint(1, 12)
         birth_day = random.randint(1, 28)
         related_person["birthDate"] = f"{birth_year:04d}-{birth_month:02d}-{birth_day:02d}"
-        
+
         # relationship - required (1..*) - should have two elements per the example
         # First: personal relationship (v3-RoleCode) - using Dutch ZIB2020 ValueSet
         personal_relationship_options = [
@@ -661,7 +743,7 @@ class TestResourceGenerator:
             ("GRMTH", "Grandmother"),  # Oma
         ]
         personal_code, personal_display = random.choice(personal_relationship_options)
-        
+
         # Second: professional role (Dutch support roles) - COD472_VEKT_Soort_relatie_client
         professional_role_options = [
             ("01", "Eerste relatie/contactpersoon"),
@@ -682,7 +764,7 @@ class TestResourceGenerator:
             ("24", "Wettelijke vertegenwoordiger")
         ]
         prof_code, prof_display = random.choice(professional_role_options)
-        
+
         related_person["relationship"] = [
             {
                 "coding": [{
@@ -699,22 +781,22 @@ class TestResourceGenerator:
                 }]
             }
         ]
-        
+
         if variant == "maximal":
             # Add telecom
             related_person["telecom"] = [
                 self.generate_telecom("phone"),
                 self.generate_telecom("email")
             ]
-            
+
             # Add address
             related_person["address"] = [self.generate_dutch_address()]
-            
+
             # Add period
             related_person["period"] = {
                 "start": "2020-01-01"
             }
-            
+
             # Add communication
             related_person["communication"] = [{
                 "language": {
@@ -727,37 +809,37 @@ class TestResourceGenerator:
                 },
                 "preferred": True
             }]
-        
+
         elif variant == "invalid-missing-identifier":
             # Remove required identifier
             del related_person["identifier"]
-        
+
         elif variant == "invalid-missing-active":
             # Remove required active
             del related_person["active"]
-        
+
         elif variant == "invalid-missing-gender":
             # Remove required gender
             del related_person["gender"]
-        
+
         elif variant == "invalid-missing-birthdate":
             # Remove required birthDate
             del related_person["birthDate"]
-        
+
         elif variant == "invalid-missing-relationship":
             # Remove required relationship
             del related_person["relationship"]
-        
+
         elif variant == "invalid-missing-name":
             # Remove required name
             del related_person["name"]
-        
+
         elif variant == "invalid-missing-patient":
             # Remove required patient
             del related_person["patient"]
-        
+
         return related_person
-    
+
     def generate_audit_event(self, variant="minimal"):
         """Generate KT2AuditEvent test resource."""
         audit = {
@@ -823,6 +905,7 @@ class TestResourceGenerator:
             "Organization": ["minimal", "maximal", "invalid-missing-identifier", "invalid-missing-active"],
             "RelatedPerson": ["minimal", "maximal", "invalid-missing-identifier", "invalid-missing-active", "invalid-missing-patient", "invalid-missing-gender", "invalid-missing-birthdate", "invalid-missing-relationship", "invalid-missing-name"],
             "Device": ["minimal", "maximal", "invalid-missing-identifier", "invalid-missing-status", "invalid-missing-devicename"],
+            "Endpoint": ["minimal", "maximal", "invalid-missing-status", "invalid-missing-payloadtype", "invalid-wrong-connectiontype", "invalid-missing-address"],
             "ActivityDefinition": ["minimal", "maximal", "invalid-missing-endpoint", "invalid-missing-url"],
             "Task": ["minimal", "maximal", "invalid-missing-status"],
             "AuditEvent": ["minimal", "maximal"]
@@ -846,6 +929,8 @@ class TestResourceGenerator:
                     resource = self.generate_related_person(variant)
                 elif resource_type == "Device":
                     resource = self.generate_device(variant)
+                elif resource_type == "Endpoint":
+                    resource = self.generate_endpoint(variant)
                 elif resource_type == "ActivityDefinition":
                     resource = self.generate_activity_definition(variant)
                 elif resource_type == "Task":

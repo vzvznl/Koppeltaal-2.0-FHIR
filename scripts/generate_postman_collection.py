@@ -37,6 +37,12 @@ class PostmanCollectionGenerator:
                     "description": "Base URL of the FHIR server"
                 },
                 {
+                    "key": "access_token",
+                    "value": "",
+                    "type": "string",
+                    "description": "Bearer token for authentication (optional)"
+                },
+                {
                     "key": "patient_id",
                     "value": "",
                     "type": "string",
@@ -67,6 +73,12 @@ class PostmanCollectionGenerator:
                     "description": "ID of created Device resource"
                 },
                 {
+                    "key": "endpoint_id",
+                    "value": "",
+                    "type": "string",
+                    "description": "ID of created Endpoint resource"
+                },
+                {
                     "key": "activity_definition_id",
                     "value": "",
                     "type": "string",
@@ -83,6 +95,36 @@ class PostmanCollectionGenerator:
                     "value": "",
                     "type": "string",
                     "description": "ID of created AuditEvent resource"
+                },
+                {
+                    "key": "patient_id_version",
+                    "value": "",
+                    "type": "string",
+                    "description": "Version of Patient resource for If-Match header"
+                },
+                {
+                    "key": "related_person_id_version",
+                    "value": "",
+                    "type": "string",
+                    "description": "Version of RelatedPerson resource for If-Match header"
+                },
+                {
+                    "key": "endpoint_id_version",
+                    "value": "",
+                    "type": "string",
+                    "description": "Version of Endpoint resource for If-Match header"
+                },
+                {
+                    "key": "activity_definition_id_version",
+                    "value": "",
+                    "type": "string",
+                    "description": "Version of ActivityDefinition resource for If-Match header"
+                },
+                {
+                    "key": "task_id_version",
+                    "value": "",
+                    "type": "string",
+                    "description": "Version of Task resource for If-Match header"
                 }
             ]
         }
@@ -107,23 +149,34 @@ class PostmanCollectionGenerator:
             "Patient": self.create_folder("Patient", "Patient resources (can reference Organization)"),
             "RelatedPerson": self.create_folder("RelatedPerson", "RelatedPerson resources (can reference Patient)"),
             "Device": self.create_folder("Device", "Device resources (can reference Organization)"),
+            "Endpoint": self.create_folder("Endpoint", "Endpoint resources (references Organization)"),
             "ActivityDefinition": self.create_folder("ActivityDefinition", "ActivityDefinition resources (references Endpoint)"),
             "Task": self.create_folder("Task", "Task resources (requires Patient, Practitioner, and ActivityDefinition)"),
             "AuditEvent": self.create_folder("AuditEvent", "AuditEvent resources (references Device)")
         }
         
         # Process test resources in dependency order
-        resource_order = ["Organization", "Practitioner", "Patient", "RelatedPerson", "Device", "ActivityDefinition", "Task", "AuditEvent"]
+        resource_order = ["Organization", "Practitioner", "Patient", "RelatedPerson", "Device", "Endpoint", "ActivityDefinition", "Task", "AuditEvent"]
         
         for resource_type in resource_order:
             folder = resource_folders[resource_type]
             self.add_resource_tests(folder, resource_type)
             collection["item"].append(folder)
         
+        # Add history tests folder
+        history_folder = self.create_folder("History Tests", "Test _history operations on resources")
+        self.add_history_tests(history_folder, ["Patient", "Task", "Endpoint"])
+        collection["item"].append(history_folder)
+        
         # Add cleanup folder
         cleanup_folder = self.create_folder("Cleanup", "Delete created test resources")
         self.add_cleanup_requests(cleanup_folder, resource_order)
         collection["item"].append(cleanup_folder)
+        
+        # Add post-deletion history tests
+        post_delete_folder = self.create_folder("Post-Deletion History", "Test _history after resource deletion")
+        self.add_post_deletion_history_tests(post_delete_folder, ["Patient", "Task"])
+        collection["item"].append(post_delete_folder)
         
         # Write collection to file
         with open(self.output_file, 'w', encoding='utf-8') as f:
@@ -159,6 +212,10 @@ class PostmanCollectionGenerator:
         for files, variant in [(minimal_files, "minimal"), (maximal_files, "maximal"), (invalid_files, "invalid")]:
             for file_path in files:
                 self.add_test_request(folder, file_path, resource_type, variant)
+                
+                # Add update test for minimal variant of resources with status fields
+                if variant == "minimal" and resource_type in ["Patient", "Task", "Endpoint", "ActivityDefinition", "RelatedPerson"]:
+                    self.add_update_test_request(folder, file_path, resource_type)
     
     def add_test_request(self, folder, file_path, resource_type, variant):
         """Add a single test request to the folder."""
@@ -218,6 +275,147 @@ class PostmanCollectionGenerator:
         
         folder["item"].append(request)
     
+    def add_update_test_request(self, folder, file_path, resource_type):
+        """Add a PUT request to update a resource by flipping its status."""
+        with open(file_path, 'r') as f:
+            resource_data = json.load(f)
+        
+        # Update references in resource data to use variables
+        resource_data = self.update_references(resource_data, resource_type)
+        
+        # Add the resource ID to the body
+        if resource_type == "ActivityDefinition":
+            resource_data["id"] = "{{activity_definition_id}}"
+        elif resource_type == "Endpoint":
+            resource_data["id"] = "{{endpoint_id}}"
+        else:
+            resource_data["id"] = f"{{{{{resource_type.lower()}_id}}}}"
+        
+        # Flip the status field based on resource type
+        if resource_type == "Patient":
+            # Patient.active field
+            if "active" in resource_data:
+                resource_data["active"] = not resource_data.get("active", True)
+            else:
+                resource_data["active"] = False
+        elif resource_type == "RelatedPerson":
+            # RelatedPerson.active field
+            if "active" in resource_data:
+                resource_data["active"] = not resource_data.get("active", True)
+            else:
+                resource_data["active"] = False
+        elif resource_type == "Task":
+            # Task.status field - cycle through different valid statuses
+            current_status = resource_data.get("status", "requested")
+            status_map = {
+                "requested": "accepted",
+                "accepted": "in-progress",
+                "in-progress": "completed",
+                "completed": "requested"
+            }
+            resource_data["status"] = status_map.get(current_status, "in-progress")
+        elif resource_type == "Endpoint":
+            # Endpoint.status field - toggle between active and suspended
+            current_status = resource_data.get("status", "active")
+            resource_data["status"] = "suspended" if current_status == "active" else "active"
+        elif resource_type == "ActivityDefinition":
+            # ActivityDefinition.status field - toggle between active and draft
+            current_status = resource_data.get("status", "active")
+            resource_data["status"] = "draft" if current_status == "active" else "active"
+        
+        request_name = f"{resource_type} - Update Status"
+        
+        # Determine the variable name for the resource ID
+        if resource_type == "ActivityDefinition":
+            var_name = "activity_definition_id"
+        elif resource_type == "Endpoint":
+            var_name = "endpoint_id"
+        else:
+            var_name = f"{resource_type.lower()}_id"
+        
+        request = {
+            "name": request_name,
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            f'pm.test("{resource_type} updated successfully", function () {{',
+                            '    pm.response.to.have.status(200);',
+                            '});',
+                            '',
+                            '// Verify the status was changed',
+                            'pm.test("Status field was updated", function () {',
+                            '    var responseJson = pm.response.json();',
+                            '    pm.expect(responseJson).to.have.property("resourceType");',
+                            f'    pm.expect(responseJson.resourceType).to.equal("{resource_type}");',
+                            '});'
+                        ],
+                        "type": "text/javascript"
+                    }
+                },
+                {
+                    "listen": "prerequest",
+                    "script": {
+                        "exec": [
+                            f'// Check that {resource_type} ID is available',
+                            f'var resourceId = pm.collectionVariables.get("{var_name}");',
+                            'if (!resourceId) {',
+                            f'    console.error("Error: {resource_type} ID not set. Cannot update resource.");',
+                            '    pm.execution.skipRequest();',
+                            '}',
+                            '',
+                            '// Set If-Match header with version',
+                            f'var version = pm.collectionVariables.get("{var_name}_version");',
+                            'if (version) {',
+                            '    pm.request.headers.add({',
+                            '        key: "If-Match",',
+                            '        value: "W/\\"" + version + "\\""',
+                            '    });',
+                            f'    console.log("Added If-Match header with version: " + version);',
+                            '} else {',
+                            f'    console.warn("Warning: No version found for {resource_type}. Update may fail if server requires If-Match.");',
+                            '}',
+                            '',
+                            '// Add small delay before update',
+                            f'const delay = {self.request_delay};',
+                            'const start = Date.now();',
+                            'while (Date.now() - start < delay) {',
+                            '    // Synchronous delay',
+                            '}',
+                            'console.log("Waited " + delay + "ms before update request");'
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "PUT",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/fhir+json"
+                    },
+                    {
+                        "key": "Accept",
+                        "value": "application/fhir+json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": json.dumps(resource_data, indent=2)
+                },
+                "url": {
+                    "raw": f"{self.base_url}/{resource_type}/{{{{{var_name}}}}}",
+                    "host": ["{{fhir_base_url}}"],
+                    "path": [resource_type, f"{{{{{var_name}}}}}"]
+                },
+                "description": f"Update {resource_type} by changing its status field"
+            }
+        }
+        
+        folder["item"].append(request)
+    
     def update_references(self, resource_data, resource_type):
         """Update references in resource data to use Postman variables."""
         resource_str = json.dumps(resource_data)
@@ -268,6 +466,22 @@ class PostmanCollectionGenerator:
                 '"reference": "Patient/patient-test-001"',
                 '"reference": "Patient/{{patient_id}}"'
             )
+        elif resource_type == "Endpoint":
+            # Update Organization reference
+            resource_str = resource_str.replace(
+                '"reference": "Organization/org-test-001"',
+                '"reference": "Organization/{{organization_id}}"'
+            )
+        elif resource_type == "ActivityDefinition":
+            # Update Endpoint references
+            resource_str = resource_str.replace(
+                '"reference": "Endpoint/endpoint-test-001"',
+                '"reference": "Endpoint/{{endpoint_id}}"'
+            )
+            resource_str = resource_str.replace(
+                '"reference": "Endpoint/endpoint-test-002"',
+                '"reference": "Endpoint/{{endpoint_id}}"'
+            )
         
         return json.loads(resource_str)
     
@@ -293,10 +507,23 @@ class PostmanCollectionGenerator:
                 scripts.append('    // Get ID from response body')
                 scripts.append('    var responseJson = pm.response.json();')
                 scripts.append('    if (responseJson.id) {')
-                # Special case for ActivityDefinition to use underscore
-                var_name = "activity_definition_id" if resource_type == "ActivityDefinition" else f"{resource_type.lower()}_id"
+                # Special case for ActivityDefinition and Endpoint to use underscore
+                if resource_type == "ActivityDefinition":
+                    var_name = "activity_definition_id"
+                elif resource_type == "Endpoint":
+                    var_name = "endpoint_id"
+                else:
+                    var_name = f"{resource_type.lower()}_id"
                 scripts.append(f'        pm.collectionVariables.set("{var_name}", responseJson.id);')
                 scripts.append(f'        console.log("{resource_type} ID saved: " + responseJson.id);')
+                
+                # Save the version/ETag for updates
+                scripts.append('')
+                scripts.append('        // Save version for updates (If-Match header)')
+                scripts.append('        if (responseJson.meta && responseJson.meta.versionId) {')
+                scripts.append(f'            pm.collectionVariables.set("{var_name}_version", responseJson.meta.versionId);')
+                scripts.append(f'            console.log("{resource_type} version saved: " + responseJson.meta.versionId);')
+                scripts.append('        }')
                 
                 # Special handling for Device: need to update with its own ID
                 if resource_type == "Device":
@@ -405,7 +632,7 @@ class PostmanCollectionGenerator:
                         "listen": "prerequest",
                         "script": {
                             "exec": [
-                                f'var resourceId = pm.collectionVariables.get("{"activity_definition_id" if resource_type == "ActivityDefinition" else f"{resource_type.lower()}_id"}");',
+                                f'var resourceId = pm.collectionVariables.get("{"activity_definition_id" if resource_type == "ActivityDefinition" else "endpoint_id" if resource_type == "Endpoint" else f"{resource_type.lower()}_id"}");',
                                 'if (!resourceId) {',
                                 f'    console.log("No {resource_type} ID to delete");',
                                 '    pm.execution.skipRequest();',
@@ -419,9 +646,9 @@ class PostmanCollectionGenerator:
                     "method": "DELETE",
                     "header": [],
                     "url": {
-                        "raw": f"{self.base_url}/{resource_type}/{{{{{('activity_definition_id' if resource_type == 'ActivityDefinition' else f'{resource_type.lower()}_id')}}}}}?_cascade=delete",
+                        "raw": f"{self.base_url}/{resource_type}/{{{{{('activity_definition_id' if resource_type == 'ActivityDefinition' else 'endpoint_id' if resource_type == 'Endpoint' else f'{resource_type.lower()}_id')}}}}}?_cascade=delete",
                         "host": ["{{fhir_base_url}}"],
-                        "path": [resource_type, f"{{{{{('activity_definition_id' if resource_type == 'ActivityDefinition' else f'{resource_type.lower()}_id')}}}}}"],
+                        "path": [resource_type, f"{{{{{('activity_definition_id' if resource_type == 'ActivityDefinition' else 'endpoint_id' if resource_type == 'Endpoint' else f'{resource_type.lower()}_id')}}}}}"],
                         "query": [
                             {
                                 "key": "_cascade",
@@ -430,6 +657,254 @@ class PostmanCollectionGenerator:
                         ]
                     },
                     "description": f"Delete test {resource_type} resource with cascade"
+                }
+            }
+            folder["item"].append(request)
+    
+    def add_history_tests(self, folder, resource_types):
+        """Add history test requests for specified resource types."""
+        for resource_type in resource_types:
+            # Determine the variable name for the resource ID
+            if resource_type == "ActivityDefinition":
+                var_name = "activity_definition_id"
+            elif resource_type == "Endpoint":
+                var_name = "endpoint_id"
+            else:
+                var_name = f"{resource_type.lower()}_id"
+            
+            # Test 1: Get full history of a resource
+            request = {
+                "name": f"{resource_type} - Get Full History",
+                "event": [
+                    {
+                        "listen": "test",
+                        "script": {
+                            "exec": [
+                                f'pm.test("{resource_type} history retrieved successfully", function () {{',
+                                '    pm.response.to.have.status(200);',
+                                '});',
+                                '',
+                                'pm.test("Response is a Bundle", function () {',
+                                '    var jsonData = pm.response.json();',
+                                '    pm.expect(jsonData.resourceType).to.equal("Bundle");',
+                                '    pm.expect(jsonData.type).to.be.oneOf(["history", "searchset"]);',
+                                '});',
+                                '',
+                                'pm.test("Bundle contains history entries", function () {',
+                                '    var jsonData = pm.response.json();',
+                                '    pm.expect(jsonData.entry).to.be.an("array");',
+                                '    pm.expect(jsonData.entry.length).to.be.greaterThan(0);',
+                                '    ',
+                                '    // Check first entry has request.method',
+                                '    if (jsonData.entry && jsonData.entry.length > 0) {',
+                                '        pm.expect(jsonData.entry[0]).to.have.property("request");',
+                                '        pm.expect(jsonData.entry[0].request).to.have.property("method");',
+                                '    }',
+                                '});',
+                                '',
+                                '// Save the latest version for specific version test',
+                                'var jsonData = pm.response.json();',
+                                'if (jsonData.entry && jsonData.entry.length > 0) {',
+                                '    var latestEntry = jsonData.entry[0];',
+                                '    if (latestEntry.resource && latestEntry.resource.meta && latestEntry.resource.meta.versionId) {',
+                                f'        pm.collectionVariables.set("{var_name}_latest_version", latestEntry.resource.meta.versionId);',
+                                f'        console.log("Latest version saved: " + latestEntry.resource.meta.versionId);',
+                                '    }',
+                                '}'
+                            ],
+                            "type": "text/javascript"
+                        }
+                    },
+                    {
+                        "listen": "prerequest",
+                        "script": {
+                            "exec": [
+                                f'// Check that {resource_type} ID is available',
+                                f'var resourceId = pm.collectionVariables.get("{var_name}");',
+                                'if (!resourceId) {',
+                                f'    console.error("Error: {resource_type} ID not set. Cannot get history.");',
+                                '    pm.execution.skipRequest();',
+                                '}',
+                                '',
+                                '// Add delay',
+                                f'const delay = {self.request_delay};',
+                                'const start = Date.now();',
+                                'while (Date.now() - start < delay) {',
+                                '    // Synchronous delay',
+                                '}'
+                            ],
+                            "type": "text/javascript"
+                        }
+                    }
+                ],
+                "request": {
+                    "method": "GET",
+                    "header": [
+                        {
+                            "key": "Accept",
+                            "value": "application/fhir+json"
+                        }
+                    ],
+                    "url": {
+                        "raw": f"{self.base_url}/{resource_type}/{{{{{var_name}}}}}/_history",
+                        "host": ["{{fhir_base_url}}"],
+                        "path": [resource_type, f"{{{{{var_name}}}}}", "_history"]
+                    },
+                    "description": f"Get full history of {resource_type} resource"
+                }
+            }
+            folder["item"].append(request)
+            
+            # Test 2: Get specific version from history
+            request = {
+                "name": f"{resource_type} - Get Specific Version",
+                "event": [
+                    {
+                        "listen": "test",
+                        "script": {
+                            "exec": [
+                                f'pm.test("{resource_type} specific version retrieved successfully", function () {{',
+                                '    pm.response.to.have.status(200);',
+                                '});',
+                                '',
+                                f'pm.test("Response is a {resource_type} resource", function () {{',
+                                '    var jsonData = pm.response.json();',
+                                f'    pm.expect(jsonData.resourceType).to.equal("{resource_type}");',
+                                '});',
+                                '',
+                                'pm.test("Retrieved version matches requested version", function () {',
+                                '    var jsonData = pm.response.json();',
+                                f'    var requestedVersion = pm.collectionVariables.get("{var_name}_latest_version");',
+                                '    if (jsonData.meta && jsonData.meta.versionId && requestedVersion) {',
+                                '        pm.expect(jsonData.meta.versionId).to.equal(requestedVersion);',
+                                '    }',
+                                '});'
+                            ],
+                            "type": "text/javascript"
+                        }
+                    },
+                    {
+                        "listen": "prerequest",
+                        "script": {
+                            "exec": [
+                                f'// Check that {resource_type} ID and version are available',
+                                f'var resourceId = pm.collectionVariables.get("{var_name}");',
+                                f'var version = pm.collectionVariables.get("{var_name}_latest_version");',
+                                'if (!resourceId || !version) {',
+                                f'    console.error("Error: {resource_type} ID or version not set.");',
+                                '    pm.execution.skipRequest();',
+                                '}',
+                                '',
+                                '// Add delay',
+                                f'const delay = {self.request_delay};',
+                                'const start = Date.now();',
+                                'while (Date.now() - start < delay) {',
+                                '    // Synchronous delay',
+                                '}'
+                            ],
+                            "type": "text/javascript"
+                        }
+                    }
+                ],
+                "request": {
+                    "method": "GET",
+                    "header": [
+                        {
+                            "key": "Accept",
+                            "value": "application/fhir+json"
+                        }
+                    ],
+                    "url": {
+                        "raw": f"{self.base_url}/{resource_type}/{{{{{var_name}}}}}/_history/{{{{{var_name + '_latest_version'}}}}}",
+                        "host": ["{{fhir_base_url}}"],
+                        "path": [resource_type, f"{{{{{var_name}}}}}", "_history", f"{{{{{var_name + '_latest_version'}}}}}"]
+                    },
+                    "description": f"Get specific version of {resource_type} from history"
+                }
+            }
+            folder["item"].append(request)
+    
+    def add_post_deletion_history_tests(self, folder, resource_types):
+        """Add history test requests after resource deletion."""
+        for resource_type in resource_types:
+            # Determine the variable name for the resource ID
+            if resource_type == "ActivityDefinition":
+                var_name = "activity_definition_id"
+            elif resource_type == "Endpoint":
+                var_name = "endpoint_id"
+            else:
+                var_name = f"{resource_type.lower()}_id"
+            
+            request = {
+                "name": f"{resource_type} - History After Deletion",
+                "event": [
+                    {
+                        "listen": "test",
+                        "script": {
+                            "exec": [
+                                f'pm.test("{resource_type} history after deletion retrieved", function () {{',
+                                '    pm.response.to.have.status(200);',
+                                '});',
+                                '',
+                                'pm.test("Response is a Bundle", function () {',
+                                '    var jsonData = pm.response.json();',
+                                '    pm.expect(jsonData.resourceType).to.equal("Bundle");',
+                                '});',
+                                '',
+                                'pm.test("History contains deletion entry", function () {',
+                                '    var jsonData = pm.response.json();',
+                                '    if (jsonData.entry && jsonData.entry.length > 0) {',
+                                '        // Look for a DELETE entry in history',
+                                '        var hasDeleteEntry = false;',
+                                '        for (var i = 0; i < jsonData.entry.length; i++) {',
+                                '            if (jsonData.entry[i].request && jsonData.entry[i].request.method === "DELETE") {',
+                                '                hasDeleteEntry = true;',
+                                '                break;',
+                                '            }',
+                                '        }',
+                                '        pm.expect(hasDeleteEntry).to.be.true;',
+                                '    }',
+                                '});'
+                            ],
+                            "type": "text/javascript"
+                        }
+                    },
+                    {
+                        "listen": "prerequest",
+                        "script": {
+                            "exec": [
+                                f'// Check that {resource_type} ID is available',
+                                f'var resourceId = pm.collectionVariables.get("{var_name}");',
+                                'if (!resourceId) {',
+                                f'    console.warn("Warning: {resource_type} ID not set. May have been deleted with cascade.");',
+                                '    pm.execution.skipRequest();',
+                                '}',
+                                '',
+                                '// Add delay',
+                                f'const delay = {self.request_delay};',
+                                'const start = Date.now();',
+                                'while (Date.now() - start < delay) {',
+                                '    // Synchronous delay',
+                                '}'
+                            ],
+                            "type": "text/javascript"
+                        }
+                    }
+                ],
+                "request": {
+                    "method": "GET",
+                    "header": [
+                        {
+                            "key": "Accept",
+                            "value": "application/fhir+json"
+                        }
+                    ],
+                    "url": {
+                        "raw": f"{self.base_url}/{resource_type}/{{{{{var_name}}}}}/_history",
+                        "host": ["{{fhir_base_url}}"],
+                        "path": [resource_type, f"{{{{{var_name}}}}}", "_history"]
+                    },
+                    "description": f"Get history of deleted {resource_type} resource"
                 }
             }
             folder["item"].append(request)
@@ -443,6 +918,17 @@ def generate_newman_script():
     """Generate a bash script to run the collection with Newman."""
     script_content = '''#!/bin/bash
 # Run Koppeltaal 2.0 tests with Newman
+#
+# Usage: ./run-newman-tests.sh [FHIR_BASE_URL] [ACCESS_TOKEN]
+#
+# Parameters:
+#   FHIR_BASE_URL - The base URL of the FHIR server (default: http://localhost:8080/fhir)
+#   ACCESS_TOKEN  - Bearer token for authentication (default: empty string)
+#
+# Examples:
+#   ./run-newman-tests.sh
+#   ./run-newman-tests.sh https://fhir.example.com/r4
+#   ./run-newman-tests.sh https://fhir.example.com/r4 "eyJhbGciOiJIUzI1NiIs..."
 
 # Check if Newman is installed
 if ! command -v newman &> /dev/null; then
@@ -450,21 +936,41 @@ if ! command -v newman &> /dev/null; then
     exit 1
 fi
 
-# Default FHIR server URL
+# Parse command line parameters
 FHIR_BASE_URL=${1:-"http://localhost:8080/fhir"}
+ACCESS_TOKEN=${2:-""}
+
+echo "🚀 Running Koppeltaal 2.0 FHIR tests"
+echo "   FHIR Server: $FHIR_BASE_URL"
+if [ -n "$ACCESS_TOKEN" ]; then
+    echo "   Authentication: Bearer token provided"
+else
+    echo "   Authentication: No token (public access)"
+fi
+echo ""
+
+# Build Newman command with optional access token
+NEWMAN_CMD="newman run koppeltaal-tests.postman_collection.json"
+NEWMAN_CMD="$NEWMAN_CMD --env-var \\"fhir_base_url=$FHIR_BASE_URL\\""
+
+if [ -n "$ACCESS_TOKEN" ]; then
+    NEWMAN_CMD="$NEWMAN_CMD --env-var \\"access_token=$ACCESS_TOKEN\\""
+fi
+
+NEWMAN_CMD="$NEWMAN_CMD --reporters cli,json"
+NEWMAN_CMD="$NEWMAN_CMD --reporter-json-export koppeltaal-test-results.json"
+NEWMAN_CMD="$NEWMAN_CMD --color on"
+NEWMAN_CMD="$NEWMAN_CMD --verbose"
 
 # Run the collection
-newman run koppeltaal-tests.postman_collection.json \\
-    --env-var "fhir_base_url=$FHIR_BASE_URL" \\
-    --reporters cli,json \\
-    --reporter-json-export koppeltaal-test-results.json \\
-    --color on \\
-    --verbose
+eval $NEWMAN_CMD
 
 # Check exit code
 if [ $? -eq 0 ]; then
+    echo ""
     echo "✅ All tests passed!"
 else
+    echo ""
     echo "❌ Some tests failed. Check koppeltaal-test-results.json for details."
     exit 1
 fi
@@ -521,9 +1027,14 @@ def main():
     print("\n📚 Usage:")
     print(f"1. Import {args.output} into Postman")
     print("2. Set the 'fhir_base_url' variable to your FHIR server")
-    print("3. Run the collection in order (Organization → Practitioner → Patient → Task → AuditEvent)")
+    print("3. Optionally set 'access_token' if authentication is required")
+    print("4. Run the collection in order")
     print("\nOr use Newman:")
-    print("./run-newman-tests.sh [fhir_server_url]")
+    print("./run-newman-tests.sh [fhir_server_url] [access_token]")
+    print("\nExamples:")
+    print("  ./run-newman-tests.sh")
+    print("  ./run-newman-tests.sh https://fhir.example.com/r4")
+    print("  ./run-newman-tests.sh https://fhir.example.com/r4 \"your-bearer-token\"")
 
 if __name__ == "__main__":
     main()
