@@ -93,7 +93,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     permissions: write-all
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/development'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -140,8 +140,8 @@ jobs:
           
           # Calculate the publish version
           PUBLISH_VERSION="${{ needs.build.outputs.version }}"
-          # For non-main branches, append the branch name and short commit hash to make version unique
-          if [ "${{ github.ref_name }}" != "main" ]; then
+          # For non-main/development branches, append the branch name and short commit hash to make version unique
+          if [ "${{ github.ref_name }}" != "main" ] && [ "${{ github.ref_name }}" != "development" ]; then
             # Sanitize branch name for npm version (replace / with -, remove special chars)
             BRANCH_NAME=$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9._-]/-/g')
             PUBLISH_VERSION="${PUBLISH_VERSION}-${BRANCH_NAME}-${GITHUB_SHA::7}"
@@ -151,8 +151,8 @@ jobs:
           # Also update the version to match what we calculated
           jq --arg owner "@$REPO_OWNER" --arg version "$PUBLISH_VERSION" '.name = $owner + "/" + .name | .version = $version | .publishConfig = {"registry": "https://npm.pkg.github.com", "access": "restricted"}' package.json > package.json.tmp && mv package.json.tmp package.json
           
-          # Publish the package - public for main branch, restricted for others
-          if [ "${{ github.ref_name }}" = "main" ]; then
+          # Publish the package - public for main/development branches, restricted for others
+          if [ "${{ github.ref_name }}" = "main" ] || [ "${{ github.ref_name }}" = "development" ]; then
             npm publish --access public
           else
             npm publish --access restricted
@@ -188,8 +188,8 @@ jobs:
           
           # Calculate the publish version
           PUBLISH_VERSION="${{ needs.build.outputs.version }}-minimal"
-          # For non-main branches, append the branch name and short commit hash to make version unique
-          if [ "${{ github.ref_name }}" != "main" ]; then
+          # For non-main/development branches, append the branch name and short commit hash to make version unique
+          if [ "${{ github.ref_name }}" != "main" ] && [ "${{ github.ref_name }}" != "development" ]; then
             # Sanitize branch name for npm version (replace / with -, remove special chars)
             BRANCH_NAME=$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9._-]/-/g')
             PUBLISH_VERSION="${PUBLISH_VERSION}-${BRANCH_NAME}-${GITHUB_SHA::7}"
@@ -199,8 +199,8 @@ jobs:
           # Also update the version to match what we calculated
           jq --arg owner "@$REPO_OWNER" --arg version "$PUBLISH_VERSION" '.name = $owner + "/" + .name + "-minimal" | .version = $version | .publishConfig = {"registry": "https://npm.pkg.github.com", "access": "restricted"}' package.json > package.json.tmp && mv package.json.tmp package.json
           
-          # Publish the package - public for main branch, restricted for others
-          if [ "${{ github.ref_name }}" = "main" ]; then
+          # Publish the package - public for main/development branches, restricted for others
+          if [ "${{ github.ref_name }}" = "main" ] || [ "${{ github.ref_name }}" = "development" ]; then
             npm publish --access public
           else
             npm publish --access restricted
@@ -209,11 +209,11 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   create-release-main:
-    name: Create Release (Main)
+    name: Create Release (Main/Development)
     needs: build
     runs-on: ubuntu-latest
     permissions: write-all
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/development'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -234,9 +234,9 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           draft: false
-          prerelease: false
-          name: ${{ needs.build.outputs.version }}
-          tag_name: v${{ needs.build.outputs.version }}
+          prerelease: ${{ github.ref == 'refs/heads/development' }}
+          name: ${{ needs.build.outputs.version }}${{ github.ref == 'refs/heads/development' && '-dev' || '' }}
+          tag_name: v${{ needs.build.outputs.version }}${{ github.ref == 'refs/heads/development' && '-dev' || '' }}
           body_path: ./full-build/CHANGELOG.md
           files: |
             ./full-build/output/koppeltaalv2-${{ needs.build.outputs.version }}.tgz
@@ -249,7 +249,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     permissions: write-all
-    if: github.ref != 'refs/heads/main'
+    if: github.ref != 'refs/heads/main' && github.ref != 'refs/heads/development'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
