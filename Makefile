@@ -121,9 +121,9 @@ pack-minimal: login
 # Publish package to Simplifier.net, not tested.
 .PHONY: publish
 publish: build-ig login
-	cd fsh-generated && $(FHIR) bake
-	cd fsh-generated && $(FHIR) pack
-	cd fsh-generated && $(FHIR) publish-package
+	cd fsh-generated/resources && $(FHIR) bake
+	cd fsh-fsh-generated/resources && $(FHIR) pack
+	cd fsh-fsh-generated/resources && $(FHIR) publish-package
 
 # Show version
 .PHONY: version
