@@ -1,7 +1,40 @@
 Profile: KT2_Patient
 Parent: NlcorePatient
 Id: KT2Patient
-Description: "The (FHIR) Patient (resource) is a representation of a person who is being treated by the Healthcare Provider to whom eHealth activities are assigned."
+Description: "
+
+## Overview
+
+The Patient resource represents a person receiving healthcare services within the Koppeltaal ecosystem. Patients can be assigned eHealth activities and are the primary focus of care coordination between different healthcare applications. This profile extends the NlcorePatient profile with Koppeltaal-specific requirements.
+
+## Identifier
+
+The `identifier` element is mandatory and should contain at least one identifier for the patient.
+
+## Active
+
+The `active` element is required and indicates whether the patient's record is in active use.
+
+## Name
+
+The `name` element is mandatory and follows Dutch naming conventions as defined in the zib NameInformation. The profile supports:
+- Official names with proper Dutch family name construction
+- Given names for everyday use
+- Extensions for Dutch-specific name components
+
+## Demographics
+
+Required demographic elements include:
+- `gender` - Patient's gender (mandatory)
+- `birthDate` - Patient's birth date (mandatory)
+
+## Managing Organization
+
+When specified, the `managingOrganization` element must reference a KT2_Organization resource, indicating which organization is responsible for the patient's care.
+
+## Country Codes
+
+For additional information on country codes used in address elements, refer to the General Notes section on Country Codes."
 * ^version = "0.8.0"
 * ^status = #draft
 * ^date = "2023-01-24"
