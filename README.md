@@ -171,7 +171,87 @@ du -h output/koppeltaalv2-*.tgz          # Full package
 du -h output-minimal/koppeltaalv2-*.tgz  # Minimal package (should be ~184KB)
 ```
 
-## GitHub Releases and CI/CD
+## GitHub Workflows and CI/CD
+
+### Workflow Overview
+
+This repository uses GitHub Actions for continuous integration and deployment:
+
+1. **Build and Deploy Workflow** (`build_deploy.yml`)
+   - Triggers automatically on every push to any branch
+   - Builds both full documentation and minimal server packages
+   - Publishes packages to GitHub Packages (NPM registry)
+   - Creates GitHub releases for main branch
+   - Deploys documentation to GitHub Pages (main branch only)
+
+2. **Publish to Simplifier Workflow** (`publish_simplifier.yml`)
+   - **Manual trigger only** from the main branch
+   - Requires explicit user action via GitHub Actions UI
+   - Publishes the FHIR package to Simplifier.net
+   - Uses stored credentials for authentication
+
+### Development Workflow with Pull Requests
+
+#### Recommended Development Process
+
+1. **Create a Feature Branch**
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+
+2. **Make Your Changes**
+   - Edit FHIR profiles, extensions, or other resources
+   - Update version in `sushi-config.yaml` if needed
+   - Test locally using Docker or Make commands
+
+3. **Push to GitHub**
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+   - CI automatically builds and validates your changes
+   - Creates a pre-release with minimal package for testing
+
+4. **Create Pull Request**
+   - Open PR from your feature branch to `main`
+   - CI runs validation on the PR
+   - Review the build artifacts and test results
+   - Get code review from team members
+
+5. **Merge to Main**
+   - Once approved, merge the PR to `main`
+   - CI automatically:
+     - Builds both full and minimal packages
+     - Creates a stable GitHub release
+     - Publishes to GitHub Packages
+     - Deploys documentation to GitHub Pages
+
+6. **Manual Publish to Simplifier** (when ready)
+   - Navigate to Actions tab in GitHub
+   - Select "Publish to Simplifier.net" workflow
+   - Click "Run workflow" on main branch
+   - Provide a reason for publishing
+   - Monitor the workflow for successful completion
+
+### Publishing to Simplifier.net
+
+**Important**: Publishing to Simplifier.net is a **manual process** that must be triggered explicitly:
+
+1. **Prerequisites**:
+   - Changes must be merged to `main` branch
+   - GitHub secrets `FHIR_EMAIL` and `FHIR_PASSWORD` must be configured
+
+2. **How to Publish**:
+   - Go to the [Actions tab](../../actions) in GitHub
+   - Select "Publish to Simplifier.net" from the workflow list
+   - Click "Run workflow"
+   - Select `main` branch (only option available)
+   - Enter a reason for publishing
+   - Click "Run workflow" button
+
+3. **What Happens**:
+   - Builds the Implementation Guide
+   - Runs `fhir bake`, `fhir pack`, and `fhir publish-package` in sequence
+   - Publishes to the configured Simplifier.net project
 
 ### Release Types
 
