@@ -1,0 +1,44 @@
+name: Publish to Simplifier.net
+
+on:
+  # Manual trigger only
+  workflow_dispatch:
+    inputs:
+      publish_reason:
+        description: 'Reason for publishing'
+        required: true
+        default: 'Manual publish to Simplifier.net'
+
+jobs:
+  publish-simplifier:
+    name: Publish to Simplifier.net
+    runs-on: ubuntu-latest
+    # Only allow running on main branch
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          tags: koppeltaal-builder:latest
+
+      - name: Run make publish
+        env:
+          FHIR_EMAIL: ${{ secrets.FHIR_EMAIL }}
+          FHIR_PASSWORD: ${{ secrets.FHIR_PASSWORD }}
+        run: |
+          echo "Publishing FHIR package to Simplifier.net..."
+          echo "Reason: ${{ github.event.inputs.publish_reason }}"
+          docker run \
+            -v ${PWD}:/src \
+            -e FHIR_EMAIL=${FHIR_EMAIL} \
+            -e FHIR_PASSWORD=${FHIR_PASSWORD} \
+            koppeltaal-builder:latest \
+            publish
