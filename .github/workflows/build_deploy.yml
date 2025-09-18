@@ -130,11 +130,8 @@ jobs:
           
           # Calculate the publish version
           PUBLISH_VERSION="${{ needs.build.outputs.version }}"
-          # For development branch, append dev and build number to make version unique
-          if [ "${{ github.ref_name }}" = "development" ]; then
-            PUBLISH_VERSION="${PUBLISH_VERSION}-dev.${{ github.run_number }}"
-          # For other non-main branches, append the branch name and short commit hash
-          elif [ "${{ github.ref_name }}" != "main" ]; then
+          # For non-main branches, append the branch name and short commit hash to make version unique
+          if [ "${{ github.ref_name }}" != "main" ]; then
             # Sanitize branch name for npm version (replace / with -, remove special chars)
             BRANCH_NAME=$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9._-]/-/g')
             PUBLISH_VERSION="${PUBLISH_VERSION}-${BRANCH_NAME}-${GITHUB_SHA::7}"
@@ -181,11 +178,8 @@ jobs:
           
           # Calculate the publish version
           PUBLISH_VERSION="${{ needs.build.outputs.version }}-minimal"
-          # For development branch, append dev and build number to make version unique
-          if [ "${{ github.ref_name }}" = "development" ]; then
-            PUBLISH_VERSION="${{ needs.build.outputs.version }}-minimal-dev.${{ github.run_number }}"
-          # For other non-main branches, append the branch name and short commit hash
-          elif [ "${{ github.ref_name }}" != "main" ]; then
+          # For non-main branches, append the branch name and short commit hash to make version unique
+          if [ "${{ github.ref_name }}" != "main" ]; then
             # Sanitize branch name for npm version (replace / with -, remove special chars)
             BRANCH_NAME=$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9._-]/-/g')
             PUBLISH_VERSION="${PUBLISH_VERSION}-${BRANCH_NAME}-${GITHUB_SHA::7}"
@@ -230,9 +224,9 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           draft: false
-          prerelease: ${{ github.ref == 'refs/heads/development' }}
-          name: ${{ needs.build.outputs.version }}${{ github.ref == 'refs/heads/development' && format('-dev.{0}', github.run_number) || '' }}
-          tag_name: v${{ needs.build.outputs.version }}${{ github.ref == 'refs/heads/development' && format('-dev.{0}', github.run_number) || '' }}
+          prerelease: ${{ github.ref != 'refs/heads/main' }}
+          name: ${{ needs.build.outputs.version }}
+          tag_name: v${{ needs.build.outputs.version }}
           body_path: ./full-build/CHANGELOG.md
           files: |
             ./full-build/output/koppeltaalv2-${{ needs.build.outputs.version }}.tgz
