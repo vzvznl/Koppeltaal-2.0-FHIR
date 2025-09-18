@@ -120,8 +120,10 @@ pack-minimal: login
 
 # Publish package to Simplifier.net, not tested.
 .PHONY: publish
-publish: login
-	$(FHIR) publish-package ./output/koppeltaalv2-$(VERSION).tgz
+publish: build-ig login
+	cd fsh-generated && $(FHIR) bake
+	cd fsh-generated && $(FHIR) pack
+	cd fsh-generated && $(FHIR) publish-package
 
 # Show version
 .PHONY: version
