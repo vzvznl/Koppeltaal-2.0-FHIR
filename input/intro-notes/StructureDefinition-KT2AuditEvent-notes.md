@@ -1,5 +1,5 @@
 
-## AuditEvent.type
+#### AuditEvent.type
 
 For the `type` element the generic VZVZ ValueSet for this element is used. This set contains only the relevant codes from the DICOM CodeSystem as used in Koppeltaal. The other Codesystems contain the remaining codes.
 
@@ -12,7 +12,7 @@ Note: for the code `transmit` use
 }
 ```
 
-## AuditEvent.subtype
+#### AuditEvent.subtype
 
 The ValueSet for this element contains codes from several Codesystems. See: [ValueSet AuditEvent Subtype](http://hl7.org/fhir/ValueSet/audit-event-sub-type)
 
@@ -34,7 +34,7 @@ For interactions related to application launches and such use codes from the DIC
 }
 ```
 
-## Agent
+#### Agent
 
 The AuditEvent resource instance should always contain at least 2 agents, one for the source, one for the destination.
 
@@ -42,7 +42,7 @@ If necessary the patient to which this event relates can be added as a third age
 
 The `agent.network.address` is used to store the url of the source and the endpoint of the destination.
 
-### Agent.type
+####### Agent.type
 
 For the `type` element the generic VZVZ ValueSet for this element is used. This set contains only the relevant codes from the DICOM CodeSystem as used in Koppeltaal. The other Codesystems contain the remaining codes.
 
@@ -99,7 +99,7 @@ _patient_
 }
 ```
 
-## Entity.type
+#### Entity.type
 
 For this element, from the ValueSet only use the CodeSystem [ResourceType](http://hl7.org/fhir/resource-types) to indicate which FHIR Resource type was used. Example:
 

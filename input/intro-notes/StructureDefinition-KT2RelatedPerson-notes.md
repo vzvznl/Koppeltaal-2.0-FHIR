@@ -1,13 +1,10 @@
 
-## KT2_RelatedPerson.relationship
+#### Relationship
 
-The relationship(s) that the `Patient` has with the `RelatedPerson` can be documented using various code systems. Below, three examples are provided.
+The relationship(s) that the `Patient` has with the `RelatedPerson` can be documented using various code systems. A `Patient` can maintain multiple relationship types with a `RelatedPerson`.
 
-A `Patient` can maintain multiple relationship types with a `RelatedPerson`.
-
-### Example:
-
-```JSON
+Example:
+```json
 {
   "relationship": [
     {
@@ -32,9 +29,11 @@ A `Patient` can maintain multiple relationship types with a `RelatedPerson`.
 }
 ```
 
-The `KT2_RelatedPerson.patient` element contains the reference to the `Patient` to which the given `RelatedPerson` is linked. See the example below:
+#### Patient Reference
 
-```JSON
+The `patient` element contains the reference to the `Patient` to which the given `RelatedPerson` is linked:
+
+```json
 {
   "patient": {
     "reference": "Patient/${PatientID}"
@@ -42,14 +41,21 @@ The `KT2_RelatedPerson.patient` element contains the reference to the `Patient` 
 }
 ```
 
-## Unexpected validation Warnings
-<div class="dragon">
+#### Required Elements
 
-Due to an issue with the FHIR profile, the following validation warnings are generated for the `KT2_RelatedPerson` resource:
+The following elements are mandatory:
+- `identifier` - At least one identifier for the related person
+- `active` - Indicates whether the record is in active use
+- `patient` - Reference to the associated KT2_Patient
+- `relationship` - At least one relationship code
+- `name` - Name information following Dutch conventions
+- `gender` - Gender of the related person
+- `birthDate` - Birth date of the related person
 
-> This element does not match any known slice defined in the profile http://koppeltaal.nl/fhir/StructureDefinition/KT2RelatedPerson|0.xx.xx
+#### Validation Warnings
 
-This information notification is ignored when the creation or update of the resource is successful. However at the moment a resource contains an error, this information warning shows up in the `OperationOutcome`, potentially confusing / obfuscating the process of error assessment. We advise to ignore this _warning_ and focus on the _error_ in the `OperationOutcome` resource. 
+Due to an issue with the FHIR profile, validation warnings may be generated for the `KT2_RelatedPerson` resource:
 
-Despite the effort to get this notification removed, the implementation team has not succeeded in removing the information notification. 
-</div>
+> This element does not match any known slice defined in the profile
+
+These warnings should be ignored when the creation or update of the resource is successful. Focus on actual errors in the `OperationOutcome` resource rather than these informational warnings.

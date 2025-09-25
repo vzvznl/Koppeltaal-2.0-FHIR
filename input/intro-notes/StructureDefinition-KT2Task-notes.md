@@ -1,42 +1,40 @@
 
-## Reference to ActivityDefinition
+#### Reference to ActivityDefinition
 
-<div class="dragon">
-<p>As of 2023-11-02 the way the ActivityDefinition is referenced is changed!</p>
-</div>
-
+**Warning**: As of 2023-11-02 the way the ActivityDefinition is referenced has changed!
 
 A Task should refer to the `ActivityDefinition` it instantiates. This provides the possibility to search for Tasks that instantiate a specific instance of an `ActivityDefinition`, which in turn can be found based on its publisherId.
 
-Using the element `instantiatesCanonical` does not however allow chaining of the search parameters. Therefore this profile contains an extension `instantiates` which should hold the reference to the instantiated `ActivityDefinition`.
+Using the element `instantiatesCanonical` does not allow chaining of the search parameters. Therefore this profile contains an extension `instantiates` which should hold the reference to the instantiated `ActivityDefinition`.
 
 The element `instantiatesCanonical` should not be used for this reference. Receivers of a Task instance can ignore any value in the `instantiatesCanonical` and should look for the referred `ActivityDefinition` in the `instantiates` extension.
 
-## KT2_Task.owner
+#### Owner
+
 `KT2_Task.owner` determines which actor is the executor of the respective task.
 
 The `RelatedPerson` can be assigned as the owner of a task either directly or through a `CareTeam`.
 
-## KT2_Task.partOf 
+#### PartOf
+
 This element is used to indicate the reference of a subtask to the main task.
-The main task is assigned to the patient through `KT2_Task.owner`= `Reference (KT2_Patient)`. 
+The main task is assigned to the patient through `KT2_Task.owner` = `Reference(KT2_Patient)`.
 The subtask is created as follows:
-* KT2_Task.partOf` references the main task
-* The `KT2_RelatedPerson` who assists becomes the `Task.owner`
-* KT2_Task.for` references the `Patient` of the main task
+- `KT2_Task.partOf` references the main task
+- The `KT2_RelatedPerson` who assists becomes the `Task.owner`
+- `KT2_Task.for` references the `Patient` of the main task
 
-## KT2_Task.code
+#### Code
 
-With the `KT2_Task.code` element the permission of a `KT2_Task` can be set to `view`. 
-The exact meaning of the `view` permission can differ per application because authorisations in 
+With the `KT2_Task.code` element the permission of a `KT2_Task` can be set to `view`.
+The exact meaning of the `view` permission can differ per application because authorisations in
 Koppeltaal 2.0 are defined and executed by the applications.
 
-### Example
-This example shows a subtask for the `RelatedPerson` assigned in the `Task` of the patient.
+#### Example
 
+Example showing a subtask for the `RelatedPerson` assigned in the `Task` of the patient:
 
-
-```JSON
+```json
 {
     "resourceType" : "Task",
     "meta" : {

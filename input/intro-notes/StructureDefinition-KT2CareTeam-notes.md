@@ -1,11 +1,11 @@
 
-## Subject element
+#### Subject element
 
 If the CareTeam is involved in the care of a specific patient, the subject element __MUST__ contain a reference to indicate that specific patient.
 
 Otherwise the subject element remains absent.
 
-## Participant Role
+#### Participant Role
 
 For a healthcare professional the only applicable slice of `CareTeam.participant` is the slice `kt2healthcareProfessional` 
 This means the reference to the Practitioner should comply with the `KT2_Practitioner` profile.
