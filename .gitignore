@@ -3,14 +3,17 @@
 *.xpr
 .idea/
 .vscode/
-
+.bake/
 # Build outputs and generated files
 /fsh-generated/
+/test-resources/
+/temp-package
 /generated-resources/
 /output/
 /output-minimal/
 /temp/
 /tmp/
+/template
 
 # FHIR IG Publisher cache
 /input-cache/
