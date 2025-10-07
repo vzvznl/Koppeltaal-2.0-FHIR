@@ -157,7 +157,7 @@ class TestResourceGenerator:
                     "url": "http://hl7.org/fhir/StructureDefinition/humanname-own-name",
                     "valueString": family_base
                 })
-            
+
             # Add _given extension when include_extensions is True
             if include_extensions:
                 name["_given"] = [{
@@ -526,12 +526,12 @@ class TestResourceGenerator:
             activity["useContext"] = [
                 {
                     "code": {
-                        "system": "http://terminology.hl7.org/CodeSystem/usage-context-type",
-                        "code": "focus"
+                        "system": "http://vzvz.nl/fhir/CodeSystem/koppeltaal-usage-context-type",
+                        "code": "feature"
                     },
                     "valueCodeableConcept": {
                         "coding": [{
-                            "system": "http://vzvz.nl/fhir/CodeSystem/koppeltaal-usage-context",
+                            "system": "http://vzvz.nl/fhir/CodeSystem/koppeltaal-features",
                             "code": "026-RolvdNaaste",
                             "display": "Rol van de naaste"
                         }]
@@ -644,7 +644,7 @@ class TestResourceGenerator:
                 "profile": ["http://koppeltaal.nl/fhir/StructureDefinition/KT2RelatedPerson"]
             }
         }
-        
+
         # Required fields
         # identifier - required (1..*)
         related_person["identifier"] = [{
@@ -652,30 +652,30 @@ class TestResourceGenerator:
             "system": "https://irma.app",
             "value": f"relatedperson.{random.randint(1000, 9999)}@example.nl"
         }]
-        
+
         # active - required (1..1)
         related_person["active"] = True
-        
+
         # name - required (1..*) with Dutch name extensions
         # Always use a variant that includes extensions (required for RelatedPerson)
         name_data = self.generate_dutch_name(variant="simple", include_extensions=True)
         related_person["name"] = [name_data]
-        
+
         # patient - required (1..1) - must reference a Patient
         related_person["patient"] = {
             "reference": "Patient/patient-test-001",
             "display": "Test Patient"
         }
-        
+
         # gender - required (1..1)
         related_person["gender"] = random.choice(["male", "female", "other"])
-        
+
         # birthDate - required (1..1)
         birth_year = random.randint(1940, 2010)
         birth_month = random.randint(1, 12)
         birth_day = random.randint(1, 28)
         related_person["birthDate"] = f"{birth_year:04d}-{birth_month:02d}-{birth_day:02d}"
-        
+
         # relationship - required (1..*) - should have two elements per the example
         # First: personal relationship (v3-RoleCode) - using Dutch ZIB2020 ValueSet
         personal_relationship_options = [
@@ -696,7 +696,7 @@ class TestResourceGenerator:
             ("GRMTH", "Grandmother"),  # Oma
         ]
         personal_code, personal_display = random.choice(personal_relationship_options)
-        
+
         # Second: professional role (Dutch support roles) - COD472_VEKT_Soort_relatie_client
         professional_role_options = [
             ("01", "Eerste relatie/contactpersoon"),
@@ -717,7 +717,7 @@ class TestResourceGenerator:
             ("24", "Wettelijke vertegenwoordiger")
         ]
         prof_code, prof_display = random.choice(professional_role_options)
-        
+
         related_person["relationship"] = [
             {
                 "coding": [{
@@ -734,22 +734,22 @@ class TestResourceGenerator:
                 }]
             }
         ]
-        
+
         if variant == "maximal":
             # Add telecom
             related_person["telecom"] = [
                 self.generate_telecom("phone"),
                 self.generate_telecom("email")
             ]
-            
+
             # Add address
             related_person["address"] = [self.generate_dutch_address()]
-            
+
             # Add period
             related_person["period"] = {
                 "start": "2020-01-01"
             }
-            
+
             # Add communication
             related_person["communication"] = [{
                 "language": {
@@ -762,37 +762,37 @@ class TestResourceGenerator:
                 },
                 "preferred": True
             }]
-        
+
         elif variant == "invalid-missing-identifier":
             # Remove required identifier
             del related_person["identifier"]
-        
+
         elif variant == "invalid-missing-active":
             # Remove required active
             del related_person["active"]
-        
+
         elif variant == "invalid-missing-gender":
             # Remove required gender
             del related_person["gender"]
-        
+
         elif variant == "invalid-missing-birthdate":
             # Remove required birthDate
             del related_person["birthDate"]
-        
+
         elif variant == "invalid-missing-relationship":
             # Remove required relationship
             del related_person["relationship"]
-        
+
         elif variant == "invalid-missing-name":
             # Remove required name
             del related_person["name"]
-        
+
         elif variant == "invalid-missing-patient":
             # Remove required patient
             del related_person["patient"]
-        
+
         return related_person
-    
+
     def generate_audit_event(self, variant="minimal"):
         """Generate KT2AuditEvent test resource."""
         audit = {
