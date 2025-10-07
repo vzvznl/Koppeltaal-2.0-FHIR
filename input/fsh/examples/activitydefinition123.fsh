@@ -8,11 +8,11 @@ Usage: #example
   * status = #generated
   * div = "<div xmlns='http://www.w3.org/1999/xhtml' xml:lang='nl-NL' lang='nl-NL'>Example of an ActivityDefinition that defines the use of a journal</div>"
 * insert NLlang
-* extension[0]
+* extension[endpoint]
   * url = "http://koppeltaal.nl/fhir/StructureDefinition/KT2EndpointExtension"
   * valueReference = Reference(endpoint123)
     * type = "Endpoint"
-* extension[+]
+* extension[publisherId]
   * url = "http://koppeltaal.nl/fhir/StructureDefinition/KT2PublisherId"
   * valueId = "ID1234-001"
 * url = "https://int-381-kt2-sprint-7.minddistrict.dev/catalogue/6bea89a73b3d48d0963d627d93d071c2"
