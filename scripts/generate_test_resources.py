@@ -526,14 +526,14 @@ class TestResourceGenerator:
             activity["useContext"] = [
                 {
                     "code": {
-                        "system": "http://vzvz.nl/fhir/CodeSystem/koppeltaal-usage-context-type",
-                        "code": "required-feature"
+                        "system": "http://terminology.hl7.org/CodeSystem/usage-context-type",
+                        "code": "focus"
                     },
                     "valueCodeableConcept": {
                         "coding": [{
                             "system": "http://vzvz.nl/fhir/CodeSystem/koppeltaal-usage-context",
                             "code": "026-RolvdNaaste",
-                            "display": "Role of relative"
+                            "display": "Rol van de naaste"
                         }]
                     }
                 },
