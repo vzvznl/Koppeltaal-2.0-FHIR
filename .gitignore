@@ -88,3 +88,8 @@ publisher.jar
 # FHIR specific
 *.inflator.json
 Practitioner.json
+/.claude/
+/.bake/
+/temp-package/
+/test-resources/
+/template/
