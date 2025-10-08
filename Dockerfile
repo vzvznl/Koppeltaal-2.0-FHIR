@@ -2,10 +2,11 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0
 
 # Build argument for IG Publisher version
 ARG PUBLISHER_VERSION=2.0.15
+ARG SUSHI_VERSION=3.16.5
 
 RUN dotnet tool install -g firely.terminal && apt-get update && apt install -y make jq default-jdk python3 python3-pip python3-yaml graphviz jekyll nodejs npm
 
-RUN npm install -g fsh-sushi
+RUN npm install -g fsh-sushi@$SUSHI_VERSION
 
 RUN mkdir "/src"
 WORKDIR /src
