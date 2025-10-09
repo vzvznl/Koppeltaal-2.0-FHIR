@@ -1,17 +1,18 @@
-CodeSystem: KoppeltaalUsageContext
-Id: koppeltaal-usage-context
-Title: "Koppeltaal Usage Context"
-Description: "Usage context values for Koppeltaal ActivityDefinitions"
+CodeSystem: KoppeltaalUsageContextType
+Id: koppeltaal-usage-context-type
+Title: "Koppeltaal Usage Context Type"
+Description: "Usage context type codes for Koppeltaal ActivityDefinitions, extending standard FHIR usage context types"
 * ^status = #active
 * ^content = #complete
-* ^meta.lastUpdated = "2025-09-10T12:00:00+02:00"
-* ^url = "http://vzvz.nl/fhir/CodeSystem/koppeltaal-usage-context"
+* ^meta.versionId = "1"
+* ^meta.lastUpdated = "2025-10-07T12:00:00+02:00"
+* ^url = "http://vzvz.nl/fhir/CodeSystem/koppeltaal-usage-context-type"
 * ^identifier.use = #official
-* ^identifier.value = "http://vzvz.nl/fhir/CodeSystem/koppeltaal-usage-context"
+* ^identifier.value = "http://vzvz.nl/fhir/CodeSystem/koppeltaal-usage-context-type"
 * ^version = "1.0.0"
 * ^experimental = false
-* ^date = "2025-09-10T12:00:00+02:00"
+* ^date = "2025-10-07T12:00:00+02:00"
 * insert ContactAndPublisher
 * ^caseSensitive = true
 * ^count = 1
-* #026-RolvdNaaste "Rol van de naaste" "Met de \"Rol van de naaste\" uitbreiding kunnen naasten van de patiënt/cliënt deelnemen aan het zorgtraject van de patiënt/cliënt."
+* #feature "Feature" "Indicates a required feature or capability for the activity, such as support for relative participation."

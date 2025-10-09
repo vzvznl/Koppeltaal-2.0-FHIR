@@ -1,11 +1,10 @@
 Profile: KT2_ActivityDefinition
 Parent: ActivityDefinition
 Id: KT2ActivityDefinition
-Description: "The ActivityDefinition resource describes an eHealth activity that is available for assignment to a patient. When an eHealth activity is assigned to a patient, a Task resource is created. Sub-activities are included as contained resources that refer to the main task via the Task.partOf element."
-* ^name = "KT2_ActivityDefinition"
+Description: "The (FHIR) ActivityDefinition (resource) describes an eHealth activity that is available for assignment to a patient. When assigning an eHealth activity to a patient, an eHealth Task is created, in which sub-activities are included as contained resources that refer to the main task via Task.partOf."
 * ^version = "0.10.1"
 * ^status = #draft
-* ^date = "2025-09-11"
+* ^date = "2025-10-07"
 * insert ContactAndPublisher
 * . ^short = "Description of an eHealth activity"
 * . ^comment = "The (FHIR) ActivityDefinition describes an eHealth activity available to assign to a patient. The assignment of an eHealth activity to a patient creates an eHealth Task (Task resource). This task can contain sub activities as contained resources which refer to the main task using the Task.partOf element."
@@ -26,15 +25,10 @@ Description: "The ActivityDefinition resource describes an eHealth activity that
 * useContext
   * ^definition = "The context for the content of the eHealth activity"
   * ^comment = "E.g. the activity is targeted to a certain age group, or requires specific technical features like relative participation"
-  * code from KoppeltaalUsageContextType_VS (required)
+  * code from KoppeltaalUsageContextType_VS (extensible)
     * ^short = "Usage context type including Koppeltaal extensions"
     * ^definition = "Standard FHIR usage context types plus Koppeltaal specific types like required-feature"
     * ^binding.description = "Standard usage context types extended with Koppeltaal specific context types"
-  * value[x] only CodeableConcept
-  * value[x] from KoppeltaalUsageContext_VS (required)
-    * ^short = "Koppeltaal usage context values"
-    * ^definition = "Values from Koppeltaal Usage Context CodeSystem for defining usage context"
-    * ^binding.description = "Koppeltaal specific usage context values, including role of relatives"
 * jurisdiction ..0
 * jurisdiction ^definition = "This element is not used"
 * purpose ..0

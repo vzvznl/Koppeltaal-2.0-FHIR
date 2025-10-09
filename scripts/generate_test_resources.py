@@ -605,6 +605,41 @@ class TestResourceGenerator:
             activity["title"] = "Test eHealth Activiteit voor Therapie"
             activity["subtitle"] = "Ondertitel voor test activiteit"
             activity["description"] = "Dit is een test eHealth activiteit voor het testen van Koppeltaal 2.0"
+            activity["useContext"] = [
+                {
+                    "code": {
+                        "system": "http://vzvz.nl/fhir/CodeSystem/koppeltaal-usage-context-type",
+                        "code": "feature"
+                    },
+                    "valueCodeableConcept": {
+                        "coding": [{
+                            "system": "http://vzvz.nl/fhir/CodeSystem/koppeltaal-features",
+                            "code": "026-RolvdNaaste",
+                            "display": "Rol van de naaste"
+                        }]
+                    }
+                },
+                {
+                    "code": {
+                        "system": "http://terminology.hl7.org/CodeSystem/usage-context-type",
+                        "code": "age"
+                    },
+                    "valueRange": {
+                        "low": {
+                            "value": 18,
+                            "unit": "years",
+                            "system": "http://unitsofmeasure.org",
+                            "code": "a"
+                        },
+                        "high": {
+                            "value": 65,
+                            "unit": "years",
+                            "system": "http://unitsofmeasure.org",
+                            "code": "a"
+                        }
+                    }
+                }
+            ]
             activity["topic"] = [{
                 "coding": [{
                     "system": "http://terminology.hl7.org/CodeSystem/definition-topic",
