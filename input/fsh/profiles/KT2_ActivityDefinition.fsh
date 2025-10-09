@@ -27,7 +27,7 @@ Description: "The (FHIR) ActivityDefinition (resource) describes an eHealth acti
   * ^comment = "E.g. the activity is targeted to a certain age group, or requires specific technical features like relative participation"
   * code from KoppeltaalUsageContextType_VS (extensible)
     * ^short = "Usage context type including Koppeltaal extensions"
-    * ^definition = "Standard FHIR usage context types plus Koppeltaal specific types like required-feature"
+    * ^definition = "Standard FHIR usage context types plus Koppeltaal specific types like feature"
     * ^binding.description = "Standard usage context types extended with Koppeltaal specific context types"
 * jurisdiction ..0
 * jurisdiction ^definition = "This element is not used"
