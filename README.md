@@ -238,7 +238,10 @@ This repository uses GitHub Actions for continuous integration and deployment:
 
 1. **Prerequisites**:
    - Changes must be merged to `main` branch
-   - GitHub secrets `FHIR_EMAIL` and `FHIR_PASSWORD` must be configured
+   - GitHub secrets `FHIR_EMAIL` and `FHIR_PASSWORD` must be configured in repository settings:
+     - Go to repository **Settings** → **Secrets and variables** → **Actions**
+     - Add `FHIR_EMAIL` with your Simplifier.net email
+     - Add `FHIR_PASSWORD` with your Simplifier.net password
 
 2. **How to Publish**:
    - Go to the [Actions tab](../../actions) in GitHub
