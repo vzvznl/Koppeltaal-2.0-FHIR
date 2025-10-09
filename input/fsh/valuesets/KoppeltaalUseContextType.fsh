@@ -12,6 +12,6 @@ Description: "Usage context type values for Koppeltaal ActivityDefinitions - use
 * ^experimental = false
 * ^date = "2025-10-07T12:00:00+02:00"
 * insert ContactAndPublisher
-* ^immutable = true
+* ^immutable = false
 * include codes from system http://terminology.hl7.org/CodeSystem/usage-context-type
 * include codes from system KoppeltaalUsageContextType
