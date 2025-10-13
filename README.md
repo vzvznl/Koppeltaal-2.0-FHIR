@@ -15,8 +15,6 @@ Data is exchanged between different type of applications. In Koppeltaal, the ter
 
 All FHIR resources of one healthcare provider can be accessed via the Koppeltaal (FHIR Resource) Provider for those service-providing applications that are connected to Koppeltaal. We use common concepts and standards that are based on HL7/FHIR.
 
-<<<<<<< HEAD
-=======
 ## Build Process
 
 This project uses a **dual-build approach** to generate two different packages from the same source:
@@ -318,4 +316,3 @@ The CI/CD also publishes to GitHub Packages:
 - **CI/CD**: Automated builds and releases via GitHub Actions
 
 For complete technical details, see [BUILD.md](BUILD.md).
->>>>>>> e613ab877192ed378c774c007be462dea915bee8
