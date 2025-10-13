@@ -1,0 +1,90 @@
+ # this is the QC ruleset for VZVZ
+
+ # This is the minimal rule series
+
+- action: parse
+  name: parse-fhir-resources
+  status: "Checking if all resources are parseable as a FHIR resource"
+  files:
+    - /resources/**/*.xml
+    - /resources/**/*.json
+    - "!package*.json"
+    - "!fhirpkg.lock.json"
+
+- name: resource-validation
+  status: "Validating resources against the FHIR standard and their profiles"
+  action: validate
+  category: Resource
+  suppress:
+    - http://hl7.org/fhir/dotnet-api-operation-outcome|6007
+    - http://hl7.org/fhir/dotnet-api-operation-outcome|6004
+  files: 
+    - /examples/*.xml
+    - /resources/**.xml
+
+- action: unique
+  name: unique-canonicals
+  status: "Checking if all StructureDefinitions have a unique canonical"
+  filter: StructureDefinition
+  unique: url
+  files:
+    - /resources/**.xml
+ 
+ # This is the recommended rule series
+
+- name: id-mandatory
+  status: "Checking if all resources have an id"
+  predicate: id.exists()
+  files: 
+    - /resources/**.xml
+  error-message: "Resource {{filepath}} must have an id"
+
+- name: no-snapshot
+  status: "Checking that structure definitions do not have a pre-generated snapshot"
+  filter: StructureDefinition
+  predicate: snapshot.element.count() = 0
+  error-message: You should not generate a snapshot in your source. Allow the tools to generate the snapshot.
+  files:
+    - /resources/**.xml
+
+# You can include 'minimal' or 'recommended' or any of your own rules series 
+# - include: recommended
+# excluded because I need extra restrictions in the default rules. Above list is copied
+# from the snapshots in the manual: https://docs.fire.ly/projects/Simplifier/develop/quality-control/structure.html#rulesets
+ 
+- name: canonical-starts-with
+  filter: url.exists() and ImplementationGuide.exists().not()
+  # Excluding IGs for now, since they have a Simplifier.net canonical
+  status: "Checking if canonical URL starts with correct base"
+  predicate: url.startsWith('http://vzvz.nl/') or url.startsWith('http://koppeltaal.nl/') or url.startsWith('http://nictiz.nl/') or url.startsWith('http://fhir.nl/') or url.startsWith('urn:oid') or url.startsWith('http://terminology.hl7.org')
+  error-message: "Canonical URL doesn't start with correct base"
+  files:
+    - /resources/**.xml
+
+# - name: StructureDefinition.id_starts_with_nl-vzvz
+#   status: "Checking if id starts with correct prefix for VZVZ canonical URL"
+#   predicate: StructureDefinition.url.startsWith('http://vzvz.nl/') and StructureDefinition.id.startsWith('nl-vzvz')
+#   error-message: "profile id doesn't start with correct prefix"
+#   files:
+#     - /resources/**.xml
+
+- name: canonical-url-conforms-to-guidelines
+  filter: url.startsWith('http://vzvz.nl/') and StructureDefinition
+  status: "Check if canonical url ends with id"
+  predicate: StructureDefinition.url = 'http://vzvz.nl/fhir/StructureDefinition/' + StructureDefinition.id
+  error-message: "canonical url does not end with id for vzvz.nl resources"
+  files:
+    - /resources/**.xml
+
+# Specify what you want to validate
+
+- name: validate
+  action: validate
+  suppress:
+    - http://hl7.org/fhir/dotnet-api-operation-outcome|6007
+    - http://hl7.org/fhir/dotnet-api-operation-outcome|6004
+  files: 
+    - /examples/*.xml
+    - /resources/**.xml
+ 
+ 
