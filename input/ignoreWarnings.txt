@@ -1,0 +1,96 @@
+== Suppressed Messages ==
+
+# Add warning and/or information messages here after you've confirmed that they aren't really a problem
+# (And include comments like this justifying why)
+# See https://github.com/FHIR/sample-ig/blob/master/input/ignoreWarnings.txt for examples
+
+# Can't be helped
+Resolved system urn:ietf:bcp:47, but the definition is not complete, so assuming value set include is correct
+
+# Ignore missing terminology resources
+A definition for CodeSystem%
+
+# Ignore terminology language issues
+%is the default display; the code system%
+No valid Display Names found for http://terminology.hl7.org/CodeSystem/v3-AddressUse#MC in the language nl-NL
+Wrong Display Name%
+Unable to check whether the code is in the value set 'http://decor.nictiz.nl/fhir/ValueSet/2.16.840.1.113883.2.4.3.11.60.40.2.7.12.2--20200901000000|2020-09-01T00:00:00' because the code system urn:oid:1.0.639.1 was not found
+Terminology_TX_NoValid_1_CC
+
+# Ignore security warnings
+SECURITY_STRING_CONTENT_WARNING
+
+# Ignore warning because we only want a fixed value
+For the complex type%
+
+# Looks like a bug in IG Publisher
+ActivityDefinition.date: max allowed = 0%
+Validation_VAL_Profile_Maximum
+
+# Ignore unresolvable fake urls
+URL value 'http://ns.minddistrict.com/content/id' does not resolve
+URL value 'http://myTeam/id' does not resolve
+URL value 'https://nu.nl' does not resolve
+URL value 'http://local/systeemnaamuitgave' does not resolve
+URL value 'http://irma.app' does not resolve
+URL value 'https://irma.app' does not resolve
+URL value 'https://irma.app/email' does not resolve
+URL value 'http://www.testsysteem.xxx/patientrelatedperson' does not resolve
+URL value 'urn:oid:2.16.840.1.68469.16.4.3.5.6' does not resolve
+URL value 'https://koppeltaal-testteam6.nl/fictief-subscription' does not resolve
+URL value 'http://koppeltaal-systeem.nl/koppeltaal-TaskIdentifier' does not resolve
+URL value 'http://koppeltaal.nl/taskIdentifier' does not resolve
+URL value 'http://systeem.nl' does not resolve
+URL value 'http://zorginstelling-uniekecode/agb-z' does not resolve
+URL value 'urn:oid:2.16.840.1.113883.16.4.3.2.5' does not resolve
+
+# Ignore mapping url warnings
+URL value 'https://zibs.nl/wiki/%
+
+# Nictiz forgot to define some NamingSystems
+URL value 'http://fhir.nl/fhir/NamingSystem/bsn' does not resolve
+URL value 'http://fhir.nl/fhir/NamingSystem/big' does not resolve
+URL value 'http://fhir.nl/fhir/NamingSystem/uzi-nr-pers' does not resolve
+URL value 'http://fhir.nl/fhir/NamingSystem/agb-z' does not resolve
+URL value 'urn:oid:2.16.528.1.1007.3.1' does not resolve
+
+# Ignore warning about fhir version mismatch
+The ImplementationGuide is based on FHIR version 4.0.1 but package vzvz.fhir.nl-vzvz-core%
+This IG is version 4.0.1, while the IG 'vzvz.fhir.nl-vzvz-core' is from version 4.3.0
+
+# Ignore other canonical prefixes
+RESOURCE_CANONICAL_MISMATCH
+URL Mismatch http://koppeltaal.nl/fhir/CodeSystem%
+
+# Ignore the error on deceased
+SD_NO_TYPES_OR_CONTENTREF
+
+# Ignore IG parameters
+Terminology_TX_NoValid_16
+
+# Ignore slice warnings
+Details_for__matching_against_Profile_
+
+# Ignore because this is not my doing
+MSG_DEPENDS_ON_DEPRECATED
+MSG_DEPENDS_ON_DEPRECATED_NOTE
+The repeating element has a pattern. The pattern will apply to all the repeats (this has not been clear to all users)
+The repeating element has a fixed. The fixed will apply to all the repeats (this has not been clear to all users)
+
+# Ignore information on pinned version
+PIN_VERSION
+
+# Ignore reference to draft
+MSG_DRAFT
+
+# Ignore reference to IG
+The canonical URL for an Implementation Guide must point directly to the implementation guide resource%
+
+# I don't want to assign oid roots
+%could usefully have an OID assigned%
+
+# HL7 core warnings
+The HTML fragment 'ip-statements.xhtml' is not included anywhere in the produced implementation guide
+An HTML fragment from the set [cross-version-analysis.xhtml, cross-version-analysis-inline.xhtml] is not included anywhere in the produced implementation guide
+An HTML fragment from the set [dependency-table.xhtml, dependency-table-short.xhtml, dependency-table-nontech.xhtml] is not included anywhere in the produced implementation guide
+The HTML fragment 'globals-table.xhtml' is not included anywhere in the produced implementation guide
