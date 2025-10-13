@@ -82,8 +82,10 @@ docker-compose.override.yml
 
 # Publisher build files
 publisher.jar
-/input/pagecontent/
-/input/images/
+
+# These are not build files
+# /input/pagecontent/
+# /input/images/
 
 # FHIR specific
 *.inflator.json
