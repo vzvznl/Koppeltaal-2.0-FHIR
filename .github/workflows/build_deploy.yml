@@ -1,0 +1,289 @@
+name: Build (and Deploy) FHIR packages
+
+on:
+  # Runs on pushes to all branches
+  push:
+    branches: ["**"]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  id-token: write
+  contents: write
+  packages: write
+  pages: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: "publish"
+  cancel-in-progress: false
+
+
+jobs:
+  build:
+    name: Build FHIR Packages (Full and Minimal)
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get version
+        id: version
+        run: |
+          VERSION=$(grep '^version:' sushi-config.yaml | sed 's/version: //')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          tags: koppeltaal-builder:latest
+
+      - name: Build FHIR Packages
+        env:
+          FHIR_EMAIL: ${{ secrets.FHIR_EMAIL }}
+          FHIR_PASSWORD: ${{ secrets.FHIR_PASSWORD }}
+        run: |
+          # Run build-minimal which produces both full (./output) and minimal (./output-minimal) packages
+          docker run -v ${PWD}:/src -e FHIR_EMAIL=${FHIR_EMAIL} -e FHIR_PASSWORD=${FHIR_PASSWORD} koppeltaal-builder:latest build-minimal
+
+      - name: Upload full build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: fhir-package-full
+          path: |
+            ./output/
+            ./sushi-config.yaml
+            ./CHANGELOG.md
+          retention-days: 7
+
+      - name: Upload minimal build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: fhir-package-minimal
+          path: |
+            ./output-minimal/
+            ./sushi-config.yaml
+            ./CHANGELOG.md
+          retention-days: 7
+
+  deploy-pages:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    permissions: write-all
+    if: github.ref == 'refs/heads/main'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Download full build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: fhir-package-full
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './output'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  publish-npm-full:
+    name: Publish Full Package to GitHub Packages
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download full build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: fhir-package-full
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          registry-url: 'https://npm.pkg.github.com'
+
+      - name: Publish Full Package to GitHub Packages
+        run: |
+          # Extract the package created by build-ig
+          mkdir -p npm-publish
+          tar -xzf ./output/package.tgz -C npm-publish
+          cd npm-publish/package
+          
+          # Get the repository owner (org or user)
+          REPO_OWNER=$(echo "${{ github.repository }}" | cut -d'/' -f1)
+          
+          # Calculate the publish version
+          PUBLISH_VERSION="${{ needs.build.outputs.version }}"
+          # For non-main branches, append the branch name and short commit hash to make version unique
+          if [ "${{ github.ref_name }}" != "main" ]; then
+            # Sanitize branch name for npm version (replace / with -, remove special chars)
+            BRANCH_NAME=$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9._-]/-/g')
+            PUBLISH_VERSION="${PUBLISH_VERSION}-${BRANCH_NAME}-${GITHUB_SHA::7}"
+          fi
+          
+          # Update package.json to include GitHub registry info and ensure it's scoped
+          # Also update the version to match what we calculated
+          jq --arg owner "@$REPO_OWNER" --arg version "$PUBLISH_VERSION" '.name = $owner + "/" + .name | .version = $version | .publishConfig = {"registry": "https://npm.pkg.github.com", "access": "restricted"}' package.json > package.json.tmp && mv package.json.tmp package.json
+          
+          # Publish the package - public for main branch, restricted for others
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            npm publish --access public
+          else
+            npm publish --access restricted
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  publish-npm-minimal:
+    name: Publish Minimal Package to GitHub Packages
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download minimal build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: fhir-package-minimal
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          registry-url: 'https://npm.pkg.github.com'
+
+      - name: Publish Minimal Package to GitHub Packages
+        run: |
+          # Extract the package created by build-ig-minimal
+          mkdir -p npm-publish
+          tar -xzf ./output-minimal/package.tgz -C npm-publish
+          cd npm-publish/package
+          
+          # Get the repository owner (org or user)
+          REPO_OWNER=$(echo "${{ github.repository }}" | cut -d'/' -f1)
+          
+          # Calculate the publish version
+          PUBLISH_VERSION="${{ needs.build.outputs.version }}-minimal"
+          # For non-main branches, append the branch name and short commit hash to make version unique
+          if [ "${{ github.ref_name }}" != "main" ]; then
+            # Sanitize branch name for npm version (replace / with -, remove special chars)
+            BRANCH_NAME=$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9._-]/-/g')
+            PUBLISH_VERSION="${PUBLISH_VERSION}-${BRANCH_NAME}-${GITHUB_SHA::7}"
+          fi
+          
+          # Update package.json to include GitHub registry info and ensure it's scoped
+          # Also update the version to match what we calculated
+          jq --arg owner "@$REPO_OWNER" --arg version "$PUBLISH_VERSION" '.name = $owner + "/" + .name + "-minimal" | .version = $version | .publishConfig = {"registry": "https://npm.pkg.github.com", "access": "restricted"}' package.json > package.json.tmp && mv package.json.tmp package.json
+          
+          # Publish the package - public for main branch, restricted for others
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            npm publish --access public
+          else
+            npm publish --access restricted
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  create-release-main:
+    name: Create Release (Main/Development)
+    needs: build
+    runs-on: ubuntu-latest
+    permissions: write-all
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download full build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: fhir-package-full
+          path: ./full-build
+
+      - name: Download minimal build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: fhir-package-minimal
+          path: ./minimal-build
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: false
+          prerelease: ${{ github.ref != 'refs/heads/main' }}
+          name: ${{ needs.build.outputs.version }}
+          tag_name: v${{ needs.build.outputs.version }}
+          body_path: ./full-build/CHANGELOG.md
+          files: |
+            ./full-build/output/koppeltaalv2-${{ needs.build.outputs.version }}.tgz
+            ./minimal-build/output-minimal/koppeltaalv2-${{ needs.build.outputs.version }}-minimal.tgz
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+  create-release-branch:
+    name: Create Pre-release (Branch)
+    needs: build
+    runs-on: ubuntu-latest
+    permissions: write-all
+    if: github.ref != 'refs/heads/main'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download full build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: fhir-package-full
+          path: ./full-build
+
+      - name: Download minimal build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: fhir-package-minimal
+          path: ./minimal-build
+
+      - name: Create Pre-release (Minimal Package)
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: false
+          prerelease: true
+          name: ${{ needs.build.outputs.version }}-minimal-${{ github.ref_name }}
+          tag_name: v${{ needs.build.outputs.version }}-minimal-${{ github.ref_name }}-${{ github.run_number }}
+          body_path: ./minimal-build/CHANGELOG.md
+          files: |
+            ./minimal-build/output-minimal/koppeltaalv2-${{ needs.build.outputs.version }}-minimal.tgz
+      - name: Create Pre-release (Full Package)
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: false
+          prerelease: true
+          name: ${{ needs.build.outputs.version }}-${{ github.ref_name }}
+          tag_name: v${{ needs.build.outputs.version }}-${{ github.ref_name }}-${{ github.run_number }}
+          body_path: ./full-build/CHANGELOG.md
+          files: |
+            ./full-build/output/koppeltaalv2-${{ needs.build.outputs.version }}.tgz
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## Publish Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Triggered by**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Reason**: ${{ github.event.inputs.publish_reason }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY

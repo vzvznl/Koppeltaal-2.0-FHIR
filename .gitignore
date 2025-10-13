@@ -1,10 +1,95 @@
-/koppeltaal.code-workspace
-/koppeltaal.xpr
-archive
-packages
-tmp
-.simplifier
+# IDE and workspace files
+*.code-workspace
+*.xpr
+.idea/
+.vscode/
+.bake/
+# Build outputs and generated files
+/fsh-generated/
+/test-resources/
+/temp-package
+/generated-resources/
+/output/
+/output-minimal/
+/temp/
+/tmp/
+/template
+
+# FHIR IG Publisher cache
+/input-cache/
+
+# Package files
+*.tgz
+/packages/
+/archive/
+.simplifier/
+
+# Dependency and lock files
+fhirpkg.lock.json
+package-lock.json
+yarn.lock
+
+# Resources folder generated files
 resources/fhirpkg.lock.json
 resources/package.json
+
+# Java/Validator files
 validator_cli.jar
+*.jar
+
+# Saxon configuration
 saxon-config.xml
+
+# OS generated files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Log files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temporary files
+*.tmp
+*.bak
+*.backup
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+venv/
+ENV/
+
+# Node.js
+node_modules/
+.npm
+.yarn-integrity
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Publisher build files
+publisher.jar
+/input/pagecontent/
+/input/images/
+
+# FHIR specific
+*.inflator.json
+Practitioner.json
+/.claude/
+/.bake/
+/temp-package/
+/test-resources/
+/template/
