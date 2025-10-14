@@ -663,6 +663,31 @@ class TestResourceGenerator:
             }]
             activity["title"] = "Test Activiteit Zonder URL"
 
+        elif variant == "invalid-usecontext-invalid-codes":
+            # Invalid: useContext with invalid code type and invalid value
+            # This should fail validation due to required binding on useContext.code
+            activity["extension"] = [{
+                "url": "http://koppeltaal.nl/fhir/StructureDefinition/KT2EndpointExtension",
+                "valueReference": {
+                    "reference": "Endpoint/endpoint-test-001"
+                }
+            }]
+            activity["url"] = f"http://example.org/ActivityDefinition/activity-{uuid.uuid4().hex[:8]}"
+            activity["title"] = "Test Activiteit met Ongeldige UseContext"
+            activity["useContext"] = [{
+                "code": {
+                    "system": "http://vzvz.nl/fhir/CodeSystem/koppeltaal-usage-context-type",
+                    "code": "onzin"  # Invalid code - not in valueset
+                },
+                "valueCodeableConcept": {
+                    "coding": [{
+                        "system": "http://vzvz.nl/fhir/CodeSystem/koppeltaal-usage-context",
+                        "code": "Troep",  # Invalid value - system doesn't exist
+                        "display": "Troep"
+                    }]
+                }
+            }]
+
         return activity
 
     def generate_device(self, variant="minimal"):
@@ -941,7 +966,7 @@ class TestResourceGenerator:
             "RelatedPerson": ["minimal", "maximal", "invalid-missing-identifier", "invalid-missing-active", "invalid-missing-patient", "invalid-missing-gender", "invalid-missing-birthdate", "invalid-missing-relationship", "invalid-missing-name"],
             "Device": ["minimal", "maximal", "invalid-missing-identifier", "invalid-missing-status", "invalid-missing-devicename"],
             "Endpoint": ["minimal", "maximal", "invalid-missing-status", "invalid-missing-payloadtype", "invalid-wrong-connectiontype", "invalid-missing-address"],
-            "ActivityDefinition": ["minimal", "maximal", "invalid-missing-endpoint", "invalid-missing-url"],
+            "ActivityDefinition": ["minimal", "maximal", "invalid-missing-endpoint", "invalid-missing-url", "invalid-usecontext-invalid-codes"],
             "Task": ["minimal", "maximal", "invalid-missing-status"],
             "AuditEvent": ["minimal", "maximal"]
         }
