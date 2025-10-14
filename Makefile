@@ -33,12 +33,9 @@ login:
 # Install dependencies
 .PHONY: install-dependencies
 install-dependencies:
-	@echo "Installing nictiz packages from local zip file..."
-	@mkdir -p $(HOME)/.fhir/packages
-	@unzip -o nictiz-packages/nictiz.fhir.nl.r4-with-snapshots.zip -d $(HOME)/.fhir/packages/
-	@echo "Nictiz packages installed successfully"
-	@echo "Fixing 4.0.x versions in nictiz packages (for Publisher 2.0.15 compatibility)..."
-	@python3 scripts/fix_nictiz_dependencies.py
+	@fhir install nictiz.fhir.nl.r4.zib2020@0.12.0-beta.4
+	@fhir extract-package nictiz.fhir.nl.r4.zib2020@0.12.0-beta.4
+	@fhir inflate --package nictiz.fhir.nl.r4.zib2020@0.12.0-beta.4
 
 # Build Implementation Guide (Full with documentation)
 .PHONY: build-ig
