@@ -122,8 +122,8 @@ pack-minimal: login
 .PHONY: publish
 publish: build-ig login
 	cd fsh-generated/resources && $(FHIR) bake
-	cd fsh-fsh-generated/resources && $(FHIR) pack
-	cd fsh-fsh-generated/resources && $(FHIR) publish-package
+	cd fsh-generated/resources && $(FHIR) pack
+	cd fsh-generated/resources && $(FHIR) publish-package
 
 # Show version
 .PHONY: version
