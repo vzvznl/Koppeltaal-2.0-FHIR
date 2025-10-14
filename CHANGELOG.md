@@ -1,5 +1,29 @@
 CHANGELOG
 
+## 1.4.5-beta.012 (2025-10-14)
+
+### Fixed
+- **KT2_ActivityDefinition useContext.code binding**: Changed from `extensible` to `required` to prevent invalid context type codes
+  - Now only allows codes from `KoppeltaalUsageContextType_VS` valueset
+  - Prevents invalid codes from being accepted
+  - Closes the valueset to enforce strict validation
+- **activitydefinition-with-participant example**: Corrected codesystem URL for useContext.valueCodeableConcept
+  - Changed from `http://vzvz.nl/fhir/CodeSystem/koppeltaal-usage-context` (invalid)
+  - To `http://vzvz.nl/fhir/CodeSystem/koppeltaal-features` (correct)
+- **activitydefinition-standard-usecontext example**: Corrected codesystem URL for useContext.code with feature type
+  - Changed from `http://terminology.hl7.org/CodeSystem/usage-context-type#feature` (invalid - feature not in standard FHIR)
+  - To `http://vzvz.nl/fhir/CodeSystem/koppeltaal-usage-context-type#feature` (correct - Koppeltaal extension)
+
+### Added
+- **Test case for invalid useContext**: Added negative test case `invalid-usecontext-invalid-codes` to test resource generator
+  - Tests rejection of invalid context type code ("onzin")
+  - Tests rejection of invalid context value with non-existent codesystem ("Troep")
+  - Validates that required binding on useContext.code works correctly
+
+### Technical
+- Strengthened validation by using required bindings instead of extensible bindings for useContext.code
+- Removed unnecessary KoppeltaalUsageContextValues_VS valueset (valueCodeableConcept validation handled by FHIR naturally)
+
 ## 1.4.5-beta.011 (2025-10-09)
 
 ### Fixed
