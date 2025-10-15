@@ -15,4 +15,4 @@ Description: "Usage context type codes for Koppeltaal ActivityDefinitions, exten
 * insert ContactAndPublisher
 * ^caseSensitive = true
 * ^count = 1
-* #feature "Feature" "Indicates a required feature or capability for the activity, such as support for relative participation. Uses the code system http://vzvz.nl/fhir/CodeSystem/koppeltaal-features"
+* #feature "Feature" "Indicates a required feature or capability for the activity, such as support for relative participation. Uses the code system [KoppeltaalFeatures](CodeSystem-koppeltaal-features.html)"
