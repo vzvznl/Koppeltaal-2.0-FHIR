@@ -118,7 +118,11 @@ pack-minimal: login
 # Publish package to Simplifier.net
 .PHONY: publish
 publish: build-ig login
-	@echo "Publishing to Simplifier.net..."
+	@echo "Publishing package to Simplifier.net..."
+	cd fsh-generated/resources && $(FHIR) bake
+	cd fsh-generated/resources && $(FHIR) pack
+	cd fsh-generated/resources && $(FHIR) publish-package koppeltaalv2.00.$(VERSION).tgz
+	@echo "Publishing project to Simplifier.net..."
 	@echo "Cloning Simplifier project..."
 	$(FHIR) project clone https://simplifier.net/koppeltaalv2.0 koppeltaalv2.0
 	@echo "Copying resources..."
