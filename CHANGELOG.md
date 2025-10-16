@@ -1,5 +1,28 @@
 CHANGELOG
 
+## 0.15.0.beta.1 (2025-10-16)
+
+**Note: Changed versioning scheme from 1.4.5-beta.x to 0.15.0.beta.x to align with existing versioning system**
+
+### Changed
+- **Versioning scheme**: Changed from 1.4.5-beta.012 to 0.15.0.beta.1
+- **Nictiz dependencies**: Updated from 0.11.0-beta.1 to 0.12.0-beta.4
+  - Resolves snapshot generation issues with zib-AddressInformation during HAPI FHIR package installation
+  - Both `nictiz.fhir.nl.r4.zib2020` and `nictiz.fhir.nl.r4.nl-core` updated
+
+### Added
+- **scripts/get_dependencies.py**: Dynamic dependency extraction script for Makefile
+  - Dependencies can now be automatically extracted from sushi-config.yaml
+
+### Technical
+- Makefile: Enhanced publish workflow with both package publishing and project synchronization
+  - Maintains `bake`, `pack`, and `publish-package` with filename argument (`koppeltaalv2.00.$(VERSION).tgz`)
+  - Adds project cloning from Simplifier.net
+  - Copies README.md, CHANGELOG.md, and resources to Simplifier project
+  - Pushes updated project back to Simplifier
+- Makefile: install-dependencies now dynamically reads from sushi-config.yaml via scripts/get_dependencies.py
+- KoppeltaalUsageContextType: Added clickable link to KoppeltaalFeatures CodeSystem in feature code description
+
 ## 1.4.5-beta.012 (2025-10-14)
 
 ### Fixed
