@@ -119,12 +119,24 @@ pack-minimal: login
 	@echo "Final package size: $$(du -h ./output-minimal/koppeltaalv2-$(VERSION)-minimal.tgz | cut -f1)"
 	@echo "Package structure matches working Simplifier format - ready for HAPI FHIR deployment"
 
-# Publish package to Simplifier.net, not tested.
+# Publish package to Simplifier.net
 .PHONY: publish
 publish: build-ig login
+	@echo "Publishing package to Simplifier.net..."
 	cd fsh-generated/resources && $(FHIR) bake
 	cd fsh-generated/resources && $(FHIR) pack
-	cd fsh-generated/resources && $(FHIR) publish-package
+	cd fsh-generated/resources && $(FHIR) publish-package koppeltaalv2.00.$(VERSION).tgz
+	@echo "Publishing project to Simplifier.net..."
+	@echo "Cloning Simplifier project..."
+	$(FHIR) project clone https://simplifier.net/koppeltaalv2.0 koppeltaalv2.0
+	@echo "Copying resources..."
+	@cp README.md koppeltaalv2.0/
+	@cp CHANGELOG.md koppeltaalv2.0/
+	@mkdir -p koppeltaalv2.0/resources
+	@cp -r fsh-generated/resources/* koppeltaalv2.0/resources/
+	@echo "Pushing to Simplifier..."
+	cd koppeltaalv2.0 && $(FHIR) project push
+	@echo "Successfully published to Simplifier.net"
 
 # Show version
 .PHONY: version
