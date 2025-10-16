@@ -1,11 +1,11 @@
 CHANGELOG
 
-## 0.15.0.beta.1 (2025-10-16)
+## 0.15.0-beta.1 (2025-10-16)
 
-**Note: Changed versioning scheme from 1.4.5-beta.x to 0.15.0.beta.x to align with existing versioning system**
+**Note: Changed versioning scheme from 1.4.5-beta.x to 0.15.0-beta.x to align with existing versioning system and semver requirements**
 
 ### Changed
-- **Versioning scheme**: Changed from 1.4.5-beta.012 to 0.15.0.beta.1
+- **Versioning scheme**: Changed from 1.4.5-beta.012 to 0.15.0-beta.1 (using hyphen for semver compatibility)
 - **Nictiz dependencies**: Updated from 0.11.0-beta.1 to 0.12.0-beta.4
   - Resolves snapshot generation issues with zib-AddressInformation during HAPI FHIR package installation
   - Both `nictiz.fhir.nl.r4.zib2020` and `nictiz.fhir.nl.r4.nl-core` updated
