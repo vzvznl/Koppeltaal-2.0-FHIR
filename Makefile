@@ -120,7 +120,7 @@ pack-minimal: login
 publish: build-ig login
 	cd fsh-generated/resources && $(FHIR) bake
 	cd fsh-generated/resources && $(FHIR) pack
-	cd fsh-generated/resources && $(FHIR) publish-package
+	cd fsh-generated/resources && $(FHIR) publish-package koppeltaalv2.00.$(VERSION).tgz
 
 # Show version
 .PHONY: version
