@@ -118,16 +118,17 @@ jobs:
           node-version: '18'
           registry-url: 'https://npm.pkg.github.com'
 
-      - name: Publish Full Package to GitHub Packages
+      - name: Check if version exists and publish
+        id: publish
         run: |
           # Extract the package created by build-ig
           mkdir -p npm-publish
           tar -xzf ./output/package.tgz -C npm-publish
           cd npm-publish/package
-          
+
           # Get the repository owner (org or user)
           REPO_OWNER=$(echo "${{ github.repository }}" | cut -d'/' -f1)
-          
+
           # Calculate the publish version
           PUBLISH_VERSION="${{ needs.build.outputs.version }}"
           # For non-main branches, append the branch name and short commit hash to make version unique
@@ -136,16 +137,27 @@ jobs:
             BRANCH_NAME=$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9._-]/-/g')
             PUBLISH_VERSION="${PUBLISH_VERSION}-${BRANCH_NAME}-${GITHUB_SHA::7}"
           fi
-          
+
           # Update package.json to include GitHub registry info and ensure it's scoped
           # Also update the version to match what we calculated
           jq --arg owner "@$REPO_OWNER" --arg version "$PUBLISH_VERSION" '.name = $owner + "/" + .name | .version = $version | .publishConfig = {"registry": "https://npm.pkg.github.com", "access": "restricted"}' package.json > package.json.tmp && mv package.json.tmp package.json
-          
-          # Publish the package - public for main branch, restricted for others
-          if [ "${{ github.ref_name }}" = "main" ]; then
-            npm publish --access public
+
+          # Get the package name from package.json
+          PACKAGE_NAME=$(jq -r '.name' package.json)
+
+          # Check if this version already exists on npm
+          if npm view ${PACKAGE_NAME}@${PUBLISH_VERSION} version 2>/dev/null; then
+            echo "Version ${PUBLISH_VERSION} already exists on npm registry, skipping publish"
+            echo "skipped=true" >> $GITHUB_OUTPUT
           else
-            npm publish --access restricted
+            echo "Publishing version ${PUBLISH_VERSION}"
+            # Publish the package - public for main branch, restricted for others
+            if [ "${{ github.ref_name }}" = "main" ]; then
+              npm publish --access public
+            else
+              npm publish --access restricted
+            fi
+            echo "skipped=false" >> $GITHUB_OUTPUT
           fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -166,16 +178,17 @@ jobs:
           node-version: '18'
           registry-url: 'https://npm.pkg.github.com'
 
-      - name: Publish Minimal Package to GitHub Packages
+      - name: Check if version exists and publish
+        id: publish
         run: |
           # Extract the package created by build-ig-minimal
           mkdir -p npm-publish
           tar -xzf ./output-minimal/package.tgz -C npm-publish
           cd npm-publish/package
-          
+
           # Get the repository owner (org or user)
           REPO_OWNER=$(echo "${{ github.repository }}" | cut -d'/' -f1)
-          
+
           # Calculate the publish version
           PUBLISH_VERSION="${{ needs.build.outputs.version }}-minimal"
           # For non-main branches, append the branch name and short commit hash to make version unique
@@ -184,16 +197,27 @@ jobs:
             BRANCH_NAME=$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9._-]/-/g')
             PUBLISH_VERSION="${PUBLISH_VERSION}-${BRANCH_NAME}-${GITHUB_SHA::7}"
           fi
-          
+
           # Update package.json to include GitHub registry info and ensure it's scoped
           # Also update the version to match what we calculated
           jq --arg owner "@$REPO_OWNER" --arg version "$PUBLISH_VERSION" '.name = $owner + "/" + .name + "-minimal" | .version = $version | .publishConfig = {"registry": "https://npm.pkg.github.com", "access": "restricted"}' package.json > package.json.tmp && mv package.json.tmp package.json
-          
-          # Publish the package - public for main branch, restricted for others
-          if [ "${{ github.ref_name }}" = "main" ]; then
-            npm publish --access public
+
+          # Get the package name from package.json
+          PACKAGE_NAME=$(jq -r '.name' package.json)
+
+          # Check if this version already exists on npm
+          if npm view ${PACKAGE_NAME}@${PUBLISH_VERSION} version 2>/dev/null; then
+            echo "Version ${PUBLISH_VERSION} already exists on npm registry, skipping publish"
+            echo "skipped=true" >> $GITHUB_OUTPUT
           else
-            npm publish --access restricted
+            echo "Publishing version ${PUBLISH_VERSION}"
+            # Publish the package - public for main branch, restricted for others
+            if [ "${{ github.ref_name }}" = "main" ]; then
+              npm publish --access public
+            else
+              npm publish --access restricted
+            fi
+            echo "skipped=false" >> $GITHUB_OUTPUT
           fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
