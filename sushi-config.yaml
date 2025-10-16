@@ -7,7 +7,7 @@ fhirVersion: 4.0.1
 FSHOnly: false
 applyExtensionMetadataToRoot: false
 status: draft
-version: 1.4.5-beta.011
+version: 1.4.5-beta.012c
 copyrightYear: 2024+
 releaseLabel: ci-build
 # license: CC0-1.0 # https://www.hl7.org/fhir/valueset-spdx-license.html
@@ -19,7 +19,7 @@ publisher:
 
 dependencies:
   # Note: hl7.fhir.r4.core dependency is provided by nictiz packages
-  # The fix_nictiz_dependencies.py script fixes the "4.0.x" version issue
+  # Dependencies are automatically extracted by scripts/get_dependencies.py for Makefile
   nictiz.fhir.nl.r4.zib2020:
     version: 0.12.0-beta.4
     uri: http://simplifier.net/packages/nictiz.fhir.nl.r4.zib2020#0.12.0-beta.4

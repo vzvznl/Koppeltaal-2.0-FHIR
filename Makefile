@@ -33,9 +33,13 @@ login:
 # Install dependencies
 .PHONY: install-dependencies
 install-dependencies:
-	@fhir install nictiz.fhir.nl.r4.zib2020@0.12.0-beta.4
-	@fhir extract-package nictiz.fhir.nl.r4.zib2020@0.12.0-beta.4
-	@fhir inflate --package nictiz.fhir.nl.r4.zib2020@0.12.0-beta.4
+	@echo "Installing dependencies from sushi-config.yaml..."
+	@python3 scripts/get_dependencies.py | while read pkg; do \
+		echo "Installing $$pkg..."; \
+		fhir install $$pkg; \
+		fhir extract-package $$pkg; \
+		fhir inflate --package $$pkg; \
+	done
 
 # Build Implementation Guide (Full with documentation)
 .PHONY: build-ig
