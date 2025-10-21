@@ -1,16 +1,16 @@
-CodeSystem: KoppeltaalFeatures
-Id: koppeltaal-features
-Title: "Koppeltaal Features"
-Description: "Required features or capabilities for Koppeltaal activities"
+CodeSystem: KoppeltaalExpansion
+Id: koppeltaal-expansion
+Title: "Koppeltaal Expansion"
+Description: "Optional expansions for Koppeltaal activities"
 * ^status = #active
 * ^content = #complete
-* ^meta.lastUpdated = "2025-10-07T12:00:00+02:00"
-* ^url = "http://vzvz.nl/fhir/CodeSystem/koppeltaal-features"
+* ^meta.lastUpdated = "2025-10-21T12:00:00+02:00"
+* ^url = "http://vzvz.nl/fhir/CodeSystem/koppeltaal-expansion"
 * ^identifier.use = #official
-* ^identifier.value = "http://vzvz.nl/fhir/CodeSystem/koppeltaal-features"
+* ^identifier.value = "http://vzvz.nl/fhir/CodeSystem/koppeltaal-expansion"
 * ^version = "1.0.0"
 * ^experimental = false
-* ^date = "2025-10-07T12:00:00+02:00"
+* ^date = "2025-10-21T12:00:00+02:00"
 * insert ContactAndPublisher
 * ^caseSensitive = true
 * ^count = 1

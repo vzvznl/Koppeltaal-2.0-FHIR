@@ -613,7 +613,7 @@ class TestResourceGenerator:
                     },
                     "valueCodeableConcept": {
                         "coding": [{
-                            "system": "http://vzvz.nl/fhir/CodeSystem/koppeltaal-features",
+                            "system": "http://vzvz.nl/fhir/CodeSystem/koppeltaal-expansion",
                             "code": "026-RolvdNaaste",
                             "display": "Rol van de naaste"
                         }]
@@ -707,9 +707,9 @@ class TestResourceGenerator:
                 },
                 "valueCodeableConcept": {
                     "coding": [{
-                        "system": "http://vzvz.nl/fhir/CodeSystem/koppeltaal-features",
-                        "code": "INVALID",  # Invalid code - not in koppeltaal-features CodeSystem
-                        "display": "Invalid Feature Code"
+                        "system": "http://vzvz.nl/fhir/CodeSystem/koppeltaal-expansion",
+                        "code": "INVALID",  # Invalid code - not in koppeltaal-expansion CodeSystem
+                        "display": "Invalid Expansion Code"
                     }]
                 }
             }]

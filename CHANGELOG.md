@@ -1,20 +1,52 @@
 CHANGELOG
 
+## 0.15.0-beta.3 (2025-10-21)
+
+### Changed
+- **Terminology rename**: Changed from "features" to "expansion" terminology
+  - Renamed `KoppeltaalFeatures` CodeSystem to `KoppeltaalExpansion`
+  - Changed URL from `http://vzvz.nl/fhir/CodeSystem/koppeltaal-features` to `http://vzvz.nl/fhir/CodeSystem/koppeltaal-expansion`
+  - Renamed `KoppeltaalFeatures_VS` ValueSet to `KoppeltaalExpansion_VS`
+  - Changed URL from `http://vzvz.nl/fhir/ValueSet/koppeltaal-features` to `http://vzvz.nl/fhir/ValueSet/koppeltaal-expansion`
+  - Updated descriptions from "Required features or capabilities" to "Optional expansions"
+  - Aligns with standard terminology: these are optional extensions, not required features
+- **KT2_ActivityDefinition profile**: Updated useContext[feature] documentation
+  - Changed from "Required feature or capability" to "Optional expansion"
+  - Updated binding descriptions to reflect optional nature
+- Removed ambiguous statement from KT2Task documentation about `view` permission meaning differing per application
+  - Now clearly defines mandatory validation requirements for all applications
+
+### Added
+- **KT2Task validation documentation**: Added mandatory validation rules for Tasks with read-only permissions (`Task.code = view`)
+  - Task must have `Task.partOf` present
+  - `Task.partOf` must reference a Task without `Task.code`
+  - `Task.for` must equal the `Task.for` of the referenced Task
+  - Documentation added to StructureDefinition-KT2Task-notes.md
+- **KT2CareTeam validation documentation**: Added mandatory validation rules for CareTeam operations
+  - `CareTeam.subject` must equal the associated Patient
+  - `CareTeam.status` must be `active`
+  - If `CareTeam.period` is present, validation moment must fall within the period
+  - Documentation added to StructureDefinition-KT2CareTeam-notes.md
+
+### Technical
+- Implemented requirements from KPTSTD-925 (Resource-specific validations for implementation guide)
+- Updated all references in profiles, examples, and test resources to use new expansion terminology
+
 ## 0.15.0-beta.2 (2025-10-21)
 
 ### Fixed
-- **KT2_ActivityDefinition useContext validation**: Added required binding for feature codes in useContext.valueCodeableConcept
-  - Created `KoppeltaalFeatures_VS` ValueSet to validate feature codes
+- **KT2_ActivityDefinition useContext validation**: Added required binding for expansion codes in useContext.valueCodeableConcept
+  - Created `KoppeltaalExpansion_VS` ValueSet to validate expansion codes
   - Implemented slicing on `useContext` to discriminate by code type
-  - Added `feature` slice with required binding to `KoppeltaalFeatures_VS`
-  - Now properly validates that feature codes must be from `koppeltaal-features` CodeSystem
+  - Added `feature` slice with required binding to `KoppeltaalExpansion_VS`
+  - Now properly validates that expansion codes must be from `koppeltaal-expansion` CodeSystem
   - Prevents invalid codes like "INVALID" from passing validation
 
 ### Added
-- **ValueSet**: `KoppeltaalFeatures_VS` (http://vzvz.nl/fhir/ValueSet/koppeltaal-features)
-  - Includes all codes from `KoppeltaalFeatures` CodeSystem
+- **ValueSet**: `KoppeltaalExpansion_VS` (http://vzvz.nl/fhir/ValueSet/koppeltaal-expansion)
+  - Includes all codes from `KoppeltaalExpansion` CodeSystem
 - **Test case**: `invalid-feature-code` variant in test resource generator
-  - Tests rejection of invalid feature codes in useContext.valueCodeableConcept
+  - Tests rejection of invalid expansion codes in useContext.valueCodeableConcept
   - Validates that required binding on feature slice works correctly
 
 ### Technical

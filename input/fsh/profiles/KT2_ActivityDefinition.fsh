@@ -34,14 +34,14 @@ Description: "The (FHIR) ActivityDefinition (resource) describes an eHealth acti
     * ^binding.description = "Standard usage context types extended with Koppeltaal specific context types"
 * useContext contains feature 0..*
 * useContext[feature]
-  * ^short = "Required feature or capability for the activity"
-  * ^definition = "Indicates a required feature or capability for the activity, such as support for relative participation"
+  * ^short = "Optional expansion for the activity"
+  * ^definition = "Indicates an optional expansion for the activity, such as support for relative participation"
   * code = http://vzvz.nl/fhir/CodeSystem/koppeltaal-usage-context-type#feature
   * valueCodeableConcept 1..1
-  * valueCodeableConcept from KoppeltaalFeatures_VS (required)
-    * ^short = "The specific feature required"
-    * ^definition = "The specific feature or capability required for this activity"
-    * ^binding.description = "Required features or capabilities for Koppeltaal activities"
+  * valueCodeableConcept from KoppeltaalExpansion_VS (required)
+    * ^short = "The specific expansion"
+    * ^definition = "The specific optional expansion for this activity"
+    * ^binding.description = "Optional expansions for Koppeltaal activities"
 * jurisdiction ..0
 * jurisdiction ^definition = "This element is not used"
 * purpose ..0
