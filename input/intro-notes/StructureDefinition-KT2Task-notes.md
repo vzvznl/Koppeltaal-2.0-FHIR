@@ -27,8 +27,17 @@ The subtask is created as follows:
 #### Code
 
 With the `KT2_Task.code` element the permission of a `KT2_Task` can be set to `view`.
-The exact meaning of the `view` permission can differ per application because authorisations in
-Koppeltaal 2.0 are defined and executed by the applications.
+
+#### Validation: Task with read-only permissions
+
+A digital intervention with read-only permissions must be related to another task where the owner has write permissions. When a Task with read-only permissions is created (indicated by `Task.code = view`), the following validations **MUST** be performed:
+
+**Applications MUST validate that:**
+- `Task.partOf` is present
+- `Task.partOf` contains a reference to a Task where `Task.code` is absent
+- `Task.for` is equal to the `Task.for` of the Task referenced in `Task.partOf`
+
+If these validations are not met, the Task with read-only permissions **MUST NOT** be assigned.
 
 #### Example
 
