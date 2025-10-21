@@ -1,6 +1,6 @@
 CHANGELOG
 
-## 0.15.0-beta.3 (2025-10-21)
+## 0.15.0-beta.4 (2025-10-21)
 
 ### Changed
 - **Terminology rename**: Changed from "features" to "expansion" terminology
@@ -13,8 +13,11 @@ CHANGELOG
 - **KT2_ActivityDefinition profile**: Updated useContext[feature] documentation
   - Changed from "Required feature or capability" to "Optional expansion"
   - Updated binding descriptions to reflect optional nature
-- Removed ambiguous statement from KT2Task documentation about `view` permission meaning differing per application
-  - Now clearly defines mandatory validation requirements for all applications
+
+### Technical
+- Updated all references in profiles, examples, and test resources to use new expansion terminology
+
+## 0.15.0-beta.3 (2025-10-21)
 
 ### Added
 - **KT2Task validation documentation**: Added mandatory validation rules for Tasks with read-only permissions (`Task.code = view`)
@@ -28,9 +31,12 @@ CHANGELOG
   - If `CareTeam.period` is present, validation moment must fall within the period
   - Documentation added to StructureDefinition-KT2CareTeam-notes.md
 
+### Changed
+- Removed ambiguous statement from KT2Task documentation about `view` permission meaning differing per application
+  - Now clearly defines mandatory validation requirements for all applications
+
 ### Technical
 - Implemented requirements from KPTSTD-925 (Resource-specific validations for implementation guide)
-- Updated all references in profiles, examples, and test resources to use new expansion terminology
 
 ## 0.15.0-beta.2 (2025-10-21)
 
