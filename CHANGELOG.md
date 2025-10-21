@@ -1,5 +1,26 @@
 CHANGELOG
 
+## 0.15.0-beta.3 (2025-10-21)
+
+### Added
+- **KT2Task validation documentation**: Added mandatory validation rules for Tasks with read-only permissions (`Task.code = view`)
+  - Task must have `Task.partOf` present
+  - `Task.partOf` must reference a Task without `Task.code`
+  - `Task.for` must equal the `Task.for` of the referenced Task
+  - Documentation added to StructureDefinition-KT2Task-notes.md
+- **KT2CareTeam validation documentation**: Added mandatory validation rules for CareTeam operations
+  - `CareTeam.subject` must equal the associated Patient
+  - `CareTeam.status` must be `active`
+  - If `CareTeam.period` is present, validation moment must fall within the period
+  - Documentation added to StructureDefinition-KT2CareTeam-notes.md
+
+### Changed
+- Removed ambiguous statement from KT2Task documentation about `view` permission meaning differing per application
+  - Now clearly defines mandatory validation requirements for all applications
+
+### Technical
+- Implemented requirements from KPTSTD-925 (Resource-specific validations for implementation guide)
+
 ## 0.15.0-beta.2 (2025-10-21)
 
 ### Fixed
