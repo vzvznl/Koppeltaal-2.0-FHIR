@@ -1,5 +1,26 @@
 CHANGELOG
 
+## 0.15.0-beta.2 (2025-10-21)
+
+### Fixed
+- **KT2_ActivityDefinition useContext validation**: Added required binding for feature codes in useContext.valueCodeableConcept
+  - Created `KoppeltaalFeatures_VS` ValueSet to validate feature codes
+  - Implemented slicing on `useContext` to discriminate by code type
+  - Added `feature` slice with required binding to `KoppeltaalFeatures_VS`
+  - Now properly validates that feature codes must be from `koppeltaal-features` CodeSystem
+  - Prevents invalid codes like "INVALID" from passing validation
+
+### Added
+- **ValueSet**: `KoppeltaalFeatures_VS` (http://vzvz.nl/fhir/ValueSet/koppeltaal-features)
+  - Includes all codes from `KoppeltaalFeatures` CodeSystem
+- **Test case**: `invalid-feature-code` variant in test resource generator
+  - Tests rejection of invalid feature codes in useContext.valueCodeableConcept
+  - Validates that required binding on feature slice works correctly
+
+### Technical
+- Enhanced profile constraints using FHIR slicing to apply context-specific bindings
+- Improved validation for ActivityDefinition useContext values based on context type
+
 ## 0.15.0-beta.1 (2025-10-16)
 
 **Note: Changed versioning scheme from 1.4.5-beta.x to 0.15.0-beta.x to align with existing versioning system and semver requirements**

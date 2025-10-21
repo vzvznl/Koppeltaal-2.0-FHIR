@@ -25,10 +25,23 @@ Description: "The (FHIR) ActivityDefinition (resource) describes an eHealth acti
 * useContext
   * ^definition = "The context for the content of the eHealth activity"
   * ^comment = "E.g. the activity is targeted to a certain age group, or requires specific technical features like relative participation"
+  * ^slicing.discriminator.type = #pattern
+  * ^slicing.discriminator.path = "code"
+  * ^slicing.rules = #open
   * code from KoppeltaalUsageContextType_VS (required)
     * ^short = "Usage context type including Koppeltaal extensions"
     * ^definition = "Standard FHIR usage context types plus Koppeltaal specific types like feature"
     * ^binding.description = "Standard usage context types extended with Koppeltaal specific context types"
+* useContext contains feature 0..*
+* useContext[feature]
+  * ^short = "Required feature or capability for the activity"
+  * ^definition = "Indicates a required feature or capability for the activity, such as support for relative participation"
+  * code = http://vzvz.nl/fhir/CodeSystem/koppeltaal-usage-context-type#feature
+  * valueCodeableConcept 1..1
+  * valueCodeableConcept from KoppeltaalFeatures_VS (required)
+    * ^short = "The specific feature required"
+    * ^definition = "The specific feature or capability required for this activity"
+    * ^binding.description = "Required features or capabilities for Koppeltaal activities"
 * jurisdiction ..0
 * jurisdiction ^definition = "This element is not used"
 * purpose ..0
