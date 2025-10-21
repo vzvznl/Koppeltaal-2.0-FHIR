@@ -32,5 +32,5 @@ Usage: #example
 * useContext[=].valueCodeableConcept = http://hl7.org/fhir/administrative-gender#other "Other"
 // Koppeltaal-specific useContext for feature
 * useContext[+].code = http://vzvz.nl/fhir/CodeSystem/koppeltaal-usage-context-type#feature
-* useContext[=].valueCodeableConcept = http://vzvz.nl/fhir/CodeSystem/koppeltaal-features#026-RolvdNaaste "Rol van de naaste"
+* useContext[=].valueCodeableConcept = http://vzvz.nl/fhir/CodeSystem/koppeltaal-expansion#026-RolvdNaaste "Rol van de naaste"
 * topic = $koppeltaal-definition-topic#self-treatment
