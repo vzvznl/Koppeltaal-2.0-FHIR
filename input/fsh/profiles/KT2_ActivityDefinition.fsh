@@ -32,8 +32,8 @@ Description: "The (FHIR) ActivityDefinition (resource) describes an eHealth acti
     * ^short = "Usage context type including Koppeltaal extensions"
     * ^definition = "Standard FHIR usage context types plus Koppeltaal specific types like feature"
     * ^binding.description = "Standard usage context types extended with Koppeltaal specific context types"
-* useContext contains feature 0..*
-* useContext[feature]
+* useContext contains koppeltaal-expansion 0..*
+* useContext[koppeltaal-expansion]
   * ^short = "Optional expansion for the activity"
   * ^definition = "Indicates an optional expansion for the activity, such as support for relative participation"
   * code = http://vzvz.nl/fhir/CodeSystem/koppeltaal-usage-context-type#feature
