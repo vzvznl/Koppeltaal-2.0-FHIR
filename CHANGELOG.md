@@ -1,5 +1,16 @@
 CHANGELOG
 
+## 0.15.0-beta.5 (2025-10-21)
+
+### Changed
+- **KT2_ActivityDefinition profile**: Renamed useContext slice from `feature` to `koppeltaal-expansion`
+  - Aligns slice naming with expansion terminology introduced in 0.15.0-beta.4
+  - Improves consistency between slice name and the expansion concept it represents
+  - Generated StructureDefinition now uses `sliceName: "koppeltaal-expansion"`
+
+### Technical
+- Refactored profile slicing to use consistent naming throughout the implementation guide
+
 ## 0.15.0-beta.4 (2025-10-21)
 
 ### Changed
