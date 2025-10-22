@@ -150,6 +150,26 @@ def delete_resource(fhir_base_url: str, resource_type: str, resource_id: str, be
         return False
 
 
+def get_resource(fhir_base_url: str, resource_type: str, resource_id: str, bearer_token: str = None) -> Optional[Dict]:
+    """Get a resource from the FHIR server"""
+    get_url = f"{fhir_base_url}/{resource_type}/{resource_id}"
+    headers = {'Accept': 'application/fhir+json'}
+
+    if bearer_token:
+        headers['Authorization'] = f'Bearer {bearer_token}'
+
+    req = urllib.request.Request(get_url, headers=headers)
+
+    try:
+        with urllib.request.urlopen(req) as response:
+            return json.loads(response.read().decode('utf-8'))
+    except urllib.error.HTTPError as e:
+        if e.code == 404:
+            return None
+        else:
+            return None
+
+
 def put_resource(fhir_base_url: str, resource: Dict, bearer_token: str = None) -> bool:
     """PUT a resource to the FHIR server (create or update)"""
     resource_type = resource['resourceType']
@@ -161,17 +181,19 @@ def put_resource(fhir_base_url: str, resource: Dict, bearer_token: str = None) -
         'Accept': 'application/fhir+json'
     }
 
+    # Check if resource exists to get versionId for optimistic locking
+    existing_resource = get_resource(fhir_base_url, resource_type, resource_id, bearer_token)
+    if existing_resource and 'meta' in existing_resource and 'versionId' in existing_resource['meta']:
+        version_id = existing_resource['meta']['versionId']
+        headers['If-Match'] = f'W/"{version_id}"'
+
     if bearer_token:
         headers['Authorization'] = f'Bearer {bearer_token}'
 
-    # Remove meta fields that might cause conflicts
+    # Remove meta fields from the resource we're uploading
     resource_copy = resource.copy()
     if 'meta' in resource_copy:
-        # Keep only versionId for updates if present
-        meta = resource_copy['meta']
-        resource_copy['meta'] = {k: v for k, v in meta.items() if k in ['versionId']}
-        if not resource_copy['meta']:
-            del resource_copy['meta']
+        del resource_copy['meta']
 
     data = json.dumps(resource_copy).encode('utf-8')
     req = urllib.request.Request(put_url, data=data, headers=headers, method='PUT')
