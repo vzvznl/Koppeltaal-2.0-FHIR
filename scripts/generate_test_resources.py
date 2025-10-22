@@ -60,11 +60,26 @@ def parse_fsh_canonical_url(file_path: str, resource_type: str = None) -> Option
     return None
 
 
-def discover_fsh_resources(base_dir: str = 'input/fsh') -> Tuple[List[str], List[str], List[str]]:
+def get_implementation_guide_url() -> Optional[str]:
+    """Get ImplementationGuide canonical URL from sushi-config.yaml"""
+    try:
+        canonical_base = get_canonical_base()
+        with open('sushi-config.yaml', 'r') as f:
+            for line in f:
+                if line.startswith('id:'):
+                    ig_id = line.split(':', 1)[1].strip()
+                    return f"{canonical_base}/ImplementationGuide/{ig_id}"
+    except FileNotFoundError:
+        pass
+    return None
+
+
+def discover_fsh_resources(base_dir: str = 'input/fsh') -> Tuple[List[str], List[str], List[str], List[str]]:
     """Discover all FSH resources by scanning the input/fsh directory"""
     profiles = []
     codesystems = []
     valuesets = []
+    implementation_guides = []
 
     # Find all profile files
     profile_dir = os.path.join(base_dir, 'profiles')
@@ -90,7 +105,12 @@ def discover_fsh_resources(base_dir: str = 'input/fsh') -> Tuple[List[str], List
             if url:
                 valuesets.append(url)
 
-    return profiles, codesystems, valuesets
+    # Get ImplementationGuide URL
+    ig_url = get_implementation_guide_url()
+    if ig_url:
+        implementation_guides.append(ig_url)
+
+    return profiles, codesystems, valuesets, implementation_guides
 
 
 class TestResourceGenerator:
@@ -1063,9 +1083,9 @@ class TestResourceGenerator:
         print("=" * 60)
 
         # Discover resources from FSH files
-        profiles, codesystems, valuesets = discover_fsh_resources()
+        profiles, codesystems, valuesets, implementation_guides = discover_fsh_resources()
 
-        print(f"  Found {len(profiles)} profiles, {len(codesystems)} code systems, {len(valuesets)} value sets")
+        print(f"  Found {len(profiles)} profiles, {len(codesystems)} code systems, {len(valuesets)} value sets, {len(implementation_guides)} implementation guide(s)")
 
         # Create smoke tests directory
         smoke_tests_dir = self.output_dir / "smoke-tests"
@@ -1075,7 +1095,8 @@ class TestResourceGenerator:
         smoke_tests = {
             "StructureDefinition": profiles,
             "CodeSystem": codesystems,
-            "ValueSet": valuesets
+            "ValueSet": valuesets,
+            "ImplementationGuide": implementation_guides
         }
 
         # Create a JSON file with all the resources to check

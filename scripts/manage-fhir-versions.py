@@ -108,55 +108,30 @@ def discover_fsh_resources(base_dir: str = 'input/fsh') -> Tuple[List[str], List
     return profiles, codesystems, valuesets
 
 
-def get_implementation_guide_id() -> str:
-    """Get Implementation Guide ID from sushi-config.yaml"""
+def get_expected_version() -> str:
+    """Get expected version from sushi-config.yaml"""
     try:
         with open('sushi-config.yaml', 'r') as f:
             for line in f:
-                if line.startswith('id:'):
+                if line.startswith('version:'):
                     return line.split(':', 1)[1].strip()
     except FileNotFoundError:
         pass
-    return None
+    return "unknown"
 
 
-def get_expected_version_from_server(fhir_base_url: str, bearer_token: str = None) -> str:
-    """Get expected version from the ImplementationGuide resource on the FHIR server"""
-    ig_id = get_implementation_guide_id()
-
-    if not ig_id:
-        print(f"{YELLOW}Warning: Could not find ImplementationGuide ID in sushi-config.yaml{NC}", file=sys.stderr)
-        return "unknown"
-
-    # Query for the ImplementationGuide
-    query_url = f"{fhir_base_url}/ImplementationGuide/{ig_id}"
-    headers = {'Accept': 'application/fhir+json'}
-
-    if bearer_token:
-        headers['Authorization'] = f'Bearer {bearer_token}'
-
-    req = urllib.request.Request(query_url, headers=headers)
-
+def get_implementation_guide_url() -> Optional[str]:
+    """Get ImplementationGuide canonical URL from sushi-config.yaml"""
     try:
-        with urllib.request.urlopen(req) as response:
-            ig = json.loads(response.read().decode('utf-8'))
-            version = ig.get('version', 'unknown')
-            print(f"{BLUE}Found ImplementationGuide {ig_id} version {version} on server{NC}", file=sys.stderr)
-            return version
-    except urllib.error.URLError as e:
-        print(f"{YELLOW}Warning: Could not fetch ImplementationGuide from server: {e}{NC}", file=sys.stderr)
-        print(f"{YELLOW}Falling back to version from sushi-config.yaml{NC}", file=sys.stderr)
-
-        # Fall back to local sushi-config.yaml
-        try:
-            with open('sushi-config.yaml', 'r') as f:
-                for line in f:
-                    if line.startswith('version:'):
-                        return line.split(':', 1)[1].strip()
-        except FileNotFoundError:
-            pass
-
-        return "unknown"
+        canonical_base = get_canonical_base()
+        with open('sushi-config.yaml', 'r') as f:
+            for line in f:
+                if line.startswith('id:'):
+                    ig_id = line.split(':', 1)[1].strip()
+                    return f"{canonical_base}/ImplementationGuide/{ig_id}"
+    except FileNotFoundError:
+        pass
+    return None
 
 
 def query_resource(fhir_base_url: str, resource_type: str, url: str, bearer_token: str = None) -> Dict:
@@ -269,11 +244,16 @@ def main():
     # Discover resources from FSH files
     print(f"{BLUE}Discovering resources from FSH files...{NC}", file=sys.stderr)
     profiles, codesystems, valuesets = discover_fsh_resources()
-    print(f"  Found {len(profiles)} profiles, {len(codesystems)} code systems, {len(valuesets)} value sets", file=sys.stderr)
+
+    # Get ImplementationGuide URL
+    ig_url = get_implementation_guide_url()
+    implementation_guides = [ig_url] if ig_url else []
+
+    print(f"  Found {len(profiles)} profiles, {len(codesystems)} code systems, {len(valuesets)} value sets, {len(implementation_guides)} implementation guide(s)", file=sys.stderr)
     print("", file=sys.stderr)
 
-    # Get expected version from server's ImplementationGuide
-    expected_version = get_expected_version_from_server(fhir_base_url, bearer_token)
+    # Get expected version from sushi-config.yaml
+    expected_version = get_expected_version()
 
     # Print header
     print(f"{BLUE}═══════════════════════════════════════════════════════════{NC}")
@@ -301,7 +281,11 @@ def main():
     vs_issues, vs_clean = process_resources(fhir_base_url, "ValueSet", valuesets, expected_version, command, bearer_token)
     all_resources_to_clean.extend(vs_clean)
 
-    total_issues = sd_issues + cs_issues + vs_issues
+    print(f"{BLUE}Checking ImplementationGuides...{NC}", file=sys.stderr)
+    ig_issues, ig_clean = process_resources(fhir_base_url, "ImplementationGuide", implementation_guides, expected_version, command, bearer_token)
+    all_resources_to_clean.extend(ig_clean)
+
+    total_issues = sd_issues + cs_issues + vs_issues + ig_issues
 
     # Summary
     print(f"{BLUE}═══════════════════════════════════════════════════════════{NC}")
