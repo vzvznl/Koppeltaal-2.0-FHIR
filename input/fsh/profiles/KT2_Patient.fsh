@@ -39,7 +39,8 @@ Description: "The Patient resource represents a person receiving healthcare serv
     * insert notUsedKT2
 * gender 1..
 * birthDate 1..
-* deceased ..0
+* deceasedBoolean 0..0
+* deceasedDateTime 0..0
 * address
   * extension[addressType]
     * insert notUsedKT2
@@ -58,7 +59,8 @@ Description: "The Patient resource represents a person receiving healthcare serv
   * period 
     * insert notUsedKT2
 * maritalStatus ..0
-* multipleBirth ..0
+* multipleBirthBoolean 0..0
+* multipleBirthInteger 0..0
 * photo ..0
 * contact ..0
 * communication ..0
