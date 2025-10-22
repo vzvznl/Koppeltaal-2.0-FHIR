@@ -1,5 +1,28 @@
 CHANGELOG
 
+## 0.15.0-beta.6 (2025-10-22)
+
+### Changed
+- **KT2_ActivityDefinition profile**: Consolidated useContext slice rename from `feature` to `koppeltaal-expansion`
+  - Merged feature/koppeltaal-extension-rename branch
+  - Ensures consistency with expansion terminology across the implementation guide
+
+### Added
+- **FHIR Package Synchronization**: New script `sync-fhir-package.py` for synchronizing FHIR packages to servers
+  - Downloads and extracts FHIR packages from URLs
+  - Detects discrepancies: missing resources, wrong IDs, wrong versions, duplicates
+  - Synchronizes resources by deleting duplicates and PUTting correct versions
+  - Handles optimistic locking via resource history
+  - Solves ImplementationGuide reference errors caused by ID mismatches
+- **ImplementationGuide Upload**: Enhanced `upload-implementation-guide.py` script
+  - Strips IG Publisher-specific parameters for HAPI FHIR compatibility
+  - Removes example resources that don't exist on server
+  - Supports optimistic locking with If-Match header
+
+### Technical
+- Improved FHIR server resource management tooling
+- Fixed version management for deleted resources using history etag
+
 ## 0.15.0-beta.5 (2025-10-21)
 
 ### Changed
