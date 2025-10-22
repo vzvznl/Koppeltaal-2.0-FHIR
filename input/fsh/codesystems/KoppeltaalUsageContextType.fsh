@@ -15,4 +15,4 @@ Description: "Usage context type codes for Koppeltaal ActivityDefinitions, exten
 * insert ContactAndPublisher
 * ^caseSensitive = true
 * ^count = 1
-* #feature "Feature" "Indicates an optional expansion for the activity, such as support for relative participation. Uses the code system http://vzvz.nl/fhir/CodeSystem/koppeltaal-expansion"
+* #koppeltaal-expansion "Koppeltaal Expansion" "Indicates an optional expansion for the activity, such as support for relative participation. Uses the code system http://vzvz.nl/fhir/CodeSystem/koppeltaal-expansion"

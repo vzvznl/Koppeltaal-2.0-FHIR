@@ -58,7 +58,46 @@ jobs:
         run: |
           echo "🧪 Generating test resources..."
           python scripts/generate_test_resources.py
-          
+
+      - name: Set FHIR server URL (early)
+        id: set-url-early
+        run: |
+          if [ -n "${{ github.event.inputs.fhir_server_url }}" ]; then
+            echo "FHIR_URL=${{ github.event.inputs.fhir_server_url }}" >> $GITHUB_OUTPUT
+            echo "Using provided FHIR server URL: ${{ github.event.inputs.fhir_server_url }}"
+          else
+            echo "FHIR_URL=${{ secrets.TEST_FHIR_SERVER_URL }}" >> $GITHUB_OUTPUT
+            echo "Using TEST_FHIR_SERVER_URL secret"
+          fi
+
+      - name: Run smoke tests for version duplicates
+        id: smoke-tests
+        continue-on-error: true
+        run: |
+          echo "🔍 Running smoke tests to check for duplicate versions..."
+          chmod +x test-resources/smoke-tests/smoke-tests.sh
+
+          # Pass bearer token if provided
+          if [ -n "${{ github.event.inputs.auth_token }}" ]; then
+            ./test-resources/smoke-tests/smoke-tests.sh "${{ steps.set-url-early.outputs.FHIR_URL }}" "${{ github.event.inputs.auth_token }}" | tee smoke-test-output.txt
+          else
+            ./test-resources/smoke-tests/smoke-tests.sh "${{ steps.set-url-early.outputs.FHIR_URL }}" | tee smoke-test-output.txt
+          fi
+
+          SMOKE_EXIT_CODE=$?
+          echo "exit_code=$SMOKE_EXIT_CODE" >> $GITHUB_OUTPUT
+
+          # Count passed and failed tests
+          SMOKE_PASSED=$(grep -c "✓" smoke-test-output.txt || echo "0")
+          SMOKE_FAILED=$(grep -c "✗" smoke-test-output.txt || echo "0")
+          echo "passed=$SMOKE_PASSED" >> $GITHUB_OUTPUT
+          echo "failed=$SMOKE_FAILED" >> $GITHUB_OUTPUT
+
+          if [ $SMOKE_EXIT_CODE -ne 0 ]; then
+            echo "⚠️ Smoke tests detected duplicate versions on the FHIR server"
+            echo "This may cause unpredictable validation behavior"
+          fi
+
       - name: Generate Postman collection
         run: |
           echo "📮 Generating Postman collection..."
@@ -177,7 +216,17 @@ jobs:
           name: newman-html-report
           path: newman-report.html
           retention-days: 30
-          
+
+      - name: Upload smoke test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-test-results
+          path: |
+            smoke-test-output.txt
+            test-resources/smoke-tests/version-check-data.json
+          retention-days: 30
+
       - name: Publish test results
         if: always() && github.actor != 'dependabot[bot]'
         uses: dorny/test-reporter@v1
@@ -194,8 +243,36 @@ jobs:
         run: |
           echo "## 🧪 FHIR Test Execution Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Smoke test results
+          if [ -n "${{ steps.smoke-tests.outputs.exit_code }}" ]; then
+            echo "### 🔍 Smoke Tests - Version Duplication Check" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+
+            if [ "${{ steps.smoke-tests.outputs.exit_code }}" = "0" ]; then
+              echo "✅ **No duplicate versions detected**" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "All ${{ steps.smoke-tests.outputs.passed }} resources have exactly one version on the FHIR server." >> $GITHUB_STEP_SUMMARY
+            else
+              echo "⚠️ **Duplicate versions detected**" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "| Status | Count |" >> $GITHUB_STEP_SUMMARY
+              echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+              echo "| ✅ Single version | ${{ steps.smoke-tests.outputs.passed }} |" >> $GITHUB_STEP_SUMMARY
+              echo "| ❌ Multiple versions | ${{ steps.smoke-tests.outputs.failed }} |" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "**Warning:** Multiple versions of FHIR resources can cause unpredictable validation behavior." >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "To clean up duplicate versions, run:" >> $GITHUB_STEP_SUMMARY
+              echo '```bash' >> $GITHUB_STEP_SUMMARY
+              echo "python3 scripts/manage-fhir-versions.py clean ${{ steps.set-url-early.outputs.FHIR_URL }}" >> $GITHUB_STEP_SUMMARY
+              echo '```' >> $GITHUB_STEP_SUMMARY
+            fi
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
+
           echo "### 🔧 Configuration" >> $GITHUB_STEP_SUMMARY
-          echo "- **FHIR Server:** ${{ steps.set-url.outputs.FHIR_URL }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **FHIR Server:** ${{ steps.set-url-early.outputs.FHIR_URL }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Authentication:** ${{ github.event.inputs.auth_token && 'Enabled' || 'Disabled' }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Stop on failure:** ${{ github.event.inputs.stop_on_failure }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Test filter:** ${{ github.event.inputs.test_filter || 'All resources' }}" >> $GITHUB_STEP_SUMMARY
