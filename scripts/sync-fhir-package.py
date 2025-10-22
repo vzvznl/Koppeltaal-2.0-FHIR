@@ -2,15 +2,19 @@
 """
 Synchronize FHIR package resources to a HAPI FHIR server
 
-This script downloads a FHIR package (.tgz) and synchronizes all resources to a
-FHIR server, ensuring that:
+This script downloads a FHIR package (.tgz) and synchronizes conformance resources
+to a FHIR server, ensuring that:
 - Resources exist with the correct ID (matching the package)
 - No duplicate versions exist (same canonical URL, different version)
 - No duplicate IDs exist (same canonical URL, different resource ID)
 
+Resource types synchronized:
+- StructureDefinition, CodeSystem, ValueSet, SearchParameter, ImplementationGuide
+- Note: NamingSystem excluded (doesn't have canonical URL for querying)
+
 Special handling for ImplementationGuide resources:
 - Strips IG Publisher-specific definition.parameter entries
-- Removes example resources from definition.resource (keeps only conformance resources)
+- Removes example resources and NamingSystem references from definition.resource
 
 Usage: python3 sync-fhir-package.py <command> <fhir_base_url> <package_url> [bearer_token]
 
@@ -94,8 +98,9 @@ def load_package_resources(package_dir: str) -> List[Dict]:
         sys.exit(1)
 
     # Resource types we care about
+    # Note: NamingSystem excluded as it doesn't have a canonical URL (uses uniqueId instead)
     resource_types = ['StructureDefinition', 'CodeSystem', 'ValueSet', 'SearchParameter',
-                     'NamingSystem', 'ImplementationGuide']
+                     'ImplementationGuide']
 
     for filename in os.listdir(package_subdir):
         if not filename.endswith('.json'):
@@ -235,15 +240,23 @@ def put_resource(fhir_base_url: str, resource: Dict, bearer_token: str = None) -
         if 'definition' in resource_copy and 'parameter' in resource_copy['definition']:
             del resource_copy['definition']['parameter']
 
-        # Strip out example resources from definition.resource
-        # Examples don't exist on the server, only conformance resources
+        # Strip out resources that are not synced to the server
         if 'definition' in resource_copy and 'resource' in resource_copy['definition']:
-            # Keep only resources that are NOT examples (exampleBoolean: false or no example* field)
+            def should_keep_resource(r):
+                # Remove example resources
+                if r.get('exampleBoolean') == True or 'exampleCanonical' in r:
+                    return False
+
+                # Remove NamingSystem references (not synced - no canonical URL)
+                ref = r.get('reference', {}).get('reference', '')
+                if ref.startswith('NamingSystem/'):
+                    return False
+
+                return True
+
             resource_copy['definition']['resource'] = [
                 r for r in resource_copy['definition']['resource']
-                if r.get('exampleBoolean') == False or (
-                    'exampleBoolean' not in r and 'exampleCanonical' not in r
-                )
+                if should_keep_resource(r)
             ]
 
     data = json.dumps(resource_copy).encode('utf-8')
