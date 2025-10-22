@@ -150,21 +150,48 @@ def delete_resource(fhir_base_url: str, resource_type: str, resource_id: str, be
         return False
 
 
-def get_resource(fhir_base_url: str, resource_type: str, resource_id: str, bearer_token: str = None) -> Optional[Dict]:
-    """Get a resource from the FHIR server"""
-    get_url = f"{fhir_base_url}/{resource_type}/{resource_id}"
+def get_resource_from_history(fhir_base_url: str, resource_type: str, resource_id: str, bearer_token: str = None) -> Optional[Dict]:
+    """
+    Get a resource by checking its history
+
+    This handles both existing and deleted resources. If the most recent history
+    entry shows a DELETE, the resource is considered deleted and None is returned.
+    """
+    history_url = f"{fhir_base_url}/{resource_type}/{resource_id}/_history"
     headers = {'Accept': 'application/fhir+json'}
 
     if bearer_token:
         headers['Authorization'] = f'Bearer {bearer_token}'
 
-    req = urllib.request.Request(get_url, headers=headers)
+    req = urllib.request.Request(history_url, headers=headers)
 
     try:
         with urllib.request.urlopen(req) as response:
-            return json.loads(response.read().decode('utf-8'))
+            history_bundle = json.loads(response.read().decode('utf-8'))
+
+            if history_bundle.get('total', 0) == 0:
+                # No history = resource never existed
+                return None
+
+            # Get the first entry (most recent)
+            entries = history_bundle.get('entry', [])
+            if not entries:
+                return None
+
+            first_entry = entries[0]
+            request = first_entry.get('request', {})
+            method = request.get('method', '')
+
+            if method == 'DELETE':
+                # Resource was deleted, treat as non-existent
+                return None
+            else:
+                # Resource exists (PUT or POST), return it
+                return first_entry.get('resource')
+
     except urllib.error.HTTPError as e:
         if e.code == 404:
+            # No history = resource never existed
             return None
         else:
             return None
@@ -181,8 +208,8 @@ def put_resource(fhir_base_url: str, resource: Dict, bearer_token: str = None) -
         'Accept': 'application/fhir+json'
     }
 
-    # Check if resource exists to get versionId for optimistic locking
-    existing_resource = get_resource(fhir_base_url, resource_type, resource_id, bearer_token)
+    # Check if resource exists (via history) to get versionId for optimistic locking
+    existing_resource = get_resource_from_history(fhir_base_url, resource_type, resource_id, bearer_token)
     if existing_resource and 'meta' in existing_resource and 'versionId' in existing_resource['meta']:
         version_id = existing_resource['meta']['versionId']
         headers['If-Match'] = f'W/"{version_id}"'
