@@ -108,16 +108,55 @@ def discover_fsh_resources(base_dir: str = 'input/fsh') -> Tuple[List[str], List
     return profiles, codesystems, valuesets
 
 
-def get_expected_version() -> str:
-    """Get expected version from sushi-config.yaml"""
+def get_implementation_guide_id() -> str:
+    """Get Implementation Guide ID from sushi-config.yaml"""
     try:
         with open('sushi-config.yaml', 'r') as f:
             for line in f:
-                if line.startswith('version:'):
+                if line.startswith('id:'):
                     return line.split(':', 1)[1].strip()
     except FileNotFoundError:
         pass
-    return "unknown"
+    return None
+
+
+def get_expected_version_from_server(fhir_base_url: str, bearer_token: str = None) -> str:
+    """Get expected version from the ImplementationGuide resource on the FHIR server"""
+    ig_id = get_implementation_guide_id()
+
+    if not ig_id:
+        print(f"{YELLOW}Warning: Could not find ImplementationGuide ID in sushi-config.yaml{NC}", file=sys.stderr)
+        return "unknown"
+
+    # Query for the ImplementationGuide
+    query_url = f"{fhir_base_url}/ImplementationGuide/{ig_id}"
+    headers = {'Accept': 'application/fhir+json'}
+
+    if bearer_token:
+        headers['Authorization'] = f'Bearer {bearer_token}'
+
+    req = urllib.request.Request(query_url, headers=headers)
+
+    try:
+        with urllib.request.urlopen(req) as response:
+            ig = json.loads(response.read().decode('utf-8'))
+            version = ig.get('version', 'unknown')
+            print(f"{BLUE}Found ImplementationGuide {ig_id} version {version} on server{NC}", file=sys.stderr)
+            return version
+    except urllib.error.URLError as e:
+        print(f"{YELLOW}Warning: Could not fetch ImplementationGuide from server: {e}{NC}", file=sys.stderr)
+        print(f"{YELLOW}Falling back to version from sushi-config.yaml{NC}", file=sys.stderr)
+
+        # Fall back to local sushi-config.yaml
+        try:
+            with open('sushi-config.yaml', 'r') as f:
+                for line in f:
+                    if line.startswith('version:'):
+                        return line.split(':', 1)[1].strip()
+        except FileNotFoundError:
+            pass
+
+        return "unknown"
 
 
 def query_resource(fhir_base_url: str, resource_type: str, url: str, bearer_token: str = None) -> Dict:
@@ -227,13 +266,14 @@ def main():
         print("Valid commands: detect, clean, list")
         sys.exit(1)
 
-    expected_version = get_expected_version()
-
     # Discover resources from FSH files
     print(f"{BLUE}Discovering resources from FSH files...{NC}", file=sys.stderr)
     profiles, codesystems, valuesets = discover_fsh_resources()
     print(f"  Found {len(profiles)} profiles, {len(codesystems)} code systems, {len(valuesets)} value sets", file=sys.stderr)
     print("", file=sys.stderr)
+
+    # Get expected version from server's ImplementationGuide
+    expected_version = get_expected_version_from_server(fhir_base_url, bearer_token)
 
     # Print header
     print(f"{BLUE}═══════════════════════════════════════════════════════════{NC}")
