@@ -179,15 +179,10 @@ def get_resource_from_history(fhir_base_url: str, resource_type: str, resource_i
                 return None
 
             first_entry = entries[0]
-            request = first_entry.get('request', {})
-            method = request.get('method', '')
 
-            if method == 'DELETE':
-                # Resource was deleted, treat as non-existent
-                return None
-            else:
-                # Resource exists (PUT or POST), return it
-                return first_entry.get('resource')
+            # Always return the resource from history so we can get the versionId
+            # Even if the resource was deleted, we need the versionId for the PUT operation
+            return first_entry.get('resource')
 
     except urllib.error.HTTPError as e:
         if e.code == 404:
