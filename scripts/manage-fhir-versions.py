@@ -242,8 +242,10 @@ def check_all_implementation_guides(
                 elif command == 'list':
                     print(f"{GREEN}✓{NC} ImplementationGuide: {resource_id} - Version: {version}", file=sys.stderr)
 
-            elif len(koppeltaal_igs) == 0 and command == 'list':
-                print(f"{RED}✗{NC} ImplementationGuide: Not found", file=sys.stderr)
+            elif len(koppeltaal_igs) == 0:
+                print(f"{RED}✗{NC} ImplementationGuide: Not found on server", file=sys.stderr)
+                total_issues += 1
+                print("", file=sys.stderr)
 
     except urllib.error.URLError as e:
         print(f"{RED}Error querying ImplementationGuides: {e}{NC}", file=sys.stderr)
@@ -303,8 +305,10 @@ def process_resources(
             elif command == 'list':
                 print(f"{GREEN}✓{NC} {resource_type}: {url.split('/')[-1]} - Version: {version}", file=sys.stderr)
 
-        elif total == 0 and command == 'list':
-            print(f"{RED}✗{NC} {resource_type}: {url.split('/')[-1]} - Not found", file=sys.stderr)
+        elif total == 0:
+            resource_name = url.split('/')[-1]
+            print(f"{RED}✗{NC} {resource_type}: {resource_name} - Not found on server", file=sys.stderr)
+            total_issues += 1
 
     return total_issues, resources_to_clean
 
