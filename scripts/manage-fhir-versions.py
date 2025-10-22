@@ -2,17 +2,21 @@
 """
 Manage FHIR resource versions on a HAPI FHIR server
 
-Usage: python3 manage-fhir-versions.py <command> <fhir_base_url>
+Usage: python3 manage-fhir-versions.py <command> <fhir_base_url> [bearer_token]
 
 Commands:
   detect - Detect unexpected versions of profiles
   clean  - Remove old/unexpected versions (interactive confirmation)
   list   - List all versions of Koppeltaal profiles
 
+Parameters:
+  bearer_token - Optional Bearer token for authentication
+
 Examples:
   python3 manage-fhir-versions.py detect http://localhost:8080/fhir/DEFAULT
   python3 manage-fhir-versions.py clean https://staging-fhir-server.koppeltaal.headease.nl/fhir/DEFAULT
   python3 manage-fhir-versions.py list http://localhost:8080/fhir/DEFAULT
+  python3 manage-fhir-versions.py clean https://prod-fhir-server.example.com/fhir/DEFAULT "eyJhbGciOiJIUzI1NiIs..."
 """
 
 import sys
@@ -116,10 +120,15 @@ def get_expected_version() -> str:
     return "unknown"
 
 
-def query_resource(fhir_base_url: str, resource_type: str, url: str) -> Dict:
+def query_resource(fhir_base_url: str, resource_type: str, url: str, bearer_token: str = None) -> Dict:
     """Query FHIR server for a specific canonical URL"""
     query_url = f"{fhir_base_url}/{resource_type}?url={url}"
-    req = urllib.request.Request(query_url, headers={'Accept': 'application/fhir+json'})
+    headers = {'Accept': 'application/fhir+json'}
+
+    if bearer_token:
+        headers['Authorization'] = f'Bearer {bearer_token}'
+
+    req = urllib.request.Request(query_url, headers=headers)
 
     try:
         with urllib.request.urlopen(req) as response:
@@ -129,10 +138,15 @@ def query_resource(fhir_base_url: str, resource_type: str, url: str) -> Dict:
         return {"total": 0, "entry": []}
 
 
-def delete_resource(fhir_base_url: str, resource_type: str, resource_id: str) -> Dict:
+def delete_resource(fhir_base_url: str, resource_type: str, resource_id: str, bearer_token: str = None) -> Dict:
     """Delete a resource by ID"""
     delete_url = f"{fhir_base_url}/{resource_type}/{resource_id}"
-    req = urllib.request.Request(delete_url, method='DELETE', headers={'Accept': 'application/fhir+json'})
+    headers = {'Accept': 'application/fhir+json'}
+
+    if bearer_token:
+        headers['Authorization'] = f'Bearer {bearer_token}'
+
+    req = urllib.request.Request(delete_url, method='DELETE', headers=headers)
 
     try:
         with urllib.request.urlopen(req) as response:
@@ -146,14 +160,15 @@ def process_resources(
     resource_type: str,
     urls: List[str],
     expected_version: str,
-    command: str
+    command: str,
+    bearer_token: str = None
 ) -> Tuple[int, List[Tuple[str, str, str, str]]]:
     """Process resources and return issues count and resources to clean"""
     total_issues = 0
     resources_to_clean = []
 
     for url in urls:
-        response = query_resource(fhir_base_url, resource_type, url)
+        response = query_resource(fhir_base_url, resource_type, url, bearer_token)
         total = response.get('total', 0)
         entries = response.get('entry', [])
 
@@ -205,6 +220,7 @@ def main():
 
     command = sys.argv[1]
     fhir_base_url = sys.argv[2] if len(sys.argv) > 2 else "http://localhost:8080/fhir/DEFAULT"
+    bearer_token = sys.argv[3] if len(sys.argv) > 3 else None
 
     if command not in ['detect', 'clean', 'list']:
         print(f"{RED}Error: Invalid command '{command}'{NC}")
@@ -225,6 +241,7 @@ def main():
     print(f"{BLUE}═══════════════════════════════════════════════════════════{NC}")
     print(f"Command:          {command}")
     print(f"FHIR Server:      {fhir_base_url}")
+    print(f"Authentication:   {'Bearer token provided' if bearer_token else 'No token (public access)'}")
     print(f"Expected Version: {expected_version}")
     print(f"{BLUE}═══════════════════════════════════════════════════════════{NC}")
     print()
@@ -233,15 +250,15 @@ def main():
     all_resources_to_clean = []
 
     print(f"{BLUE}Checking StructureDefinitions...{NC}", file=sys.stderr)
-    sd_issues, sd_clean = process_resources(fhir_base_url, "StructureDefinition", profiles, expected_version, command)
+    sd_issues, sd_clean = process_resources(fhir_base_url, "StructureDefinition", profiles, expected_version, command, bearer_token)
     all_resources_to_clean.extend(sd_clean)
 
     print(f"{BLUE}Checking CodeSystems...{NC}", file=sys.stderr)
-    cs_issues, cs_clean = process_resources(fhir_base_url, "CodeSystem", codesystems, expected_version, command)
+    cs_issues, cs_clean = process_resources(fhir_base_url, "CodeSystem", codesystems, expected_version, command, bearer_token)
     all_resources_to_clean.extend(cs_clean)
 
     print(f"{BLUE}Checking ValueSets...{NC}", file=sys.stderr)
-    vs_issues, vs_clean = process_resources(fhir_base_url, "ValueSet", valuesets, expected_version, command)
+    vs_issues, vs_clean = process_resources(fhir_base_url, "ValueSet", valuesets, expected_version, command, bearer_token)
     all_resources_to_clean.extend(vs_clean)
 
     total_issues = sd_issues + cs_issues + vs_issues
@@ -280,7 +297,7 @@ def main():
                 for resource_type, resource_id, url, version in all_resources_to_clean:
                     print(f"Deleting {resource_type}/{resource_id} (version {version})...")
 
-                    result = delete_resource(fhir_base_url, resource_type, resource_id)
+                    result = delete_resource(fhir_base_url, resource_type, resource_id, bearer_token)
 
                     if result.get('resourceType') == 'OperationOutcome':
                         severity = result.get('issue', [{}])[0].get('severity', 'unknown')

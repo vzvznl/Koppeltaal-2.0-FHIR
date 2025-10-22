@@ -1106,11 +1106,16 @@ class TestResourceGenerator:
         script_content = '''#!/bin/bash
 # Smoke tests to check for duplicate resource versions on FHIR server
 #
-# Usage: ./smoke-tests.sh [FHIR_BASE_URL]
+# Usage: ./smoke-tests.sh [FHIR_BASE_URL] [BEARER_TOKEN]
+#
+# Parameters:
+#   FHIR_BASE_URL - The base URL of the FHIR server (default: http://localhost:8080/fhir/DEFAULT)
+#   BEARER_TOKEN  - Optional Bearer token for authentication
 #
 # Example:
 #   ./smoke-tests.sh http://localhost:8080/fhir/DEFAULT
 #   ./smoke-tests.sh https://staging-fhir-server.koppeltaal.headease.nl/fhir/DEFAULT
+#   ./smoke-tests.sh https://prod-fhir-server.example.com/fhir/DEFAULT "eyJhbGciOiJIUzI1NiIs..."
 
 # Check if jq is installed
 if ! command -v jq &> /dev/null; then
@@ -1119,10 +1124,16 @@ if ! command -v jq &> /dev/null; then
 fi
 
 FHIR_BASE_URL=${1:-"http://localhost:8080/fhir/DEFAULT"}
+BEARER_TOKEN=${2:-""}
 
 echo "🔍 Running Smoke Tests - Version Duplication Check"
 echo "=================================================="
 echo "FHIR Server: $FHIR_BASE_URL"
+if [ -n "$BEARER_TOKEN" ]; then
+    echo "Authentication: Bearer token provided"
+else
+    echo "Authentication: No token (public access)"
+fi
 echo ""
 
 # Colors for output
@@ -1156,8 +1167,12 @@ check_duplicate_versions() {
     # Query FHIR server
     query_url="${FHIR_BASE_URL}/${resource_type}?url=${canonical_url}"
 
-    # Make request and capture response
-    response=$(curl -s -H "Accept: application/fhir+json" "$query_url")
+    # Build curl command with optional authentication
+    if [ -n "$BEARER_TOKEN" ]; then
+        response=$(curl -s -H "Accept: application/fhir+json" -H "Authorization: Bearer $BEARER_TOKEN" "$query_url")
+    else
+        response=$(curl -s -H "Accept: application/fhir+json" "$query_url")
+    fi
 
     # Check if request was successful
     if [ $? -ne 0 ]; then
