@@ -119,16 +119,18 @@ process_resources() {
             # Get all versions
             local versions=$(echo "$response" | jq -r '.entry[] | "\(.resource.version)|\(.resource.id)|\(.resource.date // "unknown")"')
 
-            echo "$versions" | while IFS='|' read -r version id date; do
+            # Use process substitution to avoid subshell issue
+            while IFS='|' read -r version id date; do
                 if [ "$version" = "$EXPECTED_VERSION" ]; then
                     echo -e "  ${GREEN}✓ Keep${NC} Version: ${version}, ID: ${id}, Date: ${date}" >&2
                 else
                     echo -e "  ${RED}✗ Remove${NC} Version: ${version}, ID: ${id}, Date: ${date}" >&2
                     if [ "$COMMAND" = "clean" ]; then
-                        resources_to_clean+=("${resource_type}|${id}|${url}|${version}")
+                        # Write directly to temp file to avoid subshell issue
+                        echo "${resource_type}|${id}|${url}|${version}" >> /tmp/resources_to_clean_$$.txt
                     fi
                 fi
-            done
+            done <<< "$versions"
 
             total_issues=$((total_issues + 1))
             echo "" >&2
@@ -144,7 +146,8 @@ process_resources() {
                 total_issues=$((total_issues + 1))
 
                 if [ "$COMMAND" = "clean" ]; then
-                    resources_to_clean+=("${resource_type}|${id}|${url}|${version}")
+                    # Write directly to temp file
+                    echo "${resource_type}|${id}|${url}|${version}" >> /tmp/resources_to_clean_$$.txt
                 fi
             elif [ "$COMMAND" = "list" ]; then
                 echo -e "${GREEN}✓${NC} ${resource_type}: ${url##*/} - Version: ${version}" >&2
@@ -155,11 +158,6 @@ process_resources() {
     done
 
     echo "$total_issues"
-
-    # Store resources to clean in a temporary variable that can be accessed by caller
-    if [ "$COMMAND" = "clean" ] && [ ${#resources_to_clean[@]} -gt 0 ]; then
-        printf '%s\n' "${resources_to_clean[@]}" >> /tmp/resources_to_clean_$$.txt
-    fi
 }
 
 # Detect or list resources
