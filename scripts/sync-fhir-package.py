@@ -155,8 +155,7 @@ def get_version_from_history(fhir_base_url: str, resource_type: str, resource_id
     """
     Get the current versionId from resource history
 
-    For existing resources: gets versionId from resource.meta.versionId
-    For deleted resources: gets versionId from response.etag (e.g., W/"2")
+    Always extracts versionId from response.etag (present for DELETE, PUT, POST)
     For non-existent resources: returns None
 
     Returns just the version number (e.g., "2"), not the full ETag
@@ -183,23 +182,15 @@ def get_version_from_history(fhir_base_url: str, resource_type: str, resource_id
                 return None
 
             first_entry = entries[0]
-            request = first_entry.get('request', {})
-            method = request.get('method', '')
 
-            if method == 'DELETE':
-                # Resource was deleted - get version from response.etag
-                response_data = first_entry.get('response', {})
-                etag = response_data.get('etag', '')
-                # ETag format is W/"2", extract just the number
-                match = re.search(r'W/"(\d+)"', etag)
-                if match:
-                    return match.group(1)
-                return None
-            else:
-                # Resource exists - get version from resource.meta.versionId
-                resource = first_entry.get('resource', {})
-                meta = resource.get('meta', {})
-                return meta.get('versionId')
+            # Get version from response.etag (present for all operations: DELETE, PUT, POST)
+            response_data = first_entry.get('response', {})
+            etag = response_data.get('etag', '')
+            # ETag format is W/"2", extract just the number
+            match = re.search(r'W/"(\d+)"', etag)
+            if match:
+                return match.group(1)
+            return None
 
     except urllib.error.HTTPError as e:
         if e.code == 404:
