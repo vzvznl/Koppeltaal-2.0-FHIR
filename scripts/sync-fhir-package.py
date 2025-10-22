@@ -32,6 +32,7 @@ import tarfile
 import tempfile
 import os
 import shutil
+import re
 from typing import List, Dict, Tuple, Optional
 
 # ANSI color codes
@@ -150,12 +151,15 @@ def delete_resource(fhir_base_url: str, resource_type: str, resource_id: str, be
         return False
 
 
-def get_resource_from_history(fhir_base_url: str, resource_type: str, resource_id: str, bearer_token: str = None) -> Optional[Dict]:
+def get_version_from_history(fhir_base_url: str, resource_type: str, resource_id: str, bearer_token: str = None) -> Optional[str]:
     """
-    Get a resource by checking its history
+    Get the current versionId from resource history
 
-    This handles both existing and deleted resources. If the most recent history
-    entry shows a DELETE, the resource is considered deleted and None is returned.
+    For existing resources: gets versionId from resource.meta.versionId
+    For deleted resources: gets versionId from response.etag (e.g., W/"2")
+    For non-existent resources: returns None
+
+    Returns just the version number (e.g., "2"), not the full ETag
     """
     history_url = f"{fhir_base_url}/{resource_type}/{resource_id}/_history"
     headers = {'Accept': 'application/fhir+json'}
@@ -179,10 +183,23 @@ def get_resource_from_history(fhir_base_url: str, resource_type: str, resource_i
                 return None
 
             first_entry = entries[0]
+            request = first_entry.get('request', {})
+            method = request.get('method', '')
 
-            # Always return the resource from history so we can get the versionId
-            # Even if the resource was deleted, we need the versionId for the PUT operation
-            return first_entry.get('resource')
+            if method == 'DELETE':
+                # Resource was deleted - get version from response.etag
+                response_data = first_entry.get('response', {})
+                etag = response_data.get('etag', '')
+                # ETag format is W/"2", extract just the number
+                match = re.search(r'W/"(\d+)"', etag)
+                if match:
+                    return match.group(1)
+                return None
+            else:
+                # Resource exists - get version from resource.meta.versionId
+                resource = first_entry.get('resource', {})
+                meta = resource.get('meta', {})
+                return meta.get('versionId')
 
     except urllib.error.HTTPError as e:
         if e.code == 404:
@@ -204,9 +221,8 @@ def put_resource(fhir_base_url: str, resource: Dict, bearer_token: str = None) -
     }
 
     # Check if resource exists (via history) to get versionId for optimistic locking
-    existing_resource = get_resource_from_history(fhir_base_url, resource_type, resource_id, bearer_token)
-    if existing_resource and 'meta' in existing_resource and 'versionId' in existing_resource['meta']:
-        version_id = existing_resource['meta']['versionId']
+    version_id = get_version_from_history(fhir_base_url, resource_type, resource_id, bearer_token)
+    if version_id:
         headers['If-Match'] = f'W/"{version_id}"'
 
     if bearer_token:
