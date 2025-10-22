@@ -169,6 +169,88 @@ def delete_resource(fhir_base_url: str, resource_type: str, resource_id: str, be
         return {"resourceType": "OperationOutcome", "issue": [{"severity": "error", "diagnostics": str(e)}]}
 
 
+def check_all_implementation_guides(
+    fhir_base_url: str,
+    expected_version: str,
+    command: str,
+    bearer_token: str = None
+) -> Tuple[int, List[Tuple[str, str, str, str]]]:
+    """Check all ImplementationGuides on server (canonical URL may change between versions)"""
+    total_issues = 0
+    resources_to_clean = []
+
+    # Query for ALL ImplementationGuides
+    query_url = f"{fhir_base_url}/ImplementationGuide"
+    headers = {'Accept': 'application/fhir+json'}
+
+    if bearer_token:
+        headers['Authorization'] = f'Bearer {bearer_token}'
+
+    req = urllib.request.Request(query_url, headers=headers)
+
+    try:
+        with urllib.request.urlopen(req) as response:
+            result = json.loads(response.read().decode('utf-8'))
+            entries = result.get('entry', [])
+
+            # Filter for Koppeltaal IGs (ID or URL contains 'koppeltaal')
+            koppeltaal_igs = []
+            for entry in entries:
+                resource = entry.get('resource', {})
+                resource_id = resource.get('id', '')
+                url = resource.get('url', '')
+
+                if 'koppeltaal' in resource_id.lower() or 'koppeltaal' in url.lower():
+                    koppeltaal_igs.append(resource)
+
+            if len(koppeltaal_igs) > 1:
+                print(f"{YELLOW}⚠ Found {len(koppeltaal_igs)} Koppeltaal ImplementationGuides{NC}", file=sys.stderr)
+
+                for ig in koppeltaal_igs:
+                    version = ig.get('version', 'unknown')
+                    resource_id = ig.get('id', 'unknown')
+                    date = ig.get('date', 'unknown')
+                    url = ig.get('url', 'unknown')
+
+                    if version == expected_version:
+                        print(f"  {GREEN}✓ Keep{NC} Version: {version}, ID: {resource_id}, Date: {date}", file=sys.stderr)
+                        print(f"         URL: {url}", file=sys.stderr)
+                    else:
+                        print(f"  {RED}✗ Remove{NC} Version: {version}, ID: {resource_id}, Date: {date}", file=sys.stderr)
+                        print(f"         URL: {url}", file=sys.stderr)
+                        if command == 'clean':
+                            resources_to_clean.append(("ImplementationGuide", resource_id, url, version))
+
+                total_issues += 1
+                print("", file=sys.stderr)
+
+            elif len(koppeltaal_igs) == 1:
+                ig = koppeltaal_igs[0]
+                version = ig.get('version', 'unknown')
+                resource_id = ig.get('id', 'unknown')
+                url = ig.get('url', 'unknown')
+
+                if version != expected_version:
+                    print(f"{YELLOW}⚠ Unexpected version of ImplementationGuide{NC}", file=sys.stderr)
+                    print(f"  Found: {version}, Expected: {expected_version}, ID: {resource_id}", file=sys.stderr)
+                    print(f"  URL: {url}", file=sys.stderr)
+                    print("", file=sys.stderr)
+                    total_issues += 1
+
+                    if command == 'clean':
+                        resources_to_clean.append(("ImplementationGuide", resource_id, url, version))
+                elif command == 'list':
+                    print(f"{GREEN}✓{NC} ImplementationGuide: {resource_id} - Version: {version}", file=sys.stderr)
+
+            elif len(koppeltaal_igs) == 0 and command == 'list':
+                print(f"{RED}✗{NC} ImplementationGuide: Not found", file=sys.stderr)
+
+    except urllib.error.URLError as e:
+        print(f"{RED}Error querying ImplementationGuides: {e}{NC}", file=sys.stderr)
+
+    return total_issues, resources_to_clean
+
+
 def process_resources(
     fhir_base_url: str,
     resource_type: str,
@@ -282,7 +364,8 @@ def main():
     all_resources_to_clean.extend(vs_clean)
 
     print(f"{BLUE}Checking ImplementationGuides...{NC}", file=sys.stderr)
-    ig_issues, ig_clean = process_resources(fhir_base_url, "ImplementationGuide", implementation_guides, expected_version, command, bearer_token)
+    # For ImplementationGuides, check ALL on server (canonical URL may have changed between versions)
+    ig_issues, ig_clean = check_all_implementation_guides(fhir_base_url, expected_version, command, bearer_token)
     all_resources_to_clean.extend(ig_clean)
 
     total_issues = sd_issues + cs_issues + vs_issues + ig_issues
