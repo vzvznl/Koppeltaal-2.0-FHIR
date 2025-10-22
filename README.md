@@ -307,6 +307,126 @@ The CI/CD also publishes to GitHub Packages:
 - **Other branches**: Restricted access
 - **Package names**: Scoped to repository owner (e.g., `@{owner}/koppeltaalv2.00`)
 
+## Version Management and Testing
+
+This repository includes scripts for managing FHIR resource versions on HAPI FHIR servers and running smoke tests.
+
+### Version Management Script
+
+The `manage-fhir-versions.py` script helps detect and clean up duplicate or incorrect versions of FHIR resources on a HAPI FHIR server.
+
+**Features:**
+- Detects duplicate versions of resources
+- Detects unexpected/wrong versions
+- Detects missing resources
+- Auto-discovers resources from FSH files (24 total: 11 profiles, 6 code systems, 6 value sets, 1 ImplementationGuide)
+- Supports Bearer token authentication
+- Interactive cleanup with confirmation
+
+**Commands:**
+```bash
+# Detect version issues
+python3 scripts/manage-fhir-versions.py detect <fhir_base_url> [bearer_token]
+
+# List all versions
+python3 scripts/manage-fhir-versions.py list <fhir_base_url> [bearer_token]
+
+# Clean up old/duplicate versions (interactive)
+python3 scripts/manage-fhir-versions.py clean <fhir_base_url> [bearer_token]
+```
+
+**Examples:**
+```bash
+# Check localhost for version issues
+python3 scripts/manage-fhir-versions.py detect http://localhost:8080/fhir/DEFAULT
+
+# Check staging server
+python3 scripts/manage-fhir-versions.py detect https://staging-fhir-server.koppeltaal.headease.nl/fhir/DEFAULT
+
+# Clean up with authentication
+python3 scripts/manage-fhir-versions.py clean https://prod.example.com/fhir/DEFAULT "eyJhbGciOi..."
+```
+
+**Common Issues Detected:**
+- Multiple versions of same resource (e.g., versions 0.14.0 and 0.15.0-beta.6a both present)
+- Wrong version on server (e.g., server has 0.14.0 but expected is 0.15.0-beta.6a)
+- Missing resources (e.g., ImplementationGuide not found on server)
+
+### Smoke Tests
+
+Automated smoke tests verify that no duplicate versions exist on the FHIR server. These are generated as part of the test resource generation process.
+
+**Generate smoke tests:**
+```bash
+python3 scripts/generate_test_resources.py
+```
+
+This creates:
+- `test-resources/smoke-tests/smoke-tests.sh` - Executable test script
+- `test-resources/smoke-tests/version-check-data.json` - Test data with all resources to check
+
+**Run smoke tests:**
+```bash
+# Test localhost
+./test-resources/smoke-tests/smoke-tests.sh http://localhost:8080/fhir/DEFAULT
+
+# Test with authentication
+./test-resources/smoke-tests/smoke-tests.sh https://prod.example.com/fhir/DEFAULT "eyJhbGciOi..."
+```
+
+**Output:**
+```
+✓ StructureDefinition/KT2Patient - Single version found (version: 0.15.0-beta.6a)
+✓ CodeSystem/koppeltaal-expansion - Single version found (version: 0.15.0-beta.6a)
+✗ ImplementationGuide/koppeltaalv2.00 - Found 2 versions (expected 1)
+
+Smoke Test Results:
+Passed: 23
+Failed: 1
+Total: 24
+```
+
+**CI/CD Integration:**
+The smoke tests are automatically run as part of the `run-fhir-tests.yml` workflow before the main Newman tests. Results are displayed in the workflow summary with actionable cleanup commands.
+
+### ImplementationGuide Upload
+
+The `upload-implementation-guide.py` script uploads or updates the ImplementationGuide on a FHIR server.
+
+**Note:** The ImplementationGuide is typically installed via package installation. This script is provided for manual upload when needed but may fail validation on strict FHIR servers.
+
+**Usage:**
+```bash
+python3 scripts/upload-implementation-guide.py <fhir_base_url> [bearer_token]
+```
+
+**Examples:**
+```bash
+# Upload to localhost
+python3 scripts/upload-implementation-guide.py http://localhost:8080/fhir/DEFAULT
+
+# Upload with authentication
+python3 scripts/upload-implementation-guide.py https://staging-fhir-server.koppeltaal.headease.nl/fhir/DEFAULT "eyJhbGciOi..."
+```
+
+The script:
+- Loads ImplementationGuide from `fsh-generated/resources/ImplementationGuide-koppeltaalv2.00.json`
+- Checks if IG exists on server and compares versions
+- Uploads or updates using HTTP PUT
+- Provides detailed error messages from OperationOutcome
+
+### Resources Checked
+
+All scripts automatically discover and check these resources:
+
+| Resource Type | Count | Examples |
+|--------------|-------|----------|
+| StructureDefinition | 11 | KT2Patient, KT2Practitioner, KT2Organization, etc. |
+| CodeSystem | 6 | koppeltaal-expansion, koppeltaal-endpoint-connection-type, etc. |
+| ValueSet | 6 | koppeltaal-expansion, koppeltaal-task-code, etc. |
+| ImplementationGuide | 1 | koppeltaalv2.00 |
+| **Total** | **24** | |
+
 ## Technical Details
 
 - **Single Source**: Uses one `sushi-config.yaml` for both builds
