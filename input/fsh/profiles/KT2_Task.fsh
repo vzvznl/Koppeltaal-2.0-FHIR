@@ -6,10 +6,11 @@ Description: "The Task resource represents an eHealth activity that has been ass
 * ^status = #draft
 * ^date = "2023-01-24"
 * insert ContactAndPublisher
-* insert Origin
 * . ^definition = "An eHealth activity assigned to a patient."
 * extension contains
+    KT2_ResourceOrigin named resource-origin 0..1 and
     KT2_Instantiates named instantiates 0..*
+* extension[resource-origin] ^isModifier = false
 * extension[instantiates] ^short = "Reference to ActivityDefinition"
   * ^definition = "Reference to the ActivityDefinition, which conforms to the KT2_ActivityDefinition profile."
   * ^comment = "Use this extension to refer to the ActivityDefinition it instantiates."
