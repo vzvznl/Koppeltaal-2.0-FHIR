@@ -76,7 +76,14 @@ jobs:
         run: |
           echo "🔍 Running smoke tests to check for duplicate versions..."
           chmod +x test-resources/smoke-tests/smoke-tests.sh
-          ./test-resources/smoke-tests/smoke-tests.sh "${{ steps.set-url-early.outputs.FHIR_URL }}" | tee smoke-test-output.txt
+
+          # Pass bearer token if provided
+          if [ -n "${{ github.event.inputs.auth_token }}" ]; then
+            ./test-resources/smoke-tests/smoke-tests.sh "${{ steps.set-url-early.outputs.FHIR_URL }}" "${{ github.event.inputs.auth_token }}" | tee smoke-test-output.txt
+          else
+            ./test-resources/smoke-tests/smoke-tests.sh "${{ steps.set-url-early.outputs.FHIR_URL }}" | tee smoke-test-output.txt
+          fi
+
           SMOKE_EXIT_CODE=$?
           echo "exit_code=$SMOKE_EXIT_CODE" >> $GITHUB_OUTPUT
 
