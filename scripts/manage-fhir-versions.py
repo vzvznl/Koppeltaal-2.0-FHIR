@@ -20,6 +20,8 @@ import json
 import urllib.request
 import urllib.error
 import re
+import os
+import glob
 from typing import List, Dict, Tuple, Optional
 
 # ANSI color codes
@@ -29,30 +31,77 @@ YELLOW = '\033[1;33m'
 BLUE = '\033[0;34m'
 NC = '\033[0m'  # No Color
 
-# List of Koppeltaal profiles to check
-PROFILES = [
-    "http://koppeltaal.nl/fhir/StructureDefinition/KT2ActivityDefinition",
-    "http://koppeltaal.nl/fhir/StructureDefinition/KT2AuditEvent",
-    "http://koppeltaal.nl/fhir/StructureDefinition/KT2CareTeam",
-    "http://koppeltaal.nl/fhir/StructureDefinition/KT2Device",
-    "http://koppeltaal.nl/fhir/StructureDefinition/KT2Endpoint",
-    "http://koppeltaal.nl/fhir/StructureDefinition/KT2Organization",
-    "http://koppeltaal.nl/fhir/StructureDefinition/KT2Patient",
-    "http://koppeltaal.nl/fhir/StructureDefinition/KT2Practitioner",
-    "http://koppeltaal.nl/fhir/StructureDefinition/KT2RelatedPerson",
-    "http://koppeltaal.nl/fhir/StructureDefinition/KT2Subscription",
-    "http://koppeltaal.nl/fhir/StructureDefinition/KT2Task",
-]
 
-CODESYSTEMS = [
-    "http://vzvz.nl/fhir/CodeSystem/koppeltaal-expansion",
-    "http://vzvz.nl/fhir/CodeSystem/koppeltaal-usage-context-type",
-]
+def get_canonical_base() -> str:
+    """Get canonical base URL from sushi-config.yaml"""
+    try:
+        with open('sushi-config.yaml', 'r') as f:
+            for line in f:
+                if line.startswith('canonical:'):
+                    return line.split(':', 1)[1].strip()
+    except FileNotFoundError:
+        pass
+    return "http://koppeltaal.nl/fhir"  # Default fallback
 
-VALUESETS = [
-    "http://vzvz.nl/fhir/ValueSet/koppeltaal-expansion",
-    "http://vzvz.nl/fhir/ValueSet/koppeltaal-use-context-type",
-]
+
+def parse_fsh_canonical_url(file_path: str, resource_type: str = None) -> Optional[str]:
+    """Parse FSH file to extract canonical URL
+
+    For CodeSystems and ValueSets, looks for explicit ^url
+    For Profiles, constructs URL from Id and canonical base
+    """
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+
+            # Look for explicit * ^url = "http://..."
+            match = re.search(r'\*\s+\^url\s+=\s+"([^"]+)"', content)
+            if match:
+                return match.group(1)
+
+            # For profiles, construct URL from Id field
+            if resource_type == 'StructureDefinition':
+                id_match = re.search(r'^Id:\s+(\S+)', content, re.MULTILINE)
+                if id_match:
+                    canonical_base = get_canonical_base()
+                    profile_id = id_match.group(1)
+                    return f"{canonical_base}/StructureDefinition/{profile_id}"
+    except Exception as e:
+        print(f"{YELLOW}Warning: Could not parse {file_path}: {e}{NC}", file=sys.stderr)
+    return None
+
+
+def discover_fsh_resources(base_dir: str = 'input/fsh') -> Tuple[List[str], List[str], List[str]]:
+    """Discover all FSH resources by scanning the input/fsh directory"""
+    profiles = []
+    codesystems = []
+    valuesets = []
+
+    # Find all profile files
+    profile_dir = os.path.join(base_dir, 'profiles')
+    if os.path.exists(profile_dir):
+        for fsh_file in glob.glob(os.path.join(profile_dir, '*.fsh')):
+            url = parse_fsh_canonical_url(fsh_file, 'StructureDefinition')
+            if url:
+                profiles.append(url)
+
+    # Find all codesystem files
+    codesystem_dir = os.path.join(base_dir, 'codesystems')
+    if os.path.exists(codesystem_dir):
+        for fsh_file in glob.glob(os.path.join(codesystem_dir, '*.fsh')):
+            url = parse_fsh_canonical_url(fsh_file, 'CodeSystem')
+            if url:
+                codesystems.append(url)
+
+    # Find all valueset files
+    valueset_dir = os.path.join(base_dir, 'valuesets')
+    if os.path.exists(valueset_dir):
+        for fsh_file in glob.glob(os.path.join(valueset_dir, '*.fsh')):
+            url = parse_fsh_canonical_url(fsh_file, 'ValueSet')
+            if url:
+                valuesets.append(url)
+
+    return profiles, codesystems, valuesets
 
 
 def get_expected_version() -> str:
@@ -164,6 +213,12 @@ def main():
 
     expected_version = get_expected_version()
 
+    # Discover resources from FSH files
+    print(f"{BLUE}Discovering resources from FSH files...{NC}", file=sys.stderr)
+    profiles, codesystems, valuesets = discover_fsh_resources()
+    print(f"  Found {len(profiles)} profiles, {len(codesystems)} code systems, {len(valuesets)} value sets", file=sys.stderr)
+    print("", file=sys.stderr)
+
     # Print header
     print(f"{BLUE}═══════════════════════════════════════════════════════════{NC}")
     print(f"{BLUE}  Koppeltaal FHIR Version Management{NC}")
@@ -178,15 +233,15 @@ def main():
     all_resources_to_clean = []
 
     print(f"{BLUE}Checking StructureDefinitions...{NC}", file=sys.stderr)
-    sd_issues, sd_clean = process_resources(fhir_base_url, "StructureDefinition", PROFILES, expected_version, command)
+    sd_issues, sd_clean = process_resources(fhir_base_url, "StructureDefinition", profiles, expected_version, command)
     all_resources_to_clean.extend(sd_clean)
 
     print(f"{BLUE}Checking CodeSystems...{NC}", file=sys.stderr)
-    cs_issues, cs_clean = process_resources(fhir_base_url, "CodeSystem", CODESYSTEMS, expected_version, command)
+    cs_issues, cs_clean = process_resources(fhir_base_url, "CodeSystem", codesystems, expected_version, command)
     all_resources_to_clean.extend(cs_clean)
 
     print(f"{BLUE}Checking ValueSets...{NC}", file=sys.stderr)
-    vs_issues, vs_clean = process_resources(fhir_base_url, "ValueSet", VALUESETS, expected_version, command)
+    vs_issues, vs_clean = process_resources(fhir_base_url, "ValueSet", valuesets, expected_version, command)
     all_resources_to_clean.extend(vs_clean)
 
     total_issues = sd_issues + cs_issues + vs_issues
