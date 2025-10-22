@@ -609,7 +609,7 @@ class TestResourceGenerator:
                 {
                     "code": {
                         "system": "http://vzvz.nl/fhir/CodeSystem/koppeltaal-usage-context-type",
-                        "code": "feature"
+                        "code": "koppeltaal-expansion"
                     },
                     "valueCodeableConcept": {
                         "coding": [{
@@ -689,7 +689,7 @@ class TestResourceGenerator:
             }]
 
         elif variant == "invalid-feature-code":
-            # Invalid: useContext with valid feature code type but INVALID feature value
+            # Invalid: useContext with valid expansion code type but INVALID expansion value
             # This should fail validation due to required binding on valueCodeableConcept
             activity["extension"] = [{
                 "url": "http://koppeltaal.nl/fhir/StructureDefinition/KT2EndpointExtension",
@@ -698,12 +698,12 @@ class TestResourceGenerator:
                 }
             }]
             activity["url"] = f"http://example.org/ActivityDefinition/activity-{uuid.uuid4().hex[:8]}"
-            activity["title"] = "Test Activiteit met Ongeldige Feature Code"
+            activity["title"] = "Test Activiteit met Ongeldige Expansion Code"
             activity["useContext"] = [{
                 "code": {
                     "system": "http://vzvz.nl/fhir/CodeSystem/koppeltaal-usage-context-type",
-                    "code": "feature",
-                    "display": "Feature"
+                    "code": "koppeltaal-expansion",
+                    "display": "Koppeltaal Expansion"
                 },
                 "valueCodeableConcept": {
                     "coding": [{

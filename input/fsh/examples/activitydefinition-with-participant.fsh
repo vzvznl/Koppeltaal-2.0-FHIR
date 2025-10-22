@@ -20,7 +20,7 @@ Usage: #example
 * subtitle = "voor GGZ Testland"
 * status = #active
 * description = "Vragenlijst ROM"
-* useContext.code = http://vzvz.nl/fhir/CodeSystem/koppeltaal-usage-context-type#feature
+* useContext.code = http://vzvz.nl/fhir/CodeSystem/koppeltaal-usage-context-type#koppeltaal-expansion
 * useContext.valueCodeableConcept = http://vzvz.nl/fhir/CodeSystem/koppeltaal-expansion#026-RolvdNaaste
 * topic = $koppeltaal-definition-topic#self-assessment
 * participant[0].type = #related-person

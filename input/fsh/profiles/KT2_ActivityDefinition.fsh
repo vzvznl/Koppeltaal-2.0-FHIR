@@ -36,7 +36,7 @@ Description: "The (FHIR) ActivityDefinition (resource) describes an eHealth acti
 * useContext[koppeltaal-expansion]
   * ^short = "Optional expansion for the activity"
   * ^definition = "Indicates an optional expansion for the activity, such as support for relative participation"
-  * code = http://vzvz.nl/fhir/CodeSystem/koppeltaal-usage-context-type#feature
+  * code = http://vzvz.nl/fhir/CodeSystem/koppeltaal-usage-context-type#koppeltaal-expansion
   * valueCodeableConcept 1..1
   * valueCodeableConcept from KoppeltaalExpansion_VS (required)
     * ^short = "The specific expansion"
