@@ -15,6 +15,83 @@ import string
 from pathlib import Path
 from datetime import datetime, timedelta
 import uuid
+import re
+import os
+import glob
+from typing import List, Tuple, Optional
+
+
+def get_canonical_base() -> str:
+    """Get canonical base URL from sushi-config.yaml"""
+    try:
+        with open('sushi-config.yaml', 'r') as f:
+            for line in f:
+                if line.startswith('canonical:'):
+                    return line.split(':', 1)[1].strip()
+    except FileNotFoundError:
+        pass
+    return "http://koppeltaal.nl/fhir"  # Default fallback
+
+
+def parse_fsh_canonical_url(file_path: str, resource_type: str = None) -> Optional[str]:
+    """Parse FSH file to extract canonical URL
+
+    For CodeSystems and ValueSets, looks for explicit ^url
+    For Profiles, constructs URL from Id and canonical base
+    """
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+
+            # Look for explicit * ^url = "http://..."
+            match = re.search(r'\*\s+\^url\s+=\s+"([^"]+)"', content)
+            if match:
+                return match.group(1)
+
+            # For profiles, construct URL from Id field
+            if resource_type == 'StructureDefinition':
+                id_match = re.search(r'^Id:\s+(\S+)', content, re.MULTILINE)
+                if id_match:
+                    canonical_base = get_canonical_base()
+                    profile_id = id_match.group(1)
+                    return f"{canonical_base}/StructureDefinition/{profile_id}"
+    except Exception as e:
+        print(f"Warning: Could not parse {file_path}: {e}")
+    return None
+
+
+def discover_fsh_resources(base_dir: str = 'input/fsh') -> Tuple[List[str], List[str], List[str]]:
+    """Discover all FSH resources by scanning the input/fsh directory"""
+    profiles = []
+    codesystems = []
+    valuesets = []
+
+    # Find all profile files
+    profile_dir = os.path.join(base_dir, 'profiles')
+    if os.path.exists(profile_dir):
+        for fsh_file in glob.glob(os.path.join(profile_dir, '*.fsh')):
+            url = parse_fsh_canonical_url(fsh_file, 'StructureDefinition')
+            if url:
+                profiles.append(url)
+
+    # Find all codesystem files
+    codesystem_dir = os.path.join(base_dir, 'codesystems')
+    if os.path.exists(codesystem_dir):
+        for fsh_file in glob.glob(os.path.join(codesystem_dir, '*.fsh')):
+            url = parse_fsh_canonical_url(fsh_file, 'CodeSystem')
+            if url:
+                codesystems.append(url)
+
+    # Find all valueset files
+    valueset_dir = os.path.join(base_dir, 'valuesets')
+    if os.path.exists(valueset_dir):
+        for fsh_file in glob.glob(os.path.join(valueset_dir, '*.fsh')):
+            url = parse_fsh_canonical_url(fsh_file, 'ValueSet')
+            if url:
+                valuesets.append(url)
+
+    return profiles, codesystems, valuesets
+
 
 class TestResourceGenerator:
     """Generate test resources for FHIR profiles."""
@@ -980,6 +1057,175 @@ class TestResourceGenerator:
 
         return audit
 
+    def generate_smoke_tests(self):
+        """Generate smoke test script to check for duplicate resource versions."""
+        print("\n🔍 Generating smoke tests for version checking")
+        print("=" * 60)
+
+        # Discover resources from FSH files
+        profiles, codesystems, valuesets = discover_fsh_resources()
+
+        print(f"  Found {len(profiles)} profiles, {len(codesystems)} code systems, {len(valuesets)} value sets")
+
+        # Create smoke tests directory
+        smoke_tests_dir = self.output_dir / "smoke-tests"
+        smoke_tests_dir.mkdir(exist_ok=True)
+
+        # Generate smoke test data
+        smoke_tests = {
+            "StructureDefinition": profiles,
+            "CodeSystem": codesystems,
+            "ValueSet": valuesets
+        }
+
+        # Create a JSON file with all the resources to check
+        smoke_test_data = {
+            "name": "Koppeltaal 2.0 Version Smoke Tests",
+            "description": "Verify that no duplicate versions exist on the FHIR server",
+            "generated": datetime.now().isoformat(),
+            "resources": []
+        }
+
+        for resource_type, urls in smoke_tests.items():
+            for url in urls:
+                resource_name = url.split('/')[-1]
+                smoke_test_data["resources"].append({
+                    "resourceType": resource_type,
+                    "canonicalUrl": url,
+                    "name": resource_name
+                })
+
+        # Save smoke test data
+        smoke_data_path = smoke_tests_dir / "version-check-data.json"
+        with open(smoke_data_path, 'w') as f:
+            json.dump(smoke_test_data, f, indent=2)
+
+        print(f"  📋 Smoke test data: {smoke_data_path}")
+
+        # Generate smoke test script
+        script_content = '''#!/bin/bash
+# Smoke tests to check for duplicate resource versions on FHIR server
+#
+# Usage: ./smoke-tests.sh [FHIR_BASE_URL]
+#
+# Example:
+#   ./smoke-tests.sh http://localhost:8080/fhir/DEFAULT
+#   ./smoke-tests.sh https://staging-fhir-server.koppeltaal.headease.nl/fhir/DEFAULT
+
+# Check if jq is installed
+if ! command -v jq &> /dev/null; then
+    echo "Error: jq is required but not installed. Please install it with: brew install jq"
+    exit 1
+fi
+
+FHIR_BASE_URL=${1:-"http://localhost:8080/fhir/DEFAULT"}
+
+echo "🔍 Running Smoke Tests - Version Duplication Check"
+echo "=================================================="
+echo "FHIR Server: $FHIR_BASE_URL"
+echo ""
+
+# Colors for output
+RED='\\033[0;31m'
+GREEN='\\033[0;32m'
+YELLOW='\\033[1;33m'
+BLUE='\\033[0;34m'
+NC='\\033[0m' # No Color
+
+# Counter variables
+PASS=0
+FAIL=0
+TOTAL=0
+
+# Read smoke test data
+SMOKE_DATA="test-resources/smoke-tests/version-check-data.json"
+
+if [ ! -f "$SMOKE_DATA" ]; then
+    echo "${RED}Error: Smoke test data not found at $SMOKE_DATA${NC}"
+    exit 1
+fi
+
+# Function to check for duplicate versions
+check_duplicate_versions() {
+    local resource_type=$1
+    local canonical_url=$2
+    local resource_name=$3
+
+    ((TOTAL++))
+
+    # Query FHIR server
+    query_url="${FHIR_BASE_URL}/${resource_type}?url=${canonical_url}"
+
+    # Make request and capture response
+    response=$(curl -s -H "Accept: application/fhir+json" "$query_url")
+
+    # Check if request was successful
+    if [ $? -ne 0 ]; then
+        echo "${RED}✗${NC} $resource_type/$resource_name - Failed to query server"
+        ((FAIL++))
+        return
+    fi
+
+    # Extract total count
+    total=$(echo "$response" | jq -r '.total // 0')
+
+    if [ "$total" -eq 0 ]; then
+        echo "${YELLOW}⚠${NC} $resource_type/$resource_name - Not found on server (total: $total)"
+        # Not counting this as a failure since the resource might not be uploaded yet
+    elif [ "$total" -eq 1 ]; then
+        # Get version
+        version=$(echo "$response" | jq -r '.entry[0].resource.version // "unknown"')
+        echo "${GREEN}✓${NC} $resource_type/$resource_name - Single version found (version: $version)"
+        ((PASS++))
+    else
+        # Multiple versions found - this is a problem
+        echo "${RED}✗${NC} $resource_type/$resource_name - Found $total versions (expected 1)"
+
+        # List all versions
+        versions=$(echo "$response" | jq -r '.entry[].resource | "  - Version: \\(.version), ID: \\(.id), Date: \\(.date // "unknown")"')
+        echo "$versions"
+        ((FAIL++))
+    fi
+}
+
+# Process all resources from smoke test data
+while IFS= read -r resource; do
+    resource_type=$(echo "$resource" | jq -r '.resourceType')
+    canonical_url=$(echo "$resource" | jq -r '.canonicalUrl')
+    resource_name=$(echo "$resource" | jq -r '.name')
+
+    check_duplicate_versions "$resource_type" "$canonical_url" "$resource_name"
+done < <(jq -c '.resources[]' "$SMOKE_DATA")
+
+echo ""
+echo "=================================================="
+echo "Smoke Test Results:"
+echo -e "${GREEN}Passed: $PASS${NC}"
+echo -e "${RED}Failed: $FAIL${NC}"
+echo "Total: $TOTAL"
+echo ""
+
+if [ $FAIL -eq 0 ]; then
+    echo -e "${GREEN}✅ All smoke tests passed! No duplicate versions detected.${NC}"
+    exit 0
+else
+    echo -e "${RED}❌ Smoke tests failed! Found duplicate versions on the server.${NC}"
+    echo ""
+    echo "To clean up duplicate versions, run:"
+    echo "  python3 scripts/manage-fhir-versions.py clean $FHIR_BASE_URL"
+    exit 1
+fi
+'''
+
+        script_path = smoke_tests_dir / "smoke-tests.sh"
+        with open(script_path, 'w') as f:
+            f.write(script_content)
+
+        script_path.chmod(0o755)
+        print(f"  📝 Smoke test script: {script_path}")
+        print(f"\n  Usage: {script_path} [FHIR_BASE_URL]")
+        print(f"  Example: {script_path} http://localhost:8080/fhir/DEFAULT")
+
     def generate_test_suite(self):
         """Generate complete test suite with various test resources."""
         print("🧪 Generating Test Suite for Koppeltaal 2.0 FHIR Profiles")
@@ -1062,6 +1308,9 @@ class TestResourceGenerator:
 
         # Generate validation script
         self.generate_validation_script()
+
+        # Generate smoke tests for version checking
+        self.generate_smoke_tests()
 
         print(f"\n✅ Test suite generated in: {self.output_dir}")
         print(f"   Total test resources: {len(generated_files)}")
