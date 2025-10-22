@@ -244,6 +244,7 @@ def check_all_implementation_guides(
 
             elif len(koppeltaal_igs) == 0:
                 print(f"{RED}✗{NC} ImplementationGuide: Not found on server", file=sys.stderr)
+                print(f"  {YELLOW}Tip: Upload with: python3 scripts/upload-implementation-guide.py {fhir_base_url}{NC}", file=sys.stderr)
                 total_issues += 1
                 print("", file=sys.stderr)
 
