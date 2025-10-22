@@ -73,15 +73,42 @@ def check_existing_ig(fhir_base_url: str, ig_id: str, bearer_token: str = None) 
             raise
 
 
-def upload_implementation_guide(fhir_base_url: str, ig: dict, bearer_token: str = None) -> dict:
+def upload_implementation_guide(fhir_base_url: str, ig: dict, existing_ig: dict, bearer_token: str = None) -> dict:
     """Upload or update ImplementationGuide using PUT"""
     ig_id = ig['id']
     put_url = f"{fhir_base_url}/ImplementationGuide/{ig_id}"
+
+    # Strip out definition.parameter to avoid validation errors
+    # These parameters are IG Publisher-specific and not part of FHIR R4 4.0.1 spec
+    if 'definition' in ig and 'parameter' in ig['definition']:
+        print(f"{YELLOW}  Removing {len(ig['definition']['parameter'])} definition.parameter entries (IG Publisher-specific){NC}")
+        del ig['definition']['parameter']
+
+    # Strip out example resources from definition.resource
+    # Examples don't exist on the server, only profiles/CodeSystems/ValueSets/etc.
+    if 'definition' in ig and 'resource' in ig['definition']:
+        original_count = len(ig['definition']['resource'])
+        # Keep only resources that are NOT examples (exampleBoolean: false or no example* field)
+        ig['definition']['resource'] = [
+            r for r in ig['definition']['resource']
+            if r.get('exampleBoolean') == False or (
+                'exampleBoolean' not in r and 'exampleCanonical' not in r
+            )
+        ]
+        removed_count = original_count - len(ig['definition']['resource'])
+        print(f"{YELLOW}  Removing {removed_count} example resources from definition.resource{NC}")
+        print(f"{GREEN}  Keeping {len(ig['definition']['resource'])} non-example resources (profiles, CodeSystems, ValueSets, etc.){NC}")
 
     headers = {
         'Content-Type': 'application/fhir+json',
         'Accept': 'application/fhir+json'
     }
+
+    # Add If-Match header for optimistic locking if updating existing resource
+    if existing_ig and 'meta' in existing_ig and 'versionId' in existing_ig['meta']:
+        version_id = existing_ig['meta']['versionId']
+        headers['If-Match'] = f'W/"{version_id}"'
+        print(f"{BLUE}  Using version {version_id} for optimistic locking{NC}")
 
     if bearer_token:
         headers['Authorization'] = f'Bearer {bearer_token}'
@@ -154,7 +181,7 @@ def main():
 
     # Upload/update ImplementationGuide
     print(f"{BLUE}Uploading ImplementationGuide...{NC}")
-    result = upload_implementation_guide(fhir_base_url, ig, bearer_token)
+    result = upload_implementation_guide(fhir_base_url, ig, existing_ig, bearer_token)
 
     print(f"{GREEN}✅ Successfully uploaded ImplementationGuide{NC}")
     print(f"  Resource ID: {result.get('id', 'unknown')}")
