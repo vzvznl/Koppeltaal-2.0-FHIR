@@ -235,25 +235,15 @@ def put_resource(fhir_base_url: str, resource: Dict, bearer_token: str = None) -
         if 'definition' in resource_copy and 'parameter' in resource_copy['definition']:
             del resource_copy['definition']['parameter']
 
-        # Strip out resources from definition.resource that typically don't exist on HAPI servers
-        # Keep only conformance resources that are actually uploaded
+        # Strip out example resources from definition.resource
+        # Examples don't exist on the server, only conformance resources
         if 'definition' in resource_copy and 'resource' in resource_copy['definition']:
-            def should_keep_resource(r):
-                # Remove example resources
-                if r.get('exampleBoolean') == True or 'exampleCanonical' in r:
-                    return False
-
-                # Remove NamingSystem and SearchParameter references
-                # These are often not uploaded to HAPI FHIR servers
-                ref = r.get('reference', {}).get('reference', '')
-                if ref.startswith('NamingSystem/') or ref.startswith('SearchParameter/'):
-                    return False
-
-                return True
-
+            # Keep only resources that are NOT examples (exampleBoolean: false or no example* field)
             resource_copy['definition']['resource'] = [
                 r for r in resource_copy['definition']['resource']
-                if should_keep_resource(r)
+                if r.get('exampleBoolean') == False or (
+                    'exampleBoolean' not in r and 'exampleCanonical' not in r
+                )
             ]
 
     data = json.dumps(resource_copy).encode('utf-8')
