@@ -8,6 +8,10 @@ FHIR server, ensuring that:
 - No duplicate versions exist (same canonical URL, different version)
 - No duplicate IDs exist (same canonical URL, different resource ID)
 
+Special handling for ImplementationGuide resources:
+- Strips IG Publisher-specific definition.parameter entries
+- Removes example resources from definition.resource (keeps only conformance resources)
+
 Usage: python3 sync-fhir-package.py <command> <fhir_base_url> <package_url> [bearer_token]
 
 Commands:
@@ -223,6 +227,24 @@ def put_resource(fhir_base_url: str, resource: Dict, bearer_token: str = None) -
     resource_copy = resource.copy()
     if 'meta' in resource_copy:
         del resource_copy['meta']
+
+    # Special handling for ImplementationGuide resources
+    if resource_type == 'ImplementationGuide':
+        # Strip out definition.parameter to avoid validation errors
+        # These parameters are IG Publisher-specific and not part of FHIR R4 4.0.1 spec
+        if 'definition' in resource_copy and 'parameter' in resource_copy['definition']:
+            del resource_copy['definition']['parameter']
+
+        # Strip out example resources from definition.resource
+        # Examples don't exist on the server, only profiles/CodeSystems/ValueSets/etc.
+        if 'definition' in resource_copy and 'resource' in resource_copy['definition']:
+            # Keep only resources that are NOT examples (exampleBoolean: false or no example* field)
+            resource_copy['definition']['resource'] = [
+                r for r in resource_copy['definition']['resource']
+                if r.get('exampleBoolean') == False or (
+                    'exampleBoolean' not in r and 'exampleCanonical' not in r
+                )
+            ]
 
     data = json.dumps(resource_copy).encode('utf-8')
     req = urllib.request.Request(put_url, data=data, headers=headers, method='PUT')
