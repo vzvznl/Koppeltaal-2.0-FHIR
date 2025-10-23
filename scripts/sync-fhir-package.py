@@ -16,7 +16,7 @@ Special handling for ImplementationGuide resources:
 - Strips IG Publisher-specific definition.parameter entries
 - Removes example resources and NamingSystem references from definition.resource
 
-Usage: python3 sync-fhir-package.py <command> <fhir_base_url> <package_url> [bearer_token]
+Usage: python3 sync-fhir-package.py <command> <fhir_base_url> <package_url> [bearer_token] [--yes]
 
 Commands:
   detect - Detect discrepancies between package and server
@@ -24,8 +24,9 @@ Commands:
 
 Parameters:
   fhir_base_url - The base URL of the FHIR server (e.g., http://localhost:8080/fhir/DEFAULT)
-  package_url   - URL to the FHIR package .tgz file
+  package_url   - URL to the FHIR package .tgz file or local file path
   bearer_token  - Optional Bearer token for authentication
+  --yes, -y     - Auto-confirm synchronization without prompting (for sync command)
 
 Examples:
   python3 sync-fhir-package.py detect http://localhost:8080/fhir/DEFAULT https://github.com/vzvznl/Koppeltaal-2.0-FHIR/releases/download/v0.15.0-beta.6b/koppeltaalv2-0.15.0-beta.6b.tgz
@@ -52,7 +53,12 @@ NC = '\033[0m'  # No Color
 
 
 def download_package(package_url: str, temp_dir: str) -> str:
-    """Download package .tgz file to temp directory"""
+    """Download package .tgz file to temp directory (or use local file)"""
+    # Check if it's a local file path
+    if os.path.exists(package_url):
+        print(f"{BLUE}Using local package file: {package_url}{NC}")
+        return package_url
+
     print(f"{BLUE}Downloading package from {package_url}...{NC}")
 
     package_path = os.path.join(temp_dir, 'package.tgz')
@@ -140,6 +146,52 @@ def query_server_resource_by_url(fhir_base_url: str, resource_type: str, url: st
         else:
             print(f"{RED}Error querying {resource_type}?url={url}: {e}{NC}")
             return {'total': 0, 'entry': []}
+
+
+def query_all_server_resources(fhir_base_url: str, resource_type: str, bearer_token: str = None) -> List[Dict]:
+    """
+    Query ALL resources of a given type from the FHIR server
+
+    Returns list of resources (not a Bundle)
+    """
+    resources = []
+    query_url = f"{fhir_base_url}/{resource_type}?_summary=true&_count=100"
+    headers = {'Accept': 'application/fhir+json'}
+
+    if bearer_token:
+        headers['Authorization'] = f'Bearer {bearer_token}'
+
+    while query_url:
+        req = urllib.request.Request(query_url, headers=headers)
+
+        try:
+            with urllib.request.urlopen(req) as response:
+                bundle = json.loads(response.read().decode('utf-8'))
+
+                # Add resources from this page
+                for entry in bundle.get('entry', []):
+                    resources.append(entry['resource'])
+
+                # Check for next page
+                next_link = None
+                for link in bundle.get('link', []):
+                    if link.get('relation') == 'next':
+                        next_link = link.get('url')
+                        break
+
+                query_url = next_link
+
+        except urllib.error.HTTPError as e:
+            if e.code == 404:
+                break
+            else:
+                print(f"{RED}Error querying {resource_type}: {e}{NC}")
+                break
+        except Exception as e:
+            print(f"{RED}Error querying {resource_type}: {e}{NC}")
+            break
+
+    return resources
 
 
 def delete_resource(fhir_base_url: str, resource_type: str, resource_id: str, bearer_token: str = None) -> bool:
@@ -290,10 +342,57 @@ def detect_discrepancies(fhir_base_url: str, resources: List[Dict], bearer_token
     resources_to_delete = []
     resources_to_put = []
     missing_resources = []
+    orphaned_resources = []
 
     print(f"\n{BLUE}{'='*70}{NC}")
     print(f"{BLUE}Detecting Discrepancies{NC}")
     print(f"{BLUE}{'='*70}{NC}\n")
+
+    # Step 1: Build a map of canonical URLs in the package
+    resource_types = ['StructureDefinition', 'CodeSystem', 'ValueSet', 'SearchParameter', 'ImplementationGuide']
+    package_urls_by_type = {rt: set() for rt in resource_types}
+
+    for resource in resources:
+        resource_type = resource['resourceType']
+        canonical_url = resource.get('url')
+        if canonical_url and resource_type in resource_types:
+            package_urls_by_type[resource_type].add(canonical_url)
+
+    # Step 2: Query all server resources to find orphans
+    print(f"{BLUE}Checking for orphaned resources from old package versions...{NC}\n")
+
+    for resource_type in resource_types:
+        server_resources = query_all_server_resources(fhir_base_url, resource_type, bearer_token)
+
+        # Filter to only Koppeltaal/VZVZ resources (canonical URLs starting with http://koppeltaal.nl or http://vzvz.nl)
+        for server_resource in server_resources:
+            server_url = server_resource.get('url', '')
+            server_id = server_resource.get('id')
+            server_version = server_resource.get('version', 'unknown')
+
+            # Only check Koppeltaal/VZVZ resources
+            if not (server_url.startswith('http://koppeltaal.nl') or server_url.startswith('http://vzvz.nl')):
+                continue
+
+            # If server resource URL is NOT in package, it's orphaned
+            if server_url not in package_urls_by_type[resource_type]:
+                orphaned_resources.append((resource_type, server_id, server_url, server_version))
+                resources_to_delete.append((resource_type, server_id, server_url, server_version,
+                                           f"Orphaned (not in package - from old version)"))
+                print(f"{YELLOW}⚠ {resource_type}/{server_id}{NC}")
+                print(f"  Canonical: {server_url}")
+                print(f"  Version: {server_version}")
+                print(f"  Status: ORPHANED (not in package - from old version)")
+                print(f"  Action: DELETE")
+                print()
+
+    if orphaned_resources:
+        print(f"{YELLOW}Found {len(orphaned_resources)} orphaned resources from old package versions{NC}\n")
+    else:
+        print(f"{GREEN}✓ No orphaned resources found{NC}\n")
+
+    # Step 3: Check resources in package against server
+    print(f"{BLUE}Checking package resources against server...{NC}\n")
 
     for resource in resources:
         resource_type = resource['resourceType']
@@ -430,7 +529,16 @@ def main():
     command = sys.argv[1]
     fhir_base_url = sys.argv[2]
     package_url = sys.argv[3]
-    bearer_token = sys.argv[4] if len(sys.argv) > 4 else None
+
+    # Check for optional arguments (bearer token and --yes flag)
+    bearer_token = None
+    auto_confirm = False
+
+    for arg in sys.argv[4:]:
+        if arg == '--yes' or arg == '-y':
+            auto_confirm = True
+        elif not bearer_token:
+            bearer_token = arg
 
     if command not in ['detect', 'sync']:
         print(f"{RED}Error: Invalid command '{command}'. Use 'detect' or 'sync'{NC}")
@@ -473,9 +581,15 @@ def main():
 
         if command == 'sync':
             if resources_to_delete or resources_to_put:
-                # Ask for confirmation
-                response = input(f"{YELLOW}Proceed with synchronization? (yes/no): {NC}")
-                if response.lower() in ['yes', 'y']:
+                # Ask for confirmation (unless --yes was provided)
+                if auto_confirm:
+                    print(f"{YELLOW}Auto-confirming synchronization (--yes flag){NC}")
+                    proceed = True
+                else:
+                    response = input(f"{YELLOW}Proceed with synchronization? (yes/no): {NC}")
+                    proceed = response.lower() in ['yes', 'y']
+
+                if proceed:
                     sync_resources(fhir_base_url, resources_to_delete, resources_to_put, bearer_token)
                     print(f"\n{GREEN}✓ Synchronization complete{NC}")
                 else:
