@@ -8,17 +8,18 @@ Description: "The (FHIR) ActivityDefinition (resource) describes an eHealth acti
 * insert ContactAndPublisher
 * . ^short = "Description of an eHealth activity"
 * . ^comment = "The (FHIR) ActivityDefinition describes an eHealth activity available to assign to a patient. The assignment of an eHealth activity to a patient creates an eHealth Task (Task resource). This task can contain sub activities as contained resources which refer to the main task using the Task.partOf element."
-* insert Origin
 * extension contains
+    KT2_ResourceOrigin named resource-origin 0..1 and
     KT2_EndpointExtension named endpoint 1..* and
     KT2_PublisherId named publisherId 0..*
+* extension[resource-origin] ^isModifier = false
 * extension[endpoint] ^short = "Endpoint to the service application"
   * ^definition = "Mandatory reference to the service application (endpoint) that provides the eHealth activity. Can be more than one endpoint."
 * extension[publisherId] ^isModifier = false
 * url 1..
 * title 1..
 * experimental ..0
-* subject[x] ..0
+* subject[x] 0..0
 * date ..0
 * publisher ..0
 * contact ..0
@@ -65,9 +66,9 @@ Description: "The (FHIR) ActivityDefinition (resource) describes an eHealth acti
 * intent ..0
 * priority ..0
 * doNotPerform ..0
-* timing[x] ..0
+* timing[x] 0..0
 * location ..0
-* product[x] ..0
+* product[x] 0..0
 * quantity ..0
 * dosage ..0
 * bodySite ..0

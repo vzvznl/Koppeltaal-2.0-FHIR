@@ -307,50 +307,48 @@ The CI/CD also publishes to GitHub Packages:
 - **Other branches**: Restricted access
 - **Package names**: Scoped to repository owner (e.g., `@{owner}/koppeltaalv2.00`)
 
-## Version Management and Testing
+## FHIR Package Synchronization and Testing
 
-This repository includes scripts for managing FHIR resource versions on HAPI FHIR servers and running smoke tests.
+This repository includes scripts for synchronizing FHIR package resources to HAPI FHIR servers and running smoke tests.
 
-### Version Management Script
+### FHIR Package Synchronization Script
 
-The `manage-fhir-versions.py` script helps detect and clean up duplicate or incorrect versions of FHIR resources on a HAPI FHIR server.
+The `sync-fhir-package.py` script synchronizes all FHIR package resources to a HAPI FHIR server, ensuring consistency and handling special requirements for different resource types.
 
 **Features:**
-- Detects duplicate versions of resources
-- Detects unexpected/wrong versions
-- Detects missing resources
-- Auto-discovers resources from FSH files (24 total: 11 profiles, 6 code systems, 6 value sets, 1 ImplementationGuide)
+- Downloads and extracts FHIR packages (.tgz) from URLs
+- Detects discrepancies: missing resources, wrong IDs, wrong versions, duplicates
+- Synchronizes resources by deleting duplicates and PUTting correct versions
+- Handles optimistic locking via resource history
+- Special handling for ImplementationGuide resources:
+  - Strips IG Publisher-specific `definition.parameter` entries
+  - Removes example resources from `definition.resource` (keeps only conformance resources)
 - Supports Bearer token authentication
-- Interactive cleanup with confirmation
+- Interactive confirmation before making changes
 
 **Commands:**
 ```bash
-# Detect version issues
-python3 scripts/manage-fhir-versions.py detect <fhir_base_url> [bearer_token]
+# Detect discrepancies between package and server
+python3 scripts/sync-fhir-package.py detect <fhir_base_url> <package_url> [bearer_token]
 
-# List all versions
-python3 scripts/manage-fhir-versions.py list <fhir_base_url> [bearer_token]
-
-# Clean up old/duplicate versions (interactive)
-python3 scripts/manage-fhir-versions.py clean <fhir_base_url> [bearer_token]
+# Synchronize package resources to server
+python3 scripts/sync-fhir-package.py sync <fhir_base_url> <package_url> [bearer_token]
 ```
 
 **Examples:**
 ```bash
-# Check localhost for version issues
-python3 scripts/manage-fhir-versions.py detect http://localhost:8080/fhir/DEFAULT
+# Detect discrepancies on localhost
+python3 scripts/sync-fhir-package.py detect http://localhost:8080/fhir/DEFAULT https://github.com/vzvznl/Koppeltaal-2.0-FHIR/releases/download/v0.15.0-beta.7a/koppeltaalv2-0.15.0-beta.7a.tgz
 
-# Check staging server
-python3 scripts/manage-fhir-versions.py detect https://staging-fhir-server.koppeltaal.headease.nl/fhir/DEFAULT
-
-# Clean up with authentication
-python3 scripts/manage-fhir-versions.py clean https://prod.example.com/fhir/DEFAULT "eyJhbGciOi..."
+# Synchronize to staging server with authentication
+python3 scripts/sync-fhir-package.py sync https://staging-fhir-server.koppeltaal.headease.nl/fhir/DEFAULT https://github.com/vzvznl/Koppeltaal-2.0-FHIR/releases/download/v0.15.0-beta.7a/koppeltaalv2-0.15.0-beta.7a.tgz "eyJhbGciOi..."
 ```
 
 **Common Issues Detected:**
-- Multiple versions of same resource (e.g., versions 0.14.0 and 0.15.0-beta.6a both present)
-- Wrong version on server (e.g., server has 0.14.0 but expected is 0.15.0-beta.6a)
-- Missing resources (e.g., ImplementationGuide not found on server)
+- Missing resources (resource not found on server)
+- Wrong resource ID (server has different ID than package)
+- Wrong version (server has different version than package)
+- Duplicate resources (same canonical URL with multiple IDs or versions)
 
 ### Smoke Tests
 
@@ -389,35 +387,9 @@ Total: 24
 **CI/CD Integration:**
 The smoke tests are automatically run as part of the `run-fhir-tests.yml` workflow before the main Newman tests. Results are displayed in the workflow summary with actionable cleanup commands.
 
-### ImplementationGuide Upload
+### Resources Synchronized
 
-The `upload-implementation-guide.py` script uploads or updates the ImplementationGuide on a FHIR server.
-
-**Note:** The ImplementationGuide is typically installed via package installation. This script is provided for manual upload when needed but may fail validation on strict FHIR servers.
-
-**Usage:**
-```bash
-python3 scripts/upload-implementation-guide.py <fhir_base_url> [bearer_token]
-```
-
-**Examples:**
-```bash
-# Upload to localhost
-python3 scripts/upload-implementation-guide.py http://localhost:8080/fhir/DEFAULT
-
-# Upload with authentication
-python3 scripts/upload-implementation-guide.py https://staging-fhir-server.koppeltaal.headease.nl/fhir/DEFAULT "eyJhbGciOi..."
-```
-
-The script:
-- Loads ImplementationGuide from `fsh-generated/resources/ImplementationGuide-koppeltaalv2.00.json`
-- Checks if IG exists on server and compares versions
-- Uploads or updates using HTTP PUT
-- Provides detailed error messages from OperationOutcome
-
-### Resources Checked
-
-All scripts automatically discover and check these resources:
+The sync-fhir-package.py script synchronizes all resources from the FHIR package, including:
 
 | Resource Type | Count | Examples |
 |--------------|-------|----------|

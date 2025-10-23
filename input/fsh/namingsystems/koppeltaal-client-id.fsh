@@ -1,6 +1,7 @@
 Instance: koppeltaal-client-id
 InstanceOf: NamingSystem
 Usage: #definition
+* id = "koppeltaal-client-id"
 * name = "KoppeltaalClientID"
 * status = #draft
 * kind = #identifier

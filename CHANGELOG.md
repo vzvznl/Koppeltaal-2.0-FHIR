@@ -1,5 +1,28 @@
 CHANGELOG
 
+## 0.15.0-beta.7 (2025-10-23)
+
+### Fixed
+- **Choice type constraints**: Fixed FHIR validation errors when constraining choice type elements to 0 cardinality
+  - KT2_Patient: `deceased[x]` and `multipleBirth[x]` now use explicit `0..0` cardinality with `[x]` suffix
+  - KT2_ActivityDefinition: `subject[x]`, `timing[x]`, and `product[x]` now use explicit `0..0` cardinality with `[x]` suffix
+  - Resolves "The element has no assigned types, and no content reference" validation errors
+- **Extension slicing conflicts**: Fixed "derived max (*) cannot be greater than the base max (1)" errors
+  - KT2_AuditEvent: Combined resource-origin, traceId, correlationId, and requestId extensions into single declaration
+  - KT2_ActivityDefinition: Combined resource-origin, endpoint, and publisherId extensions into single declaration
+  - KT2_Task: Combined resource-origin and instantiates extensions into single declaration
+  - Multiple 'extension contains' statements were creating conflicting slicing definitions
+- **NamingSystem ID**: Added missing explicit ID to koppeltaal-client-id NamingSystem
+  - Ensures SUSHI generates expected ID that matches ImplementationGuide references
+  - Prevents HAPI-1094 errors when uploading ImplementationGuide resources
+
+### Changed
+- Removed unused Tracing ruleset from rulesets.fsh (extensions now declared directly in profiles)
+
+### Technical
+- All profiles now validate successfully in HAPI FHIR servers
+- ImplementationGuide resources can be uploaded without reference errors
+
 ## 0.15.0-beta.6 (2025-10-22)
 
 ### Changed

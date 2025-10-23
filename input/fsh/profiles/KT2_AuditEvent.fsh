@@ -6,8 +6,15 @@ Description: "The AuditEvent resource is used to consolidate and track logging i
 * ^status = #draft
 * ^date = "2023-01-31"
 * insert ContactAndPublisher
-* insert Origin
-* insert Tracing
+* extension contains
+    KT2_ResourceOrigin named resource-origin 0..1 and
+    KT2_TraceId named traceId 0..* and
+    KT2_CorrelationId named correlationId 0..* and
+    KT2_RequestId named requestId 0..*
+* extension[resource-origin] ^isModifier = false
+* extension[traceId] ^isModifier = false
+* extension[correlationId] ^isModifier = false
+* extension[requestId] ^isModifier = false
 * type from $audit-event-type-vs (extensible)
   * insert docAuditEvent
 * subtype 
