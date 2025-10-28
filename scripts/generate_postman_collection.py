@@ -221,15 +221,15 @@ class PostmanCollectionGenerator:
         """Add a single test request to the folder."""
         with open(file_path, 'r') as f:
             resource_data = json.load(f)
-        
+
         # Update references in resource data to use variables
         resource_data = self.update_references(resource_data, resource_type)
-        
+
         is_invalid = "invalid" in file_path.name
         expected_status = 400 if is_invalid else 201
-        
+
         request_name = f"{resource_type} - {file_path.stem}"
-        
+
         request = {
             "name": request_name,
             "event": [
@@ -272,7 +272,7 @@ class PostmanCollectionGenerator:
                 "description": f"Create {variant} {resource_type} resource"
             }
         }
-        
+
         folder["item"].append(request)
     
     def add_update_test_request(self, folder, file_path, resource_type):
@@ -488,10 +488,10 @@ class PostmanCollectionGenerator:
     def generate_test_script(self, resource_type, variant, is_invalid, expected_status):
         """Generate Postman test script."""
         scripts = []
-        
+
         # Basic status code test
         if is_invalid:
-            scripts.append(f'pm.test("Invalid {resource_type} should fail", function () {{')
+            scripts.append(f'pm.test("Invalid {resource_type} should fail validation", function () {{')
             scripts.append(f'    pm.expect(pm.response.code).to.be.oneOf([400, 422]);')
             scripts.append('});')
         else:
@@ -577,7 +577,7 @@ class PostmanCollectionGenerator:
             scripts.append('        pm.expect(jsonData.resourceType).to.equal("OperationOutcome");')
             scripts.append('    }')
         scripts.append('});')
-        
+
         return scripts
     
     def generate_prerequest_script(self, resource_type):
