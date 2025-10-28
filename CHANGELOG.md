@@ -1,5 +1,19 @@
 CHANGELOG
 
+## 0.15.0-beta.8 (2025-10-28)
+
+### Fixed
+- **KT2_RelatedPerson profile**: Enforce exact display values for COD472 role codes
+  - Added FHIRPath invariant `kt2-role-display-validation` to validate display values match CodeSystem definitions exactly
+  - Validates all 16 COD472 code/display pairs from the Nictiz ValueSet (urn:oid:2.16.840.1.113883.2.4.3.11.22.472)
+  - Raises ERROR (not just warning) when display values don't match
+  - Only validates COD472 codes; v3-RoleCode (HL7 international codes) remain lenient
+  - **Breaking change**: Resources with incorrect display values will now be rejected with 422 error
+
+### Technical
+- Standard FHIR validation treats display mismatches as warnings; this invariant enforces error-level validation for Dutch COD472 codes
+- Maintenance note: Invariant must be updated if COD472 CodeSystem is updated with new codes or display changes
+
 ## 0.15.0-beta.7 (2025-10-23)
 
 ### Fixed
