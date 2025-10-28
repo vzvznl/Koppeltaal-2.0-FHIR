@@ -47,6 +47,14 @@ pages:
       title: Examples
     strict-use-of-nameinformation.md:
       title: Strict use of Name Information
+    autorisaties.md:
+      title: Authorization Rules
+    autorisaties-patient.md:
+      title: Patient Authorization
+    autorisaties-practitioner.md:
+      title: Practitioner Authorization
+    autorisaties-relatedperson.md:
+      title: RelatedPerson Authorization
 
 parameters: # see https://confluence.hl7.org/display/FHIR/Implementation+Guide+Parameters
   apply-contact: false
@@ -89,6 +97,11 @@ menu:
     Related Person: info-relatedperson.html
     Examples: examples.html
     Strict use of Name Information: strict-use-of-nameinformation.html
+  Autorisaties (DRAFT):
+    Overzicht: autorisaties.html
+    Patient: autorisaties-patient.html
+    Practitioner: autorisaties-practitioner.html
+    RelatedPerson: autorisaties-relatedperson.html
   Profile Specific Notes:
     ActivityDefinition: StructureDefinition-KT2ActivityDefinition.html
     AuditEvent: StructureDefinition-KT2AuditEvent.html
