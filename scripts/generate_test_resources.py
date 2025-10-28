@@ -1021,6 +1021,50 @@ class TestResourceGenerator:
             # Remove required patient
             del related_person["patient"]
 
+        elif variant == "invalid-wrong-relationship-code":
+            # Invalid: relationship with code that doesn't exist in CodeSystem
+            # This should fail validation because:
+            # 1. Code "2500" doesn't exist in COD472_VEKT_Soort_relatie_client
+            # 2. Display "Tuinman" doesn't exist in the CodeSystem
+            related_person["relationship"] = [
+                {
+                    "coding": [{
+                        "system": "http://terminology.hl7.org/CodeSystem/v3-RoleCode",
+                        "code": personal_code,
+                        "display": personal_display
+                    }]
+                },
+                {
+                    "coding": [{
+                        "system": "urn:oid:2.16.840.1.113883.2.4.3.11.22.472",
+                        "code": "2500",
+                        "display": "Tuinman"
+                    }]
+                }
+            ]
+
+        elif variant == "invalid-wrong-relationship-display":
+            # Invalid: relationship with VALID code but WRONG display
+            # This should fail validation because the kt2-role-display-validation invariant
+            # enforces exact display values for each code in COD472_VEKT_Soort_relatie_client
+            # Code "21" exists but display must be "Cliëntondersteuner", not "Verkeerde Display Tekst"
+            related_person["relationship"] = [
+                {
+                    "coding": [{
+                        "system": "http://terminology.hl7.org/CodeSystem/v3-RoleCode",
+                        "code": personal_code,
+                        "display": personal_display
+                    }]
+                },
+                {
+                    "coding": [{
+                        "system": "urn:oid:2.16.840.1.113883.2.4.3.11.22.472",
+                        "code": "21",
+                        "display": "Verkeerde Display Tekst"
+                    }]
+                }
+            ]
+
         return related_person
 
     def generate_audit_event(self, variant="minimal"):
@@ -1271,7 +1315,7 @@ fi
             "Patient": ["minimal", "maximal", "invalid-missing-identifier"],
             "Practitioner": ["minimal", "maximal", "invalid-missing-name"],
             "Organization": ["minimal", "maximal", "invalid-missing-identifier", "invalid-missing-active"],
-            "RelatedPerson": ["minimal", "maximal", "invalid-missing-identifier", "invalid-missing-active", "invalid-missing-patient", "invalid-missing-gender", "invalid-missing-birthdate", "invalid-missing-relationship", "invalid-missing-name"],
+            "RelatedPerson": ["minimal", "maximal", "invalid-missing-identifier", "invalid-missing-active", "invalid-missing-patient", "invalid-missing-gender", "invalid-missing-birthdate", "invalid-missing-relationship", "invalid-missing-name", "invalid-wrong-relationship-code", "invalid-wrong-relationship-display"],
             "Device": ["minimal", "maximal", "invalid-missing-identifier", "invalid-missing-status", "invalid-missing-devicename"],
             "Endpoint": ["minimal", "maximal", "invalid-missing-status", "invalid-missing-payloadtype", "invalid-wrong-connectiontype", "invalid-missing-address"],
             "ActivityDefinition": ["minimal", "maximal", "invalid-missing-endpoint", "invalid-missing-url", "invalid-usecontext-invalid-codes", "invalid-feature-code"],
