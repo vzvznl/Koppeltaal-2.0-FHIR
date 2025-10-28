@@ -1043,6 +1043,28 @@ class TestResourceGenerator:
                 }
             ]
 
+        elif variant == "invalid-wrong-relationship-display":
+            # Invalid: relationship with VALID code but WRONG display
+            # This should fail validation because the kt2-role-display-validation invariant
+            # enforces exact display values for each code in COD472_VEKT_Soort_relatie_client
+            # Code "21" exists but display must be "Cliëntondersteuner", not "Verkeerde Display Tekst"
+            related_person["relationship"] = [
+                {
+                    "coding": [{
+                        "system": "http://terminology.hl7.org/CodeSystem/v3-RoleCode",
+                        "code": personal_code,
+                        "display": personal_display
+                    }]
+                },
+                {
+                    "coding": [{
+                        "system": "urn:oid:2.16.840.1.113883.2.4.3.11.22.472",
+                        "code": "21",
+                        "display": "Verkeerde Display Tekst"
+                    }]
+                }
+            ]
+
         return related_person
 
     def generate_audit_event(self, variant="minimal"):
