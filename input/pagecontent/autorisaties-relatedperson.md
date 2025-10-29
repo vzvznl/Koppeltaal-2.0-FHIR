@@ -1,6 +1,6 @@
 ## Autorisatieregels voor RelatedPerson toegang
 
-Deze pagina beschrijft de autorisatieregels voor een RelatedPerson (mantelzorger/vertegenwoordiger) rol binnen het KoppelMij/Koppeltaal geharmoniseerde model, zoals beschreven in [Optie 3](koppeltaal_domeinen.html#optie-3-harmonisatie-van-autorisatie-authenticatie-en-standaarden) van de Koppeltaal Domeinen documentatie.
+Deze pagina beschrijft de autorisatieregels voor een RelatedPerson (mantelzorger/vertegenwoordiger) rol binnen het KoppelMij/Koppeltaal geharmoniseerde model, zoals beschreven in [Optie 3](https://koppelmij.github.io/koppelmij-designs/koppeltaal_domeinen.html#optie-3-harmonisatie-van-autorisatie-authenticatie-en-standaarden) van de Koppeltaal Domeinen documentatie.
 
 ### Context en Launch types
 De onderstaande autorisatieregels gelden voor **alle launch types** waarbij een RelatedPerson betrokken is:
@@ -54,17 +54,15 @@ De onderstaande tabellen tonen de verschillende autorisatieniveaus voor RelatedP
 | **Task** | Als ik de eigenaar van de taak ben | R | `Task?owner=RelatedPerson/{id}` | N.v.t. |
 | **Task Launch** | Als ik de eigenaar van de taak ben OF als de taak voor mijn patiënt is | Launch | `Task?owner=RelatedPerson/{id}` OF `Task?patient._has:RelatedPerson:patient:identifier=system\|user_id` | N.v.t. |
 
-### Belangrijke overweging: CareTeam gebruik
+### CareTeam en autorisatie
 
-> ⚠️ **Uitdaging voor RelatedPerson autorisatie**
->
-> In de huidige Koppeltaal praktijk wordt **bijna geen gebruik gemaakt van CareTeam**, terwijl dit autorisatiemodel daar wel van uitgaat. Voor RelatedPersons is dit extra complex omdat:
-> - RelatedPerson relaties vaak informeel zijn (familie, mantelzorgers)
-> - Formele CareTeam structuren passen niet altijd bij de zorgcontext
-> - Machtigingen en vertegenwoordiging vereisen mogelijk andere mechanismen
->
-> **Alternatieven die overwogen moeten worden:**
-> - Directe RelatedPerson-Patient relaties zonder CareTeam tussenkomst
-> - Machtiging via separate Consent resources
-> - Task-gebaseerde toegang voor specifieke ondersteuning
+Dit autorisatiemodel maakt gebruik van CareTeam voor het bepalen van toegangsrechten tot andere teamleden (Practitioner en RelatedPerson). Voor een uitgebreide beschrijving van:
+- Wat een CareTeam is en welke types bestaan
+- Hoe CareTeams worden gebruikt voor autorisatie
+- De relatie tussen CareTeams en Tasks
+- Het voorstel voor het autorisatiemodel
+- Validatieregels en implementatieoverwegingen
+- Discussiepunten en open vragen (zoals CareTeam gebruik in de praktijk)
+
+Zie de [CareTeam en Autorisaties](autorisaties-careteam.html) pagina.
 

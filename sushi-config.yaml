@@ -55,6 +55,8 @@ pages:
       title: Practitioner Authorization
     autorisaties-relatedperson.md:
       title: RelatedPerson Authorization
+    autorisaties-careteam.md:
+      title: CareTeam and Authorization
 
 parameters: # see https://confluence.hl7.org/display/FHIR/Implementation+Guide+Parameters
   apply-contact: false
@@ -102,6 +104,7 @@ menu:
     Patient: autorisaties-patient.html
     Practitioner: autorisaties-practitioner.html
     RelatedPerson: autorisaties-relatedperson.html
+    CareTeam: autorisaties-careteam.html
   Profile Specific Notes:
     ActivityDefinition: StructureDefinition-KT2ActivityDefinition.html
     AuditEvent: StructureDefinition-KT2AuditEvent.html

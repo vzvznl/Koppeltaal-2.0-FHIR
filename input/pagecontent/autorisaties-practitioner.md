@@ -1,6 +1,6 @@
 ## Autorisatieregels voor Practitioner toegang
 
-Deze pagina beschrijft de autorisatieregels voor een Practitioner (behandelaar) rol binnen het KoppelMij/Koppeltaal geharmoniseerde model, zoals beschreven in [Optie 3](koppeltaal_domeinen.html#optie-3-harmonisatie-van-autorisatie-authenticatie-en-standaarden) van de Koppeltaal Domeinen documentatie.
+Deze pagina beschrijft de autorisatieregels voor een Practitioner (behandelaar) rol binnen het KoppelMij/Koppeltaal geharmoniseerde model, zoals beschreven in [Optie 3](https://koppelmij.github.io/koppelmij-designs/koppeltaal_domeinen.html#optie-3-harmonisatie-van-autorisatie-authenticatie-en-standaarden) van de Koppeltaal Domeinen documentatie.
 
 ### Context en Launch types
 De onderstaande autorisatieregels gelden voor **alle launch types** waarbij een Practitioner betrokken is:
@@ -72,36 +72,15 @@ Deze Practitioners hebben toegang tot resources primair via Task toewijzingen. D
 | **Task** | Enkel die ik heb aangemaakt | CRUD | `Task?author=Practitioner/{id}` | `Task.author=Practitioner/{id}` |
 | **Task Launch** | Geen (Case Managers launchen geen taken voor patiënten) | - | N.v.t. | N.v.t. |
 
-### Belangrijke overweging: CareTeam gebruik in de praktijk
+### CareTeam en autorisatie
 
-> ⚠️ **Spanningsveld tussen huidige praktijk en gewenst autorisatiemodel**
->
-> In het huidige gebruik van Koppeltaal wordt **bijna geen gebruik gemaakt van CareTeam**. Echter, voor het opzetten van een goed autorisatiemodel lijkt het gebruik van CareTeam **essentieel**. Dit creëert een uitdaging voor de implementatie van deze autorisatieregels.
->
-> **Aandachtspunten:**
-> - De meeste bestaande Koppeltaal implementaties werken zonder CareTeam structuren
-> - Een robuust autorisatiemodel vereist duidelijke relaties tussen zorgverleners en patiënten
-> - CareTeam biedt deze structuur, maar vereist aanpassing van bestaande werkwijzen
->
-> **Beslissing nodig:**
-> Het autorisatiemodel voor toegang zonder CareTeam (puur task-gebaseerd) vereist nog nadere uitwerking en besluitvorming. Overwegingen hierbij zijn:
-> - Hoe waarborgen we veilige toegang zonder formele CareTeam relaties?
-> - Welke minimale structuren zijn nodig voor verantwoorde autorisatie?
-> - Hoe faciliteren we de transitie van bestaande implementaties?
+Dit autorisatiemodel maakt intensief gebruik van CareTeam voor het bepalen van toegangsrechten. Voor een uitgebreide beschrijving van:
+- Wat een CareTeam is en welke types bestaan
+- Hoe CareTeams worden gebruikt voor autorisatie
+- De relatie tussen CareTeams en Tasks
+- Het voorstel voor het autorisatiemodel
+- Validatieregels en implementatieoverwegingen
+- Discussiepunten en open vragen (zoals CareTeam gebruik in de praktijk)
 
-### Task-gebaseerde toegang als alternatief
-
-Als overbrugging of alternatief voor CareTeam-gebaseerde autorisatie kan task-gebaseerde toegang worden gebruikt. Dit betekent dat:
-
-1. **Directe task toewijzing**: Een Practitioner kan eigenaar worden van een taak zonder lid te zijn van een CareTeam
-2. **Afgeleide toegang**: Via task ownership krijgt de Practitioner toegang tot gerelateerde resources zoals de patiënt
-3. **Volledige CRUD rechten**: Task-gebaseerde toegang is niet beperkt tot read-only - Practitioners kunnen taken volledig beheren
-4. **Flexibele samenwerking**: Maakt ad-hoc samenwerking mogelijk zonder formele CareTeam structuren
-
-Deze aanpak ondersteunt scenario's zoals:
-- Consultaties door externe specialisten
-- Tijdelijke ondersteuning door andere zorgverleners
-- Taken die worden overgedragen tussen afdelingen
-
-**Let op:** De precieze implementatie van task-gebaseerde autorisatie zonder CareTeam context vereist nog verdere uitwerking en standaardisatie.
+Zie de [CareTeam en Autorisaties](autorisaties-careteam.html) pagina.
 

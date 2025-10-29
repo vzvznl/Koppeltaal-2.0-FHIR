@@ -1,6 +1,6 @@
 ## Autorisatieregels voor Patient toegang
 
-Deze pagina beschrijft de autorisatieregels voor een Patient rol binnen het KoppelMij/Koppeltaal geharmoniseerde model, zoals beschreven in [Optie 3](koppeltaal_domeinen.html#optie-3-harmonisatie-van-autorisatie-authenticatie-en-standaarden) van de Koppeltaal Domeinen documentatie.
+Deze pagina beschrijft de autorisatieregels voor een Patient rol binnen het KoppelMij/Koppeltaal geharmoniseerde model, zoals beschreven in [Optie 3](https://koppelmij.github.io/koppelmij-designs/koppeltaal_domeinen.html#optie-3-harmonisatie-van-autorisatie-authenticatie-en-standaarden) van de Koppeltaal Domeinen documentatie.
 
 ### Context en Launch types
 De onderstaande autorisatieregels gelden voor **alle launch types** waarbij een Patient betrokken is:
@@ -35,12 +35,13 @@ De onderstaande tabel toont:
 
 *C = Create alleen voor zelfhulp taken
 
-### Belangrijke overweging: CareTeam gebruik
+### CareTeam en autorisatie
 
-> 📝 **Opmerking over CareTeam in de praktijk**
->
-> Hoewel dit autorisatiemodel gebruik maakt van CareTeam voor het bepalen van toegangsrechten, wordt in de huidige Koppeltaal praktijk **bijna geen gebruik gemaakt van CareTeam**. Voor patiënten is dit minder problematisch omdat:
-> - Patiënten hebben primair toegang tot hun eigen gegevens
-> - CareTeam relaties zijn vooral relevant voor het zien van betrokken zorgverleners
-> - Task-gebaseerde toegang kan voldoende zijn voor patiënt scenarios
+Dit autorisatiemodel maakt gebruik van CareTeam voor het bepalen van toegangsrechten tot Practitioner en RelatedPerson resources. Voor een uitgebreide beschrijving van:
+- Wat een CareTeam is en welke types bestaan
+- Hoe CareTeams worden gebruikt voor autorisatie
+- De relatie tussen CareTeams en Tasks
+- Validatieregels en implementatieoverwegingen
+
+Zie de [CareTeam en Autorisaties](autorisaties-careteam.html) pagina.
 

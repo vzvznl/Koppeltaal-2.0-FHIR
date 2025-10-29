@@ -1,6 +1,6 @@
 # Autorisaties in KoppelMij/Koppeltaal
 
-Deze sectie beschrijft de autorisatieregels voor het geharmoniseerde KoppelMij/Koppeltaal model zoals uitgewerkt in [Optie 3](koppeltaal_domeinen.html#optie-3-harmonisatie-van-autorisatie-authenticatie-en-standaarden) van de Koppeltaal Domeinen documentatie.
+Deze sectie beschrijft de autorisatieregels voor het geharmoniseerde KoppelMij/Koppeltaal model zoals uitgewerkt in [Optie 3](https://koppelmij.github.io/koppelmij-designs/koppeltaal_domeinen.html#optie-3-harmonisatie-van-autorisatie-authenticatie-en-standaarden) van de Koppeltaal Domeinen documentatie.
 
 ## Overzicht
 
