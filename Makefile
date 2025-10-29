@@ -126,17 +126,17 @@ publish: build-ig login
 	cd fsh-generated/resources && $(FHIR) bake
 	cd fsh-generated/resources && $(FHIR) pack
 	cd fsh-generated/resources && $(FHIR) publish-package koppeltaalv2.00.$(VERSION).tgz
-	@echo "Publishing project to Simplifier.net..."
-	@echo "Cloning Simplifier project..."
-	$(FHIR) project clone https://simplifier.net/koppeltaalv2.0 koppeltaalv2.0
-	@echo "Copying resources..."
-	@cp README.md koppeltaalv2.0/
-	@cp CHANGELOG.md koppeltaalv2.0/
-	@mkdir -p koppeltaalv2.0/resources
-	@cp -r fsh-generated/resources/* koppeltaalv2.0/resources/
-	@echo "Pushing to Simplifier..."
-	cd koppeltaalv2.0 && $(FHIR) project push
-	@echo "Successfully published to Simplifier.net"
+#	@echo "Publishing project to Simplifier.net..."
+#	@echo "Cloning Simplifier project..."
+#	$(FHIR) project clone https://simplifier.net/koppeltaalv2.0 koppeltaalv2.0
+#	@echo "Copying resources..."
+#	@cp README.md koppeltaalv2.0/
+#	@cp CHANGELOG.md koppeltaalv2.0/
+#	@mkdir -p koppeltaalv2.0/resources
+#	@cp -r fsh-generated/resources/* koppeltaalv2.0/resources/
+#	@echo "Pushing to Simplifier..."
+#	cd koppeltaalv2.0 && $(FHIR) project push
+#	@echo "Successfully published to Simplifier.net"
 
 # Show version
 .PHONY: version
