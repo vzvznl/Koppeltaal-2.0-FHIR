@@ -127,6 +127,13 @@ class TestResourceGenerator:
             "prefix": ["van", "de", "van der", "van den", "ter"]
         }
 
+        # Dutch names with unicode characters for testing unicode handling
+        self.dutch_names_unicode = {
+            "given": ["Zoë", "René", "Chloë", "André", "Noël", "José", "Daniël", "Rafaël"],
+            "family": ["Müller", "de Vries-Smit", "van 't Hof", "Jäger", "O'Brien", "D'Angelo", "São Paulo"],
+            "prefix": ["van 't", "van 't"]
+        }
+
         self.dutch_cities = ["Amsterdam", "Rotterdam", "Den Haag", "Utrecht", "Eindhoven", "Tilburg"]
         self.dutch_streets = ["Hoofdstraat", "Kerkstraat", "Schoolstraat", "Dorpsstraat", "Molenstraat"]
 
@@ -229,6 +236,46 @@ class TestResourceGenerator:
                     "url": "http://hl7.org/fhir/StructureDefinition/humanname-partner-prefix",
                     "valueString": partner_prefix
                 })
+
+        elif variant == "unicode":
+            # Name with unicode characters (e.g., René, Zoë, Müller)
+            # Tests proper handling of non-ASCII characters in FHIR resources
+            given = random.choice(self.dutch_names_unicode["given"])
+            family_base = random.choice(self.dutch_names_unicode["family"])
+            prefix = random.choice(self.dutch_names_unicode["prefix"]) if random.random() > 0.5 else None
+
+            name = {
+                "use": use,
+                "text": f"{given} {prefix + ' ' if prefix else ''}{family_base}",
+                "family": family_base,
+                "given": [given]
+            }
+
+            if prefix or include_extensions:
+                name["family"] = f"{prefix + ' ' if prefix else ''}{family_base}"
+                name["_family"] = {
+                    "extension": []
+                }
+
+                if prefix:
+                    name["_family"]["extension"].append({
+                        "url": "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix",
+                        "valueString": prefix
+                    })
+
+                name["_family"]["extension"].append({
+                    "url": "http://hl7.org/fhir/StructureDefinition/humanname-own-name",
+                    "valueString": family_base
+                })
+
+            # Add _given extension when include_extensions is True
+            if include_extensions:
+                name["_given"] = [{
+                    "extension": [{
+                        "url": "http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier",
+                        "valueCode": "BR"
+                    }]
+                }]
 
         else:  # simple
             name = {
@@ -378,6 +425,16 @@ class TestResourceGenerator:
                 "value": "12345"
             }]
 
+        elif variant == "valid-unicode-name":
+            # Valid: Tests proper handling of unicode characters in names (e.g., René, Zoë)
+            patient["identifier"] = [self.generate_identifier()]
+            patient["active"] = True
+            patient["name"] = [
+                self.generate_dutch_name("official", include_extensions=True, variant="unicode")
+            ]
+            patient["gender"] = random.choice(["male", "female", "other", "unknown"])
+            patient["birthDate"] = (datetime.now() - timedelta(days=random.randint(365*18, 365*90))).strftime("%Y-%m-%d")
+
         return patient
 
     def generate_practitioner(self, variant="minimal"):
@@ -450,6 +507,15 @@ class TestResourceGenerator:
         elif variant == "invalid-missing-name":
             # Invalid: missing required name
             pass
+
+        elif variant == "valid-unicode-name":
+            # Valid: Tests proper handling of unicode characters in names (e.g., René, Zoë)
+            practitioner["identifier"] = [self.generate_identifier()]
+            practitioner["active"] = True
+            practitioner["name"] = [
+                self.generate_dutch_name("official", include_extensions=True, variant="unicode")
+            ]
+            practitioner["telecom"] = [self.generate_telecom("email")]
 
         return practitioner
 
@@ -1109,6 +1175,29 @@ class TestResourceGenerator:
                 }
             ]
 
+        elif variant == "valid-wrong-display-code-02":
+            # Valid: relationship with code 02 and WRONG display
+            # This should PASS validation because the kt2-role-display-validation invariant
+            # only enforces exact display values for codes 23 and 24, not for other codes
+            # Code "02" with wrong display should be accepted
+            # Proves that the relaxed validation works for codes other than 23 and 24
+            related_person["relationship"] = [
+                {
+                    "coding": [{
+                        "system": "http://terminology.hl7.org/CodeSystem/v3-RoleCode",
+                        "code": personal_code,
+                        "display": personal_display
+                    }]
+                },
+                {
+                    "coding": [{
+                        "system": "urn:oid:2.16.840.1.113883.2.4.3.11.22.472",
+                        "code": "02",
+                        "display": "Wrong display value for code 02 - should still pass validation"
+                    }]
+                }
+            ]
+
         elif variant == "invalid-unicode-display-23":
             # Invalid: relationship with code 23 but unicode character wrong (e instead of é)
             # This should fail validation because the kt2-role-display-validation invariant
@@ -1129,6 +1218,12 @@ class TestResourceGenerator:
                         "display": "Clientondersteuner"
                     }]
                 }
+            ]
+
+        elif variant == "valid-unicode-name":
+            # Valid: Tests proper handling of unicode characters in names (e.g., René, Zoë)
+            related_person["name"] = [
+                self.generate_dutch_name("official", include_extensions=True, variant="unicode")
             ]
 
         return related_person
@@ -1378,10 +1473,10 @@ fi
         print("=" * 60)
 
         test_cases = {
-            "Patient": ["minimal", "maximal", "invalid-missing-identifier"],
-            "Practitioner": ["minimal", "maximal", "invalid-missing-name"],
+            "Patient": ["minimal", "maximal", "invalid-missing-identifier", "valid-unicode-name"],
+            "Practitioner": ["minimal", "maximal", "invalid-missing-name", "valid-unicode-name"],
             "Organization": ["minimal", "maximal", "invalid-missing-identifier", "invalid-missing-active"],
-            "RelatedPerson": ["minimal", "maximal", "invalid-missing-identifier", "invalid-missing-active", "invalid-missing-patient", "invalid-missing-gender", "invalid-missing-birthdate", "invalid-missing-relationship", "invalid-missing-name", "invalid-wrong-relationship-code", "invalid-wrong-relationship-display", "invalid-wrong-relationship-display-24", "valid-wrong-display-other-code", "invalid-unicode-display-23"],
+            "RelatedPerson": ["minimal", "maximal", "invalid-missing-identifier", "invalid-missing-active", "invalid-missing-patient", "invalid-missing-gender", "invalid-missing-birthdate", "invalid-missing-relationship", "invalid-missing-name", "invalid-wrong-relationship-code", "invalid-wrong-relationship-display"],
             "Device": ["minimal", "maximal", "invalid-missing-identifier", "invalid-missing-status", "invalid-missing-devicename"],
             "Endpoint": ["minimal", "maximal", "invalid-missing-status", "invalid-missing-payloadtype", "invalid-wrong-connectiontype", "invalid-missing-address"],
             "ActivityDefinition": ["minimal", "maximal", "invalid-missing-endpoint", "invalid-missing-url", "invalid-usecontext-invalid-codes", "invalid-feature-code"],
