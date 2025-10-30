@@ -14,7 +14,7 @@ Id: KT2RelatedPerson
 * relationship ^slicing.rules = #closed
 * relationship ^comment = "See [Koppeltaal Implementation Guide](https://simplifier.net/guide/koppeltaal/Home/Profile-Specific-Notes/RelatedPerson.page.md?version=current) for more information on the ValueSet"
 * relationship[role] ^sliceName = "role"
-* relationship[role] ^comment = "When using the `display` element of a code you __MUST__ use the content of the `display` element of the code from the __CodeSystem__. Otherwise, validation will result in errors. Note that the display of the code in the ValueSet can be different."
+* relationship[role] ^comment = "When using the `display` element for COD472 codes 23 (Contactpersoon) and 24 (Wettelijke vertegenwoordiger), you __MUST__ use the exact content of the `display` element from the __CodeSystem__. Otherwise, validation will result in errors. These specific codes require strict display validation due to known inconsistencies between different code systems and ValueSets. Other COD472 codes do not enforce display validation. Note that the display of the code in the ValueSet can be different from the CodeSystem."
 * relationship[role] obeys kt2-role-display-validation
 * name 1..
 * name[nameInformation] ^sliceName = "nameInformation"
@@ -24,24 +24,10 @@ Id: KT2RelatedPerson
 * photo ..0
 
 Invariant: kt2-role-display-validation
-Description: "Display values for role codes (COD472) must match the CodeSystem definitions exactly"
+Description: "Display values for role codes 21 and 24 (COD472) must match the CodeSystem definitions exactly"
 Severity: #error
 Expression: "coding.where(system='urn:oid:2.16.840.1.113883.2.4.3.11.22.472').all(
-  (code='01' and display='Eerste relatie/contactpersoon') or
-  (code='02' and display='Tweede relatie/contactpersoon') or
-  (code='03' and display='Curator (juridisch)') or
-  (code='04' and display='Financieel (gemachtigd)') or
-  (code='05' and display='Financieel (toetsing)') or
-  (code='06' and display='Leefeenheid') or
-  (code='07' and display='Hulpverlener') or
-  (code='09' and display='Anders') or
-  (code='11' and display='Voogd') or
-  (code='14' and display='Bewindvoerder') or
-  (code='15' and display='Mentor') or
-  (code='19' and display='Buur') or
-  (code='20' and display='Vriend(in)/kennis') or
-  (code='21' and display='Cliëntondersteuner') or
   (code='23' and display='Contactpersoon') or
   (code='24' and display='Wettelijke vertegenwoordiger') or
-  display.exists().not()
+  code!='23' and code!='24'
 )"

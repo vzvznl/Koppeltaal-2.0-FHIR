@@ -1044,10 +1044,10 @@ class TestResourceGenerator:
             ]
 
         elif variant == "invalid-wrong-relationship-display":
-            # Invalid: relationship with VALID code but WRONG display
+            # Invalid: relationship with VALID code 23 but WRONG display
             # This should fail validation because the kt2-role-display-validation invariant
-            # enforces exact display values for each code in COD472_VEKT_Soort_relatie_client
-            # Code "21" exists but display must be "Cliëntondersteuner", not "Verkeerde Display Tekst"
+            # enforces exact display values for codes 23 and 24
+            # Code "23" exists but display must be "Contactpersoon", not "Verkeerde Display Tekst"
             related_person["relationship"] = [
                 {
                     "coding": [{
@@ -1059,8 +1059,74 @@ class TestResourceGenerator:
                 {
                     "coding": [{
                         "system": "urn:oid:2.16.840.1.113883.2.4.3.11.22.472",
-                        "code": "21",
+                        "code": "23",
                         "display": "Verkeerde Display Tekst"
+                    }]
+                }
+            ]
+
+        elif variant == "invalid-wrong-relationship-display-24":
+            # Invalid: relationship with VALID code 24 but WRONG display
+            # This should fail validation because the kt2-role-display-validation invariant
+            # enforces exact display values for codes 23 and 24
+            # Code "24" exists but display must be "Wettelijke vertegenwoordiger", not "Verkeerde Display"
+            related_person["relationship"] = [
+                {
+                    "coding": [{
+                        "system": "http://terminology.hl7.org/CodeSystem/v3-RoleCode",
+                        "code": personal_code,
+                        "display": personal_display
+                    }]
+                },
+                {
+                    "coding": [{
+                        "system": "urn:oid:2.16.840.1.113883.2.4.3.11.22.472",
+                        "code": "24",
+                        "display": "Verkeerde Display"
+                    }]
+                }
+            ]
+
+        elif variant == "valid-wrong-display-other-code":
+            # Valid: relationship with code 01 and WRONG display
+            # This should PASS validation because the kt2-role-display-validation invariant
+            # only enforces exact display values for codes 23 and 24, not for other codes
+            # Code "01" with wrong display should be accepted
+            related_person["relationship"] = [
+                {
+                    "coding": [{
+                        "system": "http://terminology.hl7.org/CodeSystem/v3-RoleCode",
+                        "code": personal_code,
+                        "display": personal_display
+                    }]
+                },
+                {
+                    "coding": [{
+                        "system": "urn:oid:2.16.840.1.113883.2.4.3.11.22.472",
+                        "code": "01",
+                        "display": "Dit is een verkeerde display maar dat is OK voor code 01"
+                    }]
+                }
+            ]
+
+        elif variant == "invalid-unicode-display-23":
+            # Invalid: relationship with code 23 but unicode character wrong (e instead of é)
+            # This should fail validation because the kt2-role-display-validation invariant
+            # enforces EXACT display values including unicode characters
+            # Code "23" requires "Cliëntondersteuner" but here we use "Clientondersteuner" (e instead of ë)
+            related_person["relationship"] = [
+                {
+                    "coding": [{
+                        "system": "http://terminology.hl7.org/CodeSystem/v3-RoleCode",
+                        "code": personal_code,
+                        "display": personal_display
+                    }]
+                },
+                {
+                    "coding": [{
+                        "system": "urn:oid:2.16.840.1.113883.2.4.3.11.22.472",
+                        "code": "23",
+                        "display": "Clientondersteuner"
                     }]
                 }
             ]
@@ -1315,7 +1381,7 @@ fi
             "Patient": ["minimal", "maximal", "invalid-missing-identifier"],
             "Practitioner": ["minimal", "maximal", "invalid-missing-name"],
             "Organization": ["minimal", "maximal", "invalid-missing-identifier", "invalid-missing-active"],
-            "RelatedPerson": ["minimal", "maximal", "invalid-missing-identifier", "invalid-missing-active", "invalid-missing-patient", "invalid-missing-gender", "invalid-missing-birthdate", "invalid-missing-relationship", "invalid-missing-name", "invalid-wrong-relationship-code", "invalid-wrong-relationship-display"],
+            "RelatedPerson": ["minimal", "maximal", "invalid-missing-identifier", "invalid-missing-active", "invalid-missing-patient", "invalid-missing-gender", "invalid-missing-birthdate", "invalid-missing-relationship", "invalid-missing-name", "invalid-wrong-relationship-code", "invalid-wrong-relationship-display", "invalid-wrong-relationship-display-24", "valid-wrong-display-other-code", "invalid-unicode-display-23"],
             "Device": ["minimal", "maximal", "invalid-missing-identifier", "invalid-missing-status", "invalid-missing-devicename"],
             "Endpoint": ["minimal", "maximal", "invalid-missing-status", "invalid-missing-payloadtype", "invalid-wrong-connectiontype", "invalid-missing-address"],
             "ActivityDefinition": ["minimal", "maximal", "invalid-missing-endpoint", "invalid-missing-url", "invalid-usecontext-invalid-codes", "invalid-feature-code"],

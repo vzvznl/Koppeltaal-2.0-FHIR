@@ -1,5 +1,20 @@
 CHANGELOG
 
+## 0.15.0-beta.9 (2025-10-30)
+
+### Changed
+- **KT2_RelatedPerson profile**: Refined display validation to only validate codes 23 and 24
+  - Updated FHIRPath invariant `kt2-role-display-validation` to only enforce exact display values for COD472 codes 23 (Contactpersoon) and 24 (Wettelijke vertegenwoordiger)
+  - Other COD472 codes (01-22, 25-99) no longer require exact display matching, allowing more flexibility
+  - Reduces maintenance burden while enforcing critical business rules for the two most common role codes
+  - Display validation enforced due to known inconsistencies between different code systems and ValueSets
+  - Updated profile comments to clarify validation scope and rationale
+
+### Technical
+- Simplified invariant expression from 18 lines (16 codes) to 4 lines (2 codes)
+- Display values must match CodeSystem definitions exactly: "Contactpersoon" (code 23) and "Wettelijke vertegenwoordiger" (code 24)
+- Note: The display value in the ValueSet can differ from the CodeSystem; validation uses CodeSystem values
+
 ## 0.15.0-beta.8 (2025-10-28)
 
 ### Fixed
