@@ -132,7 +132,7 @@ publish: build-ig login
 #	cd fsh-generated/resources && $(FHIR) publish-package koppeltaalv2.00.$(VERSION).tgz
 	@echo "Publishing project to Simplifier.net..."
 	@echo "Cloning Simplifier project..."
-	$(FHIR) project clone https://simplifier.net/koppeltaalv2.0 koppeltaalv2.0
+	$(FHIR) project clone koppeltaalv2.0 koppeltaalv2.0
 	@echo "Copying resources..."
 	@cp README.md koppeltaalv2.0/
 	@cp CHANGELOG.md koppeltaalv2.0/
