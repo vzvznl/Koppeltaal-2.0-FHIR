@@ -124,6 +124,10 @@ pack-minimal: login
 publish: build-ig login
 	@echo "Publishing package to Simplifier.net..."
 	cd fsh-generated/resources && $(FHIR) bake
+	@echo "Copying package.json to fsh-generated/resources..."
+	cp package.json fsh-generated/resources/package.json
+	@echo "Restoring package dependencies..."
+	cd fsh-generated/resources && $(FHIR) restore
 	cd fsh-generated/resources && $(FHIR) pack
 	cd fsh-generated/resources && $(FHIR) publish-package koppeltaalv2.00.$(VERSION).tgz
 #	@echo "Publishing project to Simplifier.net..."
