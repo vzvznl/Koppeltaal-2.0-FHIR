@@ -14,7 +14,7 @@ Id: KT2RelatedPerson
 * relationship ^slicing.rules = #closed
 * relationship ^comment = "See [Koppeltaal Implementation Guide](https://simplifier.net/guide/koppeltaal/Home/Profile-Specific-Notes/RelatedPerson.page.md?version=current) for more information on the ValueSet"
 * relationship[role] ^sliceName = "role"
-* relationship[role] ^comment = "When using the `display` element of a code you __MUST__ use the content of the `display` element of the code from the __CodeSystem__. Otherwise, validation will result in errors. Note that the display of the code in the ValueSet can be different."
+* relationship[role] ^comment = "When using the `display` element for COD472 codes 23 (Contactpersoon) and 24 (Wettelijke vertegenwoordiger), you __MUST__ use the exact content of the `display` element from the __CodeSystem__. Otherwise, validation will result in errors. These specific codes require strict display validation due to known inconsistencies between different code systems and ValueSets. Other COD472 codes do not enforce display validation. Note that the display of the code in the ValueSet can be different from the CodeSystem."
 * relationship[role] obeys kt2-role-display-validation
 * name 1..
 * name[nameInformation] ^sliceName = "nameInformation"
