@@ -122,14 +122,14 @@ pack-minimal: login
 # Publish package to Simplifier.net
 .PHONY: publish
 publish: build-ig login
-#	@echo "Publishing package to Simplifier.net..."
-#	cd fsh-generated/resources && $(FHIR) bake
-#	@echo "Copying package.json to fsh-generated/resources..."
-#	cp package.json fsh-generated/resources/package.json
-#	@echo "Restoring package dependencies..."
-#	cd fsh-generated/resources && $(FHIR) restore
-#	cd fsh-generated/resources && $(FHIR) pack
-#	cd fsh-generated/resources && $(FHIR) publish-package koppeltaalv2.00.$(VERSION).tgz
+	@echo "Publishing package to Simplifier.net..."
+	cd fsh-generated/resources && $(FHIR) bake
+	@echo "Copying package.json to fsh-generated/resources..."
+	cp package.json fsh-generated/resources/package.json
+	@echo "Restoring package dependencies..."
+	cd fsh-generated/resources && $(FHIR) restore
+	cd fsh-generated/resources && $(FHIR) pack
+	cd fsh-generated/resources && $(FHIR) publish-package koppeltaalv2.00.$(VERSION).tgz
 	@echo "Publishing project to Simplifier.net..."
 	@echo "Cloning Simplifier project..."
 	$(FHIR) project clone koppeltaalv2.0 koppeltaalv2.0
@@ -141,7 +141,7 @@ publish: build-ig login
 	@mkdir -p koppeltaalv2.0/resources
 	@cp -r fsh-generated/resources/* koppeltaalv2.0/resources/
 	@echo "Pushing to Simplifier..."
-	cd koppeltaalv2.0 && $(FHIR) project push
+	cd koppeltaalv2.0 && $(FHIR) project status && $(FHIR) project push
 	@echo "Successfully published to Simplifier.net"
 
 # Show version
