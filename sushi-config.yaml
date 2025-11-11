@@ -49,14 +49,14 @@ pages:
       title: Strict use of Name Information
     autorisaties.md:
       title: Authorization Rules
+    autorisaties-careteam.md:
+      title: CareTeam en Autorisaties
     autorisaties-patient.md:
       title: Patient Authorization
     autorisaties-practitioner.md:
       title: Practitioner Authorization
     autorisaties-relatedperson.md:
       title: RelatedPerson Authorization
-    autorisaties-careteam.md:
-      title: CareTeam and Authorization
 
 parameters: # see https://confluence.hl7.org/display/FHIR/Implementation+Guide+Parameters
   apply-contact: false
@@ -101,10 +101,10 @@ menu:
     Strict use of Name Information: strict-use-of-nameinformation.html
   Autorisaties (DRAFT):
     Overzicht: autorisaties.html
+    CareTeam: autorisaties-careteam.html
     Patient: autorisaties-patient.html
     Practitioner: autorisaties-practitioner.html
     RelatedPerson: autorisaties-relatedperson.html
-    CareTeam: autorisaties-careteam.html
   Profile Specific Notes:
     ActivityDefinition: StructureDefinition-KT2ActivityDefinition.html
     AuditEvent: StructureDefinition-KT2AuditEvent.html

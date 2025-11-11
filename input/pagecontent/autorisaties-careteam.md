@@ -1,5 +1,3 @@
-## CareTeam en Autorisaties
-
 Deze pagina beschrijft de rol van CareTeam binnen het autorisatiemodel van het KoppelMij/Koppeltaal geharmoniseerde model, zoals beschreven in [Optie 3](https://koppelmij.github.io/koppelmij-designs/koppeltaal_domeinen.html#optie-3-harmonisatie-van-autorisatie-authenticatie-en-standaarden) van de Koppeltaal Domeinen documentatie.
 
 ### Wat is een CareTeam?
