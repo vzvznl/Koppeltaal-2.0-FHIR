@@ -207,6 +207,52 @@ De volgende punten vereisen nog nadere besluitvorming:
    - Mapping naar autorisatiematrix
    - Extensibility voor organisatie-specifieke rollen
 
+4. **CareTeam-Patient vs CareTeam-Task binding**
+
+   Er zijn twee verschillende benaderingen mogelijk voor de relatie tussen CareTeam, Patient en Task:
+
+   **Optie A: CareTeam gebonden aan Patient (huidige voorstel)**
+   - Eén CareTeam per patiënt binnen een organisatie (1-op-1 relatie)
+   - CareTeam wordt opgezet bij start van behandeltraject
+   - Alle Tasks voor deze patiënt refereren naar hetzelfde CareTeam
+   - CareTeam blijft stabiel gedurende het behandeltraject
+
+   *Voordelen:*
+   - Eenvoudiger model: één centraal punt voor wie betrokken is bij de zorg voor een patiënt
+   - Consistente autorisaties: alle betrokkenen hebben toegang tot alle data van de patiënt
+   - Minder overhead: CareTeam hoeft niet per Task te worden bepaald
+   - Duidelijke lifecycle: gekoppeld aan het behandeltraject
+
+   *Nadelen:*
+   - Minder flexibel: kan niet eenvoudig wisselen van teamsamenstelling per taak
+   - Bij parallelle behandeltrajecten binnen één organisatie kunnen problemen ontstaan
+   - Alle teamleden zien alle Tasks, ook als ze alleen bij specifieke taken betrokken zijn
+
+   **Optie B: CareTeam gebonden aan Task**
+   - Per Task wordt een CareTeam opgezet of geselecteerd
+   - Task.owner verwijst naar het specifieke CareTeam voor die taak
+   - Verschillende Tasks kunnen verschillende CareTeams hebben, zelfs voor dezelfde patiënt
+
+   *Voordelen:*
+   - Maximale flexibiliteit: per taak kan de teamsamenstelling verschillen
+   - Fijnmazige autorisatie: alleen betrokkenen bij specifieke taak hebben toegang
+   - Beter geschikt voor complexe zorgtrajecten met wisselende teams
+   - Natuurlijke ondersteuning voor parallelle behandeltrajecten
+
+   *Nadelen:*
+   - Complexer model: meer CareTeams om te beheren
+   - Overhead: bij elke Task moet CareTeam worden bepaald/aangemaakt
+   - Potentieel verwarrend: wie heeft nu toegang tot welke patiëntdata?
+   - Fragmentatie: patiëntbeeld verspreid over meerdere CareTeams
+
+   **Beslissing:**
+   Op basis van de meeting is voorlopig gekozen voor **Optie A** (CareTeam gebonden aan Patient), met als belangrijkste argumenten:
+   - Eenvoud en overzichtelijkheid in de praktijk
+   - Behoud van een centraal overzicht van betrokkenen per patiënt
+   - Aansluit bij gangbare zorgpraktijk waar een vast team verantwoordelijk is voor een patiënt
+
+   De mogelijkheid om in de toekomst Optie B te ondersteunen blijft open, mocht blijken dat deze flexibiliteit noodzakelijk is voor specifieke use cases.
+
 ### Zie Ook
 
 - [Autorisaties overzicht](autorisaties.html)
