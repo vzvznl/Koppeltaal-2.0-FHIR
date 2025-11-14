@@ -28,7 +28,6 @@ See [BUILD.md](BUILD.md) for detailed technical information.
 
 #### Using Docker (Recommended)
 - Docker installed on your system
-- Environment variables: `FHIR_EMAIL` and `FHIR_PASSWORD` for Simplifier.net authentication
 
 #### Local Development (Without Docker)
 If you prefer to run the build process locally without Docker, you'll need:
@@ -37,6 +36,9 @@ If you prefer to run the build process locally without Docker, you'll need:
 - Make
 - Python 3
 - Node.js and npm
+
+#### Publishing to Simplifier.net
+Only required if you need to publish packages to Simplifier.net:
 - Environment variables: `FHIR_EMAIL` and `FHIR_PASSWORD` for Simplifier.net authentication
 
 ### Quick Start with Docker
@@ -52,11 +54,11 @@ docker build . -t koppeltaal-builder
 #### Run the builds
 
 ```bash
-# Build full documentation package
-docker run -e FHIR_EMAIL=your-email -e FHIR_PASSWORD=your-password -v ${PWD}:/src koppeltaal-builder
+# Build full documentation package (no credentials needed)
+docker run -v ${PWD}:/src koppeltaal-builder
 
-# Build minimal server package (solves VARCHAR(4000) database issues)
-docker run -e FHIR_EMAIL=your-email -e FHIR_PASSWORD=your-password -v ${PWD}:/src koppeltaal-builder build-minimal
+# Build minimal server package (no credentials needed)
+docker run -v ${PWD}:/src koppeltaal-builder build-minimal
 ```
 
 ### Using the Makefile
@@ -67,11 +69,11 @@ The Makefile provides several targets to manage the build process. You can run t
 
 | Target | Description | Docker Command |
 |--------|-------------|----------------|
-| `build` | Full documentation package (default) | `docker run -e FHIR_EMAIL=... -e FHIR_PASSWORD=... -v ${PWD}:/src koppeltaal-builder` |
-| `build-minimal` | Minimal server package | `docker run -e FHIR_EMAIL=... -e FHIR_PASSWORD=... -v ${PWD}:/src koppeltaal-builder build-minimal` |
-| `build-ig` | Build Implementation Guide only | `docker run -e FHIR_EMAIL=... -e FHIR_PASSWORD=... -v ${PWD}:/src koppeltaal-builder build-ig` |
+| `build` | Full documentation package (default) | `docker run -v ${PWD}:/src koppeltaal-builder` |
+| `build-minimal` | Minimal server package | `docker run -v ${PWD}:/src koppeltaal-builder build-minimal` |
+| `build-ig` | Build Implementation Guide only | `docker run -v ${PWD}:/src koppeltaal-builder build-ig` |
 | `version` | Show current version | `docker run -v ${PWD}:/src koppeltaal-builder version` |
-| `publish` | Publish to Simplifier.net | `docker run -e FHIR_EMAIL=... -e FHIR_PASSWORD=... -v ${PWD}:/src koppeltaal-builder publish` |
+| `publish` | Publish to Simplifier.net (requires credentials) | `docker run -e FHIR_EMAIL=... -e FHIR_PASSWORD=... -v ${PWD}:/src koppeltaal-builder publish` |
 | `help` | Display available targets | `docker run -v ${PWD}:/src koppeltaal-builder help` |
 
 ### Build Output
@@ -133,6 +135,10 @@ The minimal package strips snapshots and narratives to match the working Simplif
 For debugging or manual operations, you can access an interactive shell:
 
 ```bash
+# No credentials needed for exploration
+docker run -it --entrypoint /bin/bash -v ${PWD}:/src koppeltaal-builder
+
+# With credentials (only if you need to publish)
 docker run -it --entrypoint /bin/bash -e FHIR_EMAIL=your-email -e FHIR_PASSWORD=your-password -v ${PWD}:/src koppeltaal-builder
 ```
 
@@ -141,18 +147,19 @@ docker run -it --entrypoint /bin/bash -e FHIR_EMAIL=your-email -e FHIR_PASSWORD=
 If you have all prerequisites installed locally, you can run Make commands directly:
 
 ```bash
-# Set environment variables
-export FHIR_EMAIL=your-email
-export FHIR_PASSWORD=your-password
-
-# Build full documentation package
+# Build full documentation package (no credentials needed)
 make build
 
-# Build minimal server package
+# Build minimal server package (no credentials needed)
 make build-minimal
 
-# Show version
+# Show version (no credentials needed)
 make version
+
+# Publish to Simplifier.net (requires credentials)
+export FHIR_EMAIL=your-email
+export FHIR_PASSWORD=your-password
+make publish
 
 # Other targets
 make help
@@ -170,6 +177,16 @@ du -h output-minimal/package/ext-KT2CorrelationId.json
 du -h output/koppeltaalv2-*.tgz          # Full package
 du -h output-minimal/koppeltaalv2-*.tgz  # Minimal package (should be ~184KB)
 ```
+
+## Contributing
+
+**Want to contribute?** See [CONTRIBUTING.md](CONTRIBUTING.md) for:
+- Step-by-step development workflow
+- How to create feature branches and pull requests
+- Testing your changes with Docker
+- VSCode-specific instructions and tips
+- Git best practices
+- Troubleshooting common issues
 
 ## GitHub Workflows and CI/CD
 
@@ -189,48 +206,6 @@ This repository uses GitHub Actions for continuous integration and deployment:
    - Requires explicit user action via GitHub Actions UI
    - Publishes the FHIR package to Simplifier.net
    - Uses stored credentials for authentication
-
-### Development Workflow with Pull Requests
-
-#### Recommended Development Process
-
-1. **Create a Feature Branch**
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
-
-2. **Make Your Changes**
-   - Edit FHIR profiles, extensions, or other resources
-   - Update version in `sushi-config.yaml` if needed
-   - Test locally using Docker or Make commands
-
-3. **Push to GitHub**
-   ```bash
-   git push origin feature/your-feature-name
-   ```
-   - CI automatically builds and validates your changes
-   - Creates a pre-release with minimal package for testing
-
-4. **Create Pull Request**
-   - Open PR from your feature branch to `main`
-   - CI runs validation on the PR
-   - Review the build artifacts and test results
-   - Get code review from team members
-
-5. **Merge to Main**
-   - Once approved, merge the PR to `main`
-   - CI automatically:
-     - Builds both full and minimal packages
-     - Creates a stable GitHub release
-     - Publishes to GitHub Packages
-     - Deploys documentation to GitHub Pages
-
-6. **Manual Publish to Simplifier** (when ready)
-   - Navigate to Actions tab in GitHub
-   - Select "Publish to Simplifier.net" workflow
-   - Click "Run workflow" on main branch
-   - Provide a reason for publishing
-   - Monitor the workflow for successful completion
 
 ### Publishing to Simplifier.net
 

@@ -73,7 +73,7 @@ convert-ig-minimal:
 
 # Pack FHIR resources for minimal package using Firely CLI (keeping snapshots, removing only narratives/mappings)
 .PHONY: pack-minimal
-pack-minimal: login
+pack-minimal:
 	@echo "Creating minimal FHIR package with snapshots retained..."
 	@mkdir -p output-minimal
 	@echo "Restoring package dependencies..."
