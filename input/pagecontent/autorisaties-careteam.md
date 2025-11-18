@@ -11,26 +11,7 @@ Een CareTeam is een groep van personen (Practitioners en/of RelatedPersons) die 
 
 Er zijn twee hoofdtypen van CareTeams in het systeem:
 
-#### 1. Patiënt-specifieke CareTeams
-Dit zijn CareTeams die gekoppeld zijn aan een specifieke patiënt via `CareTeam.patient`.
-
-**Kenmerken:**
-- `CareTeam.patient` verwijst naar de specifieke Patient resource
-- Bevat alle betrokken Practitioners en RelatedPersons voor deze patiënt
-- Definieert de rollen van elk teamlid (bijv. behandelaar, zorgondersteuner, eerste relatie)
-- Wordt gebruikt voor autorisatie: lidmaatschap van dit CareTeam geeft toegang tot patiëntgegevens
-
-**Voorbeeld gebruik:**
-```
-CareTeam voor Jan Jansen
-├── Patient: Jan Jansen
-├── Participants:
-│   ├── Practitioner: Dr. Smit (rol: behandelaar)
-│   ├── Practitioner: Zorgondersteuner Klaas (rol: zorgondersteuner)
-│   └── RelatedPerson: Partner van Jan (rol: eerste relatie)
-```
-
-#### 2. Organisatie CareTeams
+#### 1. Organisatie CareTeams
 Dit zijn CareTeams zonder specifieke patiënt, die gebruikt worden voor organisatorische doeleinden.
 
 **Kenmerken:**
@@ -49,21 +30,56 @@ CareTeam voor Afdeling Depressie
 │   └── Practitioner: Zorgondersteuner Klaas
 ```
 
-### Relatie met Tasks
+#### 2. Patiënt-specifieke CareTeams
+Dit zijn CareTeams die gekoppeld zijn aan een specifieke patiënt via `CareTeam.patient`.
 
-CareTeams zijn nauw verbonden met Tasks via de `Task.owner` referentie:
+**Kenmerken:**
+- `CareTeam.patient` verwijst naar de specifieke Patient resource
+- Bevat alle betrokken Practitioners en RelatedPersons voor deze patiënt
+- Definieert de rollen van elk teamlid (bijv. behandelaar, zorgondersteuner, eerste relatie)
+- Wordt gebruikt voor autorisatie: lidmaatschap van dit CareTeam geeft toegang tot patiëntgegevens
 
-#### Task.owner = CareTeam
-Een Task kan eigendom zijn van een CareTeam, wat betekent dat:
-- Alle leden van het CareTeam de taak kunnen beheren (zie autorisatieregels per rol)
-- De taak zichtbaar is voor het gehele team
-- Verantwoordelijkheid gedeeld wordt binnen het team
+**Voorbeeld gebruik:**
+```
+CareTeam voor Jan Jansen
+├── Patient: Jan Jansen
+├── Participants:
+│   ├── Practitioner: Dr. Smit (rol: behandelaar)
+│   ├── Practitioner: Zorgondersteuner Klaas (rol: zorgondersteuner)
+│   └── RelatedPerson: Partner van Jan (rol: eerste relatie)
+```
 
-#### Task.owner = Practitioner/RelatedPerson
-Een Task kan ook individueel toegewezen zijn, waarbij:
-- De specifieke persoon eigenaar is
-- Deze persoon **moet** lid zijn van het relevante CareTeam (zie autorisatiemodel hieronder)
-- Andere teamleden mogelijk beperkte toegang hebben (afhankelijk van hun rol)
+#### 3. Task level CareTeams
+Dit zijn CareTeams die gebonden zijn aan een specifieke Task en een specifieke patiënt.
+
+**Kenmerken:**
+- `CareTeam.patient` verwijst naar de specifieke Patient resource
+- Gebonden aan de scope van een specifieke Task via `Task.owner`
+- Bevat alleen de personen die direct betrokken zijn bij deze specifieke taak
+- Beperkter in scope dan een algemeen patiënt-specifiek CareTeam
+- Wordt gebruikt wanneer een taak door een specifiek subteam moet worden uitgevoerd
+
+**Voorbeeld gebruik:**
+```
+CareTeam voor Intake Gesprek Jan Jansen
+├── Patient: Jan Jansen
+├── Participants:
+│   ├── Practitioner: Dr. Smit (rol: behandelaar)
+│   └── Practitioner: Zorgondersteuner Klaas (rol: zorgondersteuner)
+├── Gekoppeld aan: Task "Intake gesprek plannen"
+```
+
+**Verschil met Patiënt-specifieke CareTeams:**
+- Task level CareTeams zijn tijdelijk en taak-specifiek
+- Patiënt-specifieke CareTeams omvatten alle betrokkenen voor de gehele behandeling
+- Task level CareTeams kunnen een subset zijn van het bredere patiënt-specifieke CareTeam
+- Na voltooiing van de Task kan het Task level CareTeam worden opgeheven
+
+**Nadelen van Task level CareTeams:**
+- **Synchronisatie overhead:** Wanneer de samenstelling van een zorgteam wijzigt (bijvoorbeeld een nieuwe behandelaar wordt toegevoegd of een medewerker vertrekt), moeten alle Task level CareTeams van alle lopende taken worden geüpdatet
+- Dit kan leiden tot complexe update-procedures en potentiële inconsistenties
+- Verhoogde kans op fouten waarbij sommige Task CareTeams niet correct gesynchroniseerd worden
+- Aanzienlijke operationele overhead bij frequente teamwijzigingen
 
 ### Autorisatiemodel CareTeam (Voorstel)
 
@@ -205,51 +221,39 @@ De volgende punten vereisen nog nadere besluitvorming:
    - Mapping naar autorisatiematrix
    - Extensibility voor organisatie-specifieke rollen
 
-4. **CareTeam-Patient vs CareTeam-Task binding**
+4. **Keuze tussen CareTeam types**
 
-   Er zijn twee verschillende benaderingen mogelijk voor de relatie tussen CareTeam, Patient en Task:
+   Het systeem ondersteunt drie types CareTeams (zie Types van CareTeams hierboven):
+   - **Type 1:** Organisatie CareTeams (geen patient binding)
+   - **Type 2:** Patiënt-specifieke CareTeams (patient-wide scope)
+   - **Type 3:** Task level CareTeams (task-specific scope)
 
-   **Optie A: CareTeam gebonden aan Patient (huidige voorstel)**
-   - Eén CareTeam per patiënt binnen een organisatie (1-op-1 relatie)
-   - CareTeam wordt opgezet bij start van behandeltraject
-   - Alle Tasks voor deze patiënt refereren naar hetzelfde CareTeam
-   - CareTeam blijft stabiel gedurende het behandeltraject
+   **Belangrijke overwegingen bij de keuze:**
 
-   *Voordelen:*
-   - Eenvoudiger model: één centraal punt voor wie betrokken is bij de zorg voor een patiënt
-   - Consistente autorisaties: alle betrokkenen hebben toegang tot alle data van de patiënt
-   - Minder overhead: CareTeam hoeft niet per Task te worden bepaald
-   - Duidelijke lifecycle: gekoppeld aan het behandeltraject
+   *Autorisatie-architectuur van achterliggende systemen:*
+   - Hoe zijn autorisaties in de achterliggende systemen georganiseerd?
+   - Is autorisatie **patient-georganiseerd** (toegang tot alle data van een patiënt)?
+   - Of is autorisatie **taak-georganiseerd** (toegang tot specifieke taken/activiteiten)?
+   - Deze architectuur moet leidend zijn voor de keuze van CareTeam type
+   - Mismatch tussen CareTeam type en systeem-architectuur leidt tot complexe mappings en potentiële beveiligingsproblemen
 
-   *Nadelen:*
-   - Minder flexibel: kan niet eenvoudig wisselen van teamsamenstelling per taak
-   - Bij parallelle behandeltrajecten binnen één organisatie kunnen problemen ontstaan
-   - Alle teamleden zien alle Tasks, ook als ze alleen bij specifieke taken betrokken zijn
+   *Gebruik van Patiënt-specifieke CareTeams (Type 2):*
+   - **Beste keuze wanneer:** Achterliggende systemen patient-georganiseerde autorisaties hebben
+   - Natuurlijke mapping: CareTeam membership = toegang tot alle patiëntdata
+   - Eenvoudiger te beheren: één team per patiënt
+   - Geen synchronisatie-overhead bij teamwijzigingen over meerdere taken
+   - Minder fragmentatie van autorisatie-informatie
 
-   **Optie B: CareTeam gebonden aan Task**
-   - Per Task wordt een CareTeam opgezet of geselecteerd
-   - Task.owner verwijst naar het specifieke CareTeam voor die taak
-   - Verschillende Tasks kunnen verschillende CareTeams hebben, zelfs voor dezelfde patiënt
+   *Gebruik van Task level CareTeams (Type 3):*
+   - **Beste keuze wanneer:** Achterliggende systemen taak-georganiseerde autorisaties hebben
+   - Natuurlijke mapping: Task CareTeam = toegang tot specifieke taak en gerelateerde data
+   - Fijnmazige controle over wie toegang heeft tot specifieke taken
+   - Wel rekening houden met synchronisatie-overhead bij teamwijzigingen (zie nadelen Type 3)
 
-   *Voordelen:*
-   - Maximale flexibiliteit: per taak kan de teamsamenstelling verschillen
-   - Fijnmazige autorisatie: alleen betrokkenen bij specifieke taak hebben toegang
-   - Beter geschikt voor complexe zorgtrajecten met wisselende teams
-   - Natuurlijke ondersteuning voor parallelle behandeltrajecten
-
-   *Nadelen:*
-   - Complexer model: meer CareTeams om te beheren
-   - Overhead: bij elke Task moet CareTeam worden bepaald/aangemaakt
-   - Potentieel verwarrend: wie heeft nu toegang tot welke patiëntdata?
-   - Fragmentatie: patiëntbeeld verspreid over meerdere CareTeams
-
-   **Beslissing:**
-   Op basis van de meeting is voorlopig gekozen voor **Optie A** (CareTeam gebonden aan Patient), met als belangrijkste argumenten:
-   - Eenvoud en overzichtelijkheid in de praktijk
-   - Behoud van een centraal overzicht van betrokkenen per patiënt
-   - Aansluit bij gangbare zorgpraktijk waar een vast team verantwoordelijk is voor een patiënt
-
-   De mogelijkheid om in de toekomst Optie B te ondersteunen blijft open, mocht blijken dat deze flexibiliteit noodzakelijk is voor specifieke use cases.
+   *Hybride aanpak:*
+   - Mogelijk om beide types te combineren voor verschillende use cases
+   - Bijvoorbeeld: Patiënt-specifieke CareTeams voor reguliere zorg, Task level CareTeams voor gespecialiseerde interventies
+   - Vereist duidelijke governance over wanneer welk type wordt gebruikt
 
 ### Zie Ook
 
