@@ -71,7 +71,7 @@ CareTeam voor Intake Gesprek Jan Jansen
 
 **Verschil met Patiënt-specifieke CareTeams:**
 - Task level CareTeams zijn tijdelijk en taak-specifiek
-- Patiënt-specifieke CareTeams omvatten alle betrokkenen voor de gehele behandeling
+- Patiënt-specifieke CareTeams omvatten alle betrokkenen voor de gehele taak
 - Task level CareTeams kunnen een subset zijn van het bredere patiënt-specifieke CareTeam
 - Na voltooiing van de Task kan het Task level CareTeam worden opgeheven
 
