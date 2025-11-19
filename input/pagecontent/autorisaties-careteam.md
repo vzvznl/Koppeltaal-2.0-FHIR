@@ -140,6 +140,201 @@ Als Task.for verwijst naar een Patient:
   EN Task.owner en Task.requester moeten lid zijn van dit CareTeam
 ```
 
+#### Additionele autorisaties
+
+##### SMART on FHIR Launch en Autorisatie
+
+Bij gebruik van SMART on FHIR en HTI (Health Tools Interoperability) launches speelt autorisatie op launch-niveau:
+
+- Een SMART on FHIR launch definieert een `sub` (subject) in het HTI token voor de Patient, Practitioner of RelatedPerson die de applicatie start
+- De launch zelf is een uitdrukking van autorisatie: door de applicatie te lanceren, besluit de lancerende partij dat de betreffende Practitioner of RelatedPerson toegang heeft
+- Deze autorisatiebeslissing vindt plaats buiten het FHIR model, maar moet wel gebaseerd zijn op het CareTeam
+- **Basisregel:** De Practitioner of RelatedPerson moet lid zijn van het relevante CareTeam met de juiste rol
+
+Deze aanpak biedt de flexibiliteit van externe autorisatiebeslissingen (via launch) gecombineerd met de veiligheid van rol-gebaseerde toegang (via CareTeam membership).
+
+**Voorbeeld Scenario: Launch van een activiteit**
+
+**Situatie:**
+- Patient: Maria de Vries
+- CareTeam voor Maria bevat:
+  - Dr. Peters (behandelaar)
+  - Psycholoog van Dam (zorgondersteuner)
+  - Zoon van Maria (eerste relatie)
+- Task: "Dagboek invullen" (status: ready, owner: CareTeam Maria)
+
+**Launch door portaalapplicatie:**
+```
+Portal initieert SMART on FHIR launch naar dagboek-applicatie
+
+HTI Token bevat:
+{
+  "sub": "RelatedPerson/zoon-maria",
+  "patient": "Patient/maria-de-vries",
+  "fhirUser": "RelatedPerson/zoon-maria",
+  "launch_context": {
+    "task": "Task/dagboek-invullen"
+  }
+}
+```
+
+**Autorisatie validatie:**
+1. ✅ Token bevat valide `sub` (Zoon van Maria)
+2. ✅ Zoon van Maria is lid van CareTeam voor Maria de Vries
+3. ✅ Zoon heeft rol "eerste relatie" in het CareTeam
+4. ✅ Task.for verwijst naar Patient/maria-de-vries (komt overeen met patient in token)
+5. ✅ Launch wordt toegestaan
+
+**Resultaat:** De dagboek-applicatie wordt gelanceerd en Zoon van Maria krijgt toegang tot de Task "Dagboek invullen" voor zijn moeder. De autorisatie is gebaseerd op zijn lidmaatschap van het CareTeam, maar de launch beslissing wordt genomen door de portaalapplicatie.
+
+**Afwijzing scenario:**
+Als het token `"sub": "RelatedPerson/vriend-van-maria"` zou bevatten, en deze persoon is **geen** lid van het CareTeam, dan zou de launch worden afgewezen:
+```
+❌ Ongeldig: Vriend van Maria is geen lid van het CareTeam voor Maria de Vries
+→ HTTP 403 Forbidden
+→ Foutmelding: "User not authorized for this patient context"
+```
+
+##### Fijnmazige toegang met sub-taken
+
+Voor situaties waar meer granulaire autorisatie nodig is, kunnen sub-tasks worden gebruikt:
+
+- De specifieke authenticatie en autorisatie van een RelatedPerson of Practitioner kan in FHIR worden gerepresenteerd via sub-tasks
+- Door een sub-task aan te maken, kan fijnmazige toegang worden verleend aan een specifieke Practitioner of RelatedPerson voor een bepaalde taak
+- Ook hier geldt: de Practitioner of RelatedPerson moet lid zijn van het CareTeam met de juiste rol
+- Sub-tasks bieden dus een FHIR-native manier om taak-specifieke autorisaties uit te drukken binnen de context van het bredere CareTeam
+
+Deze aanpak biedt de structuur en traceerbaarheid van FHIR (via CareTeam en sub-tasks) voor fijnmazige autorisatiecontrole.
+
+**Voorbeeld Scenario: Sub-task voor specifieke toegang**
+
+**Situatie:**
+- Patient: Jan Jansen
+- CareTeam voor Jan bevat:
+  - Dr. Smit (behandelaar)
+  - Psycholoog van Dam (zorgondersteuner)
+  - Verpleegkundige Peters (zorgondersteuner)
+  - Zorgondersteuner Klaas (zorgondersteuner)
+  - Partner van Jan (eerste relatie)
+
+**Hoofdtaak met brede toegang:**
+```json
+{
+  "resourceType": "Task",
+  "id": "behandelplan-opstellen",
+  "status": "in-progress",
+  "intent": "order",
+  "for": {
+    "reference": "Patient/jan-jansen"
+  },
+  "owner": {
+    "reference": "Practitioner/dr-smit"
+  },
+  "description": "Behandelplan opstellen voor depressie"
+}
+```
+→ Eigenaar: Dr. Smit (behandelaar)
+→ Zichtbaar voor: Alle leden van CareTeam Jan Jansen
+
+**Sub-task voor specifieke medewerker:**
+```json
+{
+  "resourceType": "Task",
+  "id": "vragenlijst-afnemen",
+  "status": "ready",
+  "intent": "order",
+  "partOf": [{
+    "reference": "Task/behandelplan-opstellen"
+  }],
+  "for": {
+    "reference": "Patient/jan-jansen"
+  },
+  "owner": {
+    "reference": "Practitioner/zorgondersteuner-klaas"
+  },
+  "requester": {
+    "reference": "Practitioner/dr-smit"
+  },
+  "description": "PHQ-9 vragenlijst afnemen"
+}
+```
+→ Eigenaar: Zorgondersteuner Klaas (specifiek toegewezen)
+→ Aanvrager: Dr. Smit (heeft sub-task gecreëerd)
+
+**Launch en autorisatie:**
+
+*Scenario 1: Zorgondersteuner Klaas lanceert de vragenlijst-applicatie*
+```
+HTI Token bevat:
+{
+  "sub": "Practitioner/zorgondersteuner-klaas",
+  "patient": "Patient/jan-jansen",
+  "fhirUser": "Practitioner/zorgondersteuner-klaas",
+  "launch_context": {
+    "task": "Task/vragenlijst-afnemen"
+  }
+}
+
+Autorisatie validatie:
+1. ✅ Zorgondersteuner Klaas is lid van CareTeam Jan Jansen
+2. ✅ Task.owner = Practitioner/zorgondersteuner-klaas (exacte match)
+3. ✅ Task.for = Patient/jan-jansen (komt overeen met CareTeam patient)
+4. ✅ Launch toegestaan - Klaas is direct eigenaar van deze sub-task
+```
+
+*Scenario 2: Dr. Smit (requester) wil de voortgang bekijken*
+```
+HTI Token bevat:
+{
+  "sub": "Practitioner/dr-smit",
+  "patient": "Patient/jan-jansen",
+  "fhirUser": "Practitioner/dr-smit",
+  "launch_context": {
+    "task": "Task/vragenlijst-afnemen"
+  }
+}
+
+Autorisatie validatie:
+1. ✅ Dr. Smit is lid van CareTeam Jan Jansen
+2. ✅ Dr. Smit is requester van deze sub-task
+3. ✅ Dr. Smit is owner van de parent task
+4. ✅ Launch toegestaan - Smit heeft toegang als requester en behandelaar
+```
+
+*Scenario 3: Verpleegkundige Peters probeert toegang te krijgen*
+```
+HTI Token bevat:
+{
+  "sub": "Practitioner/verpleegkundige-peters",
+  "patient": "Patient/jan-jansen",
+  "fhirUser": "Practitioner/verpleegkundige-peters",
+  "launch_context": {
+    "task": "Task/vragenlijst-afnemen"
+  }
+}
+
+Autorisatie validatie:
+1. ✅ Verpleegkundige Peters is lid van CareTeam Jan Jansen
+2. ⚠️ Peters is niet owner van deze specifieke sub-task
+3. ⚠️ Peters is niet requester van deze sub-task
+
+Beslissing: Afhankelijk van autorisatiebeleid:
+- Optie A (restrictief): ❌ Toegang geweigerd - alleen owner/requester
+- Optie B (permissief): ✅ Toegang toegestaan - alle CareTeam leden mogen taken inzien
+```
+
+**Voordelen van sub-tasks:**
+- **Expliciete toewijzing:** Duidelijk wie verantwoordelijk is voor specifieke deeltaken
+- **Traceerbaarheid:** Vastlegging in FHIR van wie wat mag/moet doen
+- **Flexibiliteit:** Kan gecombineerd worden met verschillende autorisatiemodellen
+- **Workflow management:** Ondersteunt complexe behandelprocessen met meerdere betrokkenen
+
+**Use cases:**
+- Toewijzen van specifieke vragenlijsten aan specifieke zorgverleners
+- Delegeren van intake-taken aan gespecialiseerde medewerkers
+- Opdelen van behandelplan in deeltaken per discipline
+- Toestemming voor tijdelijke toegang (bijv. vervanging tijdens vakantie)
+
 ### Voorbeeld Scenario
 
 **Situatie:**
