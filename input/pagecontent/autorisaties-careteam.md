@@ -450,6 +450,64 @@ De volgende punten vereisen nog nadere besluitvorming:
    - Bijvoorbeeld: Patiënt-specifieke CareTeams voor reguliere zorg, Task level CareTeams voor gespecialiseerde interventies
    - Vereist duidelijke governance over wanneer welk type wordt gebruikt
 
+5. **Onderscheid tussen CareTeam structuur en autorisatie mechanismen** ⚠️
+
+   **Belangrijk conceptueel onderscheid:**
+
+   Dit document bespreekt twee verschillende concepten die niet gelijkgesteld mogen worden:
+
+   **A. CareTeam structuur (organisatorisch construct):**
+   - **Vraag:** Op welk niveau worden CareTeams georganiseerd?
+   - **Opties:**
+     - Type 1: Organisatie-niveau (geen patiënt binding)
+     - Type 2: Patiënt-niveau (patient-wide scope)
+     - Type 3: Taak-niveau (task-specific scope)
+   - **Doel:** Vastleggen wie betrokken is bij de zorg en in welke rol
+
+   **B. Autorisatie mechanismen (toegangscontrole):**
+   - **Vraag:** Hoe wordt toegang tot taken en data geregeld?
+   - **Mechanismen:**
+     1. **CareTeam membership:** Basisautorisatie via lidmaatschap en rol
+     2. **SMART on FHIR launches:** Launch-time autorisatiebeslissingen via HTI tokens
+     3. **Sub-tasks:** Taak-specifieke toewijzingen en toegangscontrole
+   - **Doel:** Implementeren van toegangscontrole op verschillende granulariteitsniveaus
+
+   **De kern: CareTeam ≠ Autorisatie**
+
+   - **CareTeam** is een organisatorisch construct dat de samenstelling van het zorgteam beschrijft
+   - **Autorisatie** kan op taak-niveau worden geïmplementeerd door:
+     - CareTeams op taak-niveau (Type 3) **EN/OF**
+     - Sub-tasks (fijnmazige toewijzing binnen bestaand CareTeam) **EN/OF**
+     - FHIR launches (runtime autorisatiebeslissingen)
+
+   **Praktische implicaties:**
+
+   - Je kunt een Patiënt-specifiek CareTeam (Type 2) hebben **en tegelijkertijd** taak-niveau autorisatie implementeren via sub-tasks en launches
+   - De keuze voor CareTeam structuur (Type 1/2/3) bepaalt **niet** volledig hoe autorisaties worden geïmplementeerd
+   - Sub-tasks en launches zijn **zelf uitspraken van autorisatie**, onafhankelijk van het CareTeam type
+
+   **Voorbeeld combinatie:**
+   ```
+   CareTeam Type 2 (Patiënt-niveau):
+   ├── CareTeam voor Jan Jansen
+   │   ├── Dr. Smit (behandelaar)
+   │   ├── Zorgondersteuner Klaas (zorgondersteuner)
+   │   └── Verpleegkundige Peters (zorgondersteuner)
+   │
+   └── Autorisatie op taak-niveau via:
+       ├── Sub-task: "Vragenlijst PHQ-9"
+       │   └── Owner: Zorgondersteuner Klaas (specifiek)
+       │
+       └── Launch: HTI token met sub: Practitioner/zorgondersteuner-klaas
+           └── Launch beslissing: toegang tot specifieke sub-task
+   ```
+
+   **Beslispunten:**
+   - Hoe verhouden CareTeam types zich tot autorisatie-architectuur?
+   - Wanneer gebruik je Task level CareTeams vs. Patiënt level CareTeams met sub-tasks?
+   - Welke combinaties van mechanismen zijn toegestaan?
+   - Hoe wordt de interactie tussen deze mechanismen gevalideerd en afgedwongen?
+
 ### Zie Ook
 
 - [Autorisaties overzicht](autorisaties.html)
