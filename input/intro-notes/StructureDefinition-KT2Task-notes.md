@@ -9,13 +9,13 @@ Using the element `instantiatesCanonical` does not allow chaining of the search 
 
 The element `instantiatesCanonical` should not be used for this reference. Receivers of a Task instance can ignore any value in the `instantiatesCanonical` and should look for the referred `ActivityDefinition` in the `instantiates` extension.
 
-#### Owner
+#### KT2_Task.owner
 
 `KT2_Task.owner` determines which actor is the executor of the respective task.
 
 The `RelatedPerson` can be assigned as the owner of a task either directly or through a `CareTeam`.
 
-#### PartOf
+#### KT2_Task.partOf
 
 This element is used to indicate the reference of a subtask to the main task.
 The main task is assigned to the patient through `KT2_Task.owner` = `Reference(KT2_Patient)`.
@@ -24,9 +24,9 @@ The subtask is created as follows:
 - The `KT2_RelatedPerson` who assists becomes the `Task.owner`
 - `KT2_Task.for` references the `Patient` of the main task
 
-#### Code
+#### KT2_Task.code
 
-With the `KT2_Task.code` element the permission of a `KT2_Task` can be set to `view`.
+With the `KT2_Task.code` element the permission of a `KT2_Task` can be set to `view`. The exact meaning of the `view` permission can differ per application because authorisations in Koppeltaal 2.0 are defined and executed by the applications.
 
 #### Validation: Task with read-only permissions
 
