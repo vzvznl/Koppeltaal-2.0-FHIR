@@ -51,7 +51,7 @@ De gekozen oplossing is een custom claim `idp_hint` in het HTI launch token:
 
 De exacte waarde van het `idp_hint` veld wordt bepaald door de combinatie van domeinbeheer en autorisatie service. Het is aan deze partijen om af te stemmen welk formaat gebruikt wordt voor de IdP identifier. De volgende opties zijn mogelijk:
 
-- **Issuer URL**: De issuer (`iss`) uit het IdP token, bijvoorbeeld: `https://idp.example.com/idp1/`
+- **Issuer URL**: De issuer (`iss`) uit het OIDC `id_token`, bijvoorbeeld: `https://idp.example.com/idp1/`
 - **Database referentie**: Een interne database referentie, bijvoorbeeld: `c7fe7029-5a5d-47b4-b8a5-e35f04a633b7`
 - **Logische identifier**: Een logisch toegekende identifier, bijvoorbeeld: `idp-relatedperson-oidc`
 
