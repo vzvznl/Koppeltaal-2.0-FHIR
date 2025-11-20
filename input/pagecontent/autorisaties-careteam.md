@@ -9,7 +9,7 @@ Een CareTeam is een groep van personen (Practitioners en/of RelatedPersons) die 
 
 ### Types van CareTeams
 
-Er zijn twee hoofdtypen van CareTeams in het systeem:
+Er zijn drie hoofdtypen van CareTeams in het systeem:
 
 #### 1. Organisatie CareTeams
 Dit zijn CareTeams zonder specifieke patiënt, die gebruikt worden voor organisatorische doeleinden.
@@ -84,19 +84,33 @@ CareTeam voor Intake Gesprek Jan Jansen
 
 ### Autorisatiemodel CareTeam (Voorstel)
 
+Het gebruik van het CareTeam als autorisatiemodel is onderdeel van het breder uitzetten van het autorisatiemodel in Koppeltaal 2.0. Het CareTeam is een van de entiteiten betrokken in het autorisatiemodel, maar zeker niet de enige entiteit noch middel betrokken in het autorisatiemodel.
 Het voorgestelde autorisatiemodel voor CareTeams is gebaseerd op onderstaande principes om een duidelijke en veilige autorisatiestructuur te garanderen:
 
 #### Basisprincipes
 
-1. **Één CareTeam per patiënt/organisatie combinatie**
-   - Er is één en slechts één actief CareTeam per unieke patiënt/organisatie combinatie
-   - Dit betekent: voor dezelfde patiënt kunnen meerdere CareTeams bestaan als deze bij verschillende organisaties in zorg is
-   - Voor organisatie-teams (zonder patiënt) is er één CareTeam per afdeling/team
+1. **Meerdere CareTeams per patiënt mogelijk**
+   - Er kunnen meerdere actieve CareTeams bestaan voor dezelfde patiënt binnen dezelfde organisatie
+   - Dit kan bijvoorbeeld voorkomen bij parallelle behandeltrajecten of verschillende zorgprogramma's
+   - Voor organisatie-teams (zonder patiënt) kunnen er meerdere CareTeams per afdeling/team bestaan
+
+   **Ambiguïteit bij meerdere rollen:**
+   - Een deelnemer kan in meerdere CareTeams voorkomen met verschillende rollen
+   - Bijvoorbeeld: een Practitioner is "behandelaar" in CareTeam A en "zorgondersteuner" in CareTeam B voor dezelfde patiënt
+   - Het is aan de applicatie zelf om te bepalen hoe met deze ambiguïteit om te gaan:
+     - **Optie A:** Meerdere rollen toestaan en combineren
+     - **Optie B:** Één rol boven de andere plaatsen (bijvoorbeeld behandelaar > zorgondersteuner)
+     - **Optie C:** Context-afhankelijk de relevante rol selecteren (bijvoorbeeld op basis van de Task)
 
 2. **Alle betrokkenen in het CareTeam**
    - Alle betrokken Practitioners **moeten** met hun correcte rol in het CareTeam staan
    - Alle betrokken RelatedPersons **moeten** met hun correcte rol in het CareTeam staan
    - De rol bepaalt de autorisaties volgens de autorisatiematrix
+
+   **Scope van het CareTeam:**
+   - Het FHIR CareTeam heeft betrekking op de *uitwisseling* van gegevens tussen systemen binnen het Koppeltaal domein. Koppeltaal beperkt zich tot het delen van gegevens die nodig zijn voor het uitvoeren van de Use Cases.
+   - Binnen een applicatie (zoals een ECD) kunnen bredere autorisaties gelden dan wat in het CareTeam is vastgelegd.
+   - Bijvoorbeeld: administratieve medewerkers die taken klaarzetten hoeven niet in het CareTeam te staan als verder geen deelnemer zijn in het zorgproces.
 
 3. **Rollen en Autorisatiematrix**
    - De rollen in het CareTeam komen overeen met de rollen in de [autorisatiematrix](autorisaties.html)
@@ -110,10 +124,10 @@ Het voorgestelde autorisatiemodel voor CareTeams is gebaseerd op onderstaande pr
    - `Task.requester` **moet** lid zijn van het relevante CareTeam
    - De patiënt waarvoor de Task is (`Task.for`) moet de patiënt zijn waarvoor het CareTeam is opgezet
 
-5. **CareTeam als Task.owner** ⚠️
-   - Een CareTeam **kan mogelijk niet** direct Task.owner zijn
-   - Dit punt is nog in discussie en wordt nader uitgewerkt
-   - Alternatief: Tasks worden toegewezen aan individuele teamleden die lid zijn van het CareTeam
+5. **CareTeam als Task.owner** ❌
+   - Een CareTeam kan **niet** direct Task.owner zijn
+   - Tasks worden altijd toegewezen aan individuele Practitioners of RelatedPersons die lid zijn van het CareTeam
+   - Dit voorkomt onduidelijkheid over wie verantwoordelijk is voor de uitvoering van een taak
 
 #### Validatieregels
 
@@ -121,24 +135,21 @@ Bij het aanmaken of wijzigen van Tasks moeten de volgende validaties plaatsvinde
 
 **Task.owner validatie:**
 ```
-Als Task.owner verwijst naar een Practitioner of RelatedPerson:
-  MOET deze persoon lid zijn van het CareTeam van Task.for (patient)
-
-Als Task.owner verwijst naar een CareTeam:
-  [Nog te bepalen - zie discussiepunt hierboven]
+Task.owner MOET verwijzen naar een Practitioner of RelatedPerson (niet naar een CareTeam)
+EN deze persoon MOET lid zijn van een CareTeam van Task.for (patient)
 ```
 
 **Task.requester validatie:**
 ```
 Als Task.requester is ingevuld:
-  MOET deze persoon lid zijn van het CareTeam van Task.for (patient)
+  MOET deze persoon lid zijn van een CareTeam van Task.for (patient)
 ```
 
 **Task.for (patient) validatie:**
 ```
 Als Task.for verwijst naar een Patient:
-  MOET er een CareTeam bestaan met CareTeam.patient = deze Patient
-  EN Task.owner en Task.requester moeten lid zijn van dit CareTeam
+  MOET er minimaal één CareTeam bestaan met CareTeam.patient = deze Patient
+  EN Task.owner en Task.requester moeten lid zijn van minimaal één van deze CareTeams
 ```
 
 #### Additionele autorisaties
@@ -181,7 +192,7 @@ HTI Token bevat:
 
 **Autorisatie validatie:**
 1. ✅ Token bevat valide `sub` (Zoon van Maria)
-2. ✅ Zoon van Maria is lid van CareTeam voor Maria de Vries
+2. ✅ Zoon van Maria is lid van een CareTeam voor Maria de Vries
 3. ✅ Zoon heeft rol "eerste relatie" in het CareTeam
 4. ✅ Task.for verwijst naar Patient/maria-de-vries (komt overeen met patient in token)
 5. ✅ Launch wordt toegestaan
@@ -191,7 +202,7 @@ HTI Token bevat:
 **Afwijzing scenario:**
 Als het token `"sub": "RelatedPerson/vriend-van-maria"` zou bevatten, en deze persoon is **geen** lid van het CareTeam, dan zou de launch worden afgewezen:
 ```
-❌ Ongeldig: Vriend van Maria is geen lid van het CareTeam voor Maria de Vries
+❌ Ongeldig: Vriend van Maria is geen lid van een CareTeam voor Maria de Vries
 → HTTP 403 Forbidden
 → Foutmelding: "User not authorized for this patient context"
 ```
@@ -378,7 +389,7 @@ Beslissing: Afhankelijk van autorisatiebeleid:
   }
 }
 ```
-❌ Ongeldig: Dr. Anderen is geen lid van het CareTeam voor Jan Jansen
+❌ Ongeldig: Dr. Anderen is geen lid van een CareTeam voor Jan Jansen
 
 ### Implementatie Overwegingen
 
@@ -398,94 +409,35 @@ Beslissing: Afhankelijk van autorisatiebeleid:
 - Patiënten hebben inzage in hun eigen CareTeam
 - RelatedPersons zien alleen hun eigen rol binnen het CareTeam
 
-### Discussiepunten en Open Vragen
+### Besluiten en Richtlijnen
 
-De volgende punten vereisen nog nadere besluitvorming:
+De volgende besluiten zijn genomen voor het autorisatiemodel:
 
-1. **CareTeam als Task.owner**
-   - Kan een CareTeam direct eigenaar zijn van een Task?
-   - Of moet ownership altijd individueel zijn?
-   - Implicaties voor autorisatie en notificaties
+1. **CareTeam als Task.owner** ❌
+   - Een CareTeam kan **niet** direct Task.owner zijn
+   - Tasks worden altijd toegewezen aan individuele Practitioners of RelatedPersons
+   - Dit voorkomt onduidelijkheid over verantwoordelijkheid en zorgt voor duidelijke notificaties
 
-2. **Multiple CareTeams per patiënt**
-   - Huidige voorstel: één CareTeam per patiënt
-   - Uitzondering mogelijk voor complexe zorgtrajecten?
-   - Hoe om te gaan met parallelle behandeltrajecten?
+2. **Ambiguïteit bij meerdere CareTeams** ✅
+   - Een deelnemer kan in meerdere CareTeams voorkomen met verschillende rollen
+   - In realiteit heeft een gebruiker dan meerdere rollen
+   - Het is aan de applicatie zelf om een strategie te kiezen voor hoe hiermee om te gaan (zie [Basisprincipe 1](#basisprincipes))
 
-3. **CareTeam rol granulariteit**
-   - Welke rollen worden ondersteund?
-   - Mapping naar autorisatiematrix
-   - Extensibility voor organisatie-specifieke rollen
+3. **Gekozen CareTeam type: Patiënt-specifieke CareTeams (Type 2)** ✅
+   - Koppeltaal gebruikt Patiënt-specifieke CareTeams als standaard
+   - Meerdere CareTeams per patiënt zijn mogelijk voor verschillende behandeltrajecten
+   - Fijnmazige autorisatie wordt bereikt via sub-tasks en SMART on FHIR launches (niet via Task level CareTeams)
 
-4. **Keuze tussen CareTeam types**
+4. **Onderscheid CareTeam structuur en autorisatie mechanismen** ✅
 
-   Het systeem ondersteunt drie types CareTeams (zie Types van CareTeams hierboven):
-   - **Type 1:** Organisatie CareTeams (geen patient binding)
-   - **Type 2:** Patiënt-specifieke CareTeams (patient-wide scope)
-   - **Type 3:** Task level CareTeams (task-specific scope)
+   Het CareTeam is één van de autorisatie-mechanismen, maar niet het enige:
 
-   **Belangrijke overwegingen bij de keuze:**
+   **Autorisatie mechanismen in Koppeltaal:**
+   - **CareTeam membership:** Basisautorisatie via lidmaatschap en rol
+   - **Sub-tasks:** Taak-specifieke toewijzingen aan individuele personen
+   - **SMART on FHIR launches:** Launch-time autorisatiebeslissingen via HTI tokens
 
-   *Autorisatie-architectuur van achterliggende systemen:*
-   - Hoe zijn autorisaties in de achterliggende systemen georganiseerd?
-   - Is autorisatie **patient-georganiseerd** (toegang tot alle data van een patiënt)?
-   - Of is autorisatie **taak-georganiseerd** (toegang tot specifieke taken/activiteiten)?
-   - Deze architectuur moet leidend zijn voor de keuze van CareTeam type
-   - Mismatch tussen CareTeam type en systeem-architectuur leidt tot complexe mappings en potentiële beveiligingsproblemen
-
-   *Gebruik van Patiënt-specifieke CareTeams (Type 2):*
-   - **Beste keuze wanneer:** Achterliggende systemen patient-georganiseerde autorisaties hebben
-   - Natuurlijke mapping: CareTeam membership = toegang tot alle patiëntdata
-   - Eenvoudiger te beheren: één team per patiënt
-   - Geen synchronisatie-overhead bij teamwijzigingen over meerdere taken
-   - Minder fragmentatie van autorisatie-informatie
-
-   *Gebruik van Task level CareTeams (Type 3):*
-   - **Beste keuze wanneer:** Achterliggende systemen taak-georganiseerde autorisaties hebben
-   - Natuurlijke mapping: Task CareTeam = toegang tot specifieke taak en gerelateerde data
-   - Fijnmazige controle over wie toegang heeft tot specifieke taken
-   - Wel rekening houden met synchronisatie-overhead bij teamwijzigingen (zie nadelen Type 3)
-
-   *Hybride aanpak:*
-   - Mogelijk om beide types te combineren voor verschillende use cases
-   - Bijvoorbeeld: Patiënt-specifieke CareTeams voor reguliere zorg, Task level CareTeams voor gespecialiseerde interventies
-   - Vereist duidelijke governance over wanneer welk type wordt gebruikt
-
-5. **Onderscheid tussen CareTeam structuur en autorisatie mechanismen** ⚠️
-
-   **Belangrijk conceptueel onderscheid:**
-
-   Dit document bespreekt twee verschillende concepten die niet gelijkgesteld mogen worden:
-
-   **A. CareTeam structuur (organisatorisch construct):**
-   - **Vraag:** Op welk niveau worden CareTeams georganiseerd?
-   - **Opties:**
-     - Type 1: Organisatie-niveau (geen patiënt binding)
-     - Type 2: Patiënt-niveau (patient-wide scope)
-     - Type 3: Taak-niveau (task-specific scope)
-   - **Doel:** Vastleggen wie betrokken is bij de zorg en in welke rol
-
-   **B. Autorisatie mechanismen (toegangscontrole):**
-   - **Vraag:** Hoe wordt toegang tot taken en data geregeld?
-   - **Mechanismen:**
-     1. **CareTeam membership:** Basisautorisatie via lidmaatschap en rol
-     2. **SMART on FHIR launches:** Launch-time autorisatiebeslissingen via HTI tokens
-     3. **Sub-tasks:** Taak-specifieke toewijzingen en toegangscontrole
-   - **Doel:** Implementeren van toegangscontrole op verschillende granulariteitsniveaus
-
-   **De kern: CareTeam ≠ Autorisatie**
-
-   - **CareTeam** is een organisatorisch construct dat de samenstelling van het zorgteam beschrijft
-   - **Autorisatie** kan op taak-niveau worden geïmplementeerd door:
-     - CareTeams op taak-niveau (Type 3) **EN/OF**
-     - Sub-tasks (fijnmazige toewijzing binnen bestaand CareTeam) **EN/OF**
-     - FHIR launches (runtime autorisatiebeslissingen)
-
-   **Praktische implicaties:**
-
-   - Je kunt een Patiënt-specifiek CareTeam (Type 2) hebben **en tegelijkertijd** taak-niveau autorisatie implementeren via sub-tasks en launches
-   - De keuze voor CareTeam structuur (Type 1/2/3) bepaalt **niet** volledig hoe autorisaties worden geïmplementeerd
-   - Sub-tasks en launches zijn **zelf uitspraken van autorisatie**, onafhankelijk van het CareTeam type
+   Deze mechanismen kunnen gecombineerd worden. Bijvoorbeeld: een Patiënt-specifiek CareTeam met fijnmazige toegang via sub-tasks en launches.
 
    **Voorbeeld combinatie:**
    ```
@@ -502,12 +454,6 @@ De volgende punten vereisen nog nadere besluitvorming:
        └── Launch: HTI token met sub: Practitioner/zorgondersteuner-klaas
            └── Launch beslissing: toegang tot specifieke sub-task
    ```
-
-   **Beslispunten:**
-   - Hoe verhouden CareTeam types zich tot autorisatie-architectuur?
-   - Wanneer gebruik je Task level CareTeams vs. Patiënt level CareTeams met sub-tasks?
-   - Welke combinaties van mechanismen zijn toegestaan?
-   - Hoe wordt de interactie tussen deze mechanismen gevalideerd en afgedwongen?
 
 ### Zie Ook
 
