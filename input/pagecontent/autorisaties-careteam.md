@@ -80,6 +80,7 @@ CareTeam voor Intake Gesprek Jan Jansen
 - Dit kan leiden tot complexe update-procedures en potentiële inconsistenties
 - Verhoogde kans op fouten waarbij sommige Task CareTeams niet correct gesynchroniseerd worden
 - Aanzienlijke operationele overhead bij frequente teamwijzigingen
+- **Onduidelijke verantwoordelijkheid:** Wanneer een Task is toegewezen aan een CareTeam (in plaats van een individuele Practitioner of RelatedPerson), is het onduidelijk wie de taak daadwerkelijk moet uitvoeren. Dit kan leiden tot taken die blijven liggen omdat niemand zich persoonlijk verantwoordelijk voelt
 
 ### Autorisatiemodel CareTeam (Voorstel)
 
