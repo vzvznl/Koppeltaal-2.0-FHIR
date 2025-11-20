@@ -45,6 +45,11 @@ install-dependencies:
 .PHONY: build-ig
 build-ig:
 	@echo "Building Full Implementation Guide with version $(VERSION)..."
+	@echo "Generating PlantUML diagrams..."
+	@if command -v plantuml >/dev/null 2>&1; then \
+		mkdir -p ./input/images; \
+		plantuml -o ../images/ -tpng ./input/images-source/*.plantuml 2>/dev/null || true; \
+	fi
 	java -jar /usr/local/publisher.jar -ig ig.ini
 	@echo "Fixing extension version references..."
 	@python3 scripts/fix_extension_versions.py output
