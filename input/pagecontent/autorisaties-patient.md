@@ -1,8 +1,8 @@
-## Autorisatieregels voor Patient toegang
+### Autorisatieregels voor Patient toegang
 
 Deze pagina beschrijft de autorisatieregels voor een Patient rol binnen het KoppelMij/Koppeltaal geharmoniseerde model, zoals beschreven in [Optie 3](https://koppelmij.github.io/koppelmij-designs/koppeltaal_domeinen.html#optie-3-harmonisatie-van-autorisatie-authenticatie-en-standaarden) van de Koppeltaal Domeinen documentatie.
 
-### Context en Launch types
+#### Context en Launch types
 De onderstaande autorisatieregels gelden voor **alle launch types** waarbij een Patient betrokken is:
 
 1. **Patient/RelatedPerson context**: Wanneer de patiënt zelf inlogt en toegang krijgt tot alle eigen resources
@@ -15,7 +15,7 @@ Deze autorisaties worden gebruikt wanneer:
 - Self-service functionaliteiten worden aangeboden
 - Een taak wordt uitgevoerd in de context van de patiënt
 
-### Autorisatieregels
+#### Autorisatieregels
 
 De onderstaande tabel toont:
 1. **Entiteit**: De FHIR resource types
@@ -35,7 +35,7 @@ De onderstaande tabel toont:
 
 *C = Create alleen voor zelfhulp taken
 
-### CareTeam en autorisatie
+#### CareTeam en autorisatie
 
 Dit autorisatiemodel maakt gebruik van CareTeam voor het bepalen van toegangsrechten tot Practitioner en RelatedPerson resources. Voor een uitgebreide beschrijving van:
 - Wat een CareTeam is en welke types bestaan

@@ -1,8 +1,8 @@
-## Autorisatieregels voor Practitioner toegang
+### Autorisatieregels voor Practitioner toegang
 
 Deze pagina beschrijft de autorisatieregels voor een Practitioner (behandelaar) rol binnen het KoppelMij/Koppeltaal geharmoniseerde model, zoals beschreven in [Optie 3](https://koppelmij.github.io/koppelmij-designs/koppeltaal_domeinen.html#optie-3-harmonisatie-van-autorisatie-authenticatie-en-standaarden) van de Koppeltaal Domeinen documentatie.
 
-### Context en Launch types
+#### Context en Launch types
 De onderstaande autorisatieregels gelden voor **alle launch types** waarbij een Practitioner betrokken is:
 
 1. **Behandelaar context**: Wanneer de behandelaar inlogt en toegang krijgt tot meerdere patiënten
@@ -19,11 +19,11 @@ Er wordt onderscheid gemaakt tussen verschillende rollen:
 - **Zorgondersteuner**: Read-only toegang tot CareTeam resources, maar volledige CRUD op eigen taken
 - **Case Manager**: Brede toegang binnen de organisatie
 
-### Autorisatieregels
+#### Autorisatieregels
 
 De onderstaande tabellen tonen de verschillende autorisatieniveaus voor Practitioners:
 
-#### Practitioner zonder rol in CareTeam
+##### Practitioner zonder rol in CareTeam
 Deze Practitioners hebben toegang tot resources primair via Task toewijzingen. Dit is geen read-only rol - zij hebben volledige CRUD rechten op taken die aan hen zijn toegewezen.
 
 | Entiteit | Toegang | CRUD | Read validatie | Create validatie |
@@ -36,7 +36,7 @@ Deze Practitioners hebben toegang tot resources primair via Task toewijzingen. D
 | **Task** | Als ik de eigenaar ben of als de taak aan mij is toegewezen | CRUD | `Task?owner=Practitioner/{id}` | `Task.owner=Practitioner/{id}` |
 | **Task Launch** | Als ik eigenaar ben van de taak OF als de taak voor een patiënt is waar ik toegang tot heb | Launch | `Task?owner=Practitioner/{id}` OF `Task?patient._has:Task:patient:owner=Practitioner/{id}` | N.v.t. |
 
-#### Behandelaar in CareTeam
+##### Behandelaar in CareTeam
 
 | Entiteit | Toegang | CRUD | Read validatie | Create validatie |
 |----------|---------|------|----------------|------------------|
@@ -48,7 +48,7 @@ Deze Practitioners hebben toegang tot resources primair via Task toewijzingen. D
 | **Task** | Als ik de eigenaar ben of als de eigenaar van de taak een patiënt is waar ik toegang tot heb | CRUD | `Task?owner=Practitioner/{id},patient._has:CareTeam:patient:participant=Practitioner/{id}` | `Task.owner=Practitioner/{id}` |
 | **Task Launch** | Als ik eigenaar ben van de taak OF als de taak voor een patiënt is waar ik toegang tot heb | Launch | `Task?owner=Practitioner/{id}` OF `Task?patient._has:Task:patient:owner=Practitioner/{id}` | N.v.t. |
 
-#### Zorgondersteuner
+##### Zorgondersteuner
 
 | Entiteit | Toegang | CRUD | Read validatie | Create validatie |
 |----------|---------|------|----------------|------------------|
@@ -60,7 +60,7 @@ Deze Practitioners hebben toegang tot resources primair via Task toewijzingen. D
 | **Task** | Als ik de eigenaar ben of als de eigenaar van de taak een patiënt is waar ik toegang tot heb | CRUD | `Task?owner=Practitioner/{id},patient._has:CareTeam:patient:participant=Practitioner/{id}` | `Task.owner=Practitioner/{id}` |
 | **Task Launch** | Als ik eigenaar ben van de taak OF als de taak voor een patiënt is waar ik toegang tot heb | Launch | `Task?owner=Practitioner/{id}` OF `Task?patient._has:Task:patient:owner=Practitioner/{id}` | N.v.t. |
 
-#### Case Manager
+##### Case Manager
 
 | Entiteit | Toegang | CRUD | Read validatie | Create validatie |
 |----------|---------|------|----------------|------------------|
@@ -72,7 +72,7 @@ Deze Practitioners hebben toegang tot resources primair via Task toewijzingen. D
 | **Task** | Enkel die ik heb aangemaakt | CRUD | `Task?author=Practitioner/{id}` | `Task.author=Practitioner/{id}` |
 | **Task Launch** | Geen (Case Managers launchen geen taken voor patiënten) | - | N.v.t. | N.v.t. |
 
-### CareTeam en autorisatie
+#### CareTeam en autorisatie
 
 Dit autorisatiemodel maakt intensief gebruik van CareTeam voor het bepalen van toegangsrechten. Voor een uitgebreide beschrijving van:
 - Wat een CareTeam is en welke types bestaan
