@@ -37,28 +37,61 @@ pages:
   general-notes.md:
     based-on-nl-core-profiles.md:
       title: Based on nl-core profiles
+      extension:
+        - url: http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status
+          valueCode: normative
     restrictions-on-elements.md:
       title: Restriction on usage of elements
+      extension:
+        - url: http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status
+          valueCode: normative
     country-codes.md:
       title: Country Codes
+      extension:
+        - url: http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status
+          valueCode: normative
     info-relatedperson.md:
       title: RelatedPerson
+      extension:
+        - url: http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status
+          valueCode: normative
     examples.md:
       title: Examples
     strict-use-of-nameinformation.md:
       title: Strict use of Name Information
+      extension:
+        - url: http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status
+          valueCode: normative
     autorisaties.md:
       title: Authorization Rules
+      extension:
+        - url: http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status
+          valueCode: draft
     autorisaties-careteam.md:
       title: CareTeam en Autorisaties
+      extension:
+        - url: http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status
+          valueCode: draft
     autorisaties-patient.md:
       title: Patient Authorization
+      extension:
+        - url: http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status
+          valueCode: draft
     autorisaties-practitioner.md:
       title: Practitioner Authorization
+      extension:
+        - url: http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status
+          valueCode: draft
     autorisaties-relatedperson.md:
       title: RelatedPerson Authorization
+      extension:
+        - url: http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status
+          valueCode: draft
   multiple-idp-support.md:
     title: Related Person - Multiple IdP
+    extension:
+      - url: http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status
+        valueCode: draft
 
 parameters: # see https://confluence.hl7.org/display/FHIR/Implementation+Guide+Parameters
   apply-contact: false
