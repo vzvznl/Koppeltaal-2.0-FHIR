@@ -1,3 +1,10 @@
+### Changelog
+
+| Datum | Wijziging |
+|-------|-----------|
+| 2025-11-24 | Overwegingen sectie herschreven met focus op `idp_hint` keuze |
+| 2025-11-24 | Initiële versie van de pagina |
+
 ### Beschrijving
 
 Deze pagina beschrijft de ondersteuning voor meerdere Identity Providers (IdPs) per gebruikerstype binnen een Koppeltaal domein. Deze functionaliteit maakt het mogelijk om per launch aan te geven bij welke IdP de gebruiker geauthenticeerd moet worden.
@@ -15,37 +22,24 @@ Deze functionaliteit is een uitbreiding op de bestaande [Identity Provisioning](
 
 ### Overwegingen
 
-#### Waarom geen `id_token_hint`?
+#### Keuze voor custom `idp_hint` claim
 
-Initieel werd overwogen om de OIDC `id_token_hint` parameter te gebruiken om de gewenste IdP aan te geven. Na analyse is besloten dit niet te doen om de volgende redenen:
-
-##### Security risico's
-Een `id_token` wordt gemaakt en ondertekend door een IdP. De inhoud kan persoonlijk identificeerbare informatie (PII) bevatten zoals `email`, `name`, `picture`. Wanneer dit token wordt meegestuurd in de launch:
-- Belandt deze informatie in ingress-logs
-- Verschijnt in Application Performance Monitoring (APM) traces
-- Kan onderschept worden bij misconfiguratie
-
-##### AVG compliance
-Het meesturen van onnodige PII voldoet niet aan artikel 5 van de AVG:
-> "De persoonsgegevens dienen toereikend en ter zake dienend te zijn en beperkt te blijven tot wat noodzakelijk is voor de doeleinden waarvoor zij worden verwerkt."
-
-##### OIDC semantische mismatch
-Binnen OIDC wordt de `id_token_hint` gebruikt in scenario's waar de `sub` claim relevant is (bijvoorbeeld voor re-authenticatie van dezelfde gebruiker). In ons geval is de `sub` niet relevant; we willen alleen aangeven welke IdP gebruikt moet worden. Dit veroorzaakt verwarring over de bedoelde werking.
-
-##### Toekomstbestendigheid
-Mocht er in de toekomst ondersteuning komen voor andere authenticatiemechanismen dan OIDC, dan is er een grote kans dat deze geen `id_token` heeft om mee te geven als `id_token_hint`.
-
-##### Extra complexiteit
-Er moeten onduidelijke regels opgesteld worden voor edge cases, zoals: wordt een verlopen `id_token_hint` geaccepteerd?
-
-#### Waarom wel een custom `idp_hint` claim?
-
-De gekozen oplossing is een custom claim `idp_hint` in het HTI launch token:
+De gekozen oplossing is een custom claim `idp_hint` in het HTI launch token. De voordelen van deze aanpak:
 
 - **Duidelijke intentie**: De claim geeft expliciet aan waar de waarde voor dient
 - **Ondertekend door lancerend platform**: Het HTI token is ondertekend, dus de `idp_hint` is betrouwbaar zonder extra JWT
 - **Geen PII**: Bevat alleen een identifier van de IdP, geen persoonsgegevens
 - **Toekomstbestendig**: Onafhankelijk van het authenticatiemechanisme van de IdP
+
+##### Overwogen alternatief: `id_token_hint`
+
+Initieel werd de OIDC `id_token_hint` parameter overwogen. Dit alternatief is afgewezen vanwege:
+
+- **Security risico's**: PII in het token kan in logs en APM traces belanden
+- **AVG compliance**: Meesturen van onnodige PII voldoet niet aan het dataminimalisatieprincipe (artikel 5 AVG)
+- **Semantische mismatch**: `id_token_hint` is bedoeld voor re-authenticatie van dezelfde gebruiker, niet voor IdP-selectie
+- **Toekomstbestendigheid**: Niet alle authenticatiemechanismen hebben een `id_token`
+- **Extra complexiteit**: Onduidelijke regels voor edge cases (bijv. verlopen tokens)
 
 #### Inhoud van het idp_hint veld
 
