@@ -1,5 +1,9 @@
 CHANGELOG
 
+## 0.15.0 (2025-11-25)
+
+No changes from 0.15.0-beta.9.
+
 ## 0.15.0-beta.9 (2025-10-30)
 
 ### Changed
