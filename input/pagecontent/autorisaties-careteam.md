@@ -173,7 +173,7 @@ Deze aanpak biedt de flexibiliteit van externe autorisatiebeslissingen (via laun
   - Dr. Peters (behandelaar)
   - Psycholoog van Dam (zorgondersteuner)
   - Zoon van Maria (eerste relatie)
-- Task: "Dagboek invullen" (status: ready, owner: CareTeam Maria)
+- Task: "Dagboek invullen" (status: ready, owner: Zoon van Maria)
 
 **Launch door portaalapplicatie:**
 ```
