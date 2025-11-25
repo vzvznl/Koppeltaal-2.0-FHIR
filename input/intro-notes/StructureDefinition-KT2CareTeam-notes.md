@@ -17,15 +17,15 @@ The `practitioner.role` should comply to the codes defined in the ValueSet [Zorg
 
 #### Validation: CareTeam operations
 
-When an action is performed related to a CareTeam, it must be verified that the CareTeam has a relationship with the associated patient and that the CareTeam is active. This is necessary because the members of a CareTeam and its status can change over time. This validation must be performed for all operations involving a CareTeam, including but not limited to:
+When performing an action related to a CareTeam, applications must verify that the CareTeam has a relationship with the associated patient and that the CareTeam is active. This is necessary because the status and participants of a CareTeam change over time. This validation must be performed for all operations involving a CareTeam. This includes but is not limited to:
 
-- Assigning digital interventions to relatives
-- Opening digital interventions by relatives
-- Notifying relatives of events
+- Assigning digital interventions to a CareTeam participant
+- Opening digital interventions by a CareTeam participant
+- Notifying CareTeam participants of events
 
 **Applications MUST validate that:**
 - `CareTeam.subject` equals the associated `Patient`
 - `CareTeam.status = active`
-- If `CareTeam.period` is populated, the date-time of the validation moment must fall within this period
+- If `CareTeam.period` is populated, the current date-time must fall within this period
 
-If these validations are not met, the application **MUST NOT** perform the operation.
+If these validations fail, the application **MUST NOT** perform the operation.
