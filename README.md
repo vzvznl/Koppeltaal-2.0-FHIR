@@ -231,6 +231,32 @@ This repository uses GitHub Actions for continuous integration and deployment:
    - Runs `fhir bake`, `fhir pack`, and `fhir publish-package` in sequence
    - Publishes to the configured Simplifier.net project
 
+**Note**: This publishing process covers the installation of the package in Simplifier.net. 
+It does **not** include:
+ - Updating the resources on Simplifier.net
+ - Updating the Implementation Guide on Simplifier.net.
+
+#### Updating Resources on Simplifier.net 
+The reason for this is that Simplifier.net does not support updating the resources and implementation guide with the command line tools, but in practice this turned out to cause problems. Therefore, we suggest updating the resources and implementation guide manually.
+
+The manual steps for updating the resources on Simplifier are:
+```bash
+echo "Publishing project to Simplifier.net..."
+echo "Cloning Simplifier project..."
+fhir project clone koppeltaalv2.0 koppeltaalv2.0
+echo "Copying resources..."
+cp README.md koppeltaalv2.0/
+cp CHANGELOG.md koppeltaalv2.0/
+cp package.json koppeltaalv2.0/
+rm -Rf koppeltaalv2.0/resources
+mkdir -p koppeltaalv2.0/resources
+cp -r fsh-generated/resources/* koppeltaalv2.0/resources/
+echo "Pushing to Simplifier..."
+cd koppeltaalv2.0 && $(FHIR) project status && $(FHIR) project push
+echo "Successfully published to Simplifier.net" 
+ ```
+#### Updating the Implementation Guide on Simplifier.net
+Updating the implementation guide is done by hand in the Simplifier UI.
 ### Release Types
 
 #### Main Branch Releases (Stable)
