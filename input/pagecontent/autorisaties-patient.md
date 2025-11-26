@@ -76,10 +76,10 @@ De volgende punten zijn nog niet definitief besloten en worden voorgelegd ter re
 
 **Opties:**
 
-| Optie | Beschrijving | Toegangsvoorwaarde | Validatie query |
-|-------|--------------|-------------------|-----------------|
-| A | Alleen als subject | Patient heeft alleen toegang tot CareTeams waar zij subject van is | `CareTeam?patient=Patient/{id}` |
-| B | Ook als participant | Patient heeft ook toegang tot CareTeams waar zij participant van is | `CareTeam?patient=Patient/{id}` of `CareTeam?participant=Patient/{id}` |
+| Optie | Beschrijving        | Toegangsvoorwaarde                                                  | Validatie query                                                        |
+|-------|---------------------|---------------------------------------------------------------------|------------------------------------------------------------------------|
+| A     | Alleen als subject  | Patient heeft alleen toegang tot CareTeams waar zij subject van is  | `CareTeam?patient=Patient/{id}`                                        |
+| B     | Ook als participant | Patient heeft ook toegang tot CareTeams waar zij participant van is | `CareTeam?patient=Patient/{id}` of `CareTeam?participant=Patient/{id}` |
 
 **Overwegingen:**
 - **Optie A (Alleen subject):** Simpeler, huidige situatie; Patient ziet alleen "eigen" zorgteams
