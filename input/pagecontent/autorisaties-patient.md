@@ -55,11 +55,11 @@ De volgende punten zijn nog niet definitief besloten en worden voorgelegd ter re
 
 **Opties:**
 
-| Optie | Beschrijving              | Toegangsvoorwaarde                                                          | Validatie query                                                |
-|-------|---------------------------|-----------------------------------------------------------------------------|----------------------------------------------------------------|
-| A     | Via CareTeam              | RelatedPerson moet lid zijn van een CareTeam waar de Patient subject van is | `RelatedPerson?_has:CareTeam:participant:patient=Patient/{id}` |
-| B     | Via RelatedPerson.patient | Directe koppeling via het `patient` veld van RelatedPerson                  | `RelatedPerson?patient=Patient/{id}`                           |
-| C     | Beide methoden            | Toegang via CareTeam óf via directe `RelatedPerson.patient` koppeling       | Combinatie van A en B                                          |
+| Optie | Beschrijving                             | Toegangsvoorwaarde                                                          | Validatie query                                                |
+|-------|------------------------------------------|-----------------------------------------------------------------------------|----------------------------------------------------------------|
+| A     | Via CareTeam                             | RelatedPerson moet lid zijn van een CareTeam waar de Patient subject van is | `RelatedPerson?_has:CareTeam:participant:patient=Patient/{id}` |
+| **B** | **Via RelatedPerson.patient (voorstel)** | Directe koppeling via het `patient` veld van RelatedPerson                  | `RelatedPerson?patient=Patient/{id}`                           |
+| C     | Beide methoden                           | Toegang via CareTeam óf via directe `RelatedPerson.patient` koppeling       | Combinatie van A en B                                          |
 
 **Overwegingen:**
 - **Optie A (CareTeam):** Consistent met hoe Practitioner toegang werkt; alle autorisatie via CareTeam
@@ -76,10 +76,10 @@ De volgende punten zijn nog niet definitief besloten en worden voorgelegd ter re
 
 **Opties:**
 
-| Optie | Beschrijving        | Toegangsvoorwaarde                                                  | Validatie query                                                        |
-|-------|---------------------|---------------------------------------------------------------------|------------------------------------------------------------------------|
-| A     | Alleen als subject  | Patient heeft alleen toegang tot CareTeams waar zij subject van is  | `CareTeam?patient=Patient/{id}`                                        |
-| B     | Ook als participant | Patient heeft ook toegang tot CareTeams waar zij participant van is | `CareTeam?patient=Patient/{id}` of `CareTeam?participant=Patient/{id}` |
+| Optie | Beschrijving                      | Toegangsvoorwaarde                                                  | Validatie query                                                        |
+|-------|-----------------------------------|---------------------------------------------------------------------|------------------------------------------------------------------------|
+| **A** | **Alleen als subject (voorstel)** | Patient heeft alleen toegang tot CareTeams waar zij subject van is  | `CareTeam?patient=Patient/{id}`                                        |
+| B     | Ook als participant               | Patient heeft ook toegang tot CareTeams waar zij participant van is | `CareTeam?patient=Patient/{id}` of `CareTeam?participant=Patient/{id}` |
 
 **Overwegingen:**
 - **Optie A (Alleen subject):** Simpeler, huidige situatie; Patient ziet alleen "eigen" zorgteams
