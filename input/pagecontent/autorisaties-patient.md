@@ -3,6 +3,11 @@
 Deze pagina beschrijft de autorisatieregels voor een Patient rol binnen het KoppelMij/Koppeltaal geharmoniseerde model, zoals beschreven in [Optie 3](https://koppelmij.github.io/koppelmij-designs/koppeltaal_domeinen.html#optie-3-harmonisatie-van-autorisatie-authenticatie-en-standaarden) van de Koppeltaal Domeinen documentatie.
 
 #### Context en Launch types
+De onderstaande autorisatieregels gelden voor **alle launch types** waarbij een Patient betrokken is:
+
+1. **Taak context**: Wanneer een taak wordt gelauncht die eigendom is van deze patiënt of related person
+2. **Behandelaar context met patient selectie**: Wanneer een behandelaar een taak start voor deze specifieke patiënt
+
 Deze autorisaties worden gebruikt wanneer:
 - Een patiënt een KoppelMij launch uitvoert via een PGO (Persoonlijke Gezondheidsomgeving) in de context van een Taak
 - Een patiënt een Koppeltaal launch uitvoert via een cliëntportaal in de context van een Taak
