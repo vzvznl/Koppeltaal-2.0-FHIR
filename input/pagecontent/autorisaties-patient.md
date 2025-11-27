@@ -12,7 +12,7 @@ Deze autorisaties worden gebruikt wanneer:
 - Een patiënt een KoppelMij launch uitvoert via een PGO (Persoonlijke Gezondheidsomgeving) in de context van een Taak
 - Een patiënt een Koppeltaal launch uitvoert via een cliëntportaal in de context van een Taak
 - Self-service functionaliteiten worden aangeboden vanuit andere bronnen die zich in de context van een Taak bevinden
-- Een taak wordt uitgevoerd in de context van de patiënt door bijvoorbeeld een behandelaar
+- Een taak wordt uitgevoerd in de context van de patiënt door bijvoorbeeld een behandelaar. De zogenaamde "on behalf of" functionaliteit waar de behandelaar samen met de patient de taak start.
 
 #### Autorisatieregels
 
