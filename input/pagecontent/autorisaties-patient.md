@@ -5,7 +5,7 @@ Deze pagina beschrijft de autorisatieregels voor een Patient rol binnen het Kopp
 #### Context en Launch types
 De onderstaande autorisatieregels gelden voor **alle launch types** waarbij een Patient betrokken is:
 
-1. **Taak context**: Wanneer een taak wordt gelauncht die eigendom is van deze patiënt of related person
+1. **Taak context**: Wanneer een taak wordt gelauncht die eigendom is van deze patiënt
 2. **Behandelaar context met patient selectie**: Wanneer een behandelaar een taak start voor deze specifieke patiënt
 
 Deze autorisaties worden gebruikt wanneer:
