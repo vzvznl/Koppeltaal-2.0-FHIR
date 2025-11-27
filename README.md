@@ -254,7 +254,8 @@ cp -r fsh-generated/resources/* koppeltaalv2.0/resources/
 echo "Pushing to Simplifier..."
 cd koppeltaalv2.0 && $(FHIR) project status && $(FHIR) project push
 echo "Successfully published to Simplifier.net" 
- ```
+```
+
 #### Updating the Implementation Guide on Simplifier.net
 Updating the implementation guide is done by hand in the Simplifier UI.
 ### Release Types
@@ -330,10 +331,10 @@ The `sync-fhir-package.py` script synchronizes all FHIR package resources to a H
 **Commands:**
 ```bash
 # Detect discrepancies between package and server
-python3 scripts/sync-fhir-package.py detect <fhir_base_url> <package_url> [bearer_token]
+python3 scripts/sync-fhir-package.py detect {fhir_base_url} {package_url} [bearer_token]
 
 # Synchronize package resources to server
-python3 scripts/sync-fhir-package.py sync <fhir_base_url> <package_url> [bearer_token]
+python3 scripts/sync-fhir-package.py sync {fhir_base_url} {package_url} [bearer_token]
 ```
 
 **Examples:**
