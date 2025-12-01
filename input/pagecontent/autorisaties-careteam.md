@@ -1,3 +1,11 @@
+### Changelog
+
+| Datum | Wijziging |
+|-------|-----------|
+| 2025-12-01 | HTI token voorbeelden aangepast conform [HTI 2.0 specificatie](https://github.com/GIDSOpenStandaarden/GIDS-HTI-Protocol/blob/main/HTI_2.0.md) |
+
+---
+
 Deze pagina beschrijft de rol van CareTeam binnen het autorisatiemodel van het KoppelMij/Koppeltaal geharmoniseerde model, zoals beschreven in [Optie 3](https://koppelmij.github.io/koppelmij-designs/koppeltaal_domeinen.html#optie-3-harmonisatie-van-autorisatie-authenticatie-en-standaarden) van de Koppeltaal Domeinen documentatie.
 
 ### Wat is een CareTeam?
@@ -181,12 +189,14 @@ Portal initieert SMART on FHIR launch naar dagboek-applicatie
 
 HTI Token bevat:
 {
+  "iss": "https://portal.example.org",
+  "aud": "https://dagboek-app.example.org",
+  "jti": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "iat": 1733054400,
+  "exp": 1733054700,
   "sub": "RelatedPerson/zoon-maria",
   "patient": "Patient/maria-de-vries",
-  "fhirUser": "RelatedPerson/zoon-maria",
-  "launch_context": {
-    "task": "Task/dagboek-invullen"
-  }
+  "resource": "Task/dagboek-invullen"
 }
 ```
 
@@ -279,12 +289,14 @@ Deze aanpak biedt de structuur en traceerbaarheid van FHIR (via CareTeam en sub-
 ```
 HTI Token bevat:
 {
+  "iss": "https://portal.example.org",
+  "aud": "https://vragenlijst-app.example.org",
+  "jti": "b2c3d4e5-f6a7-8901-bcde-f23456789012",
+  "iat": 1733054400,
+  "exp": 1733054700,
   "sub": "Practitioner/zorgondersteuner-klaas",
   "patient": "Patient/jan-jansen",
-  "fhirUser": "Practitioner/zorgondersteuner-klaas",
-  "launch_context": {
-    "task": "Task/vragenlijst-afnemen"
-  }
+  "resource": "Task/vragenlijst-afnemen"
 }
 
 Autorisatie validatie:
@@ -298,12 +310,14 @@ Autorisatie validatie:
 ```
 HTI Token bevat:
 {
+  "iss": "https://portal.example.org",
+  "aud": "https://vragenlijst-app.example.org",
+  "jti": "c3d4e5f6-a7b8-9012-cdef-345678901234",
+  "iat": 1733054400,
+  "exp": 1733054700,
   "sub": "Practitioner/dr-smit",
   "patient": "Patient/jan-jansen",
-  "fhirUser": "Practitioner/dr-smit",
-  "launch_context": {
-    "task": "Task/vragenlijst-afnemen"
-  }
+  "resource": "Task/vragenlijst-afnemen"
 }
 
 Autorisatie validatie:
@@ -317,12 +331,14 @@ Autorisatie validatie:
 ```
 HTI Token bevat:
 {
+  "iss": "https://portal.example.org",
+  "aud": "https://vragenlijst-app.example.org",
+  "jti": "d4e5f6a7-b8c9-0123-def0-456789012345",
+  "iat": 1733054400,
+  "exp": 1733054700,
   "sub": "Practitioner/verpleegkundige-peters",
   "patient": "Patient/jan-jansen",
-  "fhirUser": "Practitioner/verpleegkundige-peters",
-  "launch_context": {
-    "task": "Task/vragenlijst-afnemen"
-  }
+  "resource": "Task/vragenlijst-afnemen"
 }
 
 Autorisatie validatie:
