@@ -3,6 +3,7 @@
 | Datum | Wijziging |
 |-------|-----------|
 | 2025-12-01 | HTI token voorbeelden aangepast conform [HTI 2.0 specificatie](https://github.com/GIDSOpenStandaarden/GIDS-HTI-Protocol/blob/main/HTI_2.0.md) |
+| 2025-12-01 | CareTeam als Task.owner toegestaan als bijzondere use case |
 
 ---
 
@@ -88,7 +89,6 @@ CareTeam voor Intake Gesprek Jan Jansen
 - Dit kan leiden tot complexe update-procedures en potentiële inconsistenties
 - Verhoogde kans op fouten waarbij sommige Task CareTeams niet correct gesynchroniseerd worden
 - Aanzienlijke operationele overhead bij frequente teamwijzigingen
-- **Onduidelijke verantwoordelijkheid:** Wanneer een Task is toegewezen aan een CareTeam (in plaats van een individuele Practitioner of RelatedPerson), is het onduidelijk wie de taak daadwerkelijk moet uitvoeren. Dit kan leiden tot taken die blijven liggen omdat niemand zich persoonlijk verantwoordelijk voelt
 
 ### Autorisatiemodel CareTeam (Voorstel)
 
@@ -128,14 +128,9 @@ Het voorgestelde autorisatiemodel voor CareTeams is gebaseerd op onderstaande pr
      - [Patient autorisaties](autorisaties-patient.html)
 
 4. **Task betrokkenen moeten in CareTeam staan**
-   - `Task.owner` **moet** lid zijn van het relevante CareTeam
+   - `Task.owner` **moet** lid zijn van het relevante CareTeam (dit kan een Practitioner, RelatedPerson of CareTeam zijn)
    - `Task.requester` **moet** lid zijn van het relevante CareTeam
    - De patiënt waarvoor de Task is (`Task.for`) moet de patiënt zijn waarvoor het CareTeam is opgezet
-
-5. **CareTeam als Task.owner** ❌
-   - Een CareTeam kan **niet** direct Task.owner zijn
-   - Tasks worden altijd toegewezen aan individuele Practitioners of RelatedPersons die lid zijn van het CareTeam
-   - Dit voorkomt onduidelijkheid over wie verantwoordelijk is voor de uitvoering van een taak
 
 #### Validatieregels
 
@@ -143,8 +138,8 @@ Bij het aanmaken of wijzigen van Tasks moeten de volgende validaties plaatsvinde
 
 **Task.owner validatie:**
 ```
-Task.owner MOET verwijzen naar een Practitioner of RelatedPerson (niet naar een CareTeam)
-EN deze persoon MOET lid zijn van een CareTeam van Task.for (patient)
+Task.owner MOET verwijzen naar een Practitioner, RelatedPerson of CareTeam
+EN deze entiteit MOET lid zijn van (of zelf zijn) een CareTeam van Task.for (patient)
 ```
 
 **Task.requester validatie:**
@@ -429,10 +424,11 @@ Beslissing: Afhankelijk van autorisatiebeleid:
 
 De volgende besluiten zijn genomen voor het autorisatiemodel:
 
-1. **CareTeam als Task.owner** ❌
-   - Een CareTeam kan **niet** direct Task.owner zijn
-   - Tasks worden altijd toegewezen aan individuele Practitioners of RelatedPersons
-   - Dit voorkomt onduidelijkheid over verantwoordelijkheid en zorgt voor duidelijke notificaties
+1. **CareTeam als Task.owner** ⚠️
+   - Een CareTeam kan Task.owner zijn, maar dit is een **bijzondere use case**
+   - In de meeste gevallen worden Tasks toegewezen aan individuele Practitioners of RelatedPersons
+   - Wanneer een CareTeam als Task.owner wordt gebruikt, is het gehele team verantwoordelijk voor de uitvoering van de taak
+   - Let op: dit kan leiden tot onduidelijkheid over wie de taak daadwerkelijk uitvoert
 
 2. **Ambiguïteit bij meerdere CareTeams** ✅
    - Een deelnemer kan in meerdere CareTeams voorkomen met verschillende rollen
