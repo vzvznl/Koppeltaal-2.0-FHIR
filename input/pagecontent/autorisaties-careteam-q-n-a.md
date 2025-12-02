@@ -13,7 +13,7 @@
 Betekent dit dat de rol v/d relatedPerson in de relatedPerson resource niet gebruikt gaat worden voor autorisatie? In dat geval kan daar de verplichting van het relationship element afgehaald worden.
 
 ##### Antwoord
-Je zegt het correct, het gaat (vooralsnog) niet gebruikt worden voor autorisatie. Maar niet alle velden worden gebruikt voor autorisatie, of daarmee het veld ook moet verdwijnen gaat een beetje ver.
+Je zegt het correct, het gaat (vooralsnog) niet gebruikt worden voor autorisatie. Niet alle velden worden gebruikt voor autorisatie, of daarmee het veld ook moet verdwijnen gaat een beetje ver 🙃.
 
 ---
 
