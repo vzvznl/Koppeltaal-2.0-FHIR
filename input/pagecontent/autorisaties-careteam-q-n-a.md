@@ -25,7 +25,7 @@ Je zegt het correct, het gaat (vooralsnog) niet gebruikt worden voor autorisatie
 Vragen:
 - Wat is het "relevante" Careteam?
 - Betekent dit dat de cliënt participant moet zijn in z'n eigen Careteam?
-- In mQ is de cliënt geen member van z'n Zorgteam
+- In onze applicatie is de cliënt geen member van z'n Zorgteam
 
 ##### Antwoord
 Deze zinsnede lijdt een beetje onder de beslissing meerdere CareTeams toe te staan. Dit wordt aangepast naar meervoudigheid.
