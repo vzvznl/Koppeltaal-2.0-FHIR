@@ -1,0 +1,43 @@
+@startuml
+
+actor User
+participant Portal
+participant Module
+participant "Authorization Service" as AuthService
+participant "Identity Provider" as IdP
+database "Domain Management" as DomainMgmt
+database "Audit Log" as AuditLog
+
+User -> Portal: Selecteer taak
+Portal -> Portal: Genereer HTI token (met/zonder idp_hint)
+Portal -> Module: POST launch (HTI token)
+Module -> AuthService: GET /authorize (launch token)
+AuthService -> DomainMgmt: Haal IdP configuratie op
+DomainMgmt --> AuthService: IdP lijst voor gebruikerstype
+
+alt idp_hint is geldig
+    AuthService -> AuthService: Valideer idp_hint tegen configuratie
+    note over AuthService: idp_hint gevonden in configuratie
+    AuthService -> IdP: Redirect naar specifieke IdP
+else idp_hint niet gevonden in configuratie
+    AuthService -> AuthService: Valideer idp_hint tegen configuratie
+    note over AuthService: idp_hint NIET gevonden
+    AuthService -> AuditLog: Log misconfiguratie
+    AuthService -> AuthService: Fallback naar default IdP
+    AuthService -> IdP: Redirect naar default IdP
+else geen idp_hint aanwezig
+    AuthService -> AuthService: Geen idp_hint in token
+    note over AuthService: Gebruik eerste IdP (default)
+    AuthService -> IdP: Redirect naar default IdP
+end
+
+IdP -> User: Login prompt
+User -> IdP: Authenticatie
+IdP -> AuthService: ID token
+AuthService -> AuthService: Valideer identiteit tegen HTI token
+AuthService -> Module: Redirect met code
+Module -> AuthService: Token request
+AuthService --> Module: Token response met context
+Module -> User: Toon module content
+
+@enduml

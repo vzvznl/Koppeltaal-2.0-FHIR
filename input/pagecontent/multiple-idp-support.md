@@ -2,6 +2,10 @@
 
 | Datum | Wijziging |
 |-------|-----------|
+| 2025-12-02 | Drie interactiediagrammen samengevoegd tot één diagram met alt scenarios |
+| 2025-12-02 | Functionele eis toegevoegd: lege lijst resulteert in default IdP |
+| 2025-12-02 | Interne links toegevoegd naar paragrafen |
+| 2025-12-02 | "De volgende opties zijn mogelijk" gewijzigd naar "Hieronder staan drie voorbeelden" |
 | 2025-11-24 | Overwegingen sectie herschreven met focus op `idp_hint` keuze |
 | 2025-11-24 | Initiële versie van de pagina |
 
@@ -43,7 +47,7 @@ Initieel werd de OIDC `id_token_hint` parameter overwogen. Dit alternatief is af
 
 #### Inhoud van het idp_hint veld
 
-De exacte waarde van het `idp_hint` veld wordt bepaald door de combinatie van domeinbeheer en autorisatie service. Het is aan deze partijen om af te stemmen welk formaat gebruikt wordt voor de IdP identifier. De volgende opties zijn mogelijk:
+De exacte waarde van het `idp_hint` veld wordt bepaald door de combinatie van domeinbeheer en autorisatie service. Het is aan deze partijen om af te stemmen welk formaat gebruikt wordt voor de IdP identifier. Hieronder staan drie voorbeelden:
 
 - **Issuer URL**: De issuer (`iss`) uit het OIDC `id_token`, bijvoorbeeld: `https://idp.example.com/idp1/`
 - **Database referentie**: Een interne database referentie, bijvoorbeeld: `c7fe7029-5a5d-47b4-b8a5-e35f04a633b7`
@@ -59,11 +63,11 @@ De technische flow voor het gebruik van de `idp_hint` is als volgt:
 
 1. **Aanmelding bij lancerende applicatie**: De gebruiker meldt zich aan bij de lancerende applicatie. Als dit met OIDC gebeurt, komt hier een `id_token` uit voort.
 
-2. **Toevoegen idp_hint aan HTI token**: Tijdens de launch wordt aan het HTI token het veld `idp_hint` toegevoegd. De waarde van de `idp_hint` wordt bepaald door de combinatie van domeinbeheer en autorisatie service (zie "Inhoud van het idp_hint veld" in de overwegingen).
+2. **Toevoegen idp_hint aan HTI token**: Tijdens de launch wordt aan het HTI token het veld `idp_hint` toegevoegd. De waarde van de `idp_hint` wordt bepaald door de combinatie van domeinbeheer en autorisatie service (zie [Inhoud van het idp_hint veld](#inhoud-van-het-idp_hint-veld)).
 
 3. **Ontvangst door gelanceerde applicatie**: De gelanceerde applicatie (module) ontvangt de launch en start de SMART on FHIR app launch flow met de autorisatie service.
 
-4. **Verwerking door autorisatie service**: De autorisatie service ontvangt het HTI token in de `launch` parameter en vindt daarin het `idp_hint` veld. Vervolgens past de autorisatie service de logica zoals beschreven in het onderdeel "IdP resolutie algoritme" toe.
+4. **Verwerking door autorisatie service**: De autorisatie service ontvangt het HTI token in de `launch` parameter en vindt daarin het `idp_hint` veld. Vervolgens past de autorisatie service de logica zoals beschreven in [IdP resolutie algoritme](#idp-resolutie-algoritme) toe.
 
 ##### Bepaling idp_hint waarde
 
@@ -137,23 +141,19 @@ Bij een misconfiguratie van de IdP (bijvoorbeeld een ongeldige `idp_hint`) moet 
 1. Per gebruikerstype kunnen meerdere IdPs geconfigureerd worden
 2. De volgorde van IdPs is aanpasbaar in domeinbeheer
 3. De eerste IdP in de lijst is de default
-4. De `idp_hint` claim in het launch token wordt herkend door de autorisatie service
-5. Bij een ongeldige `idp_hint` wordt fallback naar default uitgevoerd
-6. Misconfiguraties worden gelogd als AuditEvent
+4. Een lege lijst resulteert in gebruik van de default IdP van het domein
+5. De `idp_hint` claim in het launch token wordt herkend door de autorisatie service
+6. Bij een ongeldige `idp_hint` wordt fallback naar default uitgevoerd
+7. Misconfiguraties worden gelogd als AuditEvent
 
-### Interactiediagrammen
+### Interactiediagram
 
-#### Happy flow: Launch met geldige idp_hint
+Het volgende diagram toont de drie scenario's voor IdP selectie:
+- **idp_hint is geldig**: De specifieke IdP uit de hint wordt gebruikt
+- **idp_hint niet gevonden**: Misconfiguratie wordt gelogd, fallback naar default IdP
+- **geen idp_hint aanwezig**: De eerste (default) IdP uit de configuratie wordt gebruikt
 
-<img src="multiple-idp-happy-flow.png" alt="Happy flow: Launch met geldige idp_hint" />
-
-#### Unhappy flow: Launch met ongeldige idp_hint
-
-<img src="multiple-idp-invalid-hint.png" alt="Unhappy flow: Launch met ongeldige idp_hint" />
-
-#### Launch zonder idp_hint (meerdere IdPs geconfigureerd)
-
-<img src="multiple-idp-no-hint.png" alt="Launch zonder idp_hint" />
+<img src="multiple-idp-flow.png" alt="IdP selectie flow met alt scenarios" />
 
 ### Referenties
 
