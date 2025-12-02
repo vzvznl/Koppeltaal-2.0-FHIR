@@ -2,6 +2,8 @@
 
 | Datum | Wijziging |
 |-------|-----------|
+| 2025-12-02 | Formulering Task.owner/requester aangepast: "minimaal één CareTeam" i.p.v. "het relevante CareTeam" |
+| 2025-12-02 | Rol "eerste relatie" verwijderd; RelatedPerson heeft (nog) geen rol |
 | 2025-12-01 | HTI token voorbeelden aangepast conform [HTI 2.0 specificatie](https://github.com/GIDSOpenStandaarden/GIDS-HTI-Protocol/blob/main/HTI_2.0.md) |
 | 2025-12-01 | CareTeam als Task.owner toegestaan als bijzondere use case |
 
@@ -45,7 +47,7 @@ Dit zijn CareTeams die gekoppeld zijn aan een specifieke patiënt via `CareTeam.
 **Kenmerken:**
 - `CareTeam.patient` verwijst naar de specifieke Patient resource
 - Bevat alle betrokken Practitioners en RelatedPersons voor deze patiënt
-- Definieert de rollen van elk teamlid (bijv. behandelaar, zorgondersteuner, eerste relatie)
+- Definieert de rollen van Practitioners (bijv. behandelaar, zorgondersteuner)
 - Wordt gebruikt voor autorisatie: lidmaatschap van dit CareTeam geeft toegang tot patiëntgegevens
 
 **Voorbeeld gebruik:**
@@ -55,7 +57,7 @@ CareTeam voor Jan Jansen
 ├── Participants:
 │   ├── Practitioner: Dr. Smit (rol: behandelaar)
 │   ├── Practitioner: Zorgondersteuner Klaas (rol: zorgondersteuner)
-│   └── RelatedPerson: Partner van Jan (rol: eerste relatie)
+│   └── RelatedPerson: Partner van Jan
 ```
 
 #### 3. Task level CareTeams
@@ -128,8 +130,8 @@ Het voorgestelde autorisatiemodel voor CareTeams is gebaseerd op onderstaande pr
      - [Patient autorisaties](autorisaties-patient.html)
 
 4. **Task betrokkenen moeten in CareTeam staan**
-   - `Task.owner` **moet** lid zijn van het relevante CareTeam (dit kan een Practitioner, RelatedPerson of CareTeam zijn)
-   - `Task.requester` **moet** lid zijn van het relevante CareTeam
+   - `Task.owner` **moet** lid zijn van minimaal één CareTeam voor de betreffende patiënt (dit kan een Practitioner, RelatedPerson of CareTeam zijn)
+   - `Task.requester` **moet** lid zijn van minimaal één CareTeam voor de betreffende patiënt
    - De patiënt waarvoor de Task is (`Task.for`) moet de patiënt zijn waarvoor het CareTeam is opgezet
 
 #### Validatieregels
@@ -175,7 +177,7 @@ Deze aanpak biedt de flexibiliteit van externe autorisatiebeslissingen (via laun
 - CareTeam voor Maria bevat:
   - Dr. Peters (behandelaar)
   - Psycholoog van Dam (zorgondersteuner)
-  - Zoon van Maria (eerste relatie)
+  - Zoon van Maria (RelatedPerson)
 - Task: "Dagboek invullen" (status: ready, owner: Zoon van Maria)
 
 **Launch door portaalapplicatie:**
@@ -198,7 +200,7 @@ HTI Token bevat:
 **Autorisatie validatie:**
 1. ✅ Token bevat valide `sub` (Zoon van Maria)
 2. ✅ Zoon van Maria is lid van een CareTeam voor Maria de Vries
-3. ✅ Zoon heeft rol "eerste relatie" in het CareTeam
+3. ✅ Zoon is als RelatedPerson lid van het CareTeam
 4. ✅ Task.for verwijst naar Patient/maria-de-vries (komt overeen met patient in token)
 5. ✅ Launch wordt toegestaan
 
@@ -232,7 +234,7 @@ Deze aanpak biedt de structuur en traceerbaarheid van FHIR (via CareTeam en sub-
   - Psycholoog van Dam (zorgondersteuner)
   - Verpleegkundige Peters (zorgondersteuner)
   - Zorgondersteuner Klaas (zorgondersteuner)
-  - Partner van Jan (eerste relatie)
+  - Partner van Jan (RelatedPerson)
 
 **Hoofdtaak met brede toegang:**
 ```json
@@ -365,7 +367,7 @@ Beslissing: Afhankelijk van autorisatiebeleid:
 - CareTeam voor Jan Jansen bevat:
   - Dr. Smit (behandelaar)
   - Zorgondersteuner Klaas (zorgondersteuner)
-  - Partner van Jan (eerste relatie)
+  - Partner van Jan (RelatedPerson)
 
 **Geldige Task:**
 ```json
