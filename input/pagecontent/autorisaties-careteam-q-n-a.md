@@ -3,7 +3,7 @@
 
 ---
 
-### Feedback Pinkroccade
+### Feedback Leverancier B
 
 #### 1. Rol van RelatedPerson voor autorisatie
 
@@ -56,7 +56,7 @@ Naar mijn inzicht niet in tegenspraak. In dat geval zijn ze geen Task.requester.
 Hoewel ik het hiermee eens ben, is dit in tegenspraak met de beschrijving van Task level CareTeams.
 
 ##### Antwoord
-Jan-Wijbrand (Minddistrict) had dezelfde opmerking. Dit is inmiddels aangepast in het document.
+Leverancier A had dezelfde opmerking. Dit is inmiddels aangepast in het document.
 
 ---
 
@@ -92,7 +92,7 @@ De RelatedPerson heeft nu in het profiel geen rol. Dit wordt nog opgenomen met K
 
 ---
 
-### Feedback Minddistrict
+### Feedback Leverancier A
 
 #### 1. fhirUser key in HTI token
 
@@ -116,7 +116,7 @@ Het issue met Task.owner = CareTeam is dat dan onduidelijk is wie de uitvoerder 
 
 #### 3. Algemene beoordeling
 
-Minddistrict geeft aan dat het over het geheel genomen een goede en werkbare weergave is van de plannen die zijn geformuleerd.
+Leverancier A geeft aan dat het over het geheel genomen een goede en werkbare weergave is van de plannen die zijn geformuleerd.
 
 ---
 
