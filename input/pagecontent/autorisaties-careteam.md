@@ -1,11 +1,11 @@
 ### Changelog
 
-| Datum | Wijziging |
-|-------|-----------|
-| 2025-12-02 | Formulering Task.owner/requester aangepast: "minimaal één CareTeam" i.p.v. "het relevante CareTeam" |
-| 2025-12-02 | Rol "eerste relatie" verwijderd; RelatedPerson heeft (nog) geen rol |
+| Datum      | Wijziging                                                                                                                                     |
+|------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| 2025-12-02 | Formulering Task.owner/requester aangepast: "minimaal één CareTeam" i.p.v. "het relevante CareTeam"                                           |
+| 2025-12-02 | Rol "eerste relatie" verwijderd; RelatedPerson heeft (nog) geen rol                                                                           |
 | 2025-12-01 | HTI token voorbeelden aangepast conform [HTI 2.0 specificatie](https://github.com/GIDSOpenStandaarden/GIDS-HTI-Protocol/blob/main/HTI_2.0.md) |
-| 2025-12-01 | CareTeam als Task.owner toegestaan als bijzondere use case |
+| 2025-12-01 | CareTeam als Task.owner toegestaan als bijzondere use case                                                                                    |
 
 ---
 
