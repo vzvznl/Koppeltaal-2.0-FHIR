@@ -120,4 +120,4 @@ Leverancier A geeft aan dat het over het geheel genomen een goede en werkbare we
 
 ---
 
-**Wijzigingen:** Zie changelog op https://vzvznl.github.io/Koppeltaal-2.0-FHIR/autorisaties-careteam.html#changelog
+**Wijzigingen:** Zie [changelog](autorisaties-careteam.html#changelog)
