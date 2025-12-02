@@ -80,7 +80,7 @@ Als een medewerker geen deelnemer is in het zorgproces, wordt die ook geen Task.
 Rol "eerste relatie" is geen reden voor autorisatie en geen rol in RelatedPerson Authorization.
 
 ##### Antwoord
-De RelatedPerson heeft nu in het profiel geen rol. Dit wordt nog opgenomen met Kees. In principe is de rollenmatrix out of scope voor dit document.
+De RelatedPerson heeft nu in het profiel geen rol. Dit zou ter hoogte van de discussie rond de rollenmatrix kunnen veranderen. In principe is de rollenmatrix out of scope voor dit document.
 
 ---
 
