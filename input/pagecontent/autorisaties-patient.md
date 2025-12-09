@@ -1,3 +1,12 @@
+### Changelog
+
+| Datum      | Wijziging                                                                 |
+|------------|---------------------------------------------------------------------------|
+| 2025-12-09 | Optie D (Geen toegang) toegevoegd aan Beslispunt 1 RelatedPerson koppeling |
+| 2025-12-09 | Verduidelijking van self-service en "on behalf of" scenario's             |
+
+---
+
 ### Autorisatieregels voor Patient toegang
 
 Deze pagina beschrijft de autorisatieregels voor een Patient rol binnen het KoppelMij/Koppeltaal geharmoniseerde model, zoals beschreven in [Optie 3](https://koppelmij.github.io/koppelmij-designs/koppeltaal_domeinen.html#optie-3-harmonisatie-van-autorisatie-authenticatie-en-standaarden) van de Koppeltaal Domeinen documentatie.
@@ -11,8 +20,8 @@ De onderstaande autorisatieregels gelden voor **alle launch types** waarbij een 
 Deze autorisaties worden gebruikt wanneer:
 - Een patiënt een KoppelMij launch uitvoert via een PGO (Persoonlijke Gezondheidsomgeving) in de context van een Taak
 - Een patiënt een Koppeltaal launch uitvoert via een cliëntportaal in de context van een Taak
-- Self-service functionaliteiten worden aangeboden vanuit andere bronnen die zich in de context van een Taak bevinden
-- Een taak wordt uitgevoerd in de context van de patiënt door bijvoorbeeld een behandelaar. De zogenaamde "on behalf of" functionaliteit waar de behandelaar samen met de patient de taak start.
+- Een patiënt zelfstandig een zelfhulptaak start vanuit een applicatie die self-service functionaliteit aanbiedt
+- Een behandelaar namens de patiënt een taak uitvoert ("on behalf of"), bijvoorbeeld wanneer zij samen met de patiënt een taak doorloopt
 
 #### Autorisatieregels
 
@@ -59,11 +68,13 @@ De volgende punten zijn nog niet definitief besloten en worden voorgelegd ter re
 | A     | Via CareTeam                             | RelatedPerson moet lid zijn van een CareTeam waar de Patient subject van is | `RelatedPerson?_has:CareTeam:participant:patient=Patient/{id}` |
 | **B** | **Via RelatedPerson.patient (voorstel)** | Directe koppeling via het `patient` veld van RelatedPerson                  | `RelatedPerson?patient=Patient/{id}`                           |
 | C     | Beide methoden                           | Toegang via CareTeam óf via directe `RelatedPerson.patient` koppeling       | Combinatie van A en B                                          |
+| D     | Geen toegang                             | Patient heeft geen toegang tot RelatedPerson resources                      | N.v.t.                                                         |
 
 **Overwegingen:**
 - **Optie A (CareTeam):** Consistent met hoe Practitioner toegang werkt; alle autorisatie via CareTeam
 - **Optie B (RelatedPerson.patient):** Simpeler, directe FHIR relatie; RelatedPerson is per definitie gekoppeld aan een Patient
 - **Optie C (Beide):** Maximale flexibiliteit, maar complexer te implementeren en valideren
+- **Optie D (Geen):** Meest restrictief; Patient hoeft mogelijk geen inzicht te hebben in welke RelatedPersons aan hen gekoppeld zijn
 
 **Besluit:** *Nog te bepalen*
 
