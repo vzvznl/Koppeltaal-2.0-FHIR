@@ -98,7 +98,13 @@ Het voorgestelde autorisatiemodel voor CareTeams is gebaseerd op onderstaande pr
 
 #### Basisprincipes
 
-1. **Meerdere CareTeams per patiënt mogelijk**
+1. **Patiënt-specifieke CareTeams (Type 2) als standaard**
+   - Koppeltaal gebruikt Patiënt-specifieke CareTeams als standaard CareTeam type
+   - Meerdere CareTeams per patiënt zijn mogelijk voor verschillende behandeltrajecten
+   - Fijnmazige autorisatie wordt bereikt via sub-tasks en SMART on FHIR launches (niet via Task level CareTeams)
+   - Zie [Besluit 3](#besluiten-en-richtlijnen) voor de volledige onderbouwing
+
+2. **Meerdere CareTeams per patiënt mogelijk**
    - Er kunnen meerdere actieve CareTeams bestaan voor dezelfde patiënt binnen dezelfde organisatie
    - Dit kan bijvoorbeeld voorkomen bij parallelle behandeltrajecten of verschillende zorgprogramma's
    - Voor organisatie-teams (zonder patiënt) kunnen er meerdere CareTeams per afdeling/team bestaan
@@ -111,7 +117,7 @@ Het voorgestelde autorisatiemodel voor CareTeams is gebaseerd op onderstaande pr
      - **Optie B:** Één rol boven de andere plaatsen (bijvoorbeeld behandelaar > zorgondersteuner)
      - **Optie C:** Context-afhankelijk de relevante rol selecteren (bijvoorbeeld op basis van de Task)
 
-2. **Alle betrokkenen in het CareTeam**
+3. **Alle betrokkenen in het CareTeam**
    - Alle betrokken Practitioners **moeten** met hun correcte rol in het CareTeam staan
    - Alle betrokken RelatedPersons **moeten** met hun correcte rol in het CareTeam staan
    - De rol bepaalt de autorisaties volgens de autorisatiematrix
@@ -121,14 +127,14 @@ Het voorgestelde autorisatiemodel voor CareTeams is gebaseerd op onderstaande pr
    - Binnen een applicatie (zoals een ECD) kunnen bredere autorisaties gelden dan wat in het CareTeam is vastgelegd.
    - Bijvoorbeeld: administratieve medewerkers die taken klaarzetten hoeven niet in het CareTeam te staan als verder geen deelnemer zijn in het zorgproces.
 
-3. **Rollen en Autorisatiematrix**
+4. **Rollen en Autorisatiematrix**
    - De rollen in het CareTeam komen overeen met de rollen in de [autorisatiematrix](autorisaties.html)
    - Elke rol heeft specifieke rechten zoals gedefinieerd in:
      - [Practitioner autorisaties](autorisaties-practitioner.html)
      - [RelatedPerson autorisaties](autorisaties-relatedperson.html)
      - [Patient autorisaties](autorisaties-patient.html)
 
-4. **Task betrokkenen moeten in CareTeam staan**
+5. **Task betrokkenen moeten in CareTeam staan**
    - `Task.owner` **moet** lid zijn van minimaal één CareTeam voor de betreffende patiënt (dit kan een Practitioner, RelatedPerson of CareTeam zijn)
    - `Task.requester` **moet** lid zijn van minimaal één CareTeam voor de betreffende patiënt
    - De patiënt waarvoor de Task is (`Task.for`) moet de patiënt zijn waarvoor het CareTeam is opgezet
@@ -252,7 +258,7 @@ Deze aanpak biedt de structuur en traceerbaarheid van FHIR (via CareTeam en sub-
 }
 ```
 → Eigenaar: Dr. Smit (behandelaar)
-→ Zichtbaar voor: Alle leden van CareTeam Jan Jansen
+→ Zichtbaar voor: Alle leden van CareTeam Jan Jansen met de rol die dat toestaat
 
 **Sub-task voor specifieke medewerker:**
 ```json
