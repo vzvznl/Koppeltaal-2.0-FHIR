@@ -29,7 +29,6 @@ Dit zijn CareTeams zonder specifieke patiënt, die gebruikt worden voor organisa
 - `CareTeam.patient` is **niet** gezet
 - Vertegenwoordigt bijvoorbeeld een afdeling of team binnen een organisatie
 - Bevat medewerkers die tot die afdeling/team behoren
-- Kan gebruikt worden voor organisatie-brede taken of communicatie
 
 **Voorbeeld gebruik:**
 ```
