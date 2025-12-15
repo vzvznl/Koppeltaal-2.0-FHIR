@@ -67,6 +67,11 @@ pages:
       extension:
         - url: http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status
           valueCode: draft
+    autorisaties-transitiemodel.md:
+      title: Transitiemodel autorisatie
+      extension:
+        - url: http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status
+          valueCode: draft
     autorisaties-careteam.md:
       title: CareTeam en Autorisaties
       extension:
@@ -141,6 +146,7 @@ menu:
     Strict use of Name Information: strict-use-of-nameinformation.html
   Autorisaties (DRAFT):
     Overzicht: autorisaties.html
+    Transitiemodel: autorisaties-transitiemodel.html
     CareTeam: autorisaties-careteam.html
     CareTeam - Q&A: autorisaties-careteam-q-n-a.html
     Patient: autorisaties-patient.html

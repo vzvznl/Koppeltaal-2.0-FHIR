@@ -2,6 +2,8 @@ Deze sectie beschrijft de autorisatieregels voor het geharmoniseerde KoppelMij/K
 
 ### Overzicht
 
+> **Transitiemodel:** Het autorisatiemodel van Koppeltaal en KoppelMij wordt geharmoniseerd. Zie [Transitiemodel autorisatie](autorisaties-transitiemodel.html) voor het fasering en de impact op leveranciers.
+
 Het autorisatiemodel definieert wie toegang heeft tot welke FHIR resources onder welke omstandigheden. Dit model is essentieel voor:
 - Het waarborgen van privacy en security
 - Het mogelijk maken van veilige samenwerking tussen zorgverleners
