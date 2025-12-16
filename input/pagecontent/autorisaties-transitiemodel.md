@@ -1,8 +1,9 @@
 ### Changelog
 
-| Datum      | Wijziging       |
-|------------|-----------------|
-| 2025-12-15 | Initiële versie |
+| Datum      | Wijziging                                                |
+|------------|----------------------------------------------------------|
+| 2025-12-16 | Verduidelijking: alleen Patient model beproefd bij KoppelMij |
+| 2025-12-15 | Initiële versie                                          |
 
 ---
 
@@ -56,7 +57,7 @@ In de ontwerpfase worden de autorisatiemodellen ontworpen en gevalideerd:
 
 **KoppelMij:**
 - User level autorisatie (SMART on FHIR app launch) is actief
-- Modellen worden beproefd en geëvalueerd
+- Het Patient model wordt beproefd en geëvalueerd
 
 ##### Transitiefase
 
