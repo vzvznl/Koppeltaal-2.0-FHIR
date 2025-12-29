@@ -59,15 +59,13 @@ De technische flow voor het gebruik van de `idp_hint` is als volgt:
 
 1. **Aanmelding bij lancerende applicatie**: De gebruiker meldt zich aan bij de lancerende applicatie. Als dit met OIDC gebeurt, komt hier een `id_token` uit voort.
 
-2. **Toevoegen idp_hint aan HTI token**: Tijdens de launch wordt aan het HTI token het veld `idp_hint` toegevoegd. De waarde van de `idp_hint` wordt bepaald door de combinatie van domeinbeheer en autorisatie service (zie [Inhoud van het idp_hint veld](#inhoud-van-het-idp_hint-veld)).
+2. **Toevoegen idp_hint aan HTI token**: Tijdens de launch wordt aan het HTI token het veld `idp_hint` toegevoegd.
 
 3. **Ontvangst door gelanceerde applicatie**: De gelanceerde applicatie (module) ontvangt de launch en start de SMART on FHIR app launch flow met de autorisatie service.
 
 4. **Verwerking door autorisatie service**: De autorisatie service ontvangt het HTI token in de `launch` parameter en vindt daarin het `idp_hint` veld. Vervolgens past de autorisatie service de logica zoals beschreven in [IdP resolutie algoritme](#idp-resolutie-algoritme) toe.
 
-##### Bepaling idp_hint waarde
-
-De exacte waarde van het `idp_hint` veld is implementatie-specifiek en wordt bepaald door de combinatie van domeinbeheer en autorisatie service. De lancerende applicatie dient de juiste waarde te verkrijgen via domeinbeheer of de bijbehorende documentatie van het domein.
+##### `idp_hint` waarde
 
 Het HTI launch token wordt uitgebreid met een optionele `idp_hint` claim:
 
