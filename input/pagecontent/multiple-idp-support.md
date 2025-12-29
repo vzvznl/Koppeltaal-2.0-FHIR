@@ -2,6 +2,7 @@
 
 | Datum | Wijziging |
 |-------|-----------|
+| 2025-12-29 | De waarde van de `idp_hint` moet nu altijd gevuld worden met een logische identifier |
 | 2025-12-02 | Drie interactiediagrammen samengevoegd tot één diagram met alt scenarios |
 | 2025-12-02 | Functionele eis toegevoegd: lege lijst resulteert in default IdP |
 | 2025-12-02 | Interne links toegevoegd naar paragrafen |
