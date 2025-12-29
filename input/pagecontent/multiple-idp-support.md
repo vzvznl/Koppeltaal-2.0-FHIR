@@ -47,11 +47,7 @@ Initieel werd de OIDC `id_token_hint` parameter overwogen. Dit alternatief is af
 
 #### Inhoud van het idp_hint veld
 
-De exacte waarde van het `idp_hint` veld wordt bepaald door de combinatie van domeinbeheer en autorisatie service. Het is aan deze partijen om af te stemmen welk formaat gebruikt wordt voor de IdP identifier. Hieronder staan drie voorbeelden:
-
-- **Issuer URL**: De issuer (`iss`) uit het OIDC `id_token`, bijvoorbeeld: `https://idp.example.com/idp1/`
-- **Database referentie**: Een interne database referentie, bijvoorbeeld: `c7fe7029-5a5d-47b4-b8a5-e35f04a633b7`
-- **Logische identifier**: Een logisch toegekende identifier, bijvoorbeeld: `idp-relatedperson-oidc`
+De `idp_hint` wordt gevuld met een **unieke logische identifier**, bijvoorbeeld: `idp-relatedperson-digid`. Vanuit domeinbeheer kan deze toegekend worden aan een IdP. Deze kan runtime aangepast worden, zonder dat er in de applicaties iets aangepast hoeft te worden.
 
 De lancerende applicatie dient de juiste waarde te verkrijgen via domeinbeheer of de bijbehorende documentatie.
 
