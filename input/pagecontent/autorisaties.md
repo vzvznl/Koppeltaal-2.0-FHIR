@@ -44,8 +44,8 @@ Mantelzorgers en vertegenwoordigers met verschillende typen:
 
 > ⚠️ **CareTeam gebruik in de praktijk**
 >
-> Het autorisatiemodel maakt intensief gebruik van CareTeam structuren, terwijl in de huidige Koppeltaal praktijk bijna geen gebruik wordt gemaakt van CareTeam. Dit vraagt om:
-> - Nadere uitwerking van task-gebaseerde autorisatie als alternatief
+> Het autorisatiemodel maakt intensief gebruik van CareTeam structuren, terwijl in de huidige Koppeltaal praktijk geen gebruik wordt gemaakt van CareTeam. Dit vraagt om:
+> - Nadere uitwerking van CareTeam-gebaseerde autorisatie als alternatief voor het huidige Task-gebaseerde model
 > - Een transitiepad voor bestaande implementaties
 > - Besluitvorming over minimale structuren voor veilige autorisatie
 
@@ -54,6 +54,6 @@ Mantelzorgers en vertegenwoordigers met verschillende typen:
 De autorisatieregels gelden voor alle launch types:
 - Directe portaal toegang
 - Task-specifieke launches
-- Cross-context launches (bijv. behandelaar start module voor patiënt)
+- Alternatieve-context launches (bijv. behandelaar start module voor patiënt)
 
 De specifieke context bepaalt welke resources toegankelijk zijn, maar de autorisatieregels blijven consistent.
