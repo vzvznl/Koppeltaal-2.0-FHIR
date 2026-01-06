@@ -2,6 +2,9 @@
 
 | Datum      | Wijziging                                                                                                                                     |
 |------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| 2026-01-06 | Verduidelijking: CareTeam beschrijft zorgcontext, niet het autorisatiemodel zelf                                                              |
+| 2026-01-06 | Diagram toegevoegd: relatie CareTeam, autorisatiematrix en FHIR resources                                                                     |
+| 2026-01-06 | Rollen en Autorisatiematrix: CareTeam als startpunt, modellen in ontwikkeling                                                                 |
 | 2025-12-02 | Formulering Task.owner/requester aangepast: "minimaal één CareTeam" i.p.v. "het relevante CareTeam"                                           |
 | 2025-12-02 | Rol "eerste relatie" verwijderd; RelatedPerson heeft (nog) geen rol                                                                           |
 | 2025-12-01 | HTI token voorbeelden aangepast conform [HTI 2.0 specificatie](https://github.com/GIDSOpenStandaarden/GIDS-HTI-Protocol/blob/main/HTI_2.0.md) |
@@ -9,7 +12,44 @@
 
 ---
 
-Deze pagina beschrijft de rol van CareTeam binnen het autorisatiemodel van het KoppelMij/Koppeltaal geharmoniseerde model, zoals beschreven in [Optie 3](https://koppelmij.github.io/koppelmij-designs/koppeltaal_domeinen.html#optie-3-harmonisatie-van-autorisatie-authenticatie-en-standaarden) van de Koppeltaal Domeinen documentatie.
+Deze pagina beschrijft de rol van het CareTeam als **zorgcontext** binnen het KoppelMij/Koppeltaal geharmoniseerde model, zoals beschreven in [Optie 3](https://koppelmij.github.io/koppelmij-designs/koppeltaal_domeinen.html#optie-3-harmonisatie-van-autorisatie-authenticatie-en-standaarden) van de Koppeltaal Domeinen documentatie.
+
+### CareTeam en Autorisatie: de relatie
+
+Het CareTeam is **niet** het autorisatiemodel zelf, maar beschrijft de **zorgcontext** van een patiënt: welke Practitioners en RelatedPersons betrokken zijn en in welke rol. Deze informatie vormt één van de startpunten voor het autorisatiemodel, omdat op basis van deze rollen de rechten worden bepaald.
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                           AUTORISATIEMODEL                              │
+│                                                                         │
+│  ┌─────────────────┐                                                    │
+│  │    CareTeam     │  Beschrijft zorgcontext:                           │
+│  │  (Zorgcontext)  │  • Betrokken Practitioners                         │
+│  │                 │  • Betrokken RelatedPersons                        │
+│  │                 │  • Rollen van betrokkenen                          │
+│  └────────┬────────┘                                                    │
+│           │                                                             │
+│           ▼                                                             │
+│  ┌─────────────────┐                                                    │
+│  │ Autorisatie-    │  Bepaalt rechten op basis van:                     │
+│  │ matrix          │  • Rol in CareTeam                                 │
+│  │                 │  • Resource type                                   │
+│  └────────┬────────┘                                                    │
+│           │                                                             │
+│           ▼                                                             │
+│  ┌─────────────────┐                                                    │
+│  │ FHIR Resources  │  Toegang tot resources zoals:                      │
+│  │                 │  • Task, Patient, CareTeam                         │
+│  │                 │  • ActivityDefinition, etc.                        │
+│  └─────────────────┘                                                    │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+**Samengevat:**
+- **CareTeam** = zorgcontext (wie is betrokken, in welke rol)
+- **Autorisatiematrix** = rechten per rol (wat mag iemand doen)
+- **FHIR Resources** = de resources waartoe toegang wordt verleend
 
 ### Wat is een CareTeam?
 
@@ -128,11 +168,20 @@ Het voorgestelde autorisatiemodel voor CareTeams is gebaseerd op onderstaande pr
    - Bijvoorbeeld: administratieve medewerkers die taken klaarzetten hoeven niet in het CareTeam te staan als verder geen deelnemer zijn in het zorgproces.
 
 4. **Rollen en Autorisatiematrix**
+
+   Het CareTeam vormt het **startpunt** voor het autorisatiemodel. De rollen van de betrokkenen in het CareTeam bepalen welke rechten zij hebben op FHIR resources.
+
+   **Huidige status:**
+   - De autorisatiemodellen zijn in ontwikkeling en worden gefaseerd uitgewerkt
+   - Er wordt gewerkt met eerste, minimale versies van het autorisatiemodel
    - De rollen in het CareTeam komen overeen met de rollen in de [autorisatiematrix](autorisaties.html)
-   - Elke rol heeft specifieke rechten zoals gedefinieerd in:
-     - [Practitioner autorisaties](autorisaties-practitioner.html)
-     - [RelatedPerson autorisaties](autorisaties-relatedperson.html)
-     - [Patient autorisaties](autorisaties-patient.html)
+
+   **Uitwerking per rol:**
+   - [Practitioner autorisaties](autorisaties-practitioner.html)
+   - [RelatedPerson autorisaties](autorisaties-relatedperson.html)
+   - [Patient autorisaties](autorisaties-patient.html)
+
+   > **Let op:** Deze modellen worden in de toekomst verder uitgewerkt en verfijnd op basis van praktijkervaring en feedback van leveranciers.
 
 5. **Task betrokkenen moeten in CareTeam staan**
    - `Task.owner` **moet** lid zijn van minimaal één CareTeam voor de betreffende patiënt (dit kan een Practitioner, RelatedPerson of CareTeam zijn)
