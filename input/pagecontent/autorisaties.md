@@ -1,4 +1,50 @@
+### Changelog
+
+| Datum      | Wijziging                                                |
+|------------|----------------------------------------------------------|
+| 2026-01-08 | Sectie toegevoegd: huidig autorisatiemodel Koppeltaal (applicatieniveau, gebruikersniveau, launch nadelen) |
+| 2026-01-08 | Sectie toegevoegd: granulariteit van autorisatie (CRUDS, security labels als toekomstige optie) |
+
+---
+
 Deze sectie beschrijft de autorisatieregels voor het geharmoniseerde KoppelMij/Koppeltaal model zoals uitgewerkt in [Optie 3](https://koppelmij.github.io/koppelmij-designs/koppeltaal_domeinen.html#optie-3-harmonisatie-van-autorisatie-authenticatie-en-standaarden) van de Koppeltaal Domeinen documentatie.
+
+### Huidig autorisatiemodel Koppeltaal
+
+Het huidige Koppeltaal autorisatiemodel is **gelaagd** opgebouwd en werkt op twee niveaus:
+
+#### 1. Applicatieniveau (Koppeltaal)
+
+In Koppeltaal worden **applicaties** geautoriseerd, niet individuele personen. Dit is een bewuste keuze:
+
+- Applicaties hebben reeds een eigen toegangsmodel voor hun gebruikers
+- Het toevoegen van persoonsautorisatie op Koppeltaal-niveau zou onnodige complexiteit introduceren
+- Applicatie-instanties krijgen rechten via [SMART Backend Services](https://vzvz.atlassian.net/wiki/spaces/KTSA/pages/27123707/TOP-KT-005a+-+Rollen+en+rechten+voor+applicatie-instanties)
+
+Zie ook: [TOP-KT-008 - Beveiliging aspecten / Vertrouwensmodel](https://vzvz.atlassian.net/wiki/spaces/KTSA/pages/139493890/TOP-KT-008+-+Beveiliging+aspecten+Vertrouwensmodel+van+Koppeltaal)
+
+#### 2. Gebruikersniveau (Applicatie)
+
+De **verantwoordelijkheid voor gebruikersautorisatie** ligt bij de individuele applicaties:
+
+- EPD's, platformen en modules zijn zelf verantwoordelijk voor de autorisatie van hun gebruikers
+- Koppeltaal neemt het autorisatiemodel van de applicatie als uitgangspunt
+- Wat een gebruiker mag doen en inzien wordt bepaald door de applicatie, niet door de Koppeltaal autorisatieservice
+
+#### De launch als uitzondering
+
+Een uitzondering op dit model is de **launch**. Bij een launch (via SMART on FHIR App Launch + HTI) geeft de lancerende applicatie (bijv. een portaal) informatie mee over:
+- De gebruiker (Patient, Practitioner of RelatedPerson)
+- Beperkte context over de relatie (bijv. voor welke patiënt de launch is)
+
+De ontvangende module applicatie **moet deze informatie als waar beschouwen**. Dit heeft nadelen:
+
+- **Snapshot-karakter**: De launch geeft een momentopname van relaties en rollen
+- **Geen synchronisatie**: Wijzigingen kunnen zonder nieuwe launch niet worden uitgewisseld
+- **Verdwijnende relaties**: Vooral problematisch wanneer relaties eindigen
+- **Toegang buiten launch**: In de praktijk geven module applicaties ook buiten de launch om toegang, waardoor verouderde informatie kan leiden tot onterechte toegang
+
+Deze nadelen zijn vooral relevant voor RelatedPersons, waarbij relaties gevoelig zijn en over tijd wijzigen. Zie ook de [CareTeam en Autorisatie](autorisaties-careteam.html#careteam-en-autorisatie-de-relatie) sectie voor hoe het CareTeam als zorgcontext deze problematiek kan adresseren.
 
 ### Overzicht
 
@@ -49,11 +95,26 @@ Mantelzorgers en vertegenwoordigers met verschillende typen:
 > - Een transitiepad voor bestaande implementaties
 > - Besluitvorming over minimale structuren voor veilige autorisatie
 
-### Launch types en autorisaties
+#### Granulariteit van autorisatie
 
-De autorisatieregels gelden voor alle launch types:
-- Directe portaal toegang
-- Task-specifieke launches
-- Alternatieve-context launches (bijv. behandelaar start module voor patiënt)
+Het voorgestelde autorisatiemodel werkt op **resource type niveau** met CRUDS-rechten:
+- **C**reate - aanmaken van resources
+- **R**ead - lezen van resources
+- **U**pdate - wijzigen van resources
+- **D**elete - verwijderen van resources
+- **S**earch - zoeken naar resources (FHIR-specifiek)
 
-De specifieke context bepaalt welke resources toegankelijk zijn, maar de autorisatieregels blijven consistent.
+**Scope en beperking:**
+
+De huidige scope beperkt zich tot autorisatie op resource type niveau. Dit betekent dat een rol toegang krijgt tot alle resources van een bepaald type (bijv. alle Tasks, alle DocumentReferences), of geen toegang.
+
+In de praktijk kan het wenselijk zijn om autorisatie op **individueel resource niveau** te kunnen specificeren. Voorbeelden:
+- Een specifieke DocumentReference met gevoelige informatie die niet voor alle CareTeam-leden zichtbaar mag zijn
+- Een Task voor een naaste (bijv. een docent) die niet zichtbaar mag zijn voor de patiënt zelf
+
+**Toekomstige mogelijkheid: Security Labels**
+
+FHIR biedt hiervoor [Security Labels](https://build.fhir.org/valueset-security-labels.html) waarmee het mogelijk is om op resource niveau toegangsbeperkingen aan te geven. Met security labels kan per resource worden gespecificeerd welke vertrouwelijkheidsniveau van toepassing is.
+
+> **Huidige status:** Resource-niveau autorisatie via security labels valt buiten de huidige scope. Leveranciers hebben aangegeven dit vooralsnog niet te implementeren. Deze overweging is hier beschreven om de scope van het autorisatiemodel te verduidelijken en richting te geven aan toekomstige uitbreidingen.
+
