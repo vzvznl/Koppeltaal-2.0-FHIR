@@ -124,13 +124,13 @@ Uit KPTSD-893 komen de volgende acties:
 
 ## 7\. Samenvatting
 
-| Aspect | Scope |
-| :---- | :---- |
-| CareTeam | Beschrijft zorgcontext, startpunt voor autorisatie |
-| RelatedPerson | Gevoelige relatie die wijzigt over tijd |
-| Autorisatiematrix | 0.1 versie, enkel afspraken tussen leveranciers |
-| FHIR profiel | Aanpassingen nodig voor rollen RelatedPerson |
-| Afdwinging | Niet door FHIR dienst, leveranciers zelf verantwoordelijk |
+| Aspect            | Scope                                                     |
+|:------------------|:----------------------------------------------------------|
+| CareTeam          | Beschrijft zorgcontext, startpunt voor autorisatie        |
+| RelatedPerson     | Gevoelige relatie die wijzigt over tijd                   |
+| Autorisatiematrix | 0.1 versie, enkel afspraken tussen leveranciers           |
+| FHIR profiel      | Aanpassingen nodig voor rollen RelatedPerson              |
+| Afdwinging        | Niet door FHIR dienst, leveranciers zelf verantwoordelijk |
 
 ---
 
