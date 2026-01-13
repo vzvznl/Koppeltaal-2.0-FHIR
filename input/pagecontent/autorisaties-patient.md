@@ -1,9 +1,13 @@
 ### Changelog
 
-| Datum      | Wijziging                                                                 |
-|------------|---------------------------------------------------------------------------|
-| 2025-12-09 | Optie D (Geen toegang) toegevoegd aan Beslispunt 1 RelatedPerson koppeling |
-| 2025-12-09 | Verduidelijking van self-service en "on behalf of" scenario's             |
+| Versie | Datum      | Wijziging                                                                  |
+|--------|------------|----------------------------------------------------------------------------|
+| 0.0.3  | 2026-01-13 | Beslispunt 1: voorkeur gewijzigd naar Optie A (Via CareTeam)               |
+| 0.0.2  | 2026-01-13 | Tabelstructuur aangepast: Search Narrowing kolom                           |
+| 0.0.2  | 2026-01-13 | Beslispunt 2: voorkeur Optie A - Patient alleen toegang als subject        |
+| 0.0.2  | 2026-01-13 | Beslispunt 3 toegevoegd: Zichtbaarheid CareTeam leden                      |
+| 0.0.1  | 2025-12-09 | Optie D (Geen toegang) toegevoegd aan Beslispunt 1 RelatedPerson koppeling |
+| 0.0.1  | 2025-12-09 | Verduidelijking van self-service en "on behalf of" scenario's              |
 
 ---
 
@@ -25,21 +29,15 @@ Deze autorisaties worden gebruikt wanneer:
 
 #### Autorisatieregels
 
-De onderstaande tabel toont:
-1. **Entiteit**: De FHIR resource types
-2. **Toegangsvoorwaarde**: Wanneer een Patient toegang heeft tot specifieke resources
-3. **CRUD**: Of ze de resources kunnen Create (C), Read (R), Update (U) en/of Delete (D)
-4. **Validatie query**: De FHIR search query gebruikt voor toegangsvalidatie
-
-| Entiteit               | Toegang                                                            | CRUD   | Read validatie                                                     | Create validatie          |
-|------------------------|--------------------------------------------------------------------|--------|--------------------------------------------------------------------|---------------------------|
-| **Patient**            | Enkel mijzelf                                                      | R      | `Patient?identifier=system\|user_id`                               | N.v.t.                    |
-| **Practitioner**       | Als deze in een CareTeam van mij zit                               | R      | `Practitioner?_has:CareTeam:participant:patient=Patient/{id}`      | N.v.t.                    |
-| **RelatedPerson**      | Zie [Beslispunt 1](#beslispunt-1-relatedperson-koppeling)          | R      | Zie [Beslispunt 1](#beslispunt-1-relatedperson-koppeling)          | N.v.t.                    |
-| **CareTeam**           | Zie [Beslispunt 2](#beslispunt-2-patient-als-careteam-participant) | R      | Zie [Beslispunt 2](#beslispunt-2-patient-als-careteam-participant) | N.v.t.                    |
-| **ActivityDefinition** | Enkel van type zelfhulp*                                           | R      | `ActivityDefinition?topic=self-help`                               | N.v.t.                    |
-| **Task**               | Als ik de eigenaar van de taak ben                                 | C*R    | `Task?owner=Patient/{id}`                                          | `Task.owner=Patient/{id}` |
-| **Task Launch**        | Als ik de eigenaar van de taak ben (eigen taken launchen)          | Launch | `Task?owner=Patient/{id}`                                          | N.v.t.                    |
+| Entiteit               | Toegang                                                                                                      | CRUD   | Search Narrowing                                                                                             |
+|------------------------|--------------------------------------------------------------------------------------------------------------|--------|--------------------------------------------------------------------------------------------------------------|
+| **Patient**            | Enkel mijzelf                                                                                                | R      | `Patient?identifier=system\|user_id`                                                                         |
+| **Practitioner**       | Via CareTeam, zie [Beslispunt 3](#beslispunt-3-zichtbaarheid-careteam-leden)                                 | R      | `Practitioner?_has:CareTeam:participant:patient=Patient/{id}`                                                |
+| **RelatedPerson**      | Zie [Beslispunt 1](#beslispunt-1-relatedperson-koppeling) en [3](#beslispunt-3-zichtbaarheid-careteam-leden) | R      | Zie [Beslispunt 1](#beslispunt-1-relatedperson-koppeling) en [3](#beslispunt-3-zichtbaarheid-careteam-leden) |
+| **CareTeam**           | Zie [Beslispunt 2](#beslispunt-2-patient-als-careteam-participant)                                           | R      | Zie [Beslispunt 2](#beslispunt-2-patient-als-careteam-participant)                                           |
+| **ActivityDefinition** | Enkel van type zelfhulp*                                                                                     | R      | `ActivityDefinition?topic=self-help`                                                                         |
+| **Task**               | Eigen taken                                                                                                  | C*R    | `Task?owner=Patient/{id}`                                                                                    |
+| **Task Launch**        | Eigen taken                                                                                                  | Launch | `Task?owner=Patient/{id}`                                                                                    |
 
 *C = Create alleen voor zelfhulp taken
 
@@ -65,8 +63,8 @@ De volgende punten zijn nog niet definitief besloten en worden voorgelegd ter re
 
 | Optie | Beschrijving                             | Toegangsvoorwaarde                                                          | Validatie query                                                |
 |-------|------------------------------------------|-----------------------------------------------------------------------------|----------------------------------------------------------------|
-| A     | Via CareTeam                             | RelatedPerson moet lid zijn van een CareTeam waar de Patient subject van is | `RelatedPerson?_has:CareTeam:participant:patient=Patient/{id}` |
-| **B** | **Via RelatedPerson.patient (voorstel)** | Directe koppeling via het `patient` veld van RelatedPerson                  | `RelatedPerson?patient=Patient/{id}`                           |
+| **A** | **Via CareTeam (voorstel)**              | RelatedPerson moet lid zijn van een CareTeam waar de Patient subject van is | `RelatedPerson?_has:CareTeam:participant:patient=Patient/{id}` |
+| B     | Via RelatedPerson.patient                | Directe koppeling via het `patient` veld van RelatedPerson                  | `RelatedPerson?patient=Patient/{id}`                           |
 | C     | Beide methoden                           | Toegang via CareTeam óf via directe `RelatedPerson.patient` koppeling       | Combinatie van A en B                                          |
 | D     | Geen toegang                             | Patient heeft geen toegang tot RelatedPerson resources                      | N.v.t.                                                         |
 
@@ -95,6 +93,25 @@ De volgende punten zijn nog niet definitief besloten en worden voorgelegd ter re
 - **Optie A (Alleen subject):** Simpeler, huidige situatie; Patient ziet alleen "eigen" zorgteams
 - **Optie B (Ook participant):** Consistenter met hoe andere rollen werken; relevant voor scenario's waar Patient ook zorgverlener is (bijv. mantelzorg)
 - In de praktijk zal dit scenario minder snel voorkomen, maar het is wel relevant voor de consistentie van het autorisatiemodel
+
+**Besluit:** *Nog te bepalen*
+
+#### Beslispunt 3: Zichtbaarheid CareTeam leden
+
+**Vraag:** Zijn alle leden (Practitioner en RelatedPerson) van het CareTeam zichtbaar voor de Patient, of moet dit op basis van rol worden bepaald?
+
+**Context:** Een Patient heeft via het CareTeam toegang tot Practitioners en RelatedPersons die betrokken zijn bij de zorg. Er zijn echter situaties denkbaar waarin bepaalde rollen niet zichtbaar zouden moeten zijn voor de Patient. Bijvoorbeeld: een Wettelijk vertegenwoordiger die namens de Patient handelt, maar waarvan de Patient (bijvoorbeeld een minderjarige of wilsonbekwame) niet op de hoogte hoeft te zijn.
+
+**Opties:**
+
+| Optie | Beschrijving                        | Implicatie                                                                      |
+|-------|-------------------------------------|---------------------------------------------------------------------------------|
+| **A** | **Alle leden zichtbaar (voorstel)** | Patient ziet alle Practitioners en RelatedPersons in het CareTeam               |
+| B     | Zichtbaarheid op basis van rol      | Bepaalde rollen (bijv. Wettelijk vertegenwoordiger) kunnen onzichtbaar zijn     |
+
+**Overwegingen:**
+- **Optie A (Alle leden):** Simpeler te implementeren; transparantie naar de Patient
+- **Optie B (Op basis van rol):** Meer complexiteit; vereist rol-gebaseerde filtering in de Search Narrowing query; relevant voor specifieke scenario's (minderjarigen, wilsonbekwaamheid)
 
 **Besluit:** *Nog te bepalen*
 
