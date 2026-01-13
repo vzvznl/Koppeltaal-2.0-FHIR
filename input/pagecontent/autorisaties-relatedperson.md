@@ -1,14 +1,15 @@
 ### Changelog
 
-| Versie | Datum      | Wijziging                                                                 |
-|--------|------------|---------------------------------------------------------------------------|
-| 0.0.1  | 2026-01-13 | Eerste versie autorisatiematrix RelatedPerson met rollen Naaste, Mantelzorger, Wettelijk vertegenwoordiger en Buddy |
+| Versie | Datum      | Wijziging                                                                                                            |
+|--------|------------|----------------------------------------------------------------------------------------------------------------------|
+| 0.0.2  | 2026-01-13 | Terminologie "rol" gewijzigd naar "relatie"; "Geen relatie in CareTeam" toegevoegd                                   |
+| 0.0.1  | 2026-01-13 | Eerste versie autorisatiematrix RelatedPerson met relaties Naaste, Mantelzorger, Wettelijk vertegenwoordiger en Buddy |
 
 ---
 
 ### Autorisatieregels voor RelatedPerson toegang
 
-Deze pagina beschrijft de autorisatieregels voor een RelatedPerson rol binnen het KoppelMij/Koppeltaal geharmoniseerde model, zoals beschreven in [Optie 3](https://koppelmij.github.io/koppelmij-designs/koppeltaal_domeinen.html#optie-3-harmonisatie-van-autorisatie-authenticatie-en-standaarden) van de Koppeltaal Domeinen documentatie.
+Deze pagina beschrijft de autorisatieregels voor RelatedPersons binnen het KoppelMij/Koppeltaal geharmoniseerde model, zoals beschreven in [Optie 3](https://koppelmij.github.io/koppelmij-designs/koppeltaal_domeinen.html#optie-3-harmonisatie-van-autorisatie-authenticatie-en-standaarden) van de Koppeltaal Domeinen documentatie.
 
 #### Scope en overwegingen
 
@@ -25,16 +26,17 @@ De onderstaande autorisatieregels gelden voor **alle launch types** waarbij een 
 2. **Taak context (eigen taak)**: Wanneer de RelatedPerson een eigen taak start
 3. **Taak context (patiënt taak)**: Wanneer de RelatedPerson een taak van de patiënt start
 
-#### Rollen voor RelatedPerson
+#### Relaties voor RelatedPerson
 
-Er wordt onderscheid gemaakt tussen de volgende rollen:
+Er wordt onderscheid gemaakt tussen de volgende relaties:
 
-| Rol                             | Omschrijving                   | Bevoegdheden                                               |
-|:--------------------------------|:-------------------------------|:-----------------------------------------------------------|
-| **Naaste**                      | Algemene naaste/verwant        | Meekijken, ondersteunen, communiceren                      |
-| **Mantelzorger**                | Structurele zorgverlener       | Meekijken, uitvoeren (beperkt), ondersteunen, communiceren |
-| **Wettelijk vertegenwoordiger** | Juridisch gemachtigd           | Meekijken, uitvoeren, namens patiënt handelen              |
-| **Buddy**                       | Ervaringsdeskundige begeleider | Meekijken, ondersteunen, communiceren                      |
+| Relatie                         | Omschrijving                      | Bevoegdheden                                               |
+|:--------------------------------|:----------------------------------|:-----------------------------------------------------------|
+| **Geen relatie in CareTeam**    | Niet opgenomen in CareTeam        | Alleen eigen taken                                         |
+| **Naaste**                      | Algemene naaste/verwant           | Meekijken, ondersteunen, communiceren                      |
+| **Mantelzorger**                | Structurele zorgverlener          | Meekijken, uitvoeren (beperkt), ondersteunen, communiceren |
+| **Wettelijk vertegenwoordiger** | Juridisch gemachtigd              | Meekijken, uitvoeren, namens patiënt handelen              |
+| **Buddy**                       | Ervaringsdeskundige begeleider    | Meekijken, ondersteunen, communiceren                      |
 
 **Toelichting bevoegdheden:**
 
@@ -47,18 +49,19 @@ Er wordt onderscheid gemaakt tussen de volgende rollen:
 | Uitvoeren               | Volledige acties uitvoeren namens de patiënt                                   |
 | Namens patiënt handelen | Juridisch gemachtigd om beslissingen te nemen en te handelen namens de patiënt |
 
-**Let op:** Deze rollen zijn indicatief en moeten nog worden vastgesteld door de visiegroep en tech community.
+**Let op:** Deze relaties zijn indicatief en moeten nog worden vastgesteld door de visiegroep en tech community.
 
 #### Autorisatieregels
 
 De onderstaande tabellen tonen de verschillende autorisatieniveaus voor RelatedPersons.
 
-##### Overzicht Task autorisaties per rol
+##### Overzicht Task autorisaties per relatie
 
-De Task en Task Launch rechten zijn direct gekoppeld aan de bevoegdheden per rol:
+De Task en Task Launch rechten zijn direct gekoppeld aan de bevoegdheden per relatie:
 
-| Rol                             | Eigen taak | Patiënt taak | Eigen taak starten | Patiënt taak starten |
+| Relatie                         | Eigen taak | Patiënt taak | Eigen taak starten | Patiënt taak starten |
 |---------------------------------|------------|--------------|--------------------|----------------------|
+| **Geen relatie in CareTeam**    | RU         | -            | ✓                  | -                    |
 | **Naaste**                      | R          | -            | ✓                  | -                    |
 | **Mantelzorger**                | RU         | R            | ✓                  | -                    |
 | **Wettelijk vertegenwoordiger** | RU         | RU           | ✓                  | ✓                    |
@@ -67,6 +70,20 @@ De Task en Task Launch rechten zijn direct gekoppeld aan de bevoegdheden per rol
 **Toelichting:**
 - **Eigen taak**: Taken waar de RelatedPerson eigenaar van is
 - **Patiënt taak**: Taken die voor de patiënt zijn aangemaakt (door behandelaar)
+
+##### Geen relatie in CareTeam
+
+Deze RelatedPersons hebben toegang tot resources primair via Task toewijzingen. Dit is de huidige situatie waarin RelatedPersons niet zijn opgenomen in een CareTeam.
+
+| Entiteit               | Toegang                                    | CRUD   | Search Narrowing                                                |
+|------------------------|--------------------------------------------|--------|-----------------------------------------------------------------|
+| **Patient**            | Als de RelatedPerson.patient de Patient is | R      | `Patient?_has:RelatedPerson:patient:identifier=system\|user_id` |
+| **Practitioner**       | Geen                                       | -      | N.v.t.                                                          |
+| **RelatedPerson**      | Geen                                       | -      | N.v.t.                                                          |
+| **CareTeam**           | Geen                                       | -      | N.v.t.                                                          |
+| **ActivityDefinition** | Geen                                       | -      | N.v.t.                                                          |
+| **Task**               | Eigen taken                                | RU     | `Task?owner=RelatedPerson/{id}`                                 |
+| **Task Launch**        | Eigen taken                                | Launch | `Task?owner=RelatedPerson/{id}`                                 |
 
 ##### Naaste
 
