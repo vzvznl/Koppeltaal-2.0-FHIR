@@ -1,58 +1,129 @@
+### Changelog
+
+| Versie | Datum      | Wijziging                                                                 |
+|--------|------------|---------------------------------------------------------------------------|
+| 0.0.1  | 2026-01-13 | Eerste versie autorisatiematrix RelatedPerson met rollen Naaste, Mantelzorger, Wettelijk vertegenwoordiger en Buddy |
+
+---
+
 ### Autorisatieregels voor RelatedPerson toegang
 
-Deze pagina beschrijft de autorisatieregels voor een RelatedPerson (mantelzorger/vertegenwoordiger) rol binnen het KoppelMij/Koppeltaal geharmoniseerde model, zoals beschreven in [Optie 3](https://koppelmij.github.io/koppelmij-designs/koppeltaal_domeinen.html#optie-3-harmonisatie-van-autorisatie-authenticatie-en-standaarden) van de Koppeltaal Domeinen documentatie.
+Deze pagina beschrijft de autorisatieregels voor een RelatedPerson rol binnen het KoppelMij/Koppeltaal geharmoniseerde model, zoals beschreven in [Optie 3](https://koppelmij.github.io/koppelmij-designs/koppeltaal_domeinen.html#optie-3-harmonisatie-van-autorisatie-authenticatie-en-standaarden) van de Koppeltaal Domeinen documentatie.
+
+#### Scope en overwegingen
+
+Deze autorisatiematrix beschrijft de rechten voor RelatedPersons binnen de context van behandeltaken. De volgende onderwerpen vallen buiten de huidige scope:
+
+- **Zelfhulp taken**: Het aanmaken van zelfhulp taken door RelatedPersons (met name de Wettelijk vertegenwoordiger) is nog niet uitgewerkt. In een toekomstige versie kan dit worden toegevoegd, vergelijkbaar met hoe Patiënten zelfhulp taken kunnen aanmaken.
+
+- **Patiënt/RelatedPerson context**: Het launch type **Patiënt/RelatedPerson context** is bedoeld voor portal applicaties (zoals een patiëntportaal) en niet voor module applicaties. Deze wordt meegenomen in de autorisatiematrix ter volledigheid en omdat deze in de toekomst van toepassing wordt.
 
 #### Context en Launch types
 De onderstaande autorisatieregels gelden voor **alle launch types** waarbij een RelatedPerson betrokken is:
 
-1. **Patiënt/RelatedPerson context**: Wanneer de RelatedPerson inlogt en toegang krijgt tot geautoriseerde resources
-2. **Taak context**: Wanneer een taak wordt gelauncht voor de patiënt van deze RelatedPerson
-3. **Patiënt-specifieke launch**: Wanneer de RelatedPerson een module start voor de patiënt
+1. **Patiënt/RelatedPerson context**: Wanneer de RelatedPerson inlogt en toegang krijgt tot geautoriseerde resources (portal context)
+2. **Taak context (eigen taak)**: Wanneer de RelatedPerson een eigen taak start
+3. **Taak context (patiënt taak)**: Wanneer de RelatedPerson een taak van de patiënt start
 
-Er wordt onderscheid gemaakt tussen verschillende typen:
-- **Gemachtigd**: Volledige toegang tot patiëntgegevens met machtiging
-- **Samenwerker**: Beperkte toegang als onderdeel van het zorgteam
-- **Monitor**: Enkel leesrechten voor monitoring doeleinden
+#### Rollen voor RelatedPerson
+
+Er wordt onderscheid gemaakt tussen de volgende rollen:
+
+| Rol                             | Omschrijving                   | Bevoegdheden                                               |
+|:--------------------------------|:-------------------------------|:-----------------------------------------------------------|
+| **Naaste**                      | Algemene naaste/verwant        | Meekijken, ondersteunen, communiceren                      |
+| **Mantelzorger**                | Structurele zorgverlener       | Meekijken, uitvoeren (beperkt), ondersteunen, communiceren |
+| **Wettelijk vertegenwoordiger** | Juridisch gemachtigd           | Meekijken, uitvoeren, namens patiënt handelen              |
+| **Buddy**                       | Ervaringsdeskundige begeleider | Meekijken, ondersteunen, communiceren                      |
+
+**Toelichting bevoegdheden:**
+
+| Bevoegdheid             | Betekenis                                                                      |
+|:------------------------|:-------------------------------------------------------------------------------|
+| Meekijken               | Leestoegang tot relevante patiëntgegevens en voortgang                         |
+| Ondersteunen            | Actief bijdragen aan het zorgproces door begeleiding en motivatie              |
+| Communiceren            | Berichten uitwisselen met het zorgteam                                         |
+| Uitvoeren (beperkt)     | Beperkte acties uitvoeren zoals taken afronden namens de patiënt               |
+| Uitvoeren               | Volledige acties uitvoeren namens de patiënt                                   |
+| Namens patiënt handelen | Juridisch gemachtigd om beslissingen te nemen en te handelen namens de patiënt |
+
+**Let op:** Deze rollen zijn indicatief en moeten nog worden vastgesteld door de visiegroep en tech community.
 
 #### Autorisatieregels
 
-De onderstaande tabellen tonen de verschillende autorisatieniveaus voor RelatedPersons:
+De onderstaande tabellen tonen de verschillende autorisatieniveaus voor RelatedPersons.
 
-##### RelatedPerson - Gemachtigd
+##### Overzicht Task autorisaties per rol
 
-| Entiteit               | Toegang                                                                | CRUD   | Read validatie                                                                                          | Create validatie |
-|------------------------|------------------------------------------------------------------------|--------|---------------------------------------------------------------------------------------------------------|------------------|
-| **Patient**            | Als de RelatedPerson.patient de Patient is                             | R      | `Patient?_has:RelatedPerson:patient:identifier=system\|user_id`                                         | N.v.t.           |
-| **Practitioner**       | Als deze onderdeel is van een CareTeam waar ik lid van ben             | R      | `Practitioner?_has:CareTeam:participant:participant=RelatedPerson/{id}`                                 | N.v.t.           |
-| **RelatedPerson**      | Als deze onderdeel is van een CareTeam waar ik lid van ben             | R      | `RelatedPerson?_has:CareTeam:participant:participant=RelatedPerson/{id}`                                | N.v.t.           |
-| **CareTeam**           | Als ik onderdeel van het CareTeam ben                                  | R      | `CareTeam?participant=RelatedPerson/{id}`                                                               | N.v.t.           |
-| **ActivityDefinition** | Geen                                                                   | -      | N.v.t.                                                                                                  | N.v.t.           |
-| **Task**               | Als ik de eigenaar van de taak ben                                     | R      | `Task?owner=RelatedPerson/{id}`                                                                         | N.v.t.           |
-| **Task Launch**        | Als ik de eigenaar van de taak ben OF als de taak voor mijn patiënt is | Launch | `Task?owner=RelatedPerson/{id}` OF `Task?patient._has:RelatedPerson:patient:identifier=system\|user_id` | N.v.t.           |
+De Task en Task Launch rechten zijn direct gekoppeld aan de bevoegdheden per rol:
 
-##### RelatedPerson - Samenwerker
+| Rol                             | Eigen taak | Patiënt taak | Eigen taak starten | Patiënt taak starten |
+|---------------------------------|------------|--------------|--------------------|----------------------|
+| **Naaste**                      | R          | -            | ✓                  | -                    |
+| **Mantelzorger**                | RU         | R            | ✓                  | -                    |
+| **Wettelijk vertegenwoordiger** | RU         | RU           | ✓                  | ✓                    |
+| **Buddy**                       | R          | -            | ✓                  | -                    |
 
-| Entiteit               | Toegang                                                                | CRUD   | Read validatie                                                                                          | Create validatie |
-|------------------------|------------------------------------------------------------------------|--------|---------------------------------------------------------------------------------------------------------|------------------|
-| **Patient**            | Als de RelatedPerson.patient de Patient is                             | R      | `Patient?_has:RelatedPerson:patient:identifier=system\|user_id`                                         | N.v.t.           |
-| **Practitioner**       | Als deze onderdeel is van een CareTeam waar ik lid van ben             | R      | `Practitioner?_has:CareTeam:participant:participant=RelatedPerson/{id}`                                 | N.v.t.           |
-| **RelatedPerson**      | Als deze onderdeel is van een CareTeam waar ik lid van ben             | R      | `RelatedPerson?_has:CareTeam:participant:participant=RelatedPerson/{id}`                                | N.v.t.           |
-| **CareTeam**           | Als ik onderdeel van het CareTeam ben                                  | R      | `CareTeam?participant=RelatedPerson/{id}`                                                               | N.v.t.           |
-| **ActivityDefinition** | Geen                                                                   | -      | N.v.t.                                                                                                  | N.v.t.           |
-| **Task**               | Als ik de eigenaar van de taak ben                                     | R      | `Task?owner=RelatedPerson/{id}`                                                                         | N.v.t.           |
-| **Task Launch**        | Als ik de eigenaar van de taak ben OF als de taak voor mijn patiënt is | Launch | `Task?owner=RelatedPerson/{id}` OF `Task?patient._has:RelatedPerson:patient:identifier=system\|user_id` | N.v.t.           |
+**Toelichting:**
+- **Eigen taak**: Taken waar de RelatedPerson eigenaar van is
+- **Patiënt taak**: Taken die voor de patiënt zijn aangemaakt (door behandelaar)
 
-##### RelatedPerson - Monitor
+##### Naaste
 
-| Entiteit               | Toegang                                                                | CRUD   | Read validatie                                                                                          | Create validatie |
-|------------------------|------------------------------------------------------------------------|--------|---------------------------------------------------------------------------------------------------------|------------------|
-| **Patient**            | Als de RelatedPerson.patient de Patient is                             | R      | `Patient?_has:RelatedPerson:patient:identifier=system\|user_id`                                         | N.v.t.           |
-| **Practitioner**       | Als deze onderdeel is van een CareTeam waar ik lid van ben             | R      | `Practitioner?_has:CareTeam:participant:participant=RelatedPerson/{id}`                                 | N.v.t.           |
-| **RelatedPerson**      | Als deze onderdeel is van een CareTeam waar ik lid van ben             | R      | `RelatedPerson?_has:CareTeam:participant:participant=RelatedPerson/{id}`                                | N.v.t.           |
-| **CareTeam**           | Als ik onderdeel van het CareTeam ben                                  | R      | `CareTeam?participant=RelatedPerson/{id}`                                                               | N.v.t.           |
-| **ActivityDefinition** | Geen                                                                   | -      | N.v.t.                                                                                                  | N.v.t.           |
-| **Task**               | Als ik de eigenaar van de taak ben                                     | R      | `Task?owner=RelatedPerson/{id}`                                                                         | N.v.t.           |
-| **Task Launch**        | Als ik de eigenaar van de taak ben OF als de taak voor mijn patiënt is | Launch | `Task?owner=RelatedPerson/{id}` OF `Task?patient._has:RelatedPerson:patient:identifier=system\|user_id` | N.v.t.           |
+De Naaste heeft leestoegang en kan ondersteunen en communiceren, maar kan geen acties uitvoeren namens de patiënt.
+
+| Entiteit               | Toegang                                    | CRUD   | Search Narrowing                                                       |
+|------------------------|--------------------------------------------|--------|-----------------------------------------------------------------|
+| **Patient**            | Als de RelatedPerson.patient de Patient is | R      | `Patient?_has:RelatedPerson:patient:identifier=system\|user_id` |
+| **Practitioner**       | Via CareTeam lidmaatschap                  | R      | `Practitioner?_has:CareTeam:participant:participant=RelatedPerson/{id}` |
+| **RelatedPerson**      | Via CareTeam lidmaatschap                  | R      | `RelatedPerson?_has:CareTeam:participant:participant=RelatedPerson/{id}` |
+| **CareTeam**           | Als ik lid van het CareTeam ben            | R      | `CareTeam?participant=RelatedPerson/{id}`                       |
+| **ActivityDefinition** | Geen                                       | -      | N.v.t.                                                          |
+| **Task**               | Als ik de eigenaar van de taak ben         | R      | `Task?owner=RelatedPerson/{id}`                                 |
+| **Task Launch**        | Als ik de eigenaar van de taak ben         | Launch | `Task?owner=RelatedPerson/{id}`                                 |
+
+##### Mantelzorger
+
+De Mantelzorger is een structurele zorgverlener met uitgebreidere rechten. Kan beperkt uitvoeren namens de patiënt.
+
+| Entiteit               | Toegang                                      | CRUD   | Search Narrowing                                                                                               |
+|------------------------|----------------------------------------------|--------|---------------------------------------------------------------------------------------------------------|
+| **Patient**            | Als de RelatedPerson.patient de Patient is   | R      | `Patient?_has:RelatedPerson:patient:identifier=system\|user_id`                                         |
+| **Practitioner**       | Via CareTeam lidmaatschap                    | R      | `Practitioner?_has:CareTeam:participant:participant=RelatedPerson/{id}`                                 |
+| **RelatedPerson**      | Via CareTeam lidmaatschap                    | R      | `RelatedPerson?_has:CareTeam:participant:participant=RelatedPerson/{id}`                                |
+| **CareTeam**           | Als ik lid van het CareTeam ben              | R      | `CareTeam?participant=RelatedPerson/{id}`                                                               |
+| **ActivityDefinition** | Geen                                         | -      | N.v.t.                                                                                                  |
+| **Task (lezen)**       | Eigen taken OF taken voor mijn patiënt       | R      | `Task?owner=RelatedPerson/{id}` OF `Task?patient._has:RelatedPerson:patient:identifier=system\|user_id` |
+| **Task (wijzigen)**    | Eigen taken                                  | U      | `Task?owner=RelatedPerson/{id}`                                                                         |
+| **Task Launch**        | Eigen taken                                  | Launch | `Task?owner=RelatedPerson/{id}`                                                                         |
+
+##### Wettelijk vertegenwoordiger
+
+De Wettelijk vertegenwoordiger is juridisch gemachtigd om namens de patiënt te handelen en heeft de meest uitgebreide rechten.
+
+| Entiteit               | Toegang                                    | CRUD   | Search Narrowing                                                                                               |
+|------------------------|--------------------------------------------|--------|---------------------------------------------------------------------------------------------------------|
+| **Patient**            | Als de RelatedPerson.patient de Patient is | R      | `Patient?_has:RelatedPerson:patient:identifier=system\|user_id`                                         |
+| **Practitioner**       | Via CareTeam lidmaatschap                  | R      | `Practitioner?_has:CareTeam:participant:participant=RelatedPerson/{id}`                                 |
+| **RelatedPerson**      | Via CareTeam lidmaatschap                  | R      | `RelatedPerson?_has:CareTeam:participant:participant=RelatedPerson/{id}`                                |
+| **CareTeam**           | Als ik lid van het CareTeam ben            | R      | `CareTeam?participant=RelatedPerson/{id}`                                                               |
+| **ActivityDefinition** | Geen                                       | -      | N.v.t.                                                                                                  |
+| **Task**               | Eigen taken OF taken voor mijn patiënt     | RU     | `Task?owner=RelatedPerson/{id}` OF `Task?patient._has:RelatedPerson:patient:identifier=system\|user_id` |
+| **Task Launch**        | Eigen taken OF taken voor mijn patiënt     | Launch | `Task?owner=RelatedPerson/{id}` OF `Task?patient._has:RelatedPerson:patient:identifier=system\|user_id` |
+
+##### Buddy
+
+De Buddy is een ervaringsdeskundige begeleider met vergelijkbare rechten als de Naaste.
+
+| Entiteit               | Toegang                                    | CRUD   | Search Narrowing                                                       |
+|------------------------|--------------------------------------------|--------|-----------------------------------------------------------------|
+| **Patient**            | Als de RelatedPerson.patient de Patient is | R      | `Patient?_has:RelatedPerson:patient:identifier=system\|user_id` |
+| **Practitioner**       | Via CareTeam lidmaatschap                  | R      | `Practitioner?_has:CareTeam:participant:participant=RelatedPerson/{id}` |
+| **RelatedPerson**      | Via CareTeam lidmaatschap                  | R      | `RelatedPerson?_has:CareTeam:participant:participant=RelatedPerson/{id}` |
+| **CareTeam**           | Als ik lid van het CareTeam ben            | R      | `CareTeam?participant=RelatedPerson/{id}`                       |
+| **ActivityDefinition** | Geen                                       | -      | N.v.t.                                                          |
+| **Task**               | Eigen taken                                | R      | `Task?owner=RelatedPerson/{id}`                                 |
+| **Task Launch**        | Eigen taken                                | Launch | `Task?owner=RelatedPerson/{id}`                                 |
 
 #### CareTeam en autorisatie
 
