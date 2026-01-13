@@ -2,6 +2,7 @@
 
 | Versie | Datum      | Wijziging                                                                                                            |
 |--------|------------|----------------------------------------------------------------------------------------------------------------------|
+| 0.0.3  | 2026-01-13 | Naaste en Buddy: Task rechten gewijzigd van R naar RU                                                                |
 | 0.0.2  | 2026-01-13 | Terminologie "rol" gewijzigd naar "relatie"; "Geen relatie in CareTeam" toegevoegd                                   |
 | 0.0.1  | 2026-01-13 | Eerste versie autorisatiematrix RelatedPerson met relaties Naaste, Mantelzorger, Wettelijk vertegenwoordiger en Buddy |
 
@@ -62,10 +63,10 @@ De Task en Task Launch rechten zijn direct gekoppeld aan de bevoegdheden per rel
 | Relatie                         | Eigen taak | Patiënt taak | Eigen taak starten | Patiënt taak starten |
 |---------------------------------|------------|--------------|--------------------|----------------------|
 | **Geen relatie in CareTeam**    | RU         | -            | ✓                  | -                    |
-| **Naaste**                      | R          | -            | ✓                  | -                    |
+| **Naaste**                      | RU         | -            | ✓                  | -                    |
 | **Mantelzorger**                | RU         | R            | ✓                  | -                    |
 | **Wettelijk vertegenwoordiger** | RU         | RU           | ✓                  | ✓                    |
-| **Buddy**                       | R          | -            | ✓                  | -                    |
+| **Buddy**                       | RU         | -            | ✓                  | -                    |
 
 **Toelichting:**
 - **Eigen taak**: Taken waar de RelatedPerson eigenaar van is
@@ -96,8 +97,8 @@ De Naaste heeft leestoegang en kan ondersteunen en communiceren, maar kan geen a
 | **RelatedPerson**      | Via CareTeam lidmaatschap                  | R      | `RelatedPerson?_has:CareTeam:participant:participant=RelatedPerson/{id}` |
 | **CareTeam**           | Als ik lid van het CareTeam ben            | R      | `CareTeam?participant=RelatedPerson/{id}`                       |
 | **ActivityDefinition** | Geen                                       | -      | N.v.t.                                                          |
-| **Task**               | Als ik de eigenaar van de taak ben         | R      | `Task?owner=RelatedPerson/{id}`                                 |
-| **Task Launch**        | Als ik de eigenaar van de taak ben         | Launch | `Task?owner=RelatedPerson/{id}`                                 |
+| **Task**               | Eigen taken                                | RU     | `Task?owner=RelatedPerson/{id}`                                 |
+| **Task Launch**        | Eigen taken                                | Launch | `Task?owner=RelatedPerson/{id}`                                 |
 
 ##### Mantelzorger
 
@@ -139,7 +140,7 @@ De Buddy is een ervaringsdeskundige begeleider met vergelijkbare rechten als de 
 | **RelatedPerson**      | Via CareTeam lidmaatschap                  | R      | `RelatedPerson?_has:CareTeam:participant:participant=RelatedPerson/{id}` |
 | **CareTeam**           | Als ik lid van het CareTeam ben            | R      | `CareTeam?participant=RelatedPerson/{id}`                       |
 | **ActivityDefinition** | Geen                                       | -      | N.v.t.                                                          |
-| **Task**               | Eigen taken                                | R      | `Task?owner=RelatedPerson/{id}`                                 |
+| **Task**               | Eigen taken                                | RU     | `Task?owner=RelatedPerson/{id}`                                 |
 | **Task Launch**        | Eigen taken                                | Launch | `Task?owner=RelatedPerson/{id}`                                 |
 
 #### CareTeam en autorisatie
