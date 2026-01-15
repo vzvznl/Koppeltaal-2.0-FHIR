@@ -33,7 +33,7 @@ Er wordt onderscheid gemaakt tussen de volgende relaties:
 
 | Relatie                         | Omschrijving                      | Bevoegdheden                                               |
 |:--------------------------------|:----------------------------------|:-----------------------------------------------------------|
-| **Geen relatie in CareTeam**    | Niet opgenomen in CareTeam        | Alleen eigen taken                                         |
+| **Geen rol in CareTeam**        | Niet opgenomen in CareTeam        | Alleen eigen taken                                         |
 | **Naaste**                      | Algemene naaste/verwant           | Meekijken, ondersteunen, communiceren                      |
 | **Mantelzorger**                | Structurele zorgverlener          | Meekijken, uitvoeren (beperkt), ondersteunen, communiceren |
 | **Wettelijk vertegenwoordiger** | Juridisch gemachtigd              | Meekijken, uitvoeren, namens patiënt handelen              |
@@ -62,7 +62,7 @@ De Task en Task Launch rechten zijn direct gekoppeld aan de bevoegdheden per rel
 
 | Relatie                         | Eigen taak | Patiënt taak | Eigen taak starten | Patiënt taak starten |
 |---------------------------------|------------|--------------|--------------------|----------------------|
-| **Geen relatie in CareTeam**    | RU         | -            | ✓                  | -                    |
+| **Geen rol in CareTeam**        | RU         | -            | ✓                  | -                    |
 | **Naaste**                      | RU         | -            | ✓                  | -                    |
 | **Mantelzorger**                | RU         | R            | ✓                  | -                    |
 | **Wettelijk vertegenwoordiger** | RU         | RU           | ✓                  | ✓                    |
