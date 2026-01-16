@@ -82,6 +82,11 @@ pages:
         extension:
           - url: http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status
             valueCode: draft
+    autorisaties-care-service-directory.md:
+      title: Care Services Directory
+      extension:
+        - url: http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status
+          valueCode: draft
     autorisaties-patient.md:
       title: Patient Authorization
       extension:
@@ -149,6 +154,7 @@ menu:
     Transitiemodel: autorisaties-transitiemodel.html
     CareTeam: autorisaties-careteam.html
     CareTeam - Q&A: autorisaties-careteam-q-n-a.html
+    Care Services Directory: autorisaties-care-service-directory.html
     Patient: autorisaties-patient.html
     Practitioner: autorisaties-practitioner.html
     RelatedPerson: autorisaties-relatedperson.html
