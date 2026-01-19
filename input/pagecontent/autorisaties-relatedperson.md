@@ -2,6 +2,7 @@
 
 | Versie | Datum      | Wijziging                                                                                                            |
 |--------|------------|----------------------------------------------------------------------------------------------------------------------|
+| 0.0.4  | 2026-01-16 | Fallback "Overige relaties" toegevoegd voor onbekende FHIR/SNOMED rollen                                             |
 | 0.0.3  | 2026-01-13 | Naaste en Buddy: Task rechten gewijzigd van R naar RU                                                                |
 | 0.0.2  | 2026-01-13 | Terminologie "rol" gewijzigd naar "relatie"; "Geen relatie in CareTeam" toegevoegd                                   |
 | 0.0.1  | 2026-01-13 | Eerste versie autorisatiematrix RelatedPerson met relaties Naaste, Mantelzorger, Wettelijk vertegenwoordiger en Buddy |
@@ -38,6 +39,7 @@ Er wordt onderscheid gemaakt tussen de volgende relaties:
 | **Mantelzorger**                | Structurele zorgverlener          | Meekijken, uitvoeren (beperkt), ondersteunen, communiceren |
 | **Wettelijk vertegenwoordiger** | Juridisch gemachtigd              | Meekijken, uitvoeren, namens patiënt handelen              |
 | **Buddy**                       | Ervaringsdeskundige begeleider    | Meekijken, ondersteunen, communiceren                      |
+| **Overige relaties**            | Onbekende of niet-gedefinieerde relatie | Alleen eigen taken                                   |
 
 **Toelichting bevoegdheden:**
 
@@ -67,10 +69,12 @@ De Task en Task Launch rechten zijn direct gekoppeld aan de bevoegdheden per rel
 | **Mantelzorger**                | RU         | R            | ✓                  | -                    |
 | **Wettelijk vertegenwoordiger** | RU         | RU           | ✓                  | ✓                    |
 | **Buddy**                       | RU         | -            | ✓                  | -                    |
+| **Overige relaties**            | RU         | -            | ✓                  | -                    |
 
 **Toelichting:**
 - **Eigen taak**: Taken waar de RelatedPerson eigenaar van is
 - **Patiënt taak**: Taken die voor de patiënt zijn aangemaakt (door behandelaar)
+- **Overige relaties**: Fallback voor FHIR/SNOMED relaties die niet in bovenstaande categorieën vallen
 
 ##### Geen relatie in CareTeam
 
@@ -139,6 +143,20 @@ De Buddy is een ervaringsdeskundige begeleider met vergelijkbare rechten als de 
 | **Practitioner**       | Via CareTeam lidmaatschap                  | R      | `Practitioner?_has:CareTeam:participant:participant=RelatedPerson/{id}` |
 | **RelatedPerson**      | Via CareTeam lidmaatschap                  | R      | `RelatedPerson?_has:CareTeam:participant:participant=RelatedPerson/{id}` |
 | **CareTeam**           | Als ik lid van het CareTeam ben            | R      | `CareTeam?participant=RelatedPerson/{id}`                       |
+| **ActivityDefinition** | Geen                                       | -      | N.v.t.                                                          |
+| **Task**               | Eigen taken                                | RU     | `Task?owner=RelatedPerson/{id}`                                 |
+| **Task Launch**        | Eigen taken                                | Launch | `Task?owner=RelatedPerson/{id}`                                 |
+
+##### Overige relaties
+
+Dit is de fallback categorie voor RelatedPersons met een relatie die niet in de bovenstaande categorieën valt. Dit kunnen andere FHIR of SNOMED relatie-codes zijn die niet expliciet zijn gedefinieerd. Deze RelatedPersons krijgen minimale rechten, vergelijkbaar met "Geen relatie in CareTeam".
+
+| Entiteit               | Toegang                                    | CRUD   | Search Narrowing                                                |
+|------------------------|--------------------------------------------|--------|-----------------------------------------------------------------|
+| **Patient**            | Als de RelatedPerson.patient de Patient is | R      | `Patient?_has:RelatedPerson:patient:identifier=system\|user_id` |
+| **Practitioner**       | Geen                                       | -      | N.v.t.                                                          |
+| **RelatedPerson**      | Geen                                       | -      | N.v.t.                                                          |
+| **CareTeam**           | Geen                                       | -      | N.v.t.                                                          |
 | **ActivityDefinition** | Geen                                       | -      | N.v.t.                                                          |
 | **Task**               | Eigen taken                                | RU     | `Task?owner=RelatedPerson/{id}`                                 |
 | **Task Launch**        | Eigen taken                                | Launch | `Task?owner=RelatedPerson/{id}`                                 |

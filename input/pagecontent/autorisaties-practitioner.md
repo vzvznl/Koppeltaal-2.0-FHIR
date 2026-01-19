@@ -2,6 +2,7 @@
 
 | Versie | Datum      | Wijziging                                                            |
 |--------|------------|----------------------------------------------------------------------|
+| 0.0.4  | 2026-01-16 | Fallback "Overige rollen" toegevoegd voor onbekende UZI/BIG rollen   |
 | 0.0.3  | 2026-01-16 | Zorgondersteuner hernoemd naar Zorgondersteuner/Administratief mdw   |
 | 0.0.3  | 2026-01-16 | Overzichtstabellen toegevoegd (conform RelatedPerson autorisaties)   |
 | 0.0.2  | 2026-01-13 | Tabelstructuur aangepast: Search Narrowing kolom                     |
@@ -34,6 +35,7 @@ Er wordt onderscheid gemaakt tussen de volgende situaties:
 | **Behandelaar in CareTeam**               | Behandelend zorgverlener                 | Volledige toegang tot patiënten in hun CareTeams     |
 | **Zorgondersteuner/Administratief mdw**   | Ondersteunende rol                       | Taken klaarzetten, niet starten                      |
 | **Case Manager**                          | Organisatie-breed overzicht              | Brede toegang binnen de organisatie                  |
+| **Overige rollen**                        | Onbekende of niet-gedefinieerde rol      | Alleen eigen taken en toegewezen resources           |
 
 **Toelichting bevoegdheden:**
 
@@ -58,11 +60,13 @@ De Task en Task Launch rechten zijn direct gekoppeld aan de bevoegdheden per sit
 | **Behandelaar in CareTeam**               | CRUD       | CRUD         | ✓                  | ✓                    |
 | **Zorgondersteuner/Administratief mdw**   | -          | CRUD         | -                  | -                    |
 | **Case Manager**                          | -          | R            | -                  | ✓                    |
+| **Overige rollen**                        | CRUD       | R (via Task) | ✓                  | ✓ (via Task)         |
 
 **Toelichting:**
 - **Eigen taak**: Taken waar de Practitioner eigenaar van is
 - **Patiënt taak**: Taken die voor patiënten in het CareTeam zijn aangemaakt
 - **via Task**: Toegang verkregen via Task toewijzing, niet via CareTeam lidmaatschap
+- **Overige rollen**: Fallback voor UZI/BIG rollen die niet in bovenstaande categorieën vallen
 
 ##### Practitioner zonder rol in CareTeam
 Deze Practitioners hebben toegang tot resources primair via Task toewijzingen. Dit is geen read-only rol - zij hebben volledige CRUD rechten op taken die aan hen zijn toegewezen.
@@ -116,6 +120,20 @@ De Case Manager heeft organisatie-breed overzicht en kan taken van alle patiënt
 | **ActivityDefinition** | Alles                                     | R      | `ActivityDefinition`                          |
 | **Task**               | Taken van patiënten binnen Organization   | R      | `Task?patient.organization=Organization/{id}` |
 | **Task Launch**        | Taken van patiënten binnen Organization   | Launch | `Task?patient.organization=Organization/{id}` |
+
+##### Overige rollen
+
+Dit is de fallback categorie voor Practitioners met een rol die niet in de bovenstaande categorieën valt. Dit kunnen andere UZI of BIG rol-codes zijn die niet expliciet zijn gedefinieerd. Deze Practitioners krijgen minimale rechten, vergelijkbaar met "Practitioner zonder rol in CareTeam".
+
+| Entiteit               | Toegang                                            | CRUD   | Search Narrowing                                                                           |
+|------------------------|----------------------------------------------------|--------|--------------------------------------------------------------------------------------------|
+| **Patient**            | Via taken die aan mij zijn toegewezen              | R      | `Patient?_has:Task:patient:owner=Practitioner/{id}`                                        |
+| **Practitioner**       | Via dezelfde Organization                          | R      | `Practitioner?organization=Organization/{id}`                                              |
+| **RelatedPerson**      | Via taken relaties                                 | CRUD   | `RelatedPerson?_has:Task:focus:owner=Practitioner/{id}`                                    |
+| **CareTeam**           | Als ik lid van het CareTeam ben                    | R      | `CareTeam?participant=Practitioner/{id}`                                                   |
+| **ActivityDefinition** | Alles                                              | R      | `ActivityDefinition`                                                                       |
+| **Task**               | Eigen taken of aan mij toegewezen                  | CRUD   | `Task?owner=Practitioner/{id}`                                                             |
+| **Task Launch**        | Eigen taken OF taken voor mijn patiënten           | Launch | `Task?owner=Practitioner/{id}` OF `Task?patient._has:Task:patient:owner=Practitioner/{id}` |
 
 #### CareTeam en autorisatie
 
