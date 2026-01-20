@@ -18,14 +18,22 @@ De zorgcontext vormt de basis voor het [autorisatiemodel](autorisaties.html). Op
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                         ZORGCONTEXT                                     │
 │                                                                         │
-│  ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐    │
-│  │    CareTeam     │     │ Care Services   │     │ Autorisatie-    │    │
-│  │                 │     │ Directory       │     │ model           │    │
-│  ├─────────────────┤     ├─────────────────┤     ├─────────────────┤    │
-│  │ Beschrijft wie  │     │ Beschrijft      │     │ Bepaalt rechten │    │
-│  │ betrokken is    │ ──► │ organisatie-    │ ──► │ op basis van    │    │
-│  │ bij de zorg     │     │ structuur       │     │ context en rol  │    │
-│  └─────────────────┘     └─────────────────┘     └─────────────────┘    │
+│  ┌─────────────────┐                                                    │
+│  │    CareTeam     │                                                    │
+│  ├─────────────────┤                           ┌─────────────────┐      │
+│  │ Beschrijft wie  │                           │ Autorisatie-    │      │
+│  │ betrokken is    │ ─────────────────────────►│ model           │      │
+│  │ bij de zorg     │                           ├─────────────────┤      │
+│  └─────────────────┘                           │ Bepaalt rechten │      │
+│                                                │ op basis van    │      │
+│  ┌─────────────────┐                           │ context en rol  │      │
+│  │ Care Services   │                           │                 │      │
+│  │ Directory       │ ─────────────────────────►│                 │      │
+│  ├─────────────────┤                           └─────────────────┘      │
+│  │ Beschrijft      │                                                    │
+│  │ organisatie-    │                                                    │
+│  │ structuur       │                                                    │
+│  └─────────────────┘                                                    │
 │                                                                         │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
