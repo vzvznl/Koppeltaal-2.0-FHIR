@@ -49,7 +49,7 @@ Dit autorisatiemodel maakt gebruik van CareTeam voor het bepalen van toegangsrec
 - De relatie tussen CareTeams en Tasks
 - Validatieregels en implementatieoverwegingen
 
-Zie de [CareTeam en Autorisaties](autorisaties-careteam.html) pagina.
+Zie de [CareTeam en Autorisaties](care-context-careteam.html) pagina.
 
 ### Te beslissen punten
 

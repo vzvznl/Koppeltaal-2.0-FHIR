@@ -72,17 +72,22 @@ pages:
       extension:
         - url: http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status
           valueCode: draft
-    autorisaties-careteam.md:
-      title: CareTeam en Autorisaties
+    care-context.md:
+      title: Zorgcontext
       extension:
         - url: http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status
           valueCode: draft
-      autorisaties-careteam-q-n-a.md:
+    care-context-careteam.md:
+      title: CareTeam en Zorgcontext
+      extension:
+        - url: http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status
+          valueCode: draft
+      care-context-careteam-q-n-a.md:
         title: CareTeam - Q&A
         extension:
           - url: http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status
             valueCode: draft
-    autorisaties-care-service-directory.md:
+    care-context-care-service-directory.md:
       title: Care Services Directory
       extension:
         - url: http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status
@@ -99,6 +104,11 @@ pages:
           valueCode: draft
     autorisaties-relatedperson.md:
       title: RelatedPerson Authorization
+      extension:
+        - url: http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status
+          valueCode: draft
+    autorisaties-rol-code-mapping.md:
+      title: Rol Code Mapping
       extension:
         - url: http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status
           valueCode: draft
@@ -149,12 +159,15 @@ menu:
     Related Person: info-relatedperson.html
     Examples: examples.html
     Strict use of Name Information: strict-use-of-nameinformation.html
+  Zorgcontext (DRAFT):
+    Overzicht: care-context.html
+    CareTeam: care-context-careteam.html
+    CareTeam - Q&A: care-context-careteam-q-n-a.html
+    Care Services Directory: care-context-care-service-directory.html
   Autorisaties (DRAFT):
     Overzicht: autorisaties.html
     Transitiemodel: autorisaties-transitiemodel.html
-    CareTeam: autorisaties-careteam.html
-    CareTeam - Q&A: autorisaties-careteam-q-n-a.html
-    Care Services Directory: autorisaties-care-service-directory.html
+    Rol Code Mapping: autorisaties-rol-code-mapping.html
     Patient: autorisaties-patient.html
     Practitioner: autorisaties-practitioner.html
     RelatedPerson: autorisaties-relatedperson.html

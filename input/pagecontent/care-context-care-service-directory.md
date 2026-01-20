@@ -1,12 +1,12 @@
 ### Changelog
 
-| Datum      | Wijziging                                                                 |
-|------------|---------------------------------------------------------------------------|
-| 2026-01-16 | Initiële versie: Care Services Directory als alternatief voor Organisatie CareTeams |
+| Versie | Datum      | Wijziging                                                                 |
+|--------|------------|---------------------------------------------------------------------------|
+| 0.0.1  | 2026-01-16 | Initiële versie: Care Services Directory als alternatief voor Organisatie CareTeams |
 
 ---
 
-Deze pagina beschrijft hoe de **Care Services Directory** kan worden gebruikt als alternatief voor [Organisatie CareTeams](autorisaties-careteam.html#1-organisatie-careteams) voor organisatie-brede autorisatie binnen Koppeltaal.
+Deze pagina beschrijft hoe de **Care Services Directory** kan worden gebruikt als alternatief voor [Organisatie CareTeams](care-context-careteam.html#1-organisatie-careteams) voor organisatie-brede autorisatie binnen Koppeltaal.
 
 De Care Services Directory is onderdeel van de [Generieke Functies](https://build.fhir.org/ig/nuts-foundation/nl-generic-functions-ig/branches/user-authn/care-services.html), een landelijk initiatief voor het standaardiseren van zorgdiensten en adresgegevens. Door aan te sluiten bij deze standaard wordt interoperabiliteit met andere zorgsystemen mogelijk en wordt voorgesorteerd op toekomstige landelijke ontwikkelingen rondom het delen van organisatie- en medewerkersgegevens.
 
@@ -489,6 +489,6 @@ Patiënt-specifieke CareTeams (patiënt-niveau):
 ### Zie ook
 
 - [Autorisaties overzicht](autorisaties.html)
-- [CareTeam autorisaties](autorisaties-careteam.html)
+- [CareTeam autorisaties](care-context-careteam.html)
 - [Practitioner autorisaties](autorisaties-practitioner.html)
 - [Generic Function Addressing (GFA) - Care Services](https://build.fhir.org/ig/nuts-foundation/nl-generic-functions-ig/branches/user-authn/care-services.html)

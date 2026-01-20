@@ -1,14 +1,14 @@
 ### Changelog
 
-| Datum      | Wijziging                                                                                                                                     |
-|------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
-| 2026-01-06 | Verduidelijking: CareTeam beschrijft zorgcontext, niet het autorisatiemodel zelf                                                              |
-| 2026-01-06 | Diagram toegevoegd: relatie CareTeam, autorisatiematrix en FHIR resources                                                                     |
-| 2026-01-06 | Rollen en Autorisatiematrix: CareTeam als startpunt, modellen in ontwikkeling                                                                 |
-| 2025-12-02 | Formulering Task.owner/requester aangepast: "minimaal één CareTeam" i.p.v. "het relevante CareTeam"                                           |
-| 2025-12-02 | Rol "eerste relatie" verwijderd; RelatedPerson heeft (nog) geen rol                                                                           |
-| 2025-12-01 | HTI token voorbeelden aangepast conform [HTI 2.0 specificatie](https://github.com/GIDSOpenStandaarden/GIDS-HTI-Protocol/blob/main/HTI_2.0.md) |
-| 2025-12-01 | CareTeam als Task.owner toegestaan als bijzondere use case                                                                                    |
+| Versie | Datum      | Wijziging                                                                                                                                     |
+|--------|------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| 0.0.7  | 2026-01-06 | Verduidelijking: CareTeam beschrijft zorgcontext, niet het autorisatiemodel zelf                                                              |
+| 0.0.6  | 2026-01-06 | Diagram toegevoegd: relatie CareTeam, autorisatiematrix en FHIR resources                                                                     |
+| 0.0.5  | 2026-01-06 | Rollen en Autorisatiematrix: CareTeam als startpunt, modellen in ontwikkeling                                                                 |
+| 0.0.4  | 2025-12-02 | Formulering Task.owner/requester aangepast: "minimaal één CareTeam" i.p.v. "het relevante CareTeam"                                           |
+| 0.0.3  | 2025-12-02 | Rol "eerste relatie" verwijderd; RelatedPerson heeft (nog) geen rol                                                                           |
+| 0.0.2  | 2025-12-01 | HTI token voorbeelden aangepast conform [HTI 2.0 specificatie](https://github.com/GIDSOpenStandaarden/GIDS-HTI-Protocol/blob/main/HTI_2.0.md) |
+| 0.0.1  | 2025-12-01 | CareTeam als Task.owner toegestaan als bijzondere use case                                                                                    |
 
 ---
 

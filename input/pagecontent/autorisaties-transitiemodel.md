@@ -1,11 +1,11 @@
 ### Changelog
 
-| Datum      | Wijziging                                                |
-|------------|----------------------------------------------------------|
-| 2026-01-06 | Verduidelijking transitiefase: twee parallelle paden (legacy/nieuw) met coëxistentie |
-| 2026-01-06 | Uitbreiding eindfase: uitfasering backend services en verplichte migratie |
-| 2025-12-16 | Verduidelijking: alleen Patient model beproefd bij KoppelMij |
-| 2025-12-15 | Initiële versie                                          |
+| Versie | Datum      | Wijziging                                                                          |
+|--------|------------|------------------------------------------------------------------------------------|
+| 0.0.4  | 2026-01-06 | Verduidelijking transitiefase: twee parallelle paden (legacy/nieuw) met coëxistentie |
+| 0.0.3  | 2026-01-06 | Uitbreiding eindfase: uitfasering backend services en verplichte migratie          |
+| 0.0.2  | 2025-12-16 | Verduidelijking: alleen Patient model beproefd bij KoppelMij                       |
+| 0.0.1  | 2025-12-15 | Initiële versie                                                                    |
 
 ---
 
@@ -178,7 +178,7 @@ In de eindfase worden SMART on FHIR backend services **uitgezet**. Dit betekent:
 ### Zie ook
 
 - [Autorisaties overzicht](autorisaties.html)
-- [CareTeam en Autorisaties](autorisaties-careteam.html)
+- [CareTeam en Autorisaties](care-context-careteam.html)
 - [Patient autorisaties](autorisaties-patient.html)
 - [Practitioner autorisaties](autorisaties-practitioner.html)
 - [RelatedPerson autorisaties](autorisaties-relatedperson.html)

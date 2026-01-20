@@ -1,9 +1,9 @@
 ### Changelog
 
-| Datum      | Wijziging                                                |
-|------------|----------------------------------------------------------|
-| 2026-01-08 | Sectie toegevoegd: huidig autorisatiemodel Koppeltaal (applicatieniveau, gebruikersniveau, launch nadelen) |
-| 2026-01-08 | Sectie toegevoegd: granulariteit van autorisatie (CRUDS, security labels als toekomstige optie) |
+| Versie | Datum      | Wijziging                                                |
+|--------|------------|----------------------------------------------------------|
+| 0.0.2  | 2026-01-08 | Sectie toegevoegd: huidig autorisatiemodel Koppeltaal (applicatieniveau, gebruikersniveau, launch nadelen) |
+| 0.0.1  | 2026-01-08 | Sectie toegevoegd: granulariteit van autorisatie (CRUDS, security labels als toekomstige optie) |
 
 ---
 
@@ -44,7 +44,7 @@ De ontvangende module applicatie **moet deze informatie als waar beschouwen**. D
 - **Verdwijnende relaties**: Vooral problematisch wanneer relaties eindigen
 - **Toegang buiten launch**: In de praktijk geven module applicaties ook buiten de launch om toegang, waardoor verouderde informatie kan leiden tot onterechte toegang
 
-Deze nadelen zijn vooral relevant voor RelatedPersons, waarbij relaties gevoelig zijn en over tijd wijzigen. Zie ook de [CareTeam en Autorisatie](autorisaties-careteam.html#careteam-en-autorisatie-de-relatie) sectie voor hoe het CareTeam als zorgcontext deze problematiek kan adresseren.
+Deze nadelen zijn vooral relevant voor RelatedPersons, waarbij relaties gevoelig zijn en over tijd wijzigen. Zie ook de [CareTeam en Autorisatie](care-context-careteam.html#careteam-en-autorisatie-de-relatie) sectie voor hoe het CareTeam als zorgcontext deze problematiek kan adresseren.
 
 ### Overzicht
 

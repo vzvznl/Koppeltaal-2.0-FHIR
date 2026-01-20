@@ -171,5 +171,5 @@ Dit autorisatiemodel maakt gebruik van CareTeam voor het bepalen van toegangsrec
 - Validatieregels en implementatieoverwegingen
 - Discussiepunten en open vragen (zoals CareTeam gebruik in de praktijk)
 
-Zie de [CareTeam en Autorisaties](autorisaties-careteam.html) pagina.
+Zie de [CareTeam en Autorisaties](care-context-careteam.html) pagina.
 
