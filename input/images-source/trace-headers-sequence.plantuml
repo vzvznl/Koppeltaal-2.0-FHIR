@@ -1,0 +1,53 @@
+@startuml trace-headers-sequence
+autonumber
+
+box "EPD Supplier" #LightBlue
+    participant EPD
+end box
+
+box "Koppeltaal-2" #LightGreen
+    participant "FHIR store" as FHIRStore
+end box
+
+box "Platform Supplier" #LightYellow
+    participant "PlatformKT2Implementation" as kt2implementation
+    participant Platform as platform
+end box
+
+note over EPD, platform: Initial request chain
+
+EPD -> FHIRStore: Create Task resource\nX-Request-Id: epd100
+
+FHIRStore --> EPD: Task created response\nX-Request-Id: epd100\nX-Trace-Id: trace123
+
+note over FHIRStore: Process subscription\nFHIR store started a new trace context
+
+FHIRStore -> kt2implementation: Notification about Task\nX-Request-Id: fhir200\nX-Correlation-Id: epd100\nX-Trace-Id: trace123
+
+note over kt2implementation: Save incoming headers
+
+kt2implementation --> FHIRStore: Notification received response\nBackground processing started\nX-Request-Id: fhir200\nX-Trace-Id: trace123
+
+group Sequential resource fetching based on causal chain
+
+    note over kt2implementation: Sequential resource fetching\nbased on causal chain
+
+    kt2implementation -> FHIRStore: Request Task details\nX-Request-Id: md300\nX-Correlation-Id: fhir200\nX-Trace-Id: trace123
+    FHIRStore --> kt2implementation: Task resource response\nX-Request-Id: md300\nX-Trace-Id: trace123
+
+    kt2implementation -> platform: Forward Task data\nX-Request-Id: md301\nX-Correlation-Id: md300\nX-Trace-Id: trace123
+    platform --> kt2implementation: Task processed response\nX-Request-Id: md301\nX-Trace-Id: trace123
+
+    note over kt2implementation: Task contains Patient reference\ntriggers Patient fetch
+
+    kt2implementation -> FHIRStore: Request Patient details\nX-Request-Id: md302\nX-Correlation-Id: md300\nX-Trace-Id: trace123
+    FHIRStore --> kt2implementation: Patient resource response\nX-Request-Id: md302\nX-Trace-Id: trace123
+
+    kt2implementation -> platform: Forward Patient data\nX-Request-Id: md303\nX-Correlation-Id: md302\nX-Trace-Id: trace123
+    platform --> kt2implementation: Patient processed response\nX-Request-Id: md303\nX-Trace-Id: trace123
+
+end group
+
+note over kt2implementation: X-Correlation-Id follows causal chain:\nnotification -> task fetch -> patient fetch -> forward
+
+@enduml

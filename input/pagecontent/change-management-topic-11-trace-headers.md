@@ -157,57 +157,8 @@ Dan zou stap 9 `X-Correlation-Id: md300` moeten hebben (de Task request, niet de
 
 ### Gecorrigeerd Diagram (Scenario B: Sequentiële Causaliteit)
 
-Het onderstaande diagram kan gerenderd worden met een [Mermaid viewer](https://mermaid.live/).
-
-```
-sequenceDiagram
-    autonumber
-    box EPD Supplier
-        participant EPD as EPD
-    end
-    box Koppeltaal-2
-        participant FHIRStore as FHIR store
-    end
-    box Platform Supplier
-        participant kt2implementation as PlatformKT2Implementation
-        participant platform as Platform
-    end
-
-    Note over EPD,platform: Initial request chain
-
-    EPD->>FHIRStore: Create Task resource<br/>X-Request-Id: epd100
-
-    FHIRStore-->>EPD: Task created response<br/>X-Request-Id: epd100<br/>X-Trace-Id: trace123
-
-    Note over FHIRStore: Process subscription<br/>FHIR store started a new trace context
-
-    FHIRStore->>kt2implementation: Notification about Task<br/>X-Request-Id: fhir200<br/>X-Correlation-Id: epd100<br/>X-Trace-Id: trace123
-
-    Note over kt2implementation: Save incoming headers
-
-    kt2implementation-->>FHIRStore: Notification received response<br/>Background processing started<br/>X-Request-Id: fhir200<br/>X-Trace-Id: trace123
-
-    rect rgba(100, 100, 200, .1)
-    Note over kt2implementation: Sequential resource fetching<br/>based on causal chain
-
-    kt2implementation->>FHIRStore: Request Task details<br/>X-Request-Id: md300<br/>X-Correlation-Id: fhir200<br/>X-Trace-Id: trace123
-    FHIRStore-->>kt2implementation: Task resource response<br/>X-Request-Id: md300<br/>X-Trace-Id: trace123
-
-    kt2implementation->>platform: Forward Task data<br/>X-Request-Id: md301<br/>X-Correlation-Id: md300<br/>X-Trace-Id: trace123
-    platform-->>kt2implementation: Task processed response<br/>X-Request-Id: md301<br/>X-Trace-Id: trace123
-
-    Note over kt2implementation: Task contains Patient reference<br/>triggers Patient fetch
-
-    kt2implementation->>FHIRStore: Request Patient details<br/>X-Request-Id: md302<br/>X-Correlation-Id: md300<br/>X-Trace-Id: trace123
-    FHIRStore-->>kt2implementation: Patient resource response<br/>X-Request-Id: md302<br/>X-Trace-Id: trace123
-
-    kt2implementation->>platform: Forward Patient data<br/>X-Request-Id: md303<br/>X-Correlation-Id: md302<br/>X-Trace-Id: trace123
-    platform-->>kt2implementation: Patient processed response<br/>X-Request-Id: md303<br/>X-Trace-Id: trace123
-    end
-
-    Note over kt2implementation: X-Correlation-Id follows causal chain:<br/>notification → task fetch → patient fetch → forward
-```
-
+<img src="trace-headers-sequence.png" alt="Trace headers sequence diagram" />
+   
 #### Wijzigingen t.o.v. Origineel
 
 | Stap | Actie | Origineel | Gecorrigeerd | Reden |
