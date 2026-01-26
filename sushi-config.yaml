@@ -117,6 +117,21 @@ pages:
     extension:
       - url: http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status
         valueCode: draft
+  change-management-topic-11-trace-headers.md:
+    title: "Topic 11 - Trace Headers"
+    extension:
+      - url: http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status
+        valueCode: draft
+  change-management-topic-11-implementation-feedback.md:
+    title: "Topic 11 - Implementation Feedback"
+    extension:
+      - url: http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status
+        valueCode: draft
+  change-management-topic-11-relatedperson-impact.md:
+    title: "Topic 11 - RelatedPerson Impact"
+    extension:
+      - url: http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status
+        valueCode: draft
 
 parameters: # see https://confluence.hl7.org/display/FHIR/Implementation+Guide+Parameters
   apply-contact: false
@@ -173,6 +188,10 @@ menu:
     RelatedPerson: autorisaties-relatedperson.html
   Koppeltaal Extensions:
     Related Person - Multiple IdP: multiple-idp-support.html
+  Change Management (DRAFT):
+    Topic 11 - Trace Headers: change-management-topic-11-trace-headers.html
+    Topic 11 - Implementation Feedback: change-management-topic-11-implementation-feedback.html
+    Topic 11 - RelatedPerson Impact: change-management-topic-11-relatedperson-impact.html
   Profile Specific Notes:
     ActivityDefinition: StructureDefinition-KT2ActivityDefinition.html
     AuditEvent: StructureDefinition-KT2AuditEvent.html
