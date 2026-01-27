@@ -24,7 +24,7 @@ Id: KT2RelatedPerson
 * photo ..0
 
 Invariant: kt2-role-display-validation
-Description: "Display values for role codes 21 and 24 (COD472) must match the CodeSystem definitions exactly"
+Description: "Display values for role codes 23 and 24 (COD472) must match the CodeSystem definitions exactly"
 Severity: #error
 Expression: "coding.where(system='urn:oid:2.16.840.1.113883.2.4.3.11.22.472').all(
   (code='23' and display='Contactpersoon') or

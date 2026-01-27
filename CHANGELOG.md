@@ -1,5 +1,11 @@
 CHANGELOG
 
+## 0.15.1 (2026-01-27)
+
+### Fixed
+- **KT2_RelatedPerson profile**: Fixed typo in `kt2-role-display-validation` invariant description
+  - Changed "role codes 21 and 24" to "role codes 23 and 24" to match the actual validation expression
+
 ## 0.15.0 (2025-11-25)
 
 No changes from 0.15.0-beta.9.
