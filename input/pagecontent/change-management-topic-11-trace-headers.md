@@ -137,9 +137,10 @@ De juiste X-Correlation-Id hangt af van de causaliteitsketen. Er zijn twee mogel
 ```
 Notification (3)
     |-- triggert direct -> Task ophalen (5)
-    +-- triggert direct -> Patient ophalen (9)
+    |-- triggert direct -> Patient ophalen (9)
+    +-- triggert direct -> ActivityDefinition ophalen (13)
 ```
-Dan is `X-Correlation-Id: fhir200` voor stappen 5 en 9 correct
+Dan is `X-Correlation-Id: fhir200` voor stappen 5, 9 en 13 correct
 
 **Scenario B: Sequentiële/causale triggering (met parallelle takken)**
 ```
