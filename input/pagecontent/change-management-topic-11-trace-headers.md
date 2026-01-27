@@ -14,16 +14,15 @@ Dit document analyseert KPTSTD-879 en formuleert **drie voorstellen** voor aanpa
 
 ### Issue Overzicht
 
-**Issue:** KPTSTD-879
-**Titel:** Topic 11: Bevinding: Documentatie Sequence Diagram gebruik Trace Headers
-**Topic:** TOP-KT-011 - Logging en tracering
-**Huidige versie TOP-KT-011:** 1.3.0 (Draft, 10 sept 2025)
-
-**Status:** Design Backlog
-**Reporter:** Kees Graveland
-**Assignee:** Roland Groen
-**Parent:** KPTSTD-926 (TOPIC-11: Feedback en verbeteringen doorvoeren)
-**Kind van:** KPTSTD-954
+- **Issue:** KPTSTD-879
+- **Titel:** Topic 11: Bevinding: Documentatie Sequence Diagram gebruik Trace Headers
+- **Topic:** TOP-KT-011 - Logging en tracering
+- **Huidige versie TOP-KT-011:** 1.3.0 (Draft, 10 sept 2025)
+- **Status:** Design Backlog
+- **Reporter:** Kees Graveland
+- **Assignee:** Roland Groen
+- **Parent:** KPTSTD-926 (TOPIC-11: Feedback en verbeteringen doorvoeren)
+- **Kind van:** KPTSTD-954
 
 ### Achtergrond
 
@@ -157,7 +156,7 @@ Dan zou stap 9 `X-Correlation-Id: md300` moeten hebben (de Task request, niet de
 
 ### Gecorrigeerd Diagram (Scenario B: Sequentiële Causaliteit)
 
-<img src="trace-headers-sequence.png" alt="Trace headers sequence diagram" />
+<img src="trace-headers-sequence.png" alt="Trace headers sequence diagram" style="display: block; max-width: 100%; height: auto; margin: 1em 0;"/>
    
 #### Wijzigingen t.o.v. Origineel
 
