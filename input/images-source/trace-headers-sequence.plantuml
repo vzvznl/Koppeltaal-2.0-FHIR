@@ -38,7 +38,7 @@ group Sequential resource fetching based on causal chain
     kt2implementation -> platform: Forward Task data\nX-Request-Id: md301\nX-Correlation-Id: md300\nX-Trace-Id: trace123
     platform --> kt2implementation: Task processed response\nX-Request-Id: md301\nX-Trace-Id: trace123
 
-    note over kt2implementation: Task contains Patient reference\ntriggers Patient fetch
+    note over kt2implementation: Task contains Patient and\nActivityDefinition references\ntriggers parallel fetches
 
     kt2implementation -> FHIRStore: Request Patient details\nX-Request-Id: md302\nX-Correlation-Id: md300\nX-Trace-Id: trace123
     FHIRStore --> kt2implementation: Patient resource response\nX-Request-Id: md302\nX-Trace-Id: trace123
@@ -46,8 +46,16 @@ group Sequential resource fetching based on causal chain
     kt2implementation -> platform: Forward Patient data\nX-Request-Id: md303\nX-Correlation-Id: md302\nX-Trace-Id: trace123
     platform --> kt2implementation: Patient processed response\nX-Request-Id: md303\nX-Trace-Id: trace123
 
+    note over kt2implementation: Parallel: ActivityDefinition fetch\nalso triggered by Task (md300)
+
+    kt2implementation -> FHIRStore: Request ActivityDefinition\nX-Request-Id: md304\nX-Correlation-Id: md300\nX-Trace-Id: trace123
+    FHIRStore --> kt2implementation: ActivityDefinition response\nX-Request-Id: md304\nX-Trace-Id: trace123
+
+    kt2implementation -> platform: Forward ActivityDefinition\nX-Request-Id: md305\nX-Correlation-Id: md304\nX-Trace-Id: trace123
+    platform --> kt2implementation: ActivityDefinition processed\nX-Request-Id: md305\nX-Trace-Id: trace123
+
 end group
 
-note over kt2implementation: X-Correlation-Id follows causal chain:\nnotification -> task fetch -> patient fetch -> forward
+note over kt2implementation: X-Correlation-Id follows causal chain:\nmd302 and md304 both have correlation md300\n(parallel processes from same trigger)
 
 @enduml

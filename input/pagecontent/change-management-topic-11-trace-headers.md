@@ -141,16 +141,18 @@ Notification (3)
 ```
 Dan is `X-Correlation-Id: fhir200` voor stappen 5 en 9 correct
 
-**Scenario B: Sequentiële/causale triggering**
+**Scenario B: Sequentiële/causale triggering (met parallelle takken)**
 ```
 Notification (3)
     +-- triggert -> Task ophalen (5)
                        +-- Task bevat Patient referentie
-                           +-- triggert -> Patient ophalen (9)
+                       |   +-- triggert -> Patient ophalen (9)
+                       +-- Task bevat ActivityDefinition referentie
+                           +-- triggert -> ActivityDefinition ophalen (parallel met Patient)
 ```
-Dan zou stap 9 `X-Correlation-Id: md300` moeten hebben (de Task request, niet de notification)
+Dan zou stap 9 `X-Correlation-Id: md300` moeten hebben (de Task request, niet de notification).
 
-**Analyse:** In de praktijk is scenario B waarschijnlijker: je weet pas *welke* Patient je moet ophalen nadat je de Task hebt ontvangen (de Patient referentie zit in de Task). Dit betekent dat de causaliteit sequentieel is, niet parallel.
+**Analyse:** In de praktijk is scenario B waarschijnlijker: je weet pas *welke* Patient en ActivityDefinition je moet ophalen nadat je de Task hebt ontvangen (de referenties zitten in de Task). Dit betekent dat de causaliteit sequentieel is vanuit de notification, maar **parallel** vanuit de Task response - zowel Patient als ActivityDefinition worden getriggerd door dezelfde Task fetch en hebben daarom beide `X-Correlation-Id: md300`.
 
 **Aanbeveling:** Het diagram moet expliciet maken wat de causaliteitsketen is, en de X-Correlation-Id moet deze causaliteit correct reflecteren.
 
@@ -165,6 +167,8 @@ Dan zou stap 9 `X-Correlation-Id: md300` moeten hebben (de Task request, niet de
 | 7 | Forward Task data | `X-Correlation-Id: fhir200` | `X-Correlation-Id: md300` | Getriggerd door Task fetch (5) |
 | 9 | Request Patient | `X-Correlation-Id: fhir200` | `X-Correlation-Id: md300` | Patient ref zit in Task response (6) |
 | 11 | Forward Patient data | `X-Correlation-Id: fhir200` | `X-Correlation-Id: md302` | Getriggerd door Patient fetch (9) |
+| 13 | Request ActivityDefinition | `X-Correlation-Id: fhir200` | `X-Correlation-Id: md300` | ActivityDefinition ref zit in Task (parallel met Patient) |
+| 15 | Forward ActivityDefinition | `X-Correlation-Id: fhir200` | `X-Correlation-Id: md304` | Getriggerd door ActivityDefinition fetch (13) |
 
 #### Causaliteitsketen
 
@@ -173,9 +177,13 @@ epd100 (EPD request)
     +-- fhir200 (Notification)
             +-- md300 (Task fetch)
                     |-- md301 (Forward Task)
-                    +-- md302 (Patient fetch, want Patient ref in Task)
-                            +-- md303 (Forward Patient)
+                    |-- md302 (Patient fetch, want Patient ref in Task)
+                    |       +-- md303 (Forward Patient)
+                    +-- md304 (ActivityDefinition fetch, want ActivityDefinition ref in Task)
+                            +-- md305 (Forward ActivityDefinition)
 ```
+
+**Let op:** md302 (Patient fetch) en md304 (ActivityDefinition fetch) hebben beide `X-Correlation-Id: md300` omdat ze parallel worden getriggerd door dezelfde Task response. Dit toont aan dat een causale hiërarchie ook parallelle processen kan bevatten.
 
 ---
 
@@ -208,6 +216,8 @@ Door deze keten te volgen kan de volledige causale flow worden afgeleid.
 | 7 | Forward Task data | `fhir200` | `md300` |
 | 9 | Request Patient | `fhir200` | `md300` |
 | 11 | Forward Patient | `fhir200` | `md302` |
+| 13 | Request ActivityDefinition | `fhir200` | `md300` (parallel met Patient) |
+| 15 | Forward ActivityDefinition | `fhir200` | `md304` |
 
 ##### Huidige tekst X-Correlation-Id
 
@@ -247,6 +257,10 @@ request. Voorbeelden:
   X-Request-Id van het resource-fetch request als X-Correlation-Id
 - Een request dat voortkomt uit de **response van een ander request** gebruikt
   de X-Request-Id van dat request als X-Correlation-Id
+- **Parallelle requests** die door dezelfde resource response worden getriggerd
+  (bijv. zowel Patient als ActivityDefinition ophalen na een Task response)
+  gebruiken beide de X-Request-Id van dat resource-fetch request als
+  X-Correlation-Id
 
 Indien ontbreekt: leeg laten
 
@@ -410,10 +424,16 @@ epd100 (EPD request - Create Task)
                     |
                     |-- md301 (Forward Task - correlation: md300)
                     |
-                    +-- md302 (Patient fetch - correlation: md300, want Patient ref in Task)
+                    |-- md302 (Patient fetch - correlation: md300, want Patient ref in Task)
+                    |       |
+                    |       +-- md303 (Forward Patient - correlation: md302)
+                    |
+                       +-- md304 (ActivityDefinition fetch - correlation: md300, want ActivityDefinition ref in Task)
                             |
-                            +-- md303 (Forward Patient - correlation: md302)
+                            +-- md305 (Forward ActivityDefinition - correlation: md304)
 ```
+
+**Parallelle processen:** md302 en md304 hebben dezelfde `correlation: md300` omdat beide worden getriggerd door de Task response. Ze kunnen parallel uitgevoerd worden, maar delen dezelfde causale oorsprong (de Task fetch).
 
 #### Bijlage B: Nieuwe Trace Scenario
 
