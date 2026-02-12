@@ -74,7 +74,7 @@ De Task en Task Launch rechten zijn direct gekoppeld aan de bevoegdheden per rel
 **Toelichting:**
 - **Eigen taak**: Taken waar de RelatedPerson eigenaar van is
 - **Patiënt taak**: Taken die voor de patiënt zijn aangemaakt (door behandelaar)
-- **Overige relaties**: Fallback voor FHIR/SNOMED relaties die niet in bovenstaande categorieën vallen
+- **Overige relaties**: Fallback voor relaties die niet in bovenstaande categorieën vallen
 
 ##### Geen relatie in CareTeam
 
@@ -149,7 +149,7 @@ De Buddy is een ervaringsdeskundige begeleider met vergelijkbare rechten als de 
 
 ##### Overige relaties
 
-Dit is de fallback categorie voor RelatedPersons met een relatie die niet in de bovenstaande categorieën valt. Dit kunnen andere FHIR of SNOMED relatie-codes zijn die niet expliciet zijn gedefinieerd. Deze RelatedPersons krijgen minimale rechten, vergelijkbaar met "Geen relatie in CareTeam".
+Dit is de fallback categorie voor RelatedPersons met een relatie die niet in de bovenstaande categorieën valt. Dit kunnen codes zijn die niet in het [Koppeltaal CareTeam Role CodeSystem](CodeSystem-koppeltaal-careteam-role.html) zijn gedefinieerd. Deze RelatedPersons krijgen minimale rechten, vergelijkbaar met "Geen relatie in CareTeam".
 
 | Entiteit               | Toegang                                    | CRUD   | Search Narrowing                                                |
 |------------------------|--------------------------------------------|--------|-----------------------------------------------------------------|
