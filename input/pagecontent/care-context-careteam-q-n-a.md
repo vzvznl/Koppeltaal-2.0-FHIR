@@ -44,7 +44,7 @@ Het concept van een 'Zorgteam' in jullie systeem kan afwijken van de definitie i
 Dit is in tegenspraak met de scope: *"administratieve medewerkers die taken klaarzetten hoeven niet in het CareTeam te staan als verder geen deelnemer zijn in het zorgproces."* ([Scope van het CareTeam](care-context-careteam.html#basisprincipes))
 
 ##### Antwoord
-Naar mijn inzicht niet in tegenspraak. In dat geval zijn administratieve medewerkers geen Task.requester. Let wel dat in jullie applicatie meer rollen en rechten kunnen bestaan dan in Koppeltaal zich manifesteren. Koppeltaal gaat over de informatie die we met elkaar uitwisselen, niet de interne staat van jullie systeem.
+Dit is inmiddels aangepast: de Task.requester hoeft **niet** lid te zijn van een CareTeam. Alleen wanneer de requester de taak ook daadwerkelijk wil starten, moet deze lid zijn van minimaal één CareTeam. Dit betekent dat een administratief medewerker een taak kan klaarzetten (als Task.requester) zonder in het CareTeam te staan, zolang deze de taak niet zelf hoeft te starten. Zie [Basisprincipe 5](care-context-careteam.html#basisprincipes) en de [Validatieregels](care-context-careteam.html#validatieregels).
 
 ---
 
@@ -68,7 +68,7 @@ Leverancier A had dezelfde opmerking. Dit is inmiddels aangepast in het document
 Dit is in tegenspraak met de scope over administratieve medewerkers. Deze regel komt op verschillende plaatsen terug en is in strijd met de uitgangspunten: Een administratief medewerker die een taak klaarzet voor de cliënt (als Task.requester) heeft niet automatisch toegang tot de taak. Deze medewerker heeft alleen toegang als hij lid is van het (een) Careteam met een rol die toegang geeft. Daarom zal de aanvrager niet automatisch lid worden van het Careteam maar alleen als toegang nodig is.
 
 ##### Antwoord
-Zie [3. Task.requester en CareTeam lidmaatschap](#3-taskrequester-en-careteam-lidmaatschap).
+Dit is inmiddels aangepast: de validatieregel is versoepeld. De Task.requester hoeft niet lid te zijn van een CareTeam, tenzij deze de taak ook daadwerkelijk wil starten. Zie [3. Task.requester en CareTeam lidmaatschap](#3-taskrequester-en-careteam-lidmaatschap) en [Basisprincipe 5](care-context-careteam.html#basisprincipes).
 
 ---
 

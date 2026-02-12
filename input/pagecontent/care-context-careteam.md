@@ -2,6 +2,7 @@
 
 | Versie | Datum      | Wijziging                                                                                                                                     |
 |--------|------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| 0.0.8  | 2026-02-12 | Task.requester hoeft niet in CareTeam te zitten, tenzij deze de taak ook daadwerkelijk wil starten                                            |
 | 0.0.7  | 2026-01-06 | Verduidelijking: CareTeam beschrijft zorgcontext, niet het autorisatiemodel zelf                                                              |
 | 0.0.6  | 2026-01-06 | Diagram toegevoegd: relatie CareTeam, autorisatiematrix en FHIR resources                                                                     |
 | 0.0.5  | 2026-01-06 | Rollen en Autorisatiematrix: CareTeam als startpunt, modellen in ontwikkeling                                                                 |
@@ -185,7 +186,7 @@ Het voorgestelde autorisatiemodel voor CareTeams is gebaseerd op onderstaande pr
 
 5. **Task betrokkenen moeten in CareTeam staan**
    - `Task.owner` **moet** lid zijn van minimaal één CareTeam voor de betreffende patiënt (dit kan een Practitioner, RelatedPerson of CareTeam zijn)
-   - `Task.requester` **moet** lid zijn van minimaal één CareTeam voor de betreffende patiënt
+   - `Task.requester` hoeft **niet** lid te zijn van een CareTeam voor de betreffende patiënt. Alleen wanneer de requester de taak ook daadwerkelijk wil starten, moet deze lid zijn van minimaal één CareTeam
    - De patiënt waarvoor de Task is (`Task.for`) moet de patiënt zijn waarvoor het CareTeam is opgezet
 
 #### Validatieregels
@@ -200,15 +201,17 @@ EN deze entiteit MOET lid zijn van (of zelf zijn) een CareTeam van Task.for (pat
 
 **Task.requester validatie:**
 ```
-Als Task.requester is ingevuld:
-  MOET deze persoon lid zijn van een CareTeam van Task.for (patient)
+Task.requester hoeft NIET lid te zijn van een CareTeam van Task.for (patient).
+Alleen wanneer de requester de taak ook daadwerkelijk wil starten,
+MOET deze lid zijn van minimaal één CareTeam van Task.for (patient).
 ```
 
 **Task.for (patient) validatie:**
 ```
 Als Task.for verwijst naar een Patient:
   MOET er minimaal één CareTeam bestaan met CareTeam.patient = deze Patient
-  EN Task.owner en Task.requester moeten lid zijn van minimaal één van deze CareTeams
+  EN Task.owner moet lid zijn van minimaal één van deze CareTeams
+  Task.requester hoeft geen lid te zijn, tenzij deze de taak ook daadwerkelijk wil starten
 ```
 
 #### Additionele autorisaties
@@ -440,7 +443,7 @@ Beslissing: Afhankelijk van autorisatiebeleid:
   }
 }
 ```
-✅ Geldig: Zowel owner als requester zijn lid van het CareTeam
+✅ Geldig: Owner is lid van het CareTeam; requester hoeft geen lid te zijn (tenzij deze de taak ook wil starten)
 
 **Ongeldige Task:**
 ```json
