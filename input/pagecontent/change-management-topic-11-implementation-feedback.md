@@ -86,7 +86,7 @@ Deze pagina bevat feedback en bevindingen uit de implementatie van TOP-KT-011 (L
 
 **Type:** Documentatie | **Impact:** S
 
-**Verificatie:** Bevestigd. Documentatie (pagina 12) toont `"code": "OperationOutcome"` als voorbeeld voor `entity.type`, met de opmerking "De OperationOutcome wordt alleen getoond in een fout situatie." Dit is verwarrend - bij normale delete zou de verwijderde resourceType moeten staan.
+**Verificatie:** Bevestigd. Documentatie (pagina 12) toont `"code": "OperationOutcome"` als voorbeeld voor `entity.type`, met de opmerking "De OperationOutcome wordt alleen getoond in een foutsituatie." Dit is verwarrend - bij normale delete zou de verwijderde resourceType moeten staan.
 
 ---
 
@@ -250,5 +250,6 @@ Zie: [FHIR ObjectRole ValueSet](https://build.fhir.org/valueset-object-role.html
 **Feedback:** Wat is de inhoud die de referentieomgeving logt. Wat is de logische inhoud, besluit nemen.
 
 **Type:** Documentatie
+
 
 **Verificatie:** Bevestigd. Documentatie (pagina 35) beschrijft `source.type` als "Type (device) van de bron waar de gebeurtenis gelogd is" met voorbeeld code "4" (Application Server), maar specifieke invulling voor UserAuthentication ontbreekt.
