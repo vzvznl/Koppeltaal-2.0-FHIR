@@ -1282,6 +1282,173 @@ class TestResourceGenerator:
 
         return audit
 
+    def generate_careteam(self, variant="minimal"):
+        """Generate KT2CareTeam test resource."""
+        careteam = {
+            "resourceType": "CareTeam",
+            "meta": {
+                "profile": ["http://koppeltaal.nl/fhir/StructureDefinition/KT2CareTeam"]
+            }
+        }
+
+        # Required fields
+        careteam["identifier"] = [self.generate_identifier()]
+        careteam["status"] = "active"
+        careteam["subject"] = {
+            "reference": "Patient/patient-test-001",
+            "type": "Patient",
+            "display": "Test Patient"
+        }
+
+        # Resource origin extension (required by profile)
+        careteam["extension"] = [{
+            "url": "http://koppeltaal.nl/fhir/StructureDefinition/resource-origin",
+            "valueReference": {
+                "reference": "Device/device-test-001",
+                "type": "Device"
+            }
+        }]
+
+        koppeltaal_role_system = "http://vzvz.nl/fhir/CodeSystem/koppeltaal-careteam-role"
+
+        if variant == "minimal":
+            careteam["participant"] = [{
+                "role": [{
+                    "coding": [{
+                        "system": koppeltaal_role_system,
+                        "code": "behandelaar",
+                        "display": "Behandelaar"
+                    }]
+                }],
+                "member": {
+                    "reference": "Practitioner/practitioner-test-001",
+                    "type": "Practitioner"
+                }
+            }]
+
+        elif variant == "valid-all-practitioner-roles":
+            practitioner_roles = [
+                ("behandelaar", "Behandelaar"),
+                ("zorgondersteuner", "Zorgondersteuner"),
+                ("case-manager", "Case Manager"),
+            ]
+            careteam["participant"] = [{
+                "role": [{
+                    "coding": [{
+                        "system": koppeltaal_role_system,
+                        "code": code,
+                        "display": display
+                    }]
+                }],
+                "member": {
+                    "reference": f"Practitioner/practitioner-test-{i:03d}",
+                    "type": "Practitioner"
+                }
+            } for i, (code, display) in enumerate(practitioner_roles, 1)]
+
+        elif variant == "valid-all-relatedperson-roles":
+            relatedperson_roles = [
+                ("naaste", "Naaste"),
+                ("mantelzorger", "Mantelzorger"),
+                ("wettelijk-vertegenwoordiger", "Wettelijk vertegenwoordiger"),
+                ("buddy", "Buddy"),
+            ]
+            careteam["participant"] = [
+                {
+                    "role": [{
+                        "coding": [{
+                            "system": koppeltaal_role_system,
+                            "code": "behandelaar",
+                            "display": "Behandelaar"
+                        }]
+                    }],
+                    "member": {
+                        "reference": "Practitioner/practitioner-test-001",
+                        "type": "Practitioner"
+                    }
+                }
+            ] + [{
+                "role": [{
+                    "coding": [{
+                        "system": koppeltaal_role_system,
+                        "code": code,
+                        "display": display
+                    }]
+                }],
+                "member": {
+                    "reference": f"RelatedPerson/relatedperson-test-{i:03d}",
+                    "type": "RelatedPerson"
+                }
+            } for i, (code, display) in enumerate(relatedperson_roles, 1)]
+
+        elif variant == "invalid-missing-identifier":
+            del careteam["identifier"]
+            careteam["participant"] = [{
+                "role": [{
+                    "coding": [{
+                        "system": koppeltaal_role_system,
+                        "code": "behandelaar",
+                        "display": "Behandelaar"
+                    }]
+                }],
+                "member": {
+                    "reference": "Practitioner/practitioner-test-001",
+                    "type": "Practitioner"
+                }
+            }]
+
+        elif variant == "invalid-missing-status":
+            del careteam["status"]
+            careteam["participant"] = [{
+                "role": [{
+                    "coding": [{
+                        "system": koppeltaal_role_system,
+                        "code": "behandelaar",
+                        "display": "Behandelaar"
+                    }]
+                }],
+                "member": {
+                    "reference": "Practitioner/practitioner-test-001",
+                    "type": "Practitioner"
+                }
+            }]
+
+        elif variant == "invalid-missing-subject":
+            del careteam["subject"]
+            careteam["participant"] = [{
+                "role": [{
+                    "coding": [{
+                        "system": koppeltaal_role_system,
+                        "code": "behandelaar",
+                        "display": "Behandelaar"
+                    }]
+                }],
+                "member": {
+                    "reference": "Practitioner/practitioner-test-001",
+                    "type": "Practitioner"
+                }
+            }]
+
+        elif variant == "invalid-unknown-role-code":
+            # Uses a code that does not exist in the Koppeltaal CodeSystem.
+            # With extensible binding this produces a WARNING, not an error.
+            # The authorization server must reject unknown codes at runtime.
+            careteam["participant"] = [{
+                "role": [{
+                    "coding": [{
+                        "system": koppeltaal_role_system,
+                        "code": "psychiater",
+                        "display": "Psychiater"
+                    }]
+                }],
+                "member": {
+                    "reference": "Practitioner/practitioner-test-001",
+                    "type": "Practitioner"
+                }
+            }]
+
+        return careteam
+
     def generate_smoke_tests(self):
         """Generate smoke test script to check for duplicate resource versions."""
         print("\n🔍 Generating smoke tests for version checking")
@@ -1481,7 +1648,8 @@ fi
             "Endpoint": ["minimal", "maximal", "invalid-missing-status", "invalid-missing-payloadtype", "invalid-wrong-connectiontype", "invalid-missing-address"],
             "ActivityDefinition": ["minimal", "maximal", "invalid-missing-endpoint", "invalid-missing-url", "invalid-usecontext-invalid-codes", "invalid-feature-code"],
             "Task": ["minimal", "maximal", "invalid-missing-status"],
-            "AuditEvent": ["minimal", "maximal"]
+            "AuditEvent": ["minimal", "maximal"],
+            "CareTeam": ["minimal", "valid-all-practitioner-roles", "valid-all-relatedperson-roles", "invalid-missing-identifier", "invalid-missing-status", "invalid-missing-subject", "invalid-unknown-role-code"]
         }
 
         generated_files = []
@@ -1510,6 +1678,8 @@ fi
                     resource = self.generate_task(variant)
                 elif resource_type == "AuditEvent":
                     resource = self.generate_audit_event(variant)
+                elif resource_type == "CareTeam":
+                    resource = self.generate_careteam(variant)
                 else:
                     continue
 

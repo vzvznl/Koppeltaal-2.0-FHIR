@@ -37,4 +37,5 @@ Alias: $koppeltaal-endpoint-connection-type = http://vzvz.nl/fhir/CodeSystem/kop
 Alias: $koppeltaal-endpoint-connection-type-vs = http://vzvz.nl/fhir/ValueSet/endpoint-connection-type
 Alias: $koppeltaal-task-code = http://vzvz.nl/fhir/CodeSystem/koppeltaal-task-code
 Alias: $koppeltaal-task-code-vs = http://vzvz.nl/fhir/ValueSet/koppeltaal-task-code
+Alias: $koppeltaal-careteam-role = http://vzvz.nl/fhir/CodeSystem/koppeltaal-careteam-role
 Alias: $task-instantiates = http://vzvz.nl/fhir/StructureDefinition/instantiates
