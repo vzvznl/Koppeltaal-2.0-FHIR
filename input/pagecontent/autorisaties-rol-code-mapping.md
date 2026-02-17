@@ -2,6 +2,7 @@
 
 | Versie | Datum      | Wijziging                                      |
 |--------|------------|------------------------------------------------|
+| 0.0.4  | 2026-02-17 | Codes bijgewerkt op basis van Nictiz review (Mirte) |
 | 0.0.3  | 2026-01-20 | RelatedPerson code mapping toegevoegd          |
 | 0.0.2  | 2026-01-20 | Codes bijgewerkt op basis van review           |
 | 0.0.1  | 2026-01-20 | Initiële versie met SNOMED CT code mapping     |
@@ -19,8 +20,8 @@ Deze pagina beschrijft de mapping tussen de functionele rollen zoals gedefinieer
 | Situatie                                  | SNOMED CT Code | SNOMED CT Term                               | Omschrijving                                      |
 |:------------------------------------------|:---------------|:---------------------------------------------|:--------------------------------------------------|
 | **Behandelaar in CareTeam**               | `405623001`    | Assigned practitioner (occupation)           | Toegewezen zorgverlener met volledige toegang     |
-| **Zorgondersteuner/Administratief mdw**   | `224609002`    | Administrative healthcare staff (occupation) | Ondersteunende rol, taken klaarzetten             |
-| **Case Manager**                          | `224608005`    | Case manager (occupation)                    | Organisatie-breed overzicht en coördinatie        |
+| **Zorgondersteuner/Administratief mdw**   | `224608005`    | Administrative healthcare staff (occupation) | Ondersteunende rol, taken klaarzetten             |
+| **Case Manager**                          | `768821004`    | Care team coordinator (occupation)           | Organisatie-breed overzicht en coördinatie        |
 | **Practitioner zonder rol in CareTeam**   | `223366009`    | Healthcare professional (occupation)         | Geen specifieke CareTeam rol                      |
 | **Overige rollen**                        | -              | -                                            | Fallback voor onbekende UZI/BIG rollen            |
 
@@ -40,7 +41,7 @@ Deze code wordt gebruikt voor toegewezen zorgverleners (behandelaars) die actief
 - Behandelaars in een CareTeam
 - Zorgverleners met volledige CRUD rechten op patiëntgegevens binnen hun CareTeams
 
-##### 224609002 - Administrative healthcare staff (occupation)
+##### 224608005 - Administrative healthcare staff (occupation)
 
 Deze code is bedoeld voor medewerkers met een administratieve of ondersteunende rol binnen de zorgorganisatie. In het autorisatiemodel wordt deze code gebruikt voor:
 - Zorgondersteuners
@@ -48,9 +49,9 @@ Deze code is bedoeld voor medewerkers met een administratieve of ondersteunende 
 - Administratief medewerkers
 - Medewerkers die taken kunnen klaarzetten maar niet zelf kunnen starten
 
-##### 224608005 - Case manager (occupation)
+##### 768821004 - Care team coordinator (occupation)
 
-De Case manager code wordt gebruikt voor medewerkers met een coördinerende rol. In het autorisatiemodel is dit de Case Manager die:
+De Care team coordinator code wordt gebruikt voor medewerkers met een coördinerende rol. In het autorisatiemodel is dit de Case Manager die:
 - Organisatie-breed overzicht heeft
 - Taken van alle patiënten binnen de organisatie kan inzien
 - Taken kan starten voor patiënten binnen de organisatie
@@ -70,7 +71,7 @@ Afhankelijk van de specifieke context kunnen de volgende alternatieve codes word
 | SNOMED CT Code | SNOMED CT Term                    | Mogelijk gebruik                                |
 |:---------------|:----------------------------------|:------------------------------------------------|
 | `223366009`    | Healthcare professional           | Generieke zorgverlener (parent categorie)       |
-| `768820003`    | Care coordinator (occupation)     | Alternatief voor Case Manager                   |
+| `768820003`    | Care coordinator (occupation)     | Alternatief voor Case Manager (coördineert multidisciplinaire patiëntenzorg) |
 | `224577009`    | Healthcare assistant (occupation) | Zorgondersteuner met direct patiëntcontact      |
 | `394618009`    | Medical secretary (occupation)    | Specifiek voor medisch secretariaat             |
 
@@ -82,10 +83,10 @@ De onderstaande tabel toont de mapping voor RelatedPerson relaties zoals gedefin
 
 | Relatie                         | SNOMED CT Code | SNOMED CT Term                    | Omschrijving                                |
 |:--------------------------------|:---------------|:----------------------------------|:--------------------------------------------|
-| **Mantelzorger**                | `224610006`    | Carer (person)                    | Structurele informele zorgverlener          |
-| **Wettelijk vertegenwoordiger** | `419358007`    | Legal guardian (person)           | Juridisch gemachtigd persoon                |
-| **Naaste**                      | `133932002`    | Caregiver (person)                | Algemene naaste/verwant                     |
-| **Buddy**                       | `125680007`    | Friend (person)                   | Ervaringsdeskundige begeleider              |
+| **Mantelzorger**                | `407542009`    | Informal carer (person)           | Structurele informele zorgverlener          |
+| **Wettelijk vertegenwoordiger** | `310391000146105` | Legal representative (person)  | Juridisch gemachtigd persoon bij wilsonbekwaamheid |
+| **Naaste**                      | `125677006`    | Relative (person)                 | Algemene naaste/verwant                     |
+| **Buddy**                       | `62071000`     | Buddy (person)                    | Ervaringsdeskundige begeleider              |
 | **Geen rol in CareTeam**        | -              | -                                 | Niet opgenomen in CareTeam                  |
 | **Overige relaties**            | -              | -                                 | Fallback voor onbekende relaties            |
 
@@ -95,39 +96,39 @@ Voor meer specifieke familierelaties kunnen de volgende codes worden gebruikt:
 
 | SNOMED CT Code | SNOMED CT Term           | Nederlandse term         |
 |:---------------|:-------------------------|:-------------------------|
-| `133932002`    | Caregiver (person)       | Familielid (algemeen)    |
-| `125677006`    | Relative (person)        | Ouder                    |
-| `125676002`    | Person (person)          | Kind                     |
-| `125678001`    | Family member (person)   | Echtgenoot/echtgenote    |
-| `125679009`    | Sibling (person)         | Broer/zus                |
-| `125680007`    | Friend (person)          | Vriend(in)               |
+| `303071001`    | Person in the family (person) | Familielid (algemeen)    |
+| `40683002`     | Parent (person)          | Ouder                    |
+| `67822003`     | Child (person)           | Kind                     |
+| `262043009`    | Partner (person)         | Partner                  |
+| `375005`       | Sibling (person)         | Broer/zus                |
+| `113163005`    | Friend (person)          | Vriend(in)               |
 
 #### Detailbeschrijving RelatedPerson codes
 
-##### 224610006 - Carer (person)
+##### 407542009 - Informal carer (person)
 
 Deze code wordt gebruikt voor mantelzorgers - personen die structureel informele zorg verlenen aan een patiënt. In het autorisatiemodel heeft de mantelzorger:
 - Leestoegang tot taken van de patiënt
 - Kan eigen taken uitvoeren
 - Beperkte uitvoeringsrechten namens de patiënt
 
-##### 419358007 - Legal guardian (person)
+##### 310391000146105 - Legal representative (person)
 
-Deze code wordt gebruikt voor wettelijk vertegenwoordigers - personen die juridisch gemachtigd zijn om namens de patiënt te handelen. In het autorisatiemodel heeft de wettelijk vertegenwoordiger:
+Deze code wordt gebruikt voor wettelijk vertegenwoordigers - personen die juridisch gemachtigd zijn om namens de patiënt te handelen bij wilsonbekwaamheid. In het autorisatiemodel heeft de wettelijk vertegenwoordiger:
 - Volledige toegang tot taken van de patiënt
 - Kan taken van de patiënt starten
 - Mag namens de patiënt handelen
 
-##### 133932002 - Caregiver (person)
+##### 125677006 - Relative (person)
 
 Deze code wordt gebruikt voor naasten - algemene verwanten of familieleden die betrokken zijn bij de zorg. In het autorisatiemodel heeft de naaste:
 - Leestoegang tot CareTeam informatie
 - Kan eigen taken uitvoeren
 - Ondersteunende en communicerende rol
 
-##### 125680007 - Friend (person)
+##### 62071000 - Buddy (person)
 
-Deze code wordt gebruikt voor buddies en vrienden - personen met een niet-familiale relatie. In het autorisatiemodel heeft de buddy:
+Deze code wordt gebruikt voor buddies - personen met een niet-familiale, ondersteunende relatie. In het autorisatiemodel heeft de buddy:
 - Vergelijkbare rechten als de naaste
 - Ondersteunende rol vanuit ervaringsdeskundigheid
 
@@ -207,8 +208,8 @@ Voor het vastleggen van de relatie van een RelatedPerson wordt het `RelatedPerso
       "coding": [
         {
           "system": "http://snomed.info/sct",
-          "code": "224610006",
-          "display": "Carer (person)"
+          "code": "407542009",
+          "display": "Informal carer (person)"
         }
       ]
     }
@@ -227,6 +228,4 @@ Voor het vastleggen van de relatie van een RelatedPerson wordt het `RelatedPerso
 
 #### Open vragen
 
-1. **Nederlandse extensie**: Zijn er specifieke SNOMED CT codes in de Nederlandse extensie die beter passen bij de gedefinieerde rollen?
-2. **UZI/BIG mapping**: Hoe wordt de vertaling van UZI/BIG codes naar SNOMED CT geïmplementeerd?
-3. **Granulariteit**: Is de huidige set codes voldoende specifiek, of zijn meer gedetailleerde codes nodig voor bepaalde use cases?
+1. **UZI/BIG mapping**: Hoe wordt de vertaling van UZI/BIG codes naar SNOMED CT geïmplementeerd?
