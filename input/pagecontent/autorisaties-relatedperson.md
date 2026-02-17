@@ -149,7 +149,7 @@ De Buddy is een ervaringsdeskundige begeleider met vergelijkbare rechten als de 
 
 ##### Overige relaties
 
-Dit is de fallback categorie voor RelatedPersons met een relatie die niet in de bovenstaande categorieën valt. Dit kunnen codes zijn die niet in het [Koppeltaal CareTeam Role CodeSystem](CodeSystem-koppeltaal-careteam-role.html) zijn gedefinieerd. Deze RelatedPersons krijgen minimale rechten, vergelijkbaar met "Geen relatie in CareTeam".
+Dit is de fallback categorie voor RelatedPersons met een relatie die niet in de bovenstaande categorieën valt. Dit kunnen SNOMED codes zijn die niet in de [KoppeltaalRelatedPersonRoleValueSet](ValueSet-koppeltaal-relatedperson-role.html) zijn gedefinieerd. Deze RelatedPersons krijgen minimale rechten, vergelijkbaar met "Geen relatie in CareTeam".
 
 | Entiteit               | Toegang                                    | CRUD   | Search Narrowing                                                |
 |------------------------|--------------------------------------------|--------|-----------------------------------------------------------------|

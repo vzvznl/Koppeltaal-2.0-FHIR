@@ -21,7 +21,7 @@ Usage: #example
   * type = "Patient"
 * participant[0]
   * role
-    * coding = $koppeltaal-careteam-role#behandelaar "Behandelaar"
+    * coding = $sct#405623001 "Assigned practitioner (occupation)"
     * text = "Behandelaar"
   * member = Reference(Practitioner/practitioner-volledig) "K. Jongen"
     * type = "Practitioner"
@@ -52,19 +52,19 @@ Usage: #example
   * type = "Patient"
 * participant[0]
   * role
-    * coding = $koppeltaal-careteam-role#behandelaar "Behandelaar"
+    * coding = $sct#405623001 "Assigned practitioner (occupation)"
     * text = "Behandelaar"
   * member = Reference(Practitioner/practitioner-volledig) "K. Jongen"
     * type = "Practitioner"
 * participant[+]
   * role
-    * coding = $koppeltaal-careteam-role#zorgondersteuner "Zorgondersteuner"
+    * coding = $sct#224608005 "Administrative healthcare staff (occupation)"
     * text = "Zorgondersteuner"
   * member = Reference(Practitioner/practitioner-minimaal) "M. Splinter"
     * type = "Practitioner"
 * participant[+]
   * role
-    * coding = $koppeltaal-careteam-role#case-manager "Case Manager"
+    * coding = $sct#768821004 "Care team coordinator (occupation)"
     * text = "Case Manager"
   * member = Reference(Practitioner/practitioner-minimaal) "A. Coordinator"
     * type = "Practitioner"
@@ -95,13 +95,13 @@ Usage: #example
   * type = "Patient"
 * participant[0]
   * role
-    * coding = $koppeltaal-careteam-role#behandelaar "Behandelaar"
+    * coding = $sct#405623001 "Assigned practitioner (occupation)"
     * text = "Behandelaar"
   * member = Reference(Practitioner/practitioner-volledig) "K. Jongen"
     * type = "Practitioner"
 * participant[+]
   * role
-    * coding = $koppeltaal-careteam-role#mantelzorger "Mantelzorger"
+    * coding = $sct#407542009 "Informal carer (person)"
     * text = "Mantelzorger"
   * member = Reference(RelatedPerson/relatedperson-minimal) "M. Buurvrouw"
     * type = "RelatedPerson"
@@ -132,13 +132,13 @@ Usage: #example
   * type = "Patient"
 * participant[0]
   * role
-    * coding = $koppeltaal-careteam-role#behandelaar "Behandelaar"
+    * coding = $sct#405623001 "Assigned practitioner (occupation)"
     * text = "Behandelaar"
   * member = Reference(Practitioner/practitioner-volledig) "K. Jongen"
     * type = "Practitioner"
 * participant[+]
   * role
-    * coding = $koppeltaal-careteam-role#wettelijk-vertegenwoordiger "Wettelijk vertegenwoordiger"
+    * coding = $sct#310391000146105 "Legal representative (person)"
     * text = "Wettelijk vertegenwoordiger"
   * member = Reference(RelatedPerson/relatedperson-minimal) "J. Voogd"
     * type = "RelatedPerson"
@@ -169,31 +169,31 @@ Usage: #example
   * type = "Patient"
 * participant[0]
   * role
-    * coding = $koppeltaal-careteam-role#behandelaar "Behandelaar"
+    * coding = $sct#405623001 "Assigned practitioner (occupation)"
     * text = "Behandelaar"
   * member = Reference(Practitioner/practitioner-volledig) "K. Jongen"
     * type = "Practitioner"
 * participant[+]
   * role
-    * coding = $koppeltaal-careteam-role#naaste "Naaste"
+    * coding = $sct#125677006 "Relative (person)"
     * text = "Naaste"
   * member = Reference(RelatedPerson/relatedperson-minimal) "A. Familie"
     * type = "RelatedPerson"
 * participant[+]
   * role
-    * coding = $koppeltaal-careteam-role#mantelzorger "Mantelzorger"
+    * coding = $sct#407542009 "Informal carer (person)"
     * text = "Mantelzorger"
   * member = Reference(RelatedPerson/relatedperson-minimal) "B. Zorger"
     * type = "RelatedPerson"
 * participant[+]
   * role
-    * coding = $koppeltaal-careteam-role#wettelijk-vertegenwoordiger "Wettelijk vertegenwoordiger"
+    * coding = $sct#310391000146105 "Legal representative (person)"
     * text = "Wettelijk vertegenwoordiger"
   * member = Reference(RelatedPerson/relatedperson-minimal) "C. Voogd"
     * type = "RelatedPerson"
 * participant[+]
   * role
-    * coding = $koppeltaal-careteam-role#buddy "Buddy"
+    * coding = $sct#62071000 "Buddy (person)"
     * text = "Buddy"
   * member = Reference(RelatedPerson/relatedperson-minimal) "D. Maatje"
     * type = "RelatedPerson"

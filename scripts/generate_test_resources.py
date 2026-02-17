@@ -1309,33 +1309,36 @@ class TestResourceGenerator:
             }
         }]
 
-        koppeltaal_role_system = "http://vzvz.nl/fhir/CodeSystem/koppeltaal-careteam-role"
+        sct_system = "http://snomed.info/sct"
+
+        # Default behandelaar participant (used in multiple variants)
+        behandelaar_participant = {
+            "role": [{
+                "coding": [{
+                    "system": sct_system,
+                    "code": "405623001",
+                    "display": "Assigned practitioner (occupation)"
+                }]
+            }],
+            "member": {
+                "reference": "Practitioner/practitioner-test-001",
+                "type": "Practitioner"
+            }
+        }
 
         if variant == "minimal":
-            careteam["participant"] = [{
-                "role": [{
-                    "coding": [{
-                        "system": koppeltaal_role_system,
-                        "code": "behandelaar",
-                        "display": "Behandelaar"
-                    }]
-                }],
-                "member": {
-                    "reference": "Practitioner/practitioner-test-001",
-                    "type": "Practitioner"
-                }
-            }]
+            careteam["participant"] = [behandelaar_participant]
 
         elif variant == "valid-all-practitioner-roles":
             practitioner_roles = [
-                ("behandelaar", "Behandelaar"),
-                ("zorgondersteuner", "Zorgondersteuner"),
-                ("case-manager", "Case Manager"),
+                ("405623001", "Assigned practitioner (occupation)"),
+                ("224608005", "Administrative healthcare staff (occupation)"),
+                ("768821004", "Care team coordinator (occupation)"),
             ]
             careteam["participant"] = [{
                 "role": [{
                     "coding": [{
-                        "system": koppeltaal_role_system,
+                        "system": sct_system,
                         "code": code,
                         "display": display
                     }]
@@ -1348,29 +1351,17 @@ class TestResourceGenerator:
 
         elif variant == "valid-all-relatedperson-roles":
             relatedperson_roles = [
-                ("naaste", "Naaste"),
-                ("mantelzorger", "Mantelzorger"),
-                ("wettelijk-vertegenwoordiger", "Wettelijk vertegenwoordiger"),
-                ("buddy", "Buddy"),
+                ("125677006", "Relative (person)"),
+                ("407542009", "Informal carer (person)"),
+                ("310391000146105", "Legal representative (person)"),
+                ("62071000", "Buddy (person)"),
             ]
             careteam["participant"] = [
-                {
-                    "role": [{
-                        "coding": [{
-                            "system": koppeltaal_role_system,
-                            "code": "behandelaar",
-                            "display": "Behandelaar"
-                        }]
-                    }],
-                    "member": {
-                        "reference": "Practitioner/practitioner-test-001",
-                        "type": "Practitioner"
-                    }
-                }
+                behandelaar_participant
             ] + [{
                 "role": [{
                     "coding": [{
-                        "system": koppeltaal_role_system,
+                        "system": sct_system,
                         "code": code,
                         "display": display
                     }]
@@ -1383,62 +1374,26 @@ class TestResourceGenerator:
 
         elif variant == "invalid-missing-identifier":
             del careteam["identifier"]
-            careteam["participant"] = [{
-                "role": [{
-                    "coding": [{
-                        "system": koppeltaal_role_system,
-                        "code": "behandelaar",
-                        "display": "Behandelaar"
-                    }]
-                }],
-                "member": {
-                    "reference": "Practitioner/practitioner-test-001",
-                    "type": "Practitioner"
-                }
-            }]
+            careteam["participant"] = [behandelaar_participant]
 
         elif variant == "invalid-missing-status":
             del careteam["status"]
-            careteam["participant"] = [{
-                "role": [{
-                    "coding": [{
-                        "system": koppeltaal_role_system,
-                        "code": "behandelaar",
-                        "display": "Behandelaar"
-                    }]
-                }],
-                "member": {
-                    "reference": "Practitioner/practitioner-test-001",
-                    "type": "Practitioner"
-                }
-            }]
+            careteam["participant"] = [behandelaar_participant]
 
         elif variant == "invalid-missing-subject":
             del careteam["subject"]
-            careteam["participant"] = [{
-                "role": [{
-                    "coding": [{
-                        "system": koppeltaal_role_system,
-                        "code": "behandelaar",
-                        "display": "Behandelaar"
-                    }]
-                }],
-                "member": {
-                    "reference": "Practitioner/practitioner-test-001",
-                    "type": "Practitioner"
-                }
-            }]
+            careteam["participant"] = [behandelaar_participant]
 
         elif variant == "invalid-unknown-role-code":
-            # Uses a code that does not exist in the Koppeltaal CodeSystem.
+            # Uses a SNOMED code that is not in the Koppeltaal ValueSet.
             # With extensible binding this produces a WARNING, not an error.
             # The authorization server must reject unknown codes at runtime.
             careteam["participant"] = [{
                 "role": [{
                     "coding": [{
-                        "system": koppeltaal_role_system,
-                        "code": "psychiater",
-                        "display": "Psychiater"
+                        "system": sct_system,
+                        "code": "309343006",
+                        "display": "Physician (occupation)"
                     }]
                 }],
                 "member": {

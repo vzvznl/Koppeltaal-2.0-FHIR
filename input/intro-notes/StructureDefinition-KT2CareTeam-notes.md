@@ -9,7 +9,7 @@ Otherwise the subject element remains absent.
 
 For a healthcare professional the only applicable slice of `CareTeam.participant` is the slice `kt2healthcareProfessional`.
 This means the reference to the Practitioner should comply with the `KT2_Practitioner` profile.
-The role should comply to the codes defined in the [KoppeltaalPractitionerRoleValueSet](ValueSet-koppeltaal-practitioner-role.html), which extends the ZorgverlenerRolCodelijst with Koppeltaal-specific authorization roles.
+The role should comply to the codes defined in the [KoppeltaalPractitionerRoleValueSet](ValueSet-koppeltaal-practitioner-role.html), which extends the ZorgverlenerRolCodelijst with SNOMED CT authorization roles.
 
 For a RelatedPerson the applicable slice of `CareTeam.participant` is the slice `kt2contactperson`.
 This means the reference to the RelatedPerson should comply with the `KT2_RelatedPerson` profile.

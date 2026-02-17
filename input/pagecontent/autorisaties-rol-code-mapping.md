@@ -2,6 +2,7 @@
 
 | Versie | Datum      | Wijziging                                                              |
 |--------|------------|------------------------------------------------------------------------|
+| 0.4.0  | 2026-02-17 | Eigen CodeSystem vervangen door SNOMED CT codes (Nictiz review)        |
 | 0.3.0  | 2026-02-17 | SNOMED mapping bijgewerkt op basis van Nictiz review (Mirte)           |
 | 0.2.0  | 2026-02-12 | SNOMED CT mapping vervangen door eigen Koppeltaal CodeSystem           |
 | 0.1.0  | 2026-01-22 | Koppeltaal CodeSystem geïntroduceerd voor autorisatierollen            |
@@ -11,39 +12,31 @@
 
 ---
 
-### Autorisatierollen CodeSystem
+### Rol Code Mapping voor Autorisaties
 
-Koppeltaal 2.0 definieert een eigen CodeSystem voor autorisatierollen binnen CareTeams. Deze rollen bepalen welke permissies een deelnemer heeft binnen de context van een specifiek CareTeam.
+Deze pagina beschrijft de mapping tussen de functionele rollen zoals gedefinieerd in de autorisatieregels en de bijbehorende SNOMED CT codes. Deze codes worden gebruikt in `CareTeam.participant.role` om de autorisatierol van een deelnemer te identificeren.
 
-#### Waarom een eigen CodeSystem?
+De SNOMED CT codes zijn gereviewd door Nictiz (Mirte).
 
-De Nederlandse FHIR-standaarden (zibs) gebruiken voor CareTeam-rollen de [ZorgverlenerRolCodelijst](https://simplifier.net/nictiz-r4-zib2020/2.16.840.1.113883.2.4.3.11.60.40.2.17.1.5--20200901000000), die voornamelijk HL7v3 ParticipationType codes bevat (ATND, RESP, REF, etc.) en één SNOMED code (768832004 = Case manager). Deze codes beschrijven klinische participatietypen, geen autorisatieniveaus. Koppeltaal heeft behoefte aan codes die direct gekoppeld zijn aan permissies. Dit is een functionele uitbreiding op de bestaande zibs.
-
-De keuze voor een eigen CodeSystem in plaats van SNOMED:
-
-1. **Expliciete autorisatie**: Codes uit het Koppeltaal CodeSystem kunnen alleen bewust zijn toegekend. Bij hergebruik van bestaande codes (SNOMED, HL7v3) bestaat het risico dat codes die in een andere context zijn toegevoegd onbedoeld permissies triggeren wanneer een resource Koppeltaal binnenkomt.
-2. **Geen meerwaarde van SNOMED**: Elke uitbreiding op de zib — of het nu SNOMED of custom is — is niet herkenbaar in andere standaarden. SNOMED voegt hier geen interoperabiliteit toe omdat het gaat om Koppeltaal-specifieke autorisatierollen die in andere contexten niet bestaan.
-3. **Eenvoudig**: Directe mapping tussen code en permissiematrix, geen terminologieserver nodig.
-4. **Stabiel**: Koppeltaal heeft volledige controle over de codes en hun betekenis. Geen risico op wijzigingen door externe partijen.
-5. **Backwards compatible**: De ValueSets breiden de bestaande ZorgverlenerRolCodelijst uit.
-
-#### CodeSystem
+#### Code System
 
 ```
-CodeSystem: http://vzvz.nl/fhir/CodeSystem/koppeltaal-careteam-role
+CodeSystem: http://snomed.info/sct
 ```
 
 ---
 
 ### Practitioner Rollen
 
-De onderstaande rollen zijn beschikbaar voor Practitioners binnen een CareTeam. De permissies per rol zijn beschreven in [Practitioner autorisaties](autorisaties-practitioner.html).
+De onderstaande SNOMED CT codes zijn beschikbaar voor Practitioners binnen een CareTeam. De permissies per rol zijn beschreven in [Practitioner autorisaties](autorisaties-practitioner.html).
 
-| Code | Display | Omschrijving | Permissies |
-|:-----|:--------|:-------------|:-----------|
-| `behandelaar` | Behandelaar | Behandelend zorgverlener | Volledige CRUD rechten op patiënten in CareTeam |
-| `zorgondersteuner` | Zorgondersteuner | Ondersteunende rol (incl. administratief) | Taken klaarzetten, niet starten |
-| `case-manager` | Case Manager | Organisatie-brede coördinatie | Leestoegang organisatie-breed, taken starten |
+| Rol | SNOMED CT Code | SNOMED CT Term | Permissies |
+|:----|:---------------|:---------------|:-----------|
+| **Behandelaar** | `405623001` | Assigned practitioner (occupation) | Volledige CRUD rechten op patiënten in CareTeam |
+| **Zorgondersteuner** | `224608005` | Administrative healthcare staff (occupation) | Taken klaarzetten, niet starten |
+| **Case Manager** | `768821004` | Care team coordinator (occupation) | Leestoegang organisatie-breed, taken starten |
+| **Practitioner zonder rol in CareTeam** | - | - | Minimale rechten |
+| **Overige rollen** | - | - | Fallback, minimale rechten |
 
 #### ValueSet
 
@@ -52,8 +45,8 @@ ValueSet: http://vzvz.nl/fhir/ValueSet/koppeltaal-practitioner-role
 ```
 
 Deze ValueSet bevat:
+- De SNOMED CT autorisatierollen voor Practitioners
 - Alle codes uit de [ZorgverlenerRolCodelijst](https://simplifier.net/nictiz-r4-zib2020/2.16.840.1.113883.2.4.3.11.60.40.2.17.1.5--20200901000000) (backwards compatibility)
-- De Koppeltaal-specifieke autorisatierollen
 
 #### Voorbeeld: Practitioner als Behandelaar
 
@@ -66,9 +59,9 @@ Deze ValueSet bevat:
         {
           "coding": [
             {
-              "system": "http://vzvz.nl/fhir/CodeSystem/koppeltaal-careteam-role",
-              "code": "behandelaar",
-              "display": "Behandelaar"
+              "system": "http://snomed.info/sct",
+              "code": "405623001",
+              "display": "Assigned practitioner (occupation)"
             }
           ]
         }
@@ -85,20 +78,35 @@ Deze ValueSet bevat:
 
 ### RelatedPerson Relaties
 
-De onderstaande relaties zijn beschikbaar voor RelatedPersons binnen een CareTeam. De permissies per relatie zijn beschreven in [RelatedPerson autorisaties](autorisaties-relatedperson.html).
+De onderstaande SNOMED CT codes zijn beschikbaar voor RelatedPersons binnen een CareTeam. De permissies per relatie zijn beschreven in [RelatedPerson autorisaties](autorisaties-relatedperson.html).
 
-| Code | Display | Omschrijving | Permissies |
-|:-----|:--------|:-------------|:-----------|
-| `naaste` | Naaste | Algemene naaste/verwant | Meekijken, ondersteunen, alleen eigen taken |
-| `mantelzorger` | Mantelzorger | Structurele informele zorgverlener | Meekijken, beperkt uitvoeren, leestoegang patiënttaken |
-| `wettelijk-vertegenwoordiger` | Wettelijk vertegenwoordiger | Juridisch gemachtigd persoon bij wilsonbekwaamheid | Volledige toegang, namens patiënt handelen |
-| `buddy` | Buddy | Ervaringsdeskundige begeleider | Meekijken, ondersteunen, alleen eigen taken |
+| Relatie | SNOMED CT Code | SNOMED CT Term | Permissies |
+|:--------|:---------------|:---------------|:-----------|
+| **Mantelzorger** | `407542009` | Informal carer (person) | Meekijken, beperkt uitvoeren, leestoegang patiënttaken |
+| **Wettelijk vertegenwoordiger** | `310391000146105` | Legal representative (person) | Volledige toegang, namens patiënt handelen bij wilsonbekwaamheid |
+| **Naaste** | `125677006` | Relative (person) | Meekijken, ondersteunen, alleen eigen taken |
+| **Buddy** | `62071000` | Buddy (person) | Meekijken, ondersteunen, alleen eigen taken |
+| **Geen rol in CareTeam** | - | - | Alleen eigen taken |
+| **Overige relaties** | - | - | Fallback, minimale rechten |
 
 #### ValueSet
 
 ```
 ValueSet: http://vzvz.nl/fhir/ValueSet/koppeltaal-relatedperson-role
 ```
+
+#### Specifieke familierelaties
+
+Voor meer specifieke familierelaties kunnen de volgende SNOMED CT codes worden gebruikt:
+
+| SNOMED CT Code | SNOMED CT Term | Nederlandse term |
+|:---------------|:---------------|:-----------------|
+| `303071001` | Person in the family (person) | Familielid (algemeen) |
+| `40683002` | Parent (person) | Ouder |
+| `67822003` | Child (person) | Kind |
+| `262043009` | Partner (person) | Partner |
+| `375005` | Sibling (person) | Broer/zus |
+| `113163005` | Friend (person) | Vriend(in) |
 
 #### Voorbeeld: RelatedPerson als Mantelzorger
 
@@ -111,9 +119,9 @@ ValueSet: http://vzvz.nl/fhir/ValueSet/koppeltaal-relatedperson-role
         {
           "coding": [
             {
-              "system": "http://vzvz.nl/fhir/CodeSystem/koppeltaal-careteam-role",
-              "code": "mantelzorger",
-              "display": "Mantelzorger"
+              "system": "http://snomed.info/sct",
+              "code": "407542009",
+              "display": "Informal carer (person)"
             }
           ]
         }
@@ -139,11 +147,13 @@ De autorisatielogica werkt als volgt:
 │     CareTeam?participant=RelatedPerson/{id}                             │
 ├─────────────────────────────────────────────────────────────────────────┤
 │  2. Bepaal rol binnen elk CareTeam                                      │
-│     CareTeam.participant[x].role.coding.code                            │
+│     CareTeam.participant[x].role.coding                                 │
+│     system = http://snomed.info/sct                                     │
 ├─────────────────────────────────────────────────────────────────────────┤
-│  3. Leid permissies af van rol via permissiematrix                      │
-│     behandelaar → CRUD op CareTeam resources                            │
-│     zorgondersteuner → CRUD taken, geen launch                          │
+│  3. Leid permissies af van SNOMED code via permissiematrix              │
+│     405623001 (behandelaar) → CRUD op CareTeam resources                │
+│     224608005 (zorgondersteuner) → CRUD taken, geen launch              │
+│     768821004 (case manager) → organisatie-breed lezen, taken starten   │
 │     etc.                                                                │
 ├─────────────────────────────────────────────────────────────────────────┤
 │  4. Pas permissies toe bij resource access                              │
@@ -155,9 +165,9 @@ De autorisatielogica werkt als volgt:
 
 ### Fallback Gedrag
 
-#### Practitioner zonder Koppeltaal rol
+#### Practitioner zonder autorisatierol
 
-Wanneer een Practitioner wel lid is van een CareTeam maar geen Koppeltaal-specifieke rol heeft (alleen ZorgverlenerRolCodelijst code), gelden de regels van **"Practitioner zonder rol in CareTeam"**:
+Wanneer een Practitioner wel lid is van een CareTeam maar geen SNOMED autorisatiecode uit de ValueSet heeft (alleen ZorgverlenerRolCodelijst code), gelden de regels van **"Practitioner zonder rol in CareTeam"**:
 - Alleen eigen taken en toegewezen resources
 - Minimale rechten
 
@@ -169,64 +179,30 @@ Wanneer een RelatedPerson niet is opgenomen in een CareTeam of geen rol heeft, g
 
 ---
 
-### SNOMED CT Mapping (informatief)
-
-De onderstaande tabellen tonen de mapping van Koppeltaal autorisatierollen naar SNOMED CT codes. Deze mapping is informatief en is gereviewd door Nictiz (Mirte). De SNOMED codes worden **niet** gebruikt voor autorisatie binnen Koppeltaal, maar kunnen nuttig zijn voor interoperabiliteit met andere systemen.
-
-#### Practitioner SNOMED Mapping
-
-| Koppeltaal Code | SNOMED CT Code | SNOMED CT Term |
-|:----------------|:---------------|:---------------|
-| `behandelaar` | `405623001` | Assigned practitioner (occupation) |
-| `zorgondersteuner` | `224608005` | Administrative healthcare staff (occupation) |
-| `case-manager` | `768821004` | Care team coordinator (occupation) |
-
-#### RelatedPerson SNOMED Mapping
-
-| Koppeltaal Code | SNOMED CT Code | SNOMED CT Term |
-|:----------------|:---------------|:---------------|
-| `mantelzorger` | `407542009` | Informal carer (person) |
-| `wettelijk-vertegenwoordiger` | `310391000146105` | Legal representative (person) |
-| `naaste` | `125677006` | Relative (person) |
-| `buddy` | `62071000` | Buddy (person) |
-
-#### Specifieke familierelaties (SNOMED)
-
-| SNOMED CT Code | SNOMED CT Term | Nederlandse term |
-|:---------------|:---------------|:-----------------|
-| `303071001` | Person in the family (person) | Familielid (algemeen) |
-| `40683002` | Parent (person) | Ouder |
-| `67822003` | Child (person) | Kind |
-| `262043009` | Partner (person) | Partner |
-| `375005` | Sibling (person) | Broer/zus |
-| `113163005` | Friend (person) | Vriend(in) |
-
----
-
 ### Implementatieoverwegingen
 
 #### Binding Strength
 
 De ValueSet bindings zijn `extensible`:
-- Koppeltaal codes MOETEN worden gebruikt voor autorisatie
+- SNOMED CT codes MOETEN worden gebruikt voor autorisatie
 - Aanvullende codes (zoals ZorgverlenerRolCodelijst) MOGEN worden toegevoegd
 - Onbekende codes vallen terug op minimale rechten
 
 #### Meerdere Rollen
 
-Een participant kan meerdere `role` codings hebben. De autorisatielogica evalueert de **meest specifieke Koppeltaal code** die aanwezig is.
+Een participant kan meerdere `role` codings hebben. De autorisatielogica evalueert de **meest specifieke SNOMED CT code** die aanwezig is.
 
 #### Validatie
 
 De FHIR Validator accepteert:
-- Koppeltaal codes uit het eigen CodeSystem
+- SNOMED CT codes uit de Koppeltaal ValueSets
 - Codes uit de ZorgverlenerRolCodelijst (via include in ValueSet)
 
 ---
 
 ### Referenties
 
-- [KoppeltaalCareTeamRole CodeSystem](CodeSystem-koppeltaal-careteam-role.html)
+- [SNOMED CT Browser](https://browser.ihtsdotools.org/)
 - [KoppeltaalPractitionerRoleValueSet](ValueSet-koppeltaal-practitioner-role.html)
 - [KoppeltaalRelatedPersonRoleValueSet](ValueSet-koppeltaal-relatedperson-role.html)
 - [Practitioner autorisaties](autorisaties-practitioner.html)

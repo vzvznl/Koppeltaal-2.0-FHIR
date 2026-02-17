@@ -17,19 +17,19 @@ Usage: #example
   * type = "Patient"
 * participant[0]
   * role
-    * coding = $koppeltaal-careteam-role#behandelaar "Behandelaar"
+    * coding = $sct#405623001 "Assigned practitioner (occupation)"
     * text = "Behandelaar"
   * member = Reference(Practitioner/practitioner-volledig) "K. Jongen"
     * type = "Practitioner"
 * participant[+]
   * role
-    * coding = $koppeltaal-careteam-role#case-manager "Case Manager"
+    * coding = $sct#768821004 "Care team coordinator (occupation)"
     * text = "Case Manager"
   * member = Reference(Practitioner/practitioner-minimaal) "M. Splinter"
     * type = "Practitioner"
 * participant[+]
   * role
-    * coding = $koppeltaal-careteam-role#naaste "Naaste"
+    * coding = $sct#125677006 "Relative (person)"
     * text = "Naaste"
   * member = Reference(RelatedPerson/relatedperson-minimal) "M. Buurvrouw"
     * type = "RelatedPerson"

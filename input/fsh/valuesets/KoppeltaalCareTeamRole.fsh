@@ -4,23 +4,25 @@ Title: "Koppeltaal Practitioner Role ValueSet"
 Description: """
 ValueSet voor Practitioner rollen binnen een CareTeam.
 
-Breidt de ZorgverlenerRolCodelijst uit met Koppeltaal-specifieke autorisatierollen
-voor Practitioners. Zie [Practitioner autorisaties](autorisaties-practitioner.html).
+Breidt de ZorgverlenerRolCodelijst uit met SNOMED CT codes voor Koppeltaal
+autorisatierollen. Zie [Practitioner autorisaties](autorisaties-practitioner.html).
+
+De SNOMED codes zijn gereviewd door Nictiz.
 """
 * ^status = #active
 * ^experimental = false
-* ^date = 2026-02-12T12:00:00+01:00
+* ^date = 2026-02-17T12:00:00+01:00
 * insert ContactAndPublisher
 * ^url = "http://vzvz.nl/fhir/ValueSet/koppeltaal-practitioner-role"
-* ^version = "0.2.0"
+* ^version = "0.3.0"
 
 // Include bestaande ZorgverlenerRolCodelijst voor backwards compatibility
 * include codes from valueset ZorgverlenerRolCodelijst
 
-// Koppeltaal-specifieke Practitioner rollen
-* $koppeltaal-careteam-role#behandelaar "Behandelaar"
-* $koppeltaal-careteam-role#zorgondersteuner "Zorgondersteuner"
-* $koppeltaal-careteam-role#case-manager "Case Manager"
+// SNOMED CT codes voor Koppeltaal autorisatierollen (gereviewd door Nictiz)
+* $sct#405623001 "Assigned practitioner (occupation)"
+* $sct#224608005 "Administrative healthcare staff (occupation)"
+* $sct#768821004 "Care team coordinator (occupation)"
 
 
 ValueSet: KoppeltaalRelatedPersonRoleValueSet
@@ -29,18 +31,20 @@ Title: "Koppeltaal RelatedPerson Role ValueSet"
 Description: """
 ValueSet voor RelatedPerson relaties binnen een CareTeam.
 
-Bevat Koppeltaal-specifieke relatie codes die de autorisaties bepalen voor
-naasten van de patiënt. Zie [RelatedPerson autorisaties](autorisaties-relatedperson.html).
+Bevat SNOMED CT codes die de autorisaties bepalen voor naasten van de patiënt.
+Zie [RelatedPerson autorisaties](autorisaties-relatedperson.html).
+
+De SNOMED codes zijn gereviewd door Nictiz.
 """
 * ^status = #active
 * ^experimental = false
-* ^date = 2026-02-12T12:00:00+01:00
+* ^date = 2026-02-17T12:00:00+01:00
 * insert ContactAndPublisher
 * ^url = "http://vzvz.nl/fhir/ValueSet/koppeltaal-relatedperson-role"
-* ^version = "0.2.0"
+* ^version = "0.3.0"
 
-// Koppeltaal-specifieke RelatedPerson relaties
-* $koppeltaal-careteam-role#naaste "Naaste"
-* $koppeltaal-careteam-role#mantelzorger "Mantelzorger"
-* $koppeltaal-careteam-role#wettelijk-vertegenwoordiger "Wettelijk vertegenwoordiger"
-* $koppeltaal-careteam-role#buddy "Buddy"
+// SNOMED CT codes voor RelatedPerson autorisatierollen (gereviewd door Nictiz)
+* $sct#407542009 "Informal carer (person)"
+* $sct#310391000146105 "Legal representative (person)"
+* $sct#125677006 "Relative (person)"
+* $sct#62071000 "Buddy (person)"
