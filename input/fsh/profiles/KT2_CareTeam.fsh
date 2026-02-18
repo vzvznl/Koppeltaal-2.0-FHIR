@@ -25,27 +25,18 @@ Id: KT2CareTeam
 * participant contains
  kt2contactperson 0..* and
  kt2healthcareProfessional 0..*
-* participant[kt2contactperson].role ^slicing.discriminator.type = #value
-* participant[kt2contactperson].role ^slicing.discriminator.path = "$this"
-* participant[kt2contactperson].role ^slicing.rules = #open
+* participant[kt2contactperson].role from KoppeltaalRelatedPersonRoleValueSet (extensible)
 * participant[kt2contactperson].role ^comment = "The role defines the authorization level for this RelatedPerson within the CareTeam. See [RelatedPerson autorisaties](autorisaties-relatedperson.html) for the permission matrix."
-* participant[kt2contactperson].role contains kt2Role 0..1
-* participant[kt2contactperson].role[kt2Role] from KoppeltaalRelatedPersonRoleValueSet (extensible)
-* participant[kt2contactperson].role[kt2Role] ^definition = "The authorization role of the RelatedPerson within this CareTeam. Determines which actions this person may perform."
-* participant[kt2contactperson].role[kt2Role] ^binding.description = "Koppeltaal authorization roles for RelatedPersons in a CareTeam."
+* participant[kt2contactperson].role ^definition = "The authorization role of the RelatedPerson within this CareTeam. Determines which actions this person may perform."
+* participant[kt2contactperson].role ^binding.description = "Koppeltaal authorization roles for RelatedPersons in a CareTeam."
 * participant[kt2contactperson].member only Reference(KT2_RelatedPerson)
 * participant[kt2contactperson].onBehalfOf ^comment = "This element is not used in the context of Koppeltaal 2.0"
 * participant[kt2contactperson].period ^comment = "This element is not used in the context of Koppeltaal 2.0"
-* participant[kt2healthcareProfessional].role ^slicing.discriminator.type = #value
-* participant[kt2healthcareProfessional].role ^slicing.discriminator.path = "$this"
-* participant[kt2healthcareProfessional].role ^slicing.rules = #open
-* participant[kt2healthcareProfessional].role ^comment = "The role defines the authorization level for this Practitioner within the CareTeam. See [Practitioner autorisaties](autorisaties-practitioner.html) for the permission matrix."
-* participant[kt2healthcareProfessional].role contains healthProfessionalRole 0..1
-* participant[kt2healthcareProfessional].role[healthProfessionalRole] from KoppeltaalPractitionerRoleValueSet (extensible)
-* participant[kt2healthcareProfessional].role[healthProfessionalRole] ^definition = "The authorization role of the Practitioner within this CareTeam. Determines which actions this person may perform. This ValueSet extends the ZorgverlenerRolCodelijst with SNOMED CT codes for authorization roles."
-* participant[kt2healthcareProfessional].role[healthProfessionalRole] ^comment = "For authorization purposes, use the SNOMED CT codes: 405623001 (Assigned practitioner/behandelaar), 224608005 (Administrative healthcare staff/zorgondersteuner), 768821004 (Care team coordinator/case manager). The ZorgverlenerRolCodelijst codes are included for backwards compatibility.\r\n\r\nSee [Rol Code Mapping](autorisaties-rol-code-mapping.html) for more information."
-* participant[kt2healthcareProfessional].role[healthProfessionalRole] ^alias = "KoppeltaalPractitionerRole"
-* participant[kt2healthcareProfessional].role[healthProfessionalRole] ^binding.description = "SNOMED CT authorization roles for Practitioners in a CareTeam (extends ZorgverlenerRolCodelijst)."
+* participant[kt2healthcareProfessional].role from KoppeltaalPractitionerRoleValueSet (extensible)
+* participant[kt2healthcareProfessional].role ^comment = "The role defines the authorization level for this Practitioner within the CareTeam. For authorization purposes, use the SNOMED CT codes: 405623001 (Assigned practitioner/behandelaar), 224608005 (Administrative healthcare staff/zorgondersteuner), 768821004 (Care team coordinator/case manager). The ZorgverlenerRolCodelijst codes are included for backwards compatibility. See [Rol Code Mapping](autorisaties-rol-code-mapping.html) and [Practitioner autorisaties](autorisaties-practitioner.html) for more information."
+* participant[kt2healthcareProfessional].role ^definition = "The authorization role of the Practitioner within this CareTeam. Determines which actions this person may perform. This ValueSet extends the ZorgverlenerRolCodelijst with SNOMED CT codes for authorization roles."
+* participant[kt2healthcareProfessional].role ^alias = "KoppeltaalPractitionerRole"
+* participant[kt2healthcareProfessional].role ^binding.description = "SNOMED CT authorization roles for Practitioners in a CareTeam (extends ZorgverlenerRolCodelijst)."
 * participant[kt2healthcareProfessional].member only Reference(KT2_Practitioner)
 * participant[kt2healthcareProfessional].member ^comment = "This element is used in Koppeltaal 2.0 to refer to the Practitioner who is member of the team"
 * participant[kt2healthcareProfessional].onBehalfOf ^comment = "This element is not used in the context of Koppeltaal 2.0"

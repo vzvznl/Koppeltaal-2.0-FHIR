@@ -1,5 +1,16 @@
 CHANGELOG
 
+## 0.15.3 (2026-02-18)
+
+### Fixed
+- **KT2CareTeam profile**: Removed role sub-slicing to fix SLICING_CANNOT_BE_EVALUATED validation errors; ValueSet binding now directly on `participant.role`
+- **Autorisaties pagina**: Fixed broken links to authorization pages (`authorization-*.html` → `autorisaties-*.html`)
+
+### Changed
+- **KT2CareTeam profile**: Replaced custom KoppeltaalCareTeamRole CodeSystem with SNOMED CT codes (Nictiz review)
+- **ValueSets**: KoppeltaalPractitionerRoleValueSet and KoppeltaalRelatedPersonRoleValueSet now use SNOMED CT codes
+- **Examples**: All CareTeam examples updated to use SNOMED CT role codes
+
 ## 0.15.2 (2026-02-17)
 
 ### Changed
