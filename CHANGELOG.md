@@ -1,5 +1,25 @@
 CHANGELOG
 
+## 0.15.3 (2026-02-18)
+
+### Fixed
+- **KT2CareTeam profile**: Removed role sub-slicing to fix SLICING_CANNOT_BE_EVALUATED validation errors; ValueSet binding now directly on `participant.role`
+- **Autorisaties pagina**: Fixed broken links to authorization pages (`authorization-*.html` → `autorisaties-*.html`)
+
+### Changed
+- **KT2CareTeam profile**: Replaced custom KoppeltaalCareTeamRole CodeSystem with SNOMED CT codes (Nictiz review)
+- **ValueSets**: KoppeltaalPractitionerRoleValueSet and KoppeltaalRelatedPersonRoleValueSet now use SNOMED CT codes
+- **Examples**: All CareTeam examples updated to use SNOMED CT role codes
+
+## 0.15.2 (2026-02-17)
+
+### Changed
+- **Autorisaties rol code mapping**: Updated SNOMED CT codes based on Nictiz review (Mirte)
+  - Practitioner: Zorgondersteuner `224609002` → `224608005`, Case Manager `224608005` → `768821004` (Care team coordinator)
+  - RelatedPerson: Mantelzorger `224610006` → `407542009` (Informal carer), Wettelijk vertegenwoordiger `419358007` → `310391000146105` (Legal representative bij wilsonbekwaamheid), Naaste `133932002` → `125677006` (Relative), Buddy `125680007` → `62071000` (Buddy)
+  - Familierelaties: updated with correct SNOMED concepts (`303071001`, `40683002`, `67822003`, `262043009`, `375005`, `113163005`)
+  - Resolved open vragen over Nederlandse extensie en granulariteit (reviewed by Nictiz)
+
 ## 0.15.1 (2026-01-27)
 
 ### Fixed

@@ -17,20 +17,20 @@ Usage: #example
   * type = "Patient"
 * participant[0]
   * role
-    * coding = $v3-ParticipationType#RESP
-    * text = "Hoofdbehandelaar"
+    * coding = $sct#405623001 "Assigned practitioner (occupation)"
+    * text = "Behandelaar"
   * member = Reference(Practitioner/practitioner-volledig) "K. Jongen"
     * type = "Practitioner"
 * participant[+]
   * role
-    * coding = $sct#768832004
-    * text = "casemanager"
+    * coding = $sct#768821004 "Care team coordinator (occupation)"
+    * text = "Case Manager"
   * member = Reference(Practitioner/practitioner-minimaal) "M. Splinter"
     * type = "Practitioner"
 * participant[+]
   * role
-    * coding = $sct#768832004
-    * text = "casemanager"
+    * coding = $sct#125677006 "Relative (person)"
+    * text = "Naaste"
   * member = Reference(RelatedPerson/relatedperson-minimal) "M. Buurvrouw"
     * type = "RelatedPerson"
 * managingOrganization = Reference(Organization/organization-naam-type)
