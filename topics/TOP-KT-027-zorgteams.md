@@ -57,6 +57,12 @@ De rollen in het CareTeam resulteren in rechten, maar het technisch afdwingen hi
 
 Er is gekozen voor SNOMED CT codes (gereviewd door Nictiz) in plaats van een eigen CodeSystem, omdat standaard terminologie interoperabiliteit bevordert en een eigen CodeSystem onnodige complexiteit introduceert.
 
+### SNOMED CT hiërarchie en subsumptie
+
+SNOMED CT is een hiërarchisch terminologiestelsel. De codes die wij gebruiken bevinden zich op verschillende niveaus in deze hiërarchie. Terminologisch gezien betekent dit dat een code die hoger in de hiërarchie staat, ook geldig zou moeten zijn voor alle onderliggende (meer specifieke) codes — dit heet _subsumptie_. Bijvoorbeeld: als een systeem de code voor "Assigned practitioner" herkent, zou het terminologisch ook alle specifiekere vormen van "Assigned practitioner" moeten herkennen.
+
+Koppeltaal maakt **vooralsnog geen gebruik van subsumptie**. De gekozen SNOMED CT codes worden als discrete, op zichzelf staande codes behandeld: alleen de exact gespecificeerde codes in de ValueSets worden herkend voor autorisatiedoeleinden. We zijn ons bewust van het concept en sluiten niet uit dat subsumptie in de toekomst een rol kan spelen, maar voor het huidige transitiemodel houden we de logica eenvoudig en expliciet.
+
 ### Task betrokkenen en CareTeam
 
 De `Task.owner` moet lid zijn van het CareTeam, maar de `Task.requester` niet (tenzij deze de taak ook wil starten). De onderbouwing: de requester is degene die de taak aanmaakt (bijv. een administratieve medewerker of zorgondersteuner), maar hoeft niet per se deel te nemen aan de uitvoering. De owner is degene die de taak daadwerkelijk uitvoert en moet daarom als betrokkene in de zorgcontext staan.

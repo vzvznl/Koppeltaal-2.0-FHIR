@@ -216,6 +216,12 @@ Voor het vastleggen van de relatie van een RelatedPerson wordt het `RelatedPerso
 }
 ```
 
+#### SNOMED CT Hiërarchie en Subsumptie
+
+SNOMED CT is een hiërarchisch terminologiestelsel. De codes in de Koppeltaal ValueSets bevinden zich op verschillende niveaus in deze hiërarchie. Terminologisch gezien zou een hogere code ook moeten gelden voor alle onderliggende (meer specifieke) codes — dit heet _subsumptie_.
+
+Koppeltaal maakt **vooralsnog geen gebruik van subsumptie**. De gekozen codes worden als discrete codes behandeld: alleen de exact gespecificeerde codes in de ValueSets worden herkend voor autorisatiedoeleinden. Subsumptie kan in de toekomst een rol spelen, maar voor het huidige model houden we de logica eenvoudig en expliciet.
+
 #### Referenties
 
 - [SNOMED CT Browser](https://browser.ihtsdotools.org/)
