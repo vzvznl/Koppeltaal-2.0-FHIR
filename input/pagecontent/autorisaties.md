@@ -67,20 +67,20 @@ Er worden drie hoofdcontexten onderscheiden:
 
 Het model kent drie hoofdrollen met elk hun eigen autorisatieregels:
 
-#### [Patient](authorization-patient.html)
+#### [Patient](autorisaties-patient.html)
 Patiënten hebben toegang tot hun eigen gegevens en kunnen:
 - Eigen taken beheren
 - Zelfhulp modules starten
 - Hun zorgteam inzien
 
-#### [Practitioner](authorization-practitioner.html)
+#### [Practitioner](autorisaties-practitioner.html)
 Behandelaars hebben verschillende autorisatieniveaus:
 - **Zonder CareTeam rol**: Toegang via taken
 - **Behandelaar in CareTeam**: Volledige toegang tot teampatïenten
 - **Zorgondersteuner**: Read-only toegang met taakbeheer
 - **Case Manager**: Organisatie-brede toegang
 
-#### [RelatedPerson](authorization-relatedperson.html)
+#### [RelatedPerson](autorisaties-relatedperson.html)
 Mantelzorgers en vertegenwoordigers met verschillende typen:
 - **Gemachtigd**: Volledige toegang namens patiënt
 - **Samenwerker**: Beperkte toegang als teamlid
