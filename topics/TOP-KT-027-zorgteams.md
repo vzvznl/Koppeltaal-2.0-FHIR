@@ -61,6 +61,12 @@ Er is gekozen voor SNOMED CT codes (gereviewd door Nictiz) in plaats van een eig
 
 De `Task.owner` moet lid zijn van het CareTeam, maar de `Task.requester` niet (tenzij deze de taak ook wil starten). De onderbouwing: de requester is degene die de taak aanmaakt (bijv. een administratieve medewerker of zorgondersteuner), maar hoeft niet per se deel te nemen aan de uitvoering. De owner is degene die de taak daadwerkelijk uitvoert en moet daarom als betrokkene in de zorgcontext staan.
 
+### Niet elke applicatiegebruiker hoeft in Koppeltaal te staan
+
+Het kan voorkomen dat medewerkers in een EPD/ECD taken klaarzetten, dossiers beheren of andere bewerkingen uitvoeren, maar verder geen rol vervullen die de grenzen van die applicatie overstijgt. Koppeltaal gaat over de uitwisseling _tussen_ systemen, niet over de interne staat van een applicatie. Alleen de gegevens — en dus ook de gebruikers — die uitgewisseld moeten worden omdat ze _over_ systemen heen een rol vervullen, hoeven in Koppeltaal te worden uitgewisseld.
+
+Dit is enigszins contra-intuitief: niet elke gebruiker die in een bronregistratie taken aanmaakt of bewerkt, hoeft als Practitioner of RelatedPerson in het CareTeam (of überhaupt in Koppeltaal) te bestaan. Een administratief medewerker die uitsluitend binnen het EPD werkt en nooit een rol speelt in een cross-systeem interactie, hoeft niet via Koppeltaal te worden gedeeld. De vuistregel is: als een persoon alleen binnen één applicatie opereert en geen andere applicatie die persoon hoeft te kennen, dan valt deze buiten de scope van Koppeltaal.
+
 ### Fijnmazige autorisatie
 
 Voor situaties waar meer granulaire autorisatie nodig is, zijn sub-tasks en SMART on FHIR launches overwogen als alternatief voor Task-level CareTeams. Deze aanpak is eenvoudiger en vereist minder synchronisatie:
