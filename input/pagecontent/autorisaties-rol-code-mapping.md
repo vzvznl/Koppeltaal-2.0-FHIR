@@ -194,6 +194,17 @@ Voor het vastleggen van de rol binnen een CareTeam wordt het `CareTeam.participa
 
 ##### RelatedPerson.relationship
 
+#### Onderscheid RelatedPerson.relationship en CareTeam rol
+
+De `RelatedPerson.relationship` en de `CareTeam.participant.role` leggen twee verschillende dimensies vast:
+
+- **`RelatedPerson.relationship`** beschrijft _wie_ iemand is ten opzichte van de patiënt: de sociale of biologische band (ouder, partner, vriend). Dit gebruikt de standaard FHIR ValueSet [`relatedperson-relationshiptype`](http://hl7.org/fhir/ValueSet/relatedperson-relationshiptype).
+- **`CareTeam.participant.role`** beschrijft _welke rol_ iemand vervult in de zorgcontext, en daarmee welke autorisaties gelden (mantelzorger, wettelijk vertegenwoordiger, naaste, buddy).
+
+Deze dimensies zijn niet uitwisselbaar: een ouder (relationship) kan mantelzorger _of_ wettelijk vertegenwoordiger zijn (rol). Een vriend (relationship) kan naaste _of_ buddy zijn (rol). De sociale relatie bepaalt niet automatisch de autorisatierol.
+
+**De CareTeam rol is leidend voor autorisatie.** De `RelatedPerson.relationship` is informatief en kan gebruikt worden om context te bieden (wie is deze persoon voor de patiënt), maar de rechten worden altijd afgeleid van de `CareTeam.participant.role`.
+
 Voor het vastleggen van de relatie van een RelatedPerson wordt het `RelatedPerson.relationship` element gebruikt:
 
 ```json
