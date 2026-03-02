@@ -2,6 +2,7 @@
 
 | Versie | Datum      | Wijziging                                                                                                                                     |
 |--------|------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| 0.0.9  | 2026-03-02 | Paragraaf 'Zonder CareTeam' en Task.owner inherente toegang toegevoegd                                                                        |
 | 0.0.8  | 2026-02-12 | Task.requester hoeft niet in CareTeam te zitten, tenzij deze de taak ook daadwerkelijk wil starten                                            |
 | 0.0.7  | 2026-01-06 | Verduidelijking: CareTeam beschrijft zorgcontext, niet het autorisatiemodel zelf                                                              |
 | 0.0.6  | 2026-01-06 | Diagram toegevoegd: relatie CareTeam, autorisatiematrix en FHIR resources                                                                     |
@@ -136,6 +137,12 @@ CareTeam voor Intake Gesprek Jan Jansen
 
 Het gebruik van het CareTeam als autorisatiemodel is onderdeel van het breder uitzetten van het autorisatiemodel in Koppeltaal 2.0. Het CareTeam is een van de entiteiten betrokken in het autorisatiemodel, maar zeker niet de enige entiteit noch middel betrokken in het autorisatiemodel.
 Het voorgestelde autorisatiemodel voor CareTeams is gebaseerd op onderstaande principes om een duidelijke en veilige autorisatiestructuur te garanderen:
+
+#### Zonder CareTeam: impliciet model via Task
+
+Het gebruik van CareTeam is optioneel en een systeembrede keuze die a-priori wordt gemaakt door de partijen in een domein. Zonder CareTeam valt men terug op het huidige model: relaties tussen betrokkenen en patiënt worden enkel impliciet gelegd via de Task — in `Task.owner`, `Task.for` (patiënt) en `Task.requester` (Practitioner). Het CareTeam maakt deze relaties expliciet en voegt daar rollen aan toe.
+
+Ongeacht of CareTeams worden gebruikt geldt: een `Task.owner` heeft altijd toegang tot de eigen taak (lezen en bijwerken). Dit recht is inherent aan het eigenaarschap van de taak en vereist geen CareTeam-lidmaatschap of specifieke rol.
 
 #### Basisprincipes
 

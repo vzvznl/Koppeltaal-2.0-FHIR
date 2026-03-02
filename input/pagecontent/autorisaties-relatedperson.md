@@ -2,6 +2,7 @@
 
 | Versie | Datum      | Wijziging                                                                                                            |
 |--------|------------|----------------------------------------------------------------------------------------------------------------------|
+| 0.0.5  | 2026-03-02 | Overweging 'Namens de cliënt optreden' en DigID-machtiging toegevoegd                                                |
 | 0.0.4  | 2026-01-16 | Fallback "Overige relaties" toegevoegd voor onbekende FHIR/SNOMED rollen                                             |
 | 0.0.3  | 2026-01-13 | Naaste en Buddy: Task rechten gewijzigd van R naar RU                                                                |
 | 0.0.2  | 2026-01-13 | Terminologie "rol" gewijzigd naar "relatie"; "Geen relatie in CareTeam" toegevoegd                                   |
@@ -20,6 +21,10 @@ Deze autorisatiematrix beschrijft de rechten voor RelatedPersons binnen de conte
 - **Zelfhulp taken**: Het aanmaken van zelfhulp taken door RelatedPersons (met name de Wettelijk vertegenwoordiger) is nog niet uitgewerkt. In een toekomstige versie kan dit worden toegevoegd, vergelijkbaar met hoe Patiënten zelfhulp taken kunnen aanmaken.
 
 - **Patiënt/RelatedPerson context**: Het launch type **Patiënt/RelatedPerson context** is bedoeld voor portal applicaties (zoals een patiëntportaal) en niet voor module applicaties. Deze wordt meegenomen in de autorisatiematrix ter volledigheid en omdat deze in de toekomst van toepassing wordt.
+
+- **Namens de cliënt optreden (DigID-machtiging)**: Een Wettelijk vertegenwoordiger of persoon met ouderlijk gezag kan namens de patiënt handelen. Dit is een delegatie van de volledige patiëntautorisatie. In de praktijk wordt dit uiteindelijk opgelost via DigID-machtiging, waarbij de vertegenwoordiger als zichzelf inlogt en via een machtigingsrelatie namens de patiënt kan handelen. Twee mogelijke implementaties zijn:
+  1. De aanroepende applicatie (portaal) initieert de launch alsof de patiënt het zelf doet (bestaande flow)
+  2. De vertegenwoordiger is deelnemer aan het CareTeam met een rol die aangeeft dat deze namens de patiënt mag optreden (zuiverder model, toekomstige richting met DigID-integratie)
 
 #### Context en Launch types
 De onderstaande autorisatieregels gelden voor **alle launch types** waarbij een RelatedPerson betrokken is:
