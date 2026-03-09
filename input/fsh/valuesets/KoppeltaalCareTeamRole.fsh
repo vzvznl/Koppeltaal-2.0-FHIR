@@ -20,8 +20,11 @@ De SNOMED codes zijn gereviewd door Nictiz.
 * include codes from valueset ZorgverlenerRolCodelijst
 
 // SNOMED CT codes voor Koppeltaal autorisatierollen (gereviewd door Nictiz)
+// Behandelaar
 * $sct#405623001 "Assigned practitioner (occupation)"
+// Zorgondersteuner (administratief/ondersteunend)
 * $sct#224608005 "Administrative healthcare staff (occupation)"
+// Zorgondersteuner (niet-medische coördinatie)
 * $sct#768821004 "Care team coordinator (occupation)"
 
 

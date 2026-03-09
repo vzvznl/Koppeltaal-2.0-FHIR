@@ -1,5 +1,13 @@
 CHANGELOG
 
+## 0.15.4 (2026-03-09)
+
+### Changed
+- **CareTeam autorisatierollen**: Case Manager rol samengevoegd met Zorgondersteuner (leveranciersfeedback)
+  - SNOMED code `768821004` (Care team coordinator) valt nu onder Zorgondersteuner autorisatieniveau
+  - Twee Practitioner autorisatieniveaus: Behandelaar (`405623001`) en Zorgondersteuner (`224608005` + `768821004`)
+  - Voorbeelden, profiel en autorisatiepagina's bijgewerkt
+
 ## 0.15.3 (2026-02-18)
 
 ### Fixed

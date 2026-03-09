@@ -33,8 +33,7 @@ Er wordt onderscheid gemaakt tussen de volgende situaties:
 |:------------------------------------------|:-----------------------------------------|:-----------------------------------------------------|
 | **Practitioner zonder rol in CareTeam**   | Niet opgenomen in CareTeam               | Alleen eigen taken en toegewezen resources           |
 | **Behandelaar in CareTeam**               | Behandelend zorgverlener                 | Volledige toegang tot patiënten in hun CareTeams     |
-| **Zorgondersteuner/Administratief mdw**   | Ondersteunende rol                       | Taken klaarzetten, niet starten                      |
-| **Case Manager**                          | Organisatie-breed overzicht              | Brede toegang binnen de organisatie                  |
+| **Zorgondersteuner/Administratief mdw**   | Ondersteunende en coördinerende rol      | Taken klaarzetten, niet starten                      |
 | **Overige rollen**                        | Onbekende of niet-gedefinieerde rol      | Alleen eigen taken en toegewezen resources           |
 
 **Toelichting bevoegdheden:**
@@ -44,7 +43,6 @@ Er wordt onderscheid gemaakt tussen de volgende situaties:
 | Alleen eigen taken             | Toegang beperkt tot taken waar de Practitioner eigenaar van is                 |
 | Volledige toegang              | CRUD rechten op resources van patiënten binnen de CareTeams                    |
 | Read-only CareTeam resources   | Leestoegang tot CareTeam leden, maar geen wijzigingsrechten                    |
-| Brede toegang                  | Overzicht en beheer van resources binnen de gehele organisatie                 |
 
 #### Autorisatieregels
 
@@ -59,7 +57,6 @@ De Task en Task Launch rechten zijn direct gekoppeld aan de bevoegdheden per sit
 | **Practitioner zonder rol in CareTeam**   | CRUD       | R (via Task) | ✓                  | ✓ (via Task)         |
 | **Behandelaar in CareTeam**               | CRUD       | CRUD         | ✓                  | ✓                    |
 | **Zorgondersteuner/Administratief mdw**   | -          | CRUD         | -                  | -                    |
-| **Case Manager**                          | -          | R            | -                  | ✓                    |
 | **Overige rollen**                        | CRUD       | R (via Task) | ✓                  | ✓ (via Task)         |
 
 **Toelichting:**
@@ -95,7 +92,7 @@ Deze Practitioners hebben toegang tot resources primair via Task toewijzingen. D
 
 ##### Zorgondersteuner/Administratief medewerker
 
-Deze rol kan taken klaarzetten voor patiënten, maar kan ze niet zelf starten. De rol is bedoeld voor ondersteunende werkzaamheden zoals het voorbereiden van taken.
+Deze rol kan taken klaarzetten voor patiënten, maar kan ze niet zelf starten. De rol is bedoeld voor ondersteunende en coördinerende werkzaamheden zoals het voorbereiden van taken. Zowel SNOMED code `224608005` (Administrative healthcare staff) als `768821004` (Care team coordinator) vallen onder dit autorisatieniveau.
 
 | Entiteit               | Toegang                                  | CRUD   | Search Narrowing                                                                              |
 |------------------------|------------------------------------------|--------|-----------------------------------------------------------------------------------------------|
@@ -106,20 +103,6 @@ Deze rol kan taken klaarzetten voor patiënten, maar kan ze niet zelf starten. D
 | **ActivityDefinition** | Alles                                    | R      | `ActivityDefinition`                                                                          |
 | **Task**               | Taken van patiënten in mijn CareTeam     | CRUD   | `Task?patient._has:CareTeam:patient:participant=Practitioner/{id}`                            |
 | **Task Launch**        | Geen                                     | -      | N.v.t.                                                                                        |
-
-##### Case Manager
-
-De Case Manager heeft organisatie-breed overzicht en kan taken van alle patiënten binnen de organisatie inzien en starten. De Case Manager heeft geen eigen taken.
-
-| Entiteit               | Toegang                                   | CRUD   | Search Narrowing                              |
-|------------------------|-------------------------------------------|--------|-----------------------------------------------|
-| **Patient**            | Alle patiënten binnen Organization        | R      | `Patient?organization=Organization/{id}`      |
-| **Practitioner**       | Alle behandelaren binnen Organization     | R      | `Practitioner?organization=Organization/{id}` |
-| **RelatedPerson**      | Geen                                      | -      | N.v.t.                                        |
-| **CareTeam**           | Alle CareTeams binnen Organization        | R      | `CareTeam?organization=Organization/{id}`     |
-| **ActivityDefinition** | Alles                                     | R      | `ActivityDefinition`                          |
-| **Task**               | Taken van patiënten binnen Organization   | R      | `Task?patient.organization=Organization/{id}` |
-| **Task Launch**        | Taken van patiënten binnen Organization   | Launch | `Task?patient.organization=Organization/{id}` |
 
 ##### Overige rollen
 

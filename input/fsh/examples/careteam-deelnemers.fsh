@@ -24,7 +24,7 @@ Usage: #example
 * participant[+]
   * role
     * coding = $sct#768821004 "Care team coordinator (occupation)"
-    * text = "Case Manager"
+    * text = "Zorgondersteuner"
   * member = Reference(practitioner-minimaal) "M. Splinter"
     * type = "Practitioner"
 * managingOrganization = Reference(organization-naam-type)
