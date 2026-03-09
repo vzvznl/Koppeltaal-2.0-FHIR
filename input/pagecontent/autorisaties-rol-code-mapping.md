@@ -1,14 +1,14 @@
 ### Changelog
 
-| Versie | Datum      | Wijziging                                                              |
+| Versie | Datum      | Wijziging                                      |
 |--------|------------|------------------------------------------------------------------------|
 | 0.4.0  | 2026-02-17 | Eigen CodeSystem vervangen door SNOMED CT codes (Nictiz review)        |
 | 0.3.0  | 2026-02-17 | SNOMED mapping bijgewerkt op basis van Nictiz review (Mirte)           |
 | 0.2.0  | 2026-02-12 | SNOMED CT mapping vervangen door eigen Koppeltaal CodeSystem           |
 | 0.1.0  | 2026-01-22 | Koppeltaal CodeSystem geïntroduceerd voor autorisatierollen            |
-| 0.0.3  | 2026-01-20 | RelatedPerson code mapping toegevoegd                                  |
-| 0.0.2  | 2026-01-20 | Codes bijgewerkt op basis van review                                   |
-| 0.0.1  | 2026-01-20 | Initiële versie met SNOMED CT code mapping                             |
+| 0.0.3  | 2026-01-20 | RelatedPerson code mapping toegevoegd          |
+| 0.0.2  | 2026-01-20 | Codes bijgewerkt op basis van review           |
+| 0.0.1  | 2026-01-20 | Initiële versie met SNOMED CT code mapping     |
 
 ---
 
