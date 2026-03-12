@@ -15,6 +15,7 @@ permissions:
   contents: write
   packages: write
   pages: write
+  pull-requests: write
 
 # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
 # However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
@@ -113,6 +114,77 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  deploy-pr-preview:
+    name: Deploy PR Preview to Netlify
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref != 'refs/heads/main'
+    steps:
+      - name: Find associated PR
+        id: pr
+        run: |
+          PR_NUMBER=$(gh pr list --repo "$GITHUB_REPOSITORY" --head "$BRANCH_NAME" --state open --json number --jq '.[0].number')
+          if [ -z "$PR_NUMBER" ]; then
+            echo "No open PR found for branch $BRANCH_NAME"
+            echo "found=false" >> $GITHUB_OUTPUT
+          else
+            echo "Found PR #$PR_NUMBER"
+            echo "number=$PR_NUMBER" >> $GITHUB_OUTPUT
+            echo "found=true" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH_NAME: ${{ github.ref_name }}
+
+      - name: Download full build artifacts
+        if: steps.pr.outputs.found == 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: fhir-package-full
+
+      - name: Deploy to Netlify
+        if: steps.pr.outputs.found == 'true'
+        id: netlify
+        run: |
+          DEPLOY_URL=$(npx netlify-cli deploy \
+            --dir=./output \
+            --alias="pr-${PR_NUMBER}" \
+            --json | jq -r '.deploy_url')
+          echo "url=$DEPLOY_URL" >> $GITHUB_OUTPUT
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_PROJECT_ID }}
+          PR_NUMBER: ${{ steps.pr.outputs.number }}
+
+      - name: Post or update PR comment
+        if: steps.pr.outputs.found == 'true'
+        run: |
+          MARKER="<!-- ig-preview -->"
+
+          cat > /tmp/pr-comment.md <<EOF
+          ${MARKER}
+          ## IG Preview
+
+          The Implementation Guide for this PR is available at:
+          **${DEPLOY_URL}**
+
+          _Last updated: $(date -u '+%Y-%m-%d %H:%M UTC') | Commit: ${GITHUB_SHA::7}_
+          EOF
+
+          COMMENT_ID=$(gh api "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" --paginate \
+            --jq ".[] | select(.body | contains(\"${MARKER}\")) | .id" | head -1)
+
+          if [ -n "$COMMENT_ID" ]; then
+            gh api "repos/${GITHUB_REPOSITORY}/issues/comments/${COMMENT_ID}" \
+              -X PATCH -F body=@/tmp/pr-comment.md
+          else
+            gh pr comment "$PR_NUMBER" --body-file /tmp/pr-comment.md
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ steps.pr.outputs.number }}
+          DEPLOY_URL: ${{ steps.netlify.outputs.url }}
 
   publish-npm-full:
     name: Publish Full Package to GitHub Packages
