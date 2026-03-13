@@ -17,9 +17,8 @@ Id: KT2CareTeam
 * encounter ..0
 * participant ^comment = "WARNING: `allSlices` is a display bug in Simplifier.net. There is no `allSlices` slice. Firely is already notified of this bug."
 * participant[contactPerson] ..0
-* participant[patient].member only Reference(KT2_Patient)
-* participant[patient].onBehalfOf ^comment = "This element is not used in the context of Koppeltaal 2.0"
-* participant[patient].period ^comment = "This element is not used in the context of Koppeltaal 2.0"
+* participant[patient] ..0
+* participant[patient] ^comment = "This slice is not used in the context of Koppeltaal 2.0. The patient is always represented via CareTeam.subject, not as a participant member."
 * participant[healthcareProfessional] ..0
 * participant[healthcareProfessional] ^comment = "This slice is not used in the context of Koppeltaal 2.0"
 * participant contains
