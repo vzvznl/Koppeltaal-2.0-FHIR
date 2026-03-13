@@ -1,5 +1,10 @@
 CHANGELOG
 
+## 0.15.5 (2026-03-13)
+
+### Changed
+- **KT2CareTeam profile**: Set `participant[patient]` to `0..0` — the patient is always represented via `CareTeam.subject`, not as a participant member
+
 ## 0.15.4 (2026-03-09)
 
 ### Changed
