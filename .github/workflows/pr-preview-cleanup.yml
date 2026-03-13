@@ -1,0 +1,54 @@
+name: Clean up PR preview
+
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  cleanup:
+    name: Remove Netlify PR preview
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete Netlify deploy
+        run: |
+          DEPLOYS=$(npx netlify-cli api listSiteDeploys \
+            --data "{\"site_id\": \"${NETLIFY_SITE_ID}\"}" 2>/dev/null \
+            | jq -r ".[] | select(.deploy_ssl_url | test(\"pr-${PR_NUMBER}--\")) | .id")
+
+          for DEPLOY_ID in $DEPLOYS; do
+            echo "Deleting deploy $DEPLOY_ID"
+            npx netlify-cli api deleteDeploy \
+              --data "{\"deploy_id\": \"${DEPLOY_ID}\"}" 2>/dev/null
+          done
+
+          if [ -z "$DEPLOYS" ]; then
+            echo "No preview deploy found for PR #${PR_NUMBER}"
+          fi
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_PROJECT_ID }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+
+      - name: Update PR comment
+        run: |
+          MARKER="<!-- ig-preview -->"
+
+          COMMENT_ID=$(gh api "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" --paginate \
+            --jq ".[] | select(.body | contains(\"${MARKER}\")) | .id" | head -1)
+
+          if [ -n "$COMMENT_ID" ]; then
+            cat > /tmp/pr-comment.md <<EOF
+          ${MARKER}
+          ## IG Preview
+
+          ~~Preview has been removed (PR closed).~~
+          EOF
+            gh api "repos/${GITHUB_REPOSITORY}/issues/comments/${COMMENT_ID}" \
+              -X PATCH -F body=@/tmp/pr-comment.md
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
