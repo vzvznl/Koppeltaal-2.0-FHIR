@@ -179,7 +179,7 @@ jobs:
             gh api "repos/${GITHUB_REPOSITORY}/issues/comments/${COMMENT_ID}" \
               -X PATCH -F body=@/tmp/pr-comment.md
           else
-            gh pr comment "$PR_NUMBER" --body-file /tmp/pr-comment.md
+            gh api "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" -F body=@/tmp/pr-comment.md
           fi
         env:
           GH_TOKEN: ${{ github.token }}
