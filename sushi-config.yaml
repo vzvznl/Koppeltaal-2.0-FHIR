@@ -132,6 +132,8 @@ pages:
     extension:
       - url: http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status
         valueCode: draft
+  changes.md:
+    title: Changelog
 
 parameters: # see https://confluence.hl7.org/display/FHIR/Implementation+Guide+Parameters
   apply-contact: false
@@ -204,6 +206,7 @@ menu:
     RelatedPerson: StructureDefinition-KT2RelatedPerson.html
     Subscription: StructureDefinition-KT2Subscription.html
     Task: StructureDefinition-KT2Task.html
+  Changelog: changes.html
   Artifacts: artifacts.html
 
 instanceOptions:
