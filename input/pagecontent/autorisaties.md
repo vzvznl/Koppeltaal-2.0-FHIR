@@ -76,9 +76,8 @@ Patiënten hebben toegang tot hun eigen gegevens en kunnen:
 #### [Practitioner](autorisaties-practitioner.html)
 Behandelaars hebben verschillende autorisatieniveaus:
 - **Zonder CareTeam rol**: Toegang via taken
-- **Behandelaar in CareTeam**: Volledige toegang tot teampatïenten
-- **Zorgondersteuner**: Read-only toegang met taakbeheer
-- **Case Manager**: Organisatie-brede toegang
+- **Behandelaar in CareTeam**: Volledige toegang tot teampatiënten
+- **Zorgondersteuner**: Ondersteunende en coördinerende rol met taakbeheer
 
 #### [RelatedPerson](autorisaties-relatedperson.html)
 Mantelzorgers en vertegenwoordigers met verschillende typen:
