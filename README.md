@@ -410,3 +410,5 @@ The sync-fhir-package.py script synchronizes all resources from the FHIR package
 - **CI/CD**: Automated builds and releases via GitHub Actions
 
 For complete technical details, see [BUILD.md](BUILD.md).
+
+
