@@ -1,5 +1,9 @@
 CHANGELOG
 
+## 0.16.0 (2026-03-24)
+
+_Geen wijzigingen ten opzichte van 0.15.5._
+
 ## 0.15.5 (2026-03-13)
 
 ### Changed

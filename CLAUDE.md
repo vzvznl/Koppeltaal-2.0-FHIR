@@ -1,0 +1,11 @@
+- Always check the sanity of the FSH files with the "Run the builds" section of the README.md, never run sushi or other tools like publisher.jar locally. If you want to run specific commands, change the entrypoint of the docker run command.
+- The docker / Makefile publishing (publish) requires FHIR_EMAIL and FHIR_PASSWORD environment variables (see ~/.claude/CLAUDE.md for values).
+- Create a new feature branch for each new feature and before committing changes.
+- Use Python 3 for all scripts.
+- Update the CHANGELOG.md and input/pagecontent/changes.md files when bumping the version on main, but never on a feature/fix branch.
+- The CHANGELOG.md file should only reflect changes to the FHIR IG (./input/fsh) and not to the build process, scripts or other files.
+- When updating the version in sushi-config.yaml, also update:
+  - CHANGELOG.md with only changes to ./input/fsh
+  - input/pagecontent/changes.md with the same changelog entries (this is the IG-published changelog)
+  - package.json with the same version number
+- When creating new files, add them to the git index.
