@@ -1,0 +1,12 @@
+---
+title: "Beslisboom: zorgcontext per patiënt"
+---
+flowchart TD
+    A[Patiënt] --> B{Is er een CareTeam\nvoor deze patiënt?}
+
+    B -->|Ja| C[Zorgcontext is EXPLICIET\nbepaald door het CareTeam]
+    C --> D["Regels KT-027 gelden:\n• Task.owner moet lid zijn van CareTeam\n• Rollen bepalen autorisaties (SNOMED CT)\n• Autorisatiematrix is van toepassing\n• Meerdere CareTeams per patiënt mogelijk"]
+
+    B -->|Nee| E[Zorgcontext is IMPLICIET\ngevormd door de Task]
+    E --> F["Betrokkenen afgeleid uit:\n• Task.for → patiënt\n• Task.owner → uitvoerder\n• Task.requester → aanvrager"]
+    F --> G[Geen rolgebaseerde autorisatie]

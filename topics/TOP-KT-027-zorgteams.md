@@ -41,6 +41,45 @@ CareTeam is optioneel; partijen die het niet gebruiken worden niet geraakt. Dit 
 
 Zonder CareTeam valt men terug op het huidige model: relaties tussen betrokkenen en patiënt worden enkel impliciet gelegd via de Task — in `Task.owner`, `Task.for` (patiënt) en `Task.requester` (Practitioner). Het CareTeam maakt deze relaties expliciet en voegt daar rollen aan toe.
 
+#### Beslisboom: zorgcontext per patiënt
+
+```
+                        ┌──────────┐
+                        │ Patiënt  │
+                        └────┬─────┘
+                             │
+                  ┌──────────▼──────────┐
+                  │  Is er een CareTeam │
+                  │  voor deze patiënt? │
+                  └──┬──────────────┬───┘
+                     │              │
+                   Ja ▼            Nee ▼
+        ┌────────────────────┐  ┌────────────────────────┐
+        │ Zorgcontext is     │  │ Zorgcontext is         │
+        │ EXPLICIET          │  │ IMPLICIET              │
+        │ (CareTeam)         │  │ (Task-gebaseerd)       │
+        ├────────────────────┤  ├────────────────────────┤
+        │                    │  │                        │
+        │ • Regels KT-027    │  │ Betrokkenen afgeleid   │
+        │   zijn van         │  │ uit de Task:           │
+        │   toepassing       │  │                        │
+        │                    │  │ • Task.for             │
+        │ • Task.owner moet  │  │   → patiënt            │
+        │   lid zijn van     │  │                        │
+        │   het CareTeam     │  │ • Task.owner           │
+        │                    │  │   → uitvoerder         │
+        │ • Rollen (SNOMED   │  │                        │
+        │   CT) bepalen de   │  │ • Task.requester       │
+        │   autorisaties     │  │   → aanvrager          │
+        │                    │  │                        │
+        │ • Autorisatie-     │  │ Geen rolgebaseerde     │
+        │   matrix is van    │  │ autorisatie            │
+        │   toepassing       │  │                        │
+        └────────────────────┘  └────────────────────────┘
+```
+
+> De Mermaid-bron van dit diagram is beschikbaar in [`input/images/beslisboom-zorgcontext.mmd`](../input/images/beslisboom-zorgcontext.mmd) voor import in draw.io.
+
 ### Types CareTeams
 
 Er zijn drie denkbare typen CareTeams: organisatie-CareTeams (zonder patiënt), patiënt-specifieke CareTeams en Task-level CareTeams (gebonden aan een specifieke taak).

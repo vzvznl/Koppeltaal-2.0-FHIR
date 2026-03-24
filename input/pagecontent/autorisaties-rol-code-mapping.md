@@ -2,6 +2,7 @@
 
 | Versie | Datum      | Wijziging                                      |
 |--------|------------|------------------------------------------------------------------------|
+| 0.5.0  | 2026-03-09 | Case Manager samengevoegd met Zorgondersteuner (leveranciersfeedback)  |
 | 0.4.0  | 2026-02-17 | Eigen CodeSystem vervangen door SNOMED CT codes (Nictiz review)        |
 | 0.3.0  | 2026-02-17 | SNOMED mapping bijgewerkt op basis van Nictiz review (Mirte)           |
 | 0.2.0  | 2026-02-12 | SNOMED CT mapping vervangen door eigen Koppeltaal CodeSystem           |
@@ -34,7 +35,7 @@ De onderstaande SNOMED CT codes zijn beschikbaar voor Practitioners binnen een C
 |:----|:---------------|:---------------|:-----------|
 | **Behandelaar** | `405623001` | Assigned practitioner (occupation) | Volledige CRUD rechten op patiënten in CareTeam |
 | **Zorgondersteuner** | `224608005` | Administrative healthcare staff (occupation) | Taken klaarzetten, niet starten |
-| **Case Manager** | `768821004` | Care team coordinator (occupation) | Leestoegang organisatie-breed, taken starten |
+| **Zorgondersteuner** | `768821004` | Care team coordinator (occupation) | Taken klaarzetten, niet starten |
 | **Practitioner zonder rol in CareTeam** | - | - | Minimale rechten |
 | **Overige rollen** | - | - | Fallback, minimale rechten |
 
@@ -127,15 +128,15 @@ Deze dimensies zijn niet uitwisselbaar: een ouder (relationship) kan mantelzorge
   "participant": [
     {
       "role": [
-    {
-      "coding": [
         {
-          "system": "http://snomed.info/sct",
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
               "code": "407542009",
               "display": "Informal carer (person)"
+            }
+          ]
         }
-      ]
-    }
       ],
       "member": {
         "reference": "RelatedPerson/456"
@@ -164,7 +165,7 @@ De autorisatielogica werkt als volgt:
 │  3. Leid permissies af van SNOMED code via permissiematrix              │
 │     405623001 (behandelaar) → CRUD op CareTeam resources                │
 │     224608005 (zorgondersteuner) → CRUD taken, geen launch              │
-│     768821004 (case manager) → organisatie-breed lezen, taken starten   │
+│     768821004 (zorgondersteuner) → CRUD taken, geen launch              │
 │     etc.                                                                │
 ├─────────────────────────────────────────────────────────────────────────┤
 │  4. Pas permissies toe bij resource access                              │
