@@ -132,6 +132,11 @@ pages:
     extension:
       - url: http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status
         valueCode: draft
+  archivering.md:
+    title: Archivering
+    extension:
+      - url: http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status
+        valueCode: draft
   changes.md:
     title: Changelog
 
@@ -188,12 +193,9 @@ menu:
     Patient: autorisaties-patient.html
     Practitioner: autorisaties-practitioner.html
     RelatedPerson: autorisaties-relatedperson.html
+  Archivering (DRAFT): archivering.html
   Koppeltaal Extensions:
     Related Person - Multiple IdP: multiple-idp-support.html
-  Change Management:
-    Topic 11 - Trace Headers: change-management-topic-11-trace-headers.html
-    Topic 11 - Implementation Feedback: change-management-topic-11-implementation-feedback.html
-    Topic 11 - RelatedPerson Impact: change-management-topic-11-relatedperson-impact.html
   Profile Specific Notes:
     ActivityDefinition: StructureDefinition-KT2ActivityDefinition.html
     AuditEvent: StructureDefinition-KT2AuditEvent.html
