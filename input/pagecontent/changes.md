@@ -2,6 +2,11 @@
 
 Deze pagina bevat een overzicht van de wijzigingen per versie van de Koppeltaal 2.0 Implementation Guide.
 
+### 0.16.1 (2026-03-24)
+
+#### Fixed
+- **Multiple IdP Support pagina**: `idp_hint` voorbeeld gebruikte een issuer URL in plaats van een logische identifier
+
 ### 0.16.0 (2026-03-24)
 
 Geen wijzigingen ten opzichte van 0.15.5.

@@ -77,7 +77,7 @@ Het HTI launch token wordt uitgebreid met een optionele `idp_hint` claim:
   "sub": "Patient/456",
   "resource": "Task/789",
   "definition": "ActivityDefinition/abc",
-  "idp_hint": "https://idp.example.com/idp1/",
+  "idp_hint": "idp-relatedperson-digid",
   "iat": 1234567890,
   "exp": 1234567950
 }

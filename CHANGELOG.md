@@ -1,5 +1,10 @@
 CHANGELOG
 
+## 0.16.1 (2026-03-24)
+
+### Fixed
+- **Multiple IdP Support pagina**: `idp_hint` voorbeeld gebruikte een issuer URL in plaats van een logische identifier
+
 ## 0.16.0 (2026-03-24)
 
 _Geen wijzigingen ten opzichte van 0.15.5._
