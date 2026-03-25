@@ -91,6 +91,7 @@ publisher.jar
 *.inflator.json
 Practitioner.json
 /.claude/
+CLAUDE.md
 /.bake/
 /temp-package/
 /test-resources/

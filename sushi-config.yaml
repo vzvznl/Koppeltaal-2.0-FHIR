@@ -181,19 +181,19 @@ menu:
     Related Person: info-relatedperson.html
     Examples: examples.html
     Strict use of Name Information: strict-use-of-nameinformation.html
-  Zorgcontext (DRAFT):
+  Zorgcontext:
     Overzicht: care-context.html
     CareTeam: care-context-careteam.html
     CareTeam - Q&A: care-context-careteam-q-n-a.html
     Care Services Directory: care-context-care-service-directory.html
-  Autorisaties (DRAFT):
+  Autorisaties:
     Overzicht: autorisaties.html
     Transitiemodel: autorisaties-transitiemodel.html
     Rol Code Mapping: autorisaties-rol-code-mapping.html
     Patient: autorisaties-patient.html
     Practitioner: autorisaties-practitioner.html
     RelatedPerson: autorisaties-relatedperson.html
-  Archivering (DRAFT): archivering.html
+  Archivering: archivering.html
   Koppeltaal Extensions:
     Related Person - Multiple IdP: multiple-idp-support.html
   Profile Specific Notes:

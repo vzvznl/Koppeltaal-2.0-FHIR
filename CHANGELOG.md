@@ -1,22 +1,13 @@
 CHANGELOG
 
-## 0.16.1 (2026-03-24)
-
-### Fixed
-- **Multiple IdP Support pagina**: `idp_hint` voorbeeld gebruikte een issuer URL in plaats van een logische identifier
-
-## 0.16.0 (2026-03-24)
-
-_Geen wijzigingen ten opzichte van 0.15.5._
-
 ## 0.15.5 (2026-03-13)
 
-### Changed
-- **KT2CareTeam profile**: Set `participant[patient]` to `0..0` — the patient is always represented via `CareTeam.subject`, not as a participant member
+### Gewijzigd
+- **KT2CareTeam profiel**: `participant[patient]` op `0..0` gezet — de patiënt wordt altijd via `CareTeam.subject` gerepresenteerd, niet als participant
 
 ## 0.15.4 (2026-03-09)
 
-### Changed
+### Gewijzigd
 - **CareTeam autorisatierollen**: Case Manager rol samengevoegd met Zorgondersteuner (leveranciersfeedback)
   - SNOMED code `768821004` (Care team coordinator) valt nu onder Zorgondersteuner autorisatieniveau
   - Twee Practitioner autorisatieniveaus: Behandelaar (`405623001`) en Zorgondersteuner (`224608005` + `768821004`)
@@ -24,287 +15,176 @@ _Geen wijzigingen ten opzichte van 0.15.5._
 
 ## 0.15.3 (2026-02-18)
 
-### Fixed
-- **KT2CareTeam profile**: Removed role sub-slicing to fix SLICING_CANNOT_BE_EVALUATED validation errors; ValueSet binding now directly on `participant.role`
-- **Autorisaties pagina**: Fixed broken links to authorization pages (`authorization-*.html` → `autorisaties-*.html`)
+### Hersteld
+- **KT2CareTeam profiel**: Role sub-slicing verwijderd om SLICING_CANNOT_BE_EVALUATED validatiefouten op te lossen; ValueSet binding nu direct op `participant.role`
 
-### Changed
-- **KT2CareTeam profile**: Replaced custom KoppeltaalCareTeamRole CodeSystem with SNOMED CT codes (Nictiz review)
-- **ValueSets**: KoppeltaalPractitionerRoleValueSet and KoppeltaalRelatedPersonRoleValueSet now use SNOMED CT codes
-- **Examples**: All CareTeam examples updated to use SNOMED CT role codes
+### Gewijzigd
+- **KT2CareTeam profiel**: Custom KoppeltaalCareTeamRole CodeSystem vervangen door SNOMED CT codes (Nictiz review)
+- **ValueSets**: KoppeltaalPractitionerRoleValueSet en KoppeltaalRelatedPersonRoleValueSet gebruiken nu SNOMED CT codes
+- **Voorbeelden**: Alle CareTeam voorbeelden bijgewerkt met SNOMED CT rolcodes
 
 ## 0.15.2 (2026-02-17)
 
-### Changed
-- **Autorisaties rol code mapping**: Updated SNOMED CT codes based on Nictiz review (Mirte)
+### Gewijzigd
+- **Autorisaties rol code mapping**: SNOMED CT codes bijgewerkt op basis van Nictiz review (Mirte)
   - Practitioner: Zorgondersteuner `224609002` → `224608005`, Case Manager `224608005` → `768821004` (Care team coordinator)
-  - RelatedPerson: Mantelzorger `224610006` → `407542009` (Informal carer), Wettelijk vertegenwoordiger `419358007` → `310391000146105` (Legal representative bij wilsonbekwaamheid), Naaste `133932002` → `125677006` (Relative), Buddy `125680007` → `62071000` (Buddy)
-  - Familierelaties: updated with correct SNOMED concepts (`303071001`, `40683002`, `67822003`, `262043009`, `375005`, `113163005`)
-  - Resolved open vragen over Nederlandse extensie en granulariteit (reviewed by Nictiz)
+  - RelatedPerson: Mantelzorger `224610006` → `407542009` (Informal carer), Wettelijk vertegenwoordiger `419358007` → `310391000146105`, Naaste `133932002` → `125677006` (Relative), Buddy `125680007` → `62071000` (Buddy)
+  - Familierelaties bijgewerkt met correcte SNOMED concepten (`303071001`, `40683002`, `67822003`, `262043009`, `375005`, `113163005`)
+  - Open vragen over Nederlandse extensie en granulariteit opgelost (reviewed door Nictiz)
 
 ## 0.15.1 (2026-01-27)
 
-### Fixed
-- **KT2_RelatedPerson profile**: Fixed typo in `kt2-role-display-validation` invariant description
-  - Changed "role codes 21 and 24" to "role codes 23 and 24" to match the actual validation expression
+### Hersteld
+- **KT2_RelatedPerson profiel**: Typefout in `kt2-role-display-validation` invariant description hersteld
+  - "role codes 21 and 24" gewijzigd naar "role codes 23 and 24" conform de daadwerkelijke validatie-expressie
 
 ## 0.15.0 (2025-11-25)
 
-No changes from 0.15.0-beta.9.
+Geen wijzigingen ten opzichte van 0.15.0-beta.9.
 
 ## 0.15.0-beta.9 (2025-10-30)
 
-### Changed
-- **KT2_RelatedPerson profile**: Refined display validation to only validate codes 23 and 24
-  - Updated FHIRPath invariant `kt2-role-display-validation` to only enforce exact display values for COD472 codes 23 (Contactpersoon) and 24 (Wettelijke vertegenwoordiger)
-  - Other COD472 codes (01-22, 25-99) no longer require exact display matching, allowing more flexibility
-  - Reduces maintenance burden while enforcing critical business rules for the two most common role codes
-  - Display validation enforced due to known inconsistencies between different code systems and ValueSets
-  - Updated profile comments to clarify validation scope and rationale
-
-### Technical
-- Simplified invariant expression from 18 lines (16 codes) to 4 lines (2 codes)
-- Display values must match CodeSystem definitions exactly: "Contactpersoon" (code 23) and "Wettelijke vertegenwoordiger" (code 24)
-- Note: The display value in the ValueSet can differ from the CodeSystem; validation uses CodeSystem values
+### Gewijzigd
+- **KT2_RelatedPerson profiel**: Display-validatie beperkt tot alleen codes 23 en 24
+  - FHIRPath invariant `kt2-role-display-validation` valideert nu alleen COD472 codes 23 (Contactpersoon) en 24 (Wettelijke vertegenwoordiger)
+  - Overige COD472 codes (01-22, 25-99) vereisen geen exacte display-matching meer
+  - Vermindert onderhoudslast terwijl kritieke businessregels voor de twee meest gebruikte rolcodes behouden blijven
+  - Profielcommentaren bijgewerkt ter verduidelijking van validatiescope en rationale
 
 ## 0.15.0-beta.8 (2025-10-28)
 
-### Fixed
-- **KT2_RelatedPerson profile**: Enforce exact display values for COD472 role codes
-  - Added FHIRPath invariant `kt2-role-display-validation` to validate display values match CodeSystem definitions exactly
-  - Validates all 16 COD472 code/display pairs from the Nictiz ValueSet (urn:oid:2.16.840.1.113883.2.4.3.11.22.472)
-  - Raises ERROR (not just warning) when display values don't match
-  - Only validates COD472 codes; v3-RoleCode (HL7 international codes) remain lenient
-  - **Breaking change**: Resources with incorrect display values will now be rejected with 422 error
-
-### Technical
-- Standard FHIR validation treats display mismatches as warnings; this invariant enforces error-level validation for Dutch COD472 codes
-- Maintenance note: Invariant must be updated if COD472 CodeSystem is updated with new codes or display changes
+### Hersteld
+- **KT2_RelatedPerson profiel**: Exacte display-waarden afgedwongen voor COD472 rolcodes
+  - FHIRPath invariant `kt2-role-display-validation` toegevoegd die display-waarden valideert tegen CodeSystem definities
+  - Valideert alle 16 COD472 code/display paren uit de Nictiz ValueSet (urn:oid:2.16.840.1.113883.2.4.3.11.22.472)
+  - Geeft ERROR (niet alleen warning) bij onjuiste display-waarden
+  - Valideert alleen COD472 codes; v3-RoleCode (HL7 internationale codes) blijven soepel
+  - **Breaking change**: Resources met incorrecte display-waarden worden nu afgewezen met 422 error
 
 ## 0.15.0-beta.7 (2025-10-23)
 
-### Fixed
-- **Choice type constraints**: Fixed FHIR validation errors when constraining choice type elements to 0 cardinality
-  - KT2_Patient: `deceased[x]` and `multipleBirth[x]` now use explicit `0..0` cardinality with `[x]` suffix
-  - KT2_ActivityDefinition: `subject[x]`, `timing[x]`, and `product[x]` now use explicit `0..0` cardinality with `[x]` suffix
-  - Resolves "The element has no assigned types, and no content reference" validation errors
-- **Extension slicing conflicts**: Fixed "derived max (*) cannot be greater than the base max (1)" errors
-  - KT2_AuditEvent: Combined resource-origin, traceId, correlationId, and requestId extensions into single declaration
-  - KT2_ActivityDefinition: Combined resource-origin, endpoint, and publisherId extensions into single declaration
-  - KT2_Task: Combined resource-origin and instantiates extensions into single declaration
-  - Multiple 'extension contains' statements were creating conflicting slicing definitions
-- **NamingSystem ID**: Added missing explicit ID to koppeltaal-client-id NamingSystem
-  - Ensures SUSHI generates expected ID that matches ImplementationGuide references
-  - Prevents HAPI-1094 errors when uploading ImplementationGuide resources
+### Hersteld
+- **Choice type constraints**: FHIR validatiefouten opgelost bij het beperken van choice type elementen tot 0 cardinaliteit
+  - KT2_Patient: `deceased[x]` en `multipleBirth[x]` gebruiken nu expliciete `0..0` cardinaliteit met `[x]` suffix
+  - KT2_ActivityDefinition: `subject[x]`, `timing[x]` en `product[x]` gebruiken nu expliciete `0..0` cardinaliteit met `[x]` suffix
+- **Extension slicing conflicten**: "derived max cannot be greater than base max" fouten opgelost
+  - KT2_AuditEvent: resource-origin, traceId, correlationId en requestId extensions samengevoegd in één declaratie
+  - KT2_ActivityDefinition: resource-origin, endpoint en publisherId extensions samengevoegd in één declaratie
+  - KT2_Task: resource-origin en instantiates extensions samengevoegd in één declaratie
+- **NamingSystem ID**: Ontbrekend expliciet ID toegevoegd aan koppeltaal-client-id NamingSystem
 
-### Changed
-- Removed unused Tracing ruleset from rulesets.fsh (extensions now declared directly in profiles)
-
-### Technical
-- All profiles now validate successfully in HAPI FHIR servers
-- ImplementationGuide resources can be uploaded without reference errors
+### Gewijzigd
+- Ongebruikte Tracing ruleset verwijderd uit rulesets.fsh (extensions worden nu direct in profielen gedeclareerd)
 
 ## 0.15.0-beta.6 (2025-10-22)
 
-### Changed
-- **KT2_ActivityDefinition profile**: Consolidated useContext slice rename from `feature` to `koppeltaal-expansion`
-  - Merged feature/koppeltaal-extension-rename branch
-  - Ensures consistency with expansion terminology across the implementation guide
-
-### Added
-- **FHIR Package Synchronization**: New script `sync-fhir-package.py` for synchronizing FHIR packages to servers
-  - Downloads and extracts FHIR packages from URLs
-  - Detects discrepancies: missing resources, wrong IDs, wrong versions, duplicates
-  - Synchronizes resources by deleting duplicates and PUTting correct versions
-  - Handles optimistic locking via resource history
-  - Solves ImplementationGuide reference errors caused by ID mismatches
-- **ImplementationGuide Upload**: Enhanced `upload-implementation-guide.py` script
-  - Strips IG Publisher-specific parameters for HAPI FHIR compatibility
-  - Removes example resources that don't exist on server
-  - Supports optimistic locking with If-Match header
-
-### Technical
-- Improved FHIR server resource management tooling
-- Fixed version management for deleted resources using history etag
+### Gewijzigd
+- **KT2_ActivityDefinition profiel**: useContext slice hernoemd van `feature` naar `koppeltaal-expansion`
 
 ## 0.15.0-beta.5 (2025-10-21)
 
-### Changed
-- **KT2_ActivityDefinition profile**: Renamed useContext slice from `feature` to `koppeltaal-expansion`
-  - Aligns slice naming with expansion terminology introduced in 0.15.0-beta.4
-  - Improves consistency between slice name and the expansion concept it represents
-  - Generated StructureDefinition now uses `sliceName: "koppeltaal-expansion"`
-
-### Technical
-- Refactored profile slicing to use consistent naming throughout the implementation guide
+### Gewijzigd
+- **KT2_ActivityDefinition profiel**: useContext slice hernoemd van `feature` naar `koppeltaal-expansion`
+  - Sluit aan bij de expansion-terminologie geïntroduceerd in 0.15.0-beta.4
 
 ## 0.15.0-beta.4 (2025-10-21)
 
-### Changed
-- **Terminology rename**: Changed from "features" to "expansion" terminology
-  - Renamed `KoppeltaalFeatures` CodeSystem to `KoppeltaalExpansion`
-  - Changed URL from `http://vzvz.nl/fhir/CodeSystem/koppeltaal-features` to `http://vzvz.nl/fhir/CodeSystem/koppeltaal-expansion`
-  - Renamed `KoppeltaalFeatures_VS` ValueSet to `KoppeltaalExpansion_VS`
-  - Changed URL from `http://vzvz.nl/fhir/ValueSet/koppeltaal-features` to `http://vzvz.nl/fhir/ValueSet/koppeltaal-expansion`
-  - Updated descriptions from "Required features or capabilities" to "Optional expansions"
-  - Aligns with standard terminology: these are optional extensions, not required features
-- **KT2_ActivityDefinition profile**: Updated useContext[feature] documentation
-  - Changed from "Required feature or capability" to "Optional expansion"
-  - Updated binding descriptions to reflect optional nature
-
-### Technical
-- Updated all references in profiles, examples, and test resources to use new expansion terminology
+### Gewijzigd
+- **Terminologie hernoemd**: Van "features" naar "expansion" terminologie
+  - `KoppeltaalFeatures` CodeSystem → `KoppeltaalExpansion`
+  - URL gewijzigd van `http://vzvz.nl/fhir/CodeSystem/koppeltaal-features` naar `http://vzvz.nl/fhir/CodeSystem/koppeltaal-expansion`
+  - `KoppeltaalFeatures_VS` ValueSet → `KoppeltaalExpansion_VS`
+  - URL gewijzigd van `http://vzvz.nl/fhir/ValueSet/koppeltaal-features` naar `http://vzvz.nl/fhir/ValueSet/koppeltaal-expansion`
+  - Beschrijvingen gewijzigd van "Required features or capabilities" naar "Optional expansions"
+- **KT2_ActivityDefinition profiel**: useContext[feature] documentatie bijgewerkt
+  - Gewijzigd van "Required feature or capability" naar "Optional expansion"
 
 ## 0.15.0-beta.3 (2025-10-21)
 
-### Added
-- **KT2Task validation documentation**: Added mandatory validation rules for Tasks with read-only permissions (`Task.code = view`)
-  - Task must have `Task.partOf` present
-  - `Task.partOf` must reference a Task without `Task.code`
-  - `Task.for` must equal the `Task.for` of the referenced Task
-  - Documentation added to StructureDefinition-KT2Task-notes.md
-- **KT2CareTeam validation documentation**: Added mandatory validation rules for CareTeam operations
-  - `CareTeam.subject` must equal the associated Patient
-  - `CareTeam.status` must be `active`
-  - If `CareTeam.period` is present, validation moment must fall within the period
-  - Documentation added to StructureDefinition-KT2CareTeam-notes.md
+### Toegevoegd
+- **KT2Task validatiedocumentatie**: Verplichte validatieregels voor Tasks met alleen-lezen rechten (`Task.code = view`)
+  - Task moet `Task.partOf` bevatten
+  - `Task.partOf` moet verwijzen naar een Task zonder `Task.code`
+  - `Task.for` moet gelijk zijn aan de `Task.for` van de verwezen Task
+- **KT2CareTeam validatiedocumentatie**: Verplichte validatieregels voor CareTeam operaties
+  - `CareTeam.subject` moet gelijk zijn aan de bijbehorende Patient
+  - `CareTeam.status` moet `active` zijn
+  - Indien `CareTeam.period` aanwezig is, moet het validatiemoment binnen de periode vallen
 
-### Changed
-- Removed ambiguous statement from KT2Task documentation about `view` permission meaning differing per application
-  - Now clearly defines mandatory validation requirements for all applications
-
-### Technical
-- Implemented requirements from KPTSTD-925 (Resource-specific validations for implementation guide)
+### Gewijzigd
+- Dubbelzinnige opmerking uit KT2Task documentatie verwijderd over dat de betekenis van `view` per applicatie kan verschillen
 
 ## 0.15.0-beta.2 (2025-10-21)
 
-### Fixed
-- **KT2_ActivityDefinition useContext validation**: Added required binding for expansion codes in useContext.valueCodeableConcept
-  - Created `KoppeltaalExpansion_VS` ValueSet to validate expansion codes
-  - Implemented slicing on `useContext` to discriminate by code type
-  - Added `feature` slice with required binding to `KoppeltaalExpansion_VS`
-  - Now properly validates that expansion codes must be from `koppeltaal-expansion` CodeSystem
-  - Prevents invalid codes like "INVALID" from passing validation
+### Hersteld
+- **KT2_ActivityDefinition useContext validatie**: Required binding toegevoegd voor expansion codes in useContext.valueCodeableConcept
+  - `KoppeltaalExpansion_VS` ValueSet aangemaakt om expansion codes te valideren
+  - Slicing op `useContext` geïmplementeerd om op code type te discrimineren
+  - `feature` slice met required binding naar `KoppeltaalExpansion_VS` toegevoegd
 
-### Added
+### Toegevoegd
 - **ValueSet**: `KoppeltaalExpansion_VS` (http://vzvz.nl/fhir/ValueSet/koppeltaal-expansion)
-  - Includes all codes from `KoppeltaalExpansion` CodeSystem
-- **Test case**: `invalid-feature-code` variant in test resource generator
-  - Tests rejection of invalid expansion codes in useContext.valueCodeableConcept
-  - Validates that required binding on feature slice works correctly
-
-### Technical
-- Enhanced profile constraints using FHIR slicing to apply context-specific bindings
-- Improved validation for ActivityDefinition useContext values based on context type
 
 ## 0.15.0-beta.1 (2025-10-16)
 
-**Note: Changed versioning scheme from 1.4.5-beta.x to 0.15.0-beta.x to align with existing versioning system and semver requirements**
+**Let op: versieschema gewijzigd van 1.4.5-beta.x naar 0.15.0-beta.x voor semver compatibiliteit**
 
-### Changed
-- **Versioning scheme**: Changed from 1.4.5-beta.012 to 0.15.0-beta.1 (using hyphen for semver compatibility)
-- **Nictiz dependencies**: Updated from 0.11.0-beta.1 to 0.12.0-beta.4
-  - Resolves snapshot generation issues with zib-AddressInformation during HAPI FHIR package installation
-  - Both `nictiz.fhir.nl.r4.zib2020` and `nictiz.fhir.nl.r4.nl-core` updated
-
-### Added
-- **scripts/get_dependencies.py**: Dynamic dependency extraction script for Makefile
-  - Dependencies can now be automatically extracted from sushi-config.yaml
-
-### Technical
-- Makefile: Enhanced publish workflow with both package publishing and project synchronization
-  - Maintains `bake`, `pack`, and `publish-package` with filename argument (`koppeltaalv2.00.$(VERSION).tgz`)
-  - Adds project cloning from Simplifier.net
-  - Copies README.md, CHANGELOG.md, and resources to Simplifier project
-  - Pushes updated project back to Simplifier
-- Makefile: install-dependencies now dynamically reads from sushi-config.yaml via scripts/get_dependencies.py
-- KoppeltaalUsageContextType: Added clickable link to KoppeltaalFeatures CodeSystem in feature code description
+### Gewijzigd
+- **Versieschema**: Gewijzigd van 1.4.5-beta.012 naar 0.15.0-beta.1
+- **Nictiz dependencies**: Bijgewerkt van 0.11.0-beta.1 naar 0.12.0-beta.4
+  - Lost snapshot-generatiefouten op met zib-AddressInformation tijdens HAPI FHIR package installatie
+  - Zowel `nictiz.fhir.nl.r4.zib2020` als `nictiz.fhir.nl.r4.nl-core` bijgewerkt
 
 ## 1.4.5-beta.012 (2025-10-14)
 
-### Fixed
-- **KT2_ActivityDefinition useContext.code binding**: Changed from `extensible` to `required` to prevent invalid context type codes
-  - Now only allows codes from `KoppeltaalUsageContextType_VS` valueset
-  - Prevents invalid codes from being accepted
-  - Closes the valueset to enforce strict validation
-- **activitydefinition-with-participant example**: Corrected codesystem URL for useContext.valueCodeableConcept
-  - Changed from `http://vzvz.nl/fhir/CodeSystem/koppeltaal-usage-context` (invalid)
-  - To `http://vzvz.nl/fhir/CodeSystem/koppeltaal-features` (correct)
-- **activitydefinition-standard-usecontext example**: Corrected codesystem URL for useContext.code with feature type
-  - Changed from `http://terminology.hl7.org/CodeSystem/usage-context-type#feature` (invalid - feature not in standard FHIR)
-  - To `http://vzvz.nl/fhir/CodeSystem/koppeltaal-usage-context-type#feature` (correct - Koppeltaal extension)
+### Hersteld
+- **KT2_ActivityDefinition useContext.code binding**: Gewijzigd van `extensible` naar `required` om ongeldige context type codes te voorkomen
+- **activitydefinition-with-participant voorbeeld**: CodeSystem URL gecorrigeerd voor useContext.valueCodeableConcept
+- **activitydefinition-standard-usecontext voorbeeld**: CodeSystem URL gecorrigeerd voor useContext.code met feature type
 
-### Added
-- **Test case for invalid useContext**: Added negative test case `invalid-usecontext-invalid-codes` to test resource generator
-  - Tests rejection of invalid context type code ("onzin")
-  - Tests rejection of invalid context value with non-existent codesystem ("Troep")
-  - Validates that required binding on useContext.code works correctly
-
-### Technical
-- Strengthened validation by using required bindings instead of extensible bindings for useContext.code
-- Removed unnecessary KoppeltaalUsageContextValues_VS valueset (valueCodeableConcept validation handled by FHIR naturally)
+### Toegevoegd
+- **Test case voor ongeldige useContext**: Negatieve test case `invalid-usecontext-invalid-codes` toegevoegd
 
 ## 1.4.5-beta.011 (2025-10-09)
 
-### Fixed
-- **KoppeltaalUsageContextType_VS**: Corrected ValueSet to reference CodeSystem instead of another ValueSet
-  - Changed from `http://hl7.org/fhir/ValueSet/use-context` (invalid - ValueSet URL)
-  - To `http://terminology.hl7.org/CodeSystem/usage-context-type` (correct - CodeSystem URL)
-  - Resolves HAPI FHIR server installation error: "Unable to expand ValueSet because CodeSystem could not be found"
-
-### Technical
-- Fixed terminology service compatibility issue that prevented package installation on HAPI FHIR servers
-- ValueSets must include codes from CodeSystems, not from other ValueSets
+### Hersteld
+- **KoppeltaalUsageContextType_VS**: ValueSet gecorrigeerd om naar CodeSystem te verwijzen in plaats van een andere ValueSet
+  - Lost HAPI FHIR server installatiefout op: "Unable to expand ValueSet because CodeSystem could not be found"
 
 ## 1.4.5-beta.010 (2025-10-07)
 
-### Added
-- **KoppeltaalFeatures**: New CodeSystem for Koppeltaal-specific feature codes (http://vzvz.nl/fhir/CodeSystem/koppeltaal-features)
-- **Code 026-RolvdNaaste**: "Rol van de naaste" feature code for relative participation support
-- **activitydefinition-standard-usecontext**: New example demonstrating standard FHIR useContext usage alongside Koppeltaal-specific extensions
-- **ActivityDefinition test resources**: Enhanced test resource generation to include useContext examples with age ranges and relative participation features
+### Toegevoegd
+- **KoppeltaalFeatures**: Nieuw CodeSystem voor Koppeltaal-specifieke feature codes (http://vzvz.nl/fhir/CodeSystem/koppeltaal-features)
+- **Code 026-RolvdNaaste**: "Rol van de naaste" feature code
+- **activitydefinition-standard-usecontext**: Nieuw voorbeeld met standaard FHIR useContext naast Koppeltaal-specifieke uitbreidingen
 
-### Changed
-- **KoppeltaalUsageContext → KoppeltaalUsageContextType**: Renamed CodeSystem to follow FHIR naming convention for usage context types
-  - Updated canonical URL from `koppeltaal-usage-context` to `koppeltaal-usage-context-type`
-  - Changed content from specific feature values to usage context type codes
-  - Now includes standard FHIR `#feature` code instead of custom codes
-- **KoppeltaalUsageContext_VS → KoppeltaalUsageContextType_VS**: Renamed ValueSet to align with CodeSystem rename
-  - Updated to include codes from standard FHIR `usage-context-type` CodeSystem
-  - Added codes from custom `KoppeltaalUsageContextType` CodeSystem
-- **KT2_ActivityDefinition**: Updated useContext binding to reference renamed ValueSet
-- **ActivityDefinition examples**: Refactored extension usage from numeric indices to named slice references (`endpoint`, `publisherId`)
-- **Test resource generation**: Updated terminology references to use standard FHIR `usage-context-type#feature` instead of custom codes
+### Gewijzigd
+- **KoppeltaalUsageContext → KoppeltaalUsageContextType**: CodeSystem hernoemd conform FHIR naamgeving
+  - Canonical URL gewijzigd van `koppeltaal-usage-context` naar `koppeltaal-usage-context-type`
+- **KoppeltaalUsageContext_VS → KoppeltaalUsageContextType_VS**: ValueSet hernoemd conform CodeSystem
+- **KT2_ActivityDefinition**: useContext binding bijgewerkt naar hernoemde ValueSet
+- **ActivityDefinition voorbeelden**: Extension gebruik gerefactord van numerieke indices naar benoemde slice referenties (`endpoint`, `publisherId`)
 
-### Fixed
-- **Origin RuleSet**: Corrected cardinality for `KT2_ResourceOrigin` extension from `0..*` to `0..1` to align with extension definition constraints
-- **Terminology alignment**: Updated usage context implementation to properly use standard FHIR codes (`feature`) for types and custom codes for values
-
-### Technical
-- Separated usage context types (standard FHIR) from feature values (Koppeltaal-specific) following FHIR architectural patterns
-- Improved terminology structure to support both standard FHIR useContext (age, gender, focus) and Koppeltaal features (relative participation)
+### Hersteld
+- **Origin RuleSet**: Cardinaliteit voor `KT2_ResourceOrigin` extension gecorrigeerd van `0..*` naar `0..1`
 
 ## 1.4.5-beta.009 (2025-09-11)
 
-### Added
-- **KoppeltaalUsageContextType**: New CodeSystem for custom usage context types (http://vzvz.nl/fhir/CodeSystem/koppeltaal-usage-context-type)
-- **KoppeltaalUsageContextType_VS**: New ValueSet for custom usage context types (http://vzvz.nl/fhir/ValueSet/koppeltaal-usage-context-type)
-- **Code required-feature**: Custom usage context type for indicating technical features that applications must support
+### Toegevoegd
+- **KoppeltaalUsageContextType**: Nieuw CodeSystem voor custom usage context types (http://vzvz.nl/fhir/CodeSystem/koppeltaal-usage-context-type)
+- **KoppeltaalUsageContextType_VS**: Nieuw ValueSet voor custom usage context types (http://vzvz.nl/fhir/ValueSet/koppeltaal-usage-context-type)
 
-### Changed
-- **KT2_ActivityDefinition**: Added required binding for useContext.code to KoppeltaalUsageContextType_VS
-- **KT2_ActivityDefinition**: Updated profile version to 0.10.1
-- **ActivityDefinition examples**: Updated with new useContext structure using required-feature context type
+### Gewijzigd
+- **KT2_ActivityDefinition**: Required binding toegevoegd voor useContext.code naar KoppeltaalUsageContextType_VS
+- **ActivityDefinition voorbeelden**: Bijgewerkt met nieuwe useContext structuur
 
 ## 1.4.5-beta.008 (2025-09-10)
 
-### Changed
-- **KT2_ActivityDefinition**: Updated profile version from 0.9.0 to 0.10.0
-- **KT2_ActivityDefinition**: Updated profile date to 2025-09-10
-- **KT2_ActivityDefinition**: Enabled useContext element with required binding to KoppeltaalUsageContext ValueSet
-- **KT2_ActivityDefinition**: Constrained useContext.value[x] to CodeableConcept only
+### Gewijzigd
+- **KT2_ActivityDefinition**: useContext element geactiveerd met required binding naar KoppeltaalUsageContext ValueSet
+- **KT2_ActivityDefinition**: useContext.value[x] beperkt tot alleen CodeableConcept
 
-### Added
-- **KoppeltaalUsageContext**: New CodeSystem for usage context values (http://vzvz.nl/fhir/CodeSystem/koppeltaal-usage-context)
-- **KoppeltaalUsageContext_VS**: New ValueSet for usage context values (http://vzvz.nl/fhir/ValueSet/koppeltaal-usage-context)
-- **Code 026-RolvdNaaste**: "Rol van de naaste" - enables relatives to participate in patient care trajectory
+### Toegevoegd
+- **KoppeltaalUsageContext**: Nieuw CodeSystem voor usage context waarden (http://vzvz.nl/fhir/CodeSystem/koppeltaal-usage-context)
+- **KoppeltaalUsageContext_VS**: Nieuw ValueSet voor usage context waarden (http://vzvz.nl/fhir/ValueSet/koppeltaal-usage-context)
+- **Code 026-RolvdNaaste**: "Rol van de naaste" — maakt het mogelijk dat naasten participeren in het zorgtraject van de patiënt
