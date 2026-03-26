@@ -163,6 +163,7 @@ parameters: # see https://confluence.hl7.org/display/FHIR/Implementation+Guide+P
     - http://vzvz.nl/fhir/
   version-comparison: "n/a"
   usage-stats-opt-out: true
+  path-expansion-params: "../../input/Parameters-expansion-parameters.json"
 
 # ╭────────────────────────────────────────────menu.xml────────────────────────────────────────────╮
 # │ The menu property will be used to generate the input/menu.xml file. The menu is represented    │

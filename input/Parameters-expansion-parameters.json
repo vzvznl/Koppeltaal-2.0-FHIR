@@ -1,0 +1,14 @@
+{
+  "resourceType": "Parameters",
+  "id": "expansion-parameters",
+  "parameter": [
+    {
+      "name": "system-version",
+      "valueString": "http://snomed.info/sct|http://snomed.info/sct/11000146104"
+    },
+    {
+      "name": "displayLanguage",
+      "valueCode": "nl"
+    }
+  ]
+}

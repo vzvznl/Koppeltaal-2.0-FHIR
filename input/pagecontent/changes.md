@@ -2,6 +2,15 @@
 
 Deze pagina bevat een overzicht van de wijzigingen per versie van de Koppeltaal 2.0 Implementation Guide.
 
+### 0.16.1 (2026-03-26)
+
+#### Gewijzigd
+- **ValueSet expansions**: SNOMED CT Dutch edition (module 11000146104) geconfigureerd als bron voor expansions, met Nederlandse display-namen. NL extensiecodes (bijv. 310391000146105) worden nu opgenomen.
+
+### 0.16.0 (2026-03-24)
+
+Versie bump na merge PR #52 (profiel changes in 0.15.x).
+
 ### 0.15.5 (2026-03-13)
 
 #### Gewijzigd
