@@ -24,6 +24,10 @@
 /archive/
 .simplifier/
 
+# Simplifier sync working directory and backups
+/.simplifier-sync/
+/backups/
+
 # Dependency and lock files
 fhirpkg.lock.json
 package-lock.json

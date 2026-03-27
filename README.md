@@ -201,63 +201,37 @@ This repository uses GitHub Actions for continuous integration and deployment:
    - Creates GitHub releases for main branch
    - Deploys documentation to GitHub Pages (main branch only)
 
-2. **Publish to Simplifier Workflow** (`publish_simplifier.yml`)
-   - **Manual trigger only** from the main branch
-   - Requires explicit user action via GitHub Actions UI
-   - Publishes the FHIR package to Simplifier.net
-   - Uses stored credentials for authentication
+### Syncing resources to Simplifier.net
 
-### Publishing to Simplifier.net
+> **Note**: Simplifier.net is used as a legacy distribution channel. The canonical Implementation Guide is published on GitHub Pages. We intend to phase out Simplifier.net in the future.
 
-**Important**: Publishing to Simplifier.net is a **manual process** that must be triggered explicitly:
+Resources are synced to the [Simplifier.net project](https://simplifier.net/koppeltaalv2.0) using `scripts/sync_to_simplifier.sh`. This script uses the Simplifier ZIP API (not the Firely CLI project commands) and automatically creates a backup before making changes.
 
-1. **Prerequisites**:
-   - Changes must be merged to `main` branch
-   - GitHub secrets `FHIR_EMAIL` and `FHIR_PASSWORD` must be configured in repository settings:
-     - Go to repository **Settings** → **Secrets and variables** → **Actions**
-     - Add `FHIR_EMAIL` with your Simplifier.net email
-     - Add `FHIR_PASSWORD` with your Simplifier.net password
+**Prerequisites**: Docker, curl, jq, python3, and Simplifier.net credentials (`FHIR_EMAIL`, `FHIR_PASSWORD`).
 
-2. **How to Publish**:
-   - Go to the [Actions tab](../../actions) in GitHub
-   - Select "Publish to Simplifier.net" from the workflow list
-   - Click "Run workflow"
-   - Select `main` branch (only option available)
-   - Enter a reason for publishing
-   - Click "Run workflow" button
-
-3. **What Happens**:
-   - Builds the Implementation Guide
-   - Runs `fhir bake`, `fhir pack`, and `fhir publish-package` in sequence
-   - Publishes to the configured Simplifier.net project
-
-**Note**: This publishing process covers the installation of the package in Simplifier.net. 
-It does **not** include:
- - Updating the resources on Simplifier.net
- - Updating the Implementation Guide on Simplifier.net.
-
-#### Updating Resources on Simplifier.net 
-The reason for this is that Simplifier.net does not support updating the resources and implementation guide with the command line tools, but in practice this turned out to cause problems. Therefore, we suggest updating the resources and implementation guide manually.
-
-The manual steps for updating the resources on Simplifier are:
 ```bash
-echo "Publishing project to Simplifier.net..."
-echo "Cloning Simplifier project..."
-fhir project clone koppeltaalv2.0 koppeltaalv2.0
-echo "Copying resources..."
-cp README.md koppeltaalv2.0/
-cp CHANGELOG.md koppeltaalv2.0/
-cp package.json koppeltaalv2.0/
-rm -Rf koppeltaalv2.0/resources
-mkdir -p koppeltaalv2.0/resources
-cp -r fsh-generated/resources/* koppeltaalv2.0/resources/
-echo "Pushing to Simplifier..."
-cd koppeltaalv2.0 && $(FHIR) project status && $(FHIR) project push
-echo "Successfully published to Simplifier.net" 
+export FHIR_EMAIL=your-email
+export FHIR_PASSWORD=your-password
+
+# Sync resources to Simplifier (builds fresh, downloads backup, uploads)
+./scripts/sync_to_simplifier.sh
+
+# Dry run (build and prepare ZIP without uploading)
+./scripts/sync_to_simplifier.sh --dry-run
+
+# Skip build if fsh-generated/ is already up-to-date
+SKIP_BUILD=true ./scripts/sync_to_simplifier.sh
+
+# Download a backup only
+./scripts/sync_to_simplifier.sh backup
+
+# Restore from a backup
+./scripts/sync_to_simplifier.sh restore backups/simplifier-backup-20250327-1200.zip
 ```
 
-#### Updating the Implementation Guide on Simplifier.net
-Updating the implementation guide is done by hand in the Simplifier UI.
+The script rewrites relative `.html` links in resource descriptions to absolute GitHub Pages URLs so they work on Simplifier.
+
+The Implementation Guide on Simplifier.net is managed separately in the Simplifier UI. The sync only replaces FHIR resource JSON files — IG pages, styles, and project settings are preserved.
 ### Release Types
 
 #### Main Branch Releases (Stable)
