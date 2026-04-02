@@ -1,5 +1,5 @@
 ValueSet: EndpointConnectionTypeValueSet
-Id: endpoint-connection-type
+Id: KT2-endpoint-connection-type
 Title: "Endpoint connection type ValueSet"
 Description: "Endpoint connection type ValueSet"
 * ^meta.versionId = "1"

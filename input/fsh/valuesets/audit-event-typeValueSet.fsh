@@ -1,5 +1,5 @@
 ValueSet: AuditEventType
-Id: audit-event-type
+Id: KT2-audit-event-type
 Title: "audit-event-type ValueSet"
 Description: "ValueSet defining the allowed eventtypes for Koppeltaal"
 * ^name = "AuditeventtypeValueSet"

@@ -2,6 +2,9 @@ CHANGELOG
 
 ## 0.16.1 (2026-03-26)
 
+### Hersteld
+- **ValueSet IDs**: FHIR resource IDs van `endpoint-connection-type` en `audit-event-type` hernoemd naar `KT2-endpoint-connection-type` en `KT2-audit-event-type` om conflict met standaard FHIR R4 ValueSets in HAPI FHIR te voorkomen. Canonical URLs blijven ongewijzigd.
+
 ### Gewijzigd
 - **ValueSet expansions**: SNOMED CT Dutch edition (module 11000146104) geconfigureerd als bron voor expansions, met Nederlandse display-namen. NL extensiecodes (bijv. 310391000146105) worden nu opgenomen.
 
