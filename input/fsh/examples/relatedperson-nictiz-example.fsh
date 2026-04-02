@@ -4,7 +4,6 @@ Instance: relatedperson-nictiz-example
 InstanceOf: NlcoreContactPerson
 Description: "Nictiz Example of RelatedPerson only to test validation"
 Usage: #example
-* id = "nl-core-ContactPerson-01-nictiz"
 * patient
   * reference = "Patient/patient-volledige-naam-vrouw"
   * type = "Patient"

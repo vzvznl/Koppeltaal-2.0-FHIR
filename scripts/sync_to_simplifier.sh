@@ -182,6 +182,12 @@ do_sync() {
     find "$unpack_dir" -maxdepth 2 -type f | head -20 | sed "s|$unpack_dir/||"
     echo "  ..."
 
+    # Remove stale dependency directory left by previous Simplifier CLI workflow
+    if [[ -d "$unpack_dir/nl-core" ]]; then
+        info "Removing stale directory: nl-core/"
+        rm -rf "$unpack_dir/nl-core"
+    fi
+
     # Detect resource location
     local resource_target
     if [[ -d "$unpack_dir/resources" ]]; then
@@ -236,6 +242,14 @@ sys.exit(0 if is_fhir else 1)
     done < <(find "$resource_target" -maxdepth 1 -name "*.json" -type f -print0)
     if [[ "$rewritten" -gt 0 ]]; then
         ok "Rewrote links in $rewritten resources"
+    fi
+
+    # Update existing IG pages with repo content
+    local guides_dir="$unpack_dir/guides/koppeltaal"
+    if [[ -d "$guides_dir" ]]; then
+        info "Updating existing IG pages..."
+        python3 "$SCRIPT_DIR/update_simplifier_ig_pages.py" \
+            "$guides_dir" "$PROJECT_ROOT" "$ig_base_url"
     fi
 
     local final_count
