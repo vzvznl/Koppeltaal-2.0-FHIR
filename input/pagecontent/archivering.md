@@ -4,6 +4,7 @@
 |--------|------------|------------------------------------------|
 | 0.0.1  | 2026-03-24 | Initiële versie: uitgangspunten en oplossingsrichting |
 | 0.0.2  | 2026-04-13 | Notificatiemechanisme via `meta.tag` lifecycle toegevoegd |
+| 0.0.3  | 2026-04-13 | Drie niveaus van notificatie uitgewerkt; task lifecycle als overweging |
 
 ---
 
@@ -73,15 +74,17 @@ Dit mechanisme is bijvoorbeeld toepasbaar op Tasks die "verjaard" zijn: de behan
 
 **Opmerking**: Security labels als archiveringmechanisme zijn een methodiek die ingezet kan worden als de behoefte zich voordoet. Het is mogelijk dat in de praktijk de `$purge` als enige verwijdermechanisme volstaat.
 
-### Overwegingen
-
 #### Notificatie naar doelapplicaties
 
-Bij verwijdering van patiëntdata kan de vraag ontstaan of doelapplicaties (modules, portalen) hierover geïnformeerd moeten worden. In de praktijk geldt dat wanneer een patiënt langere tijd inactief is geweest, er via Koppeltaal geen actieve interactie meer plaatsvindt. Het "verdwijnen" van de data is in dat geval geen functioneel probleem voor de doelapplicatie.
+Bij verwijdering van patiëntdata kan de vraag ontstaan of doelapplicaties (modules, portalen) hierover geïnformeerd moeten worden. Er zijn drie niveaus denkbaar, van minimaal tot maximaal coördinatie:
 
-##### Lifecycle via `meta.tag`
+##### Niveau A: Geen notificatie
 
-Om doelapplicaties gecontroleerd te informeren over archivering en verwijdering, wordt een lifecycle mechanisme op basis van FHIR `meta.tag` voorgesteld. In plaats van een directe hard delete doorloopt een resource een aantal expliciet gedefinieerde staten, vastgelegd in een dedicated CodeSystem:
+In de praktijk geldt dat wanneer een patiënt langere tijd inactief is geweest, er via Koppeltaal geen actieve interactie meer plaatsvindt. Het "verdwijnen" van de data is in dat geval geen functioneel probleem voor de doelapplicatie. Het EPD kan in dit scenario direct de `$purge` uitvoeren zonder voorafgaande coördinatie.
+
+##### Niveau B: Notificatie via `meta.tag` lifecycle
+
+Om doelapplicaties gecontroleerd te informeren over archivering en verwijdering, kan een lifecycle mechanisme op basis van FHIR `meta.tag` worden ingezet. In plaats van een directe hard delete doorloopt een resource een aantal expliciet gedefinieerde staten, vastgelegd in een dedicated CodeSystem:
 
 | Code | Display | Beschrijving |
 |------|---------|--------------|
@@ -114,8 +117,6 @@ De lifecycle verloopt als volgt:
 
 Elke statusovergang wordt uitgevoerd via een `PUT` of `PATCH` op de resource. Hierdoor wordt `meta.versionId` en `meta.lastUpdated` automatisch bijgewerkt, wat een ingebouwde audit trail oplevert via het `_history` endpoint.
 
-##### Notificatie via Subscriptions
-
 Doelapplicaties kunnen zich abonneren op specifieke statusovergangen via FHIR Subscriptions. Hiervoor wordt het `_tag` zoekcriterium gebruikt:
 
 ```json
@@ -130,21 +131,23 @@ Doelapplicaties kunnen zich abonneren op specifieke statusovergangen via FHIR Su
 }
 ```
 
-Op deze manier ontvangt een doelapplicatie een notificatie wanneer een patiënt gemarkeerd is voor verwijdering. De applicatie kan dan:
+Naast `meta.tag` kan ook de `active` flag op de Patient resource worden gebruikt als aanvullend signaal: het EPD zet `Patient.active` op `false` voorafgaand aan de archiveringscyclus.
 
-1. Eventuele lokale kopieën van patiëntdata verwijderen
-2. Lopende sessies of taken afsluiten
-3. Bevestigen dat de verwijdering vanuit hun perspectief kan doorgaan
+##### Niveau C: Two-phase commit via Tasks
 
-##### Verhouding tot `$purge` en security labels
+Voor situaties waarin coördinatie met doelapplicaties vereist is — bijvoorbeeld wanneer een module nog niet-gearchiveerde data bevat die eerst naar het EPD moet worden overgedragen — kan een two-phase commit model worden ingezet.
 
-Het `meta.tag` lifecycle mechanisme is complementair aan de eerder beschreven mechanismen:
+Het EPD maakt voor elke doelapplicatie die data heeft van de betreffende patiënt een Task aan met een opdracht om de lokale patiëntdata te verwijderen. De Koppeltaalvoorziening weet welke applicaties data hebben op basis van de taakhistorie. De doelapplicatie kan vervolgens:
 
-- **Security labels** maken resources onzichtbaar in zoekresultaten (soft-delete)
-- **`meta.tag` lifecycle** coördineert het archiveringsproces en informeert doelapplicaties
-- **`$purge`** voert de definitieve verwijdering uit als laatste stap
+- De Task op `completed` zetten als de data succesvol is verwijderd
+- De Task op `failed` zetten met een reden als de data nog niet verwijderd kan worden (bijv. omdat er nog niet-gearchiveerde gegevens naar het EPD moeten worden overgedragen)
 
-De combinatie biedt een gecontroleerd, auditeerbaar en subscription-vriendelijk archiveringsproces zonder bespoke API's.
+Pas wanneer alle Tasks zijn afgerond, voert het EPD de definitieve `$purge` uit.
+
+##### Overweging: Task lifecycle als indicator
+
+Een aanvullende overweging is de relatie met de bestaande Task lifecycle. Wanneer alle taken van een patiënt de status `completed` hebben, kan men beargumenteren dat alle due diligence is uitgevoerd: de behandelmodules zijn afgerond, de resultaten zijn teruggekoppeld, en er zijn geen openstaande interacties meer. In dat geval kan het EPD er in bepaalde situaties voor kiezen om niveau A (geen notificatie) als voldoende te beschouwen en direct tot verwijdering over te gaan.
+
 
 ### Referenties
 
