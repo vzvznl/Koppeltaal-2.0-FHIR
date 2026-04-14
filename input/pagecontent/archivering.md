@@ -3,6 +3,7 @@
 | Versie | Datum      | Wijziging                                |
 |--------|------------|------------------------------------------|
 | 0.0.1  | 2026-03-24 | Initiële versie: uitgangspunten en oplossingsrichting |
+| 0.0.2  | 2026-04-13 | Notificatiemechanisme via `meta.tag` lifecycle toegevoegd |
 
 ---
 
@@ -78,7 +79,72 @@ Dit mechanisme is bijvoorbeeld toepasbaar op Tasks die "verjaard" zijn: de behan
 
 Bij verwijdering van patiëntdata kan de vraag ontstaan of doelapplicaties (modules, portalen) hierover geïnformeerd moeten worden. In de praktijk geldt dat wanneer een patiënt langere tijd inactief is geweest, er via Koppeltaal geen actieve interactie meer plaatsvindt. Het "verdwijnen" van de data is in dat geval geen functioneel probleem voor de doelapplicatie.
 
-Een mogelijke uitbreiding is een pre-notificatie voorafgaand aan de `$purge`, met de opdracht aan doelapplicaties om eventuele lokale kopieën van de patiëntdata te verwijderen. Dit is echter geen harde eis en dient per domein te worden afgewogen.
+##### Lifecycle via `meta.tag`
+
+Om doelapplicaties gecontroleerd te informeren over archivering en verwijdering, wordt een lifecycle mechanisme op basis van FHIR `meta.tag` voorgesteld. In plaats van een directe hard delete doorloopt een resource een aantal expliciet gedefinieerde staten, vastgelegd in een dedicated CodeSystem:
+
+| Code | Display | Beschrijving |
+|------|---------|--------------|
+| `ARCHIVE_PENDING` | Archive Pending | Resource is gemarkeerd voor archivering; wacht op bevestiging |
+| `ARCHIVED` | Archived | Resource is gearchiveerd naar langetermijnopslag |
+| `PURGE_PENDING` | Purge Pending | Resource is gemarkeerd voor definitieve verwijdering; wacht op autorisatie |
+| `PURGED` | Purged | Resource is logisch verwijderd; hard delete volgt |
+
+De lifecycle verloopt als volgt:
+
+```
+[Actieve Resource]
+       │
+       │ (retentiebeleid geactiveerd)
+       ▼
+[ARCHIVE_PENDING]
+       │
+       │ (archivering bevestigd)
+       ▼
+  [ARCHIVED]
+       │
+       │ (verwijdering geautoriseerd)
+       ▼
+[PURGE_PENDING]
+       │
+       │ (hard delete uitgevoerd)
+       ▼
+   [PURGED] → HTTP DELETE → 410 Gone
+```
+
+Elke statusovergang wordt uitgevoerd via een `PUT` of `PATCH` op de resource. Hierdoor wordt `meta.versionId` en `meta.lastUpdated` automatisch bijgewerkt, wat een ingebouwde audit trail oplevert via het `_history` endpoint.
+
+##### Notificatie via Subscriptions
+
+Doelapplicaties kunnen zich abonneren op specifieke statusovergangen via FHIR Subscriptions. Hiervoor wordt het `_tag` zoekcriterium gebruikt:
+
+```json
+{
+  "resourceType": "Subscription",
+  "status": "active",
+  "criteria": "Patient?_tag=PURGE_PENDING",
+  "channel": {
+    "type": "rest-hook",
+    "endpoint": "https://module.example.com/notifications/purge"
+  }
+}
+```
+
+Op deze manier ontvangt een doelapplicatie een notificatie wanneer een patiënt gemarkeerd is voor verwijdering. De applicatie kan dan:
+
+1. Eventuele lokale kopieën van patiëntdata verwijderen
+2. Lopende sessies of taken afsluiten
+3. Bevestigen dat de verwijdering vanuit hun perspectief kan doorgaan
+
+##### Verhouding tot `$purge` en security labels
+
+Het `meta.tag` lifecycle mechanisme is complementair aan de eerder beschreven mechanismen:
+
+- **Security labels** maken resources onzichtbaar in zoekresultaten (soft-delete)
+- **`meta.tag` lifecycle** coördineert het archiveringsproces en informeert doelapplicaties
+- **`$purge`** voert de definitieve verwijdering uit als laatste stap
+
+De combinatie biedt een gecontroleerd, auditeerbaar en subscription-vriendelijk archiveringsproces zonder bespoke API's.
 
 ### Referenties
 
