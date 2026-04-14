@@ -5,12 +5,13 @@
 | 0.0.1  | 2026-03-24 | Initiële versie: uitgangspunten en oplossingsrichting |
 | 0.0.2  | 2026-04-13 | Notificatiemechanisme via `meta.tag` lifecycle toegevoegd |
 | 0.0.3  | 2026-04-13 | Drie niveaus van notificatie uitgewerkt; task lifecycle als overweging |
+| 0.0.4  | 2026-04-13 | Dataclassificatie, toegankelijkheid archiefdata, rechten betrokkenen en contractbeëindiging toegevoegd |
 
 ---
 
 ### Archivering
 
-Deze pagina beschrijft de uitgangspunten en oplossingsrichting voor het archiveren en verwijderen van patiëntdata binnen een Koppeltaal domein. De Koppeltaalvoorziening slaat patiëntgerelateerde FHIR resources op die na verloop van tijd gearchiveerd of verwijderd moeten worden, conform wettelijke bewaartermijnen (AVG, NEN 7510, NEN 7513).
+Deze pagina beschrijft de uitgangspunten en oplossingsrichting voor het archiveren en verwijderen van patiëntdata binnen een Koppeltaal domein. De Koppeltaalvoorziening slaat patiëntgerelateerde FHIR resources op die na verloop van tijd gearchiveerd of verwijderd moeten worden, conform wettelijke bewaartermijnen (AVG, WGBO, NEN 7510, NEN 7513).
 
 ### Uitgangspunten
 
@@ -31,7 +32,7 @@ AuditEvents zijn immutable en worden centraal verzameld. Om de verschillende bew
 
 #### Het EPD/de dossierhouder initieert verwijdering
 
-De Koppeltaalvoorziening is *verwerker* in de zin van de AVG en mag niet op eigen initiatief patiëntdata verwijderen. Het EPD (of bronsysteem) is de dossierhouder en heeft een wettelijke bewaartermijn van maximaal 20 jaar voor medische gegevens.
+De Koppeltaalvoorziening is *verwerker* in de zin van de AVG en mag niet op eigen initiatief patiëntdata verwijderen. Het EPD (of bronsysteem) is de dossierhouder en heeft op grond van de [WGBO](https://wetten.overheid.nl/BWBR0005290) een wettelijke bewaartermijn van maximaal 20 jaar voor medische gegevens.
 
 Het EPD is verantwoordelijk voor:
 
@@ -46,6 +47,16 @@ Per datacategorie moet een eenduidig startmoment voor de bewaartermijn worden va
 - Patiëntdata: laatste mutatie of laatste gebruik
 - AuditEvents: datum van creatie
 - Tasks: datum van afsluiting
+
+#### Dataclassificatie en labeling
+
+Alle data binnen de Koppeltaalvoorziening moet geclassificeerd worden op basis van type, gevoeligheid en bewaartermijn. FHIR security labels worden hiervoor ingezet als classificatiemechanisme. Dit maakt het mogelijk om:
+
+- **Datacategorieën** te onderscheiden (persoonsgegevens, logging, transactiegegevens)
+- **Bewaartermijnen** per categorie af te dwingen (2 jaar voor PII, 5 jaar voor logging)
+- **Archiveringsstatus** vast te leggen op resource-niveau
+
+Door classificatie bij creatie toe te passen, kan de Koppeltaalvoorziening bewaartermijnen geautomatiseerd afdwingen en is het op elk moment duidelijk onder welk regime een resource valt.
 
 ### Oplossingsrichting
 
@@ -149,6 +160,32 @@ Pas wanneer alle Tasks zijn afgerond, voert het EPD de definitieve `$purge` uit.
 Een aanvullende overweging is de relatie met de bestaande Task lifecycle. Wanneer alle taken van een patiënt de status `completed` hebben, kan men beargumenteren dat alle due diligence is uitgevoerd: de behandelmodules zijn afgerond, de resultaten zijn teruggekoppeld, en er zijn geen openstaande interacties meer. In dat geval kan het EPD er in bepaalde situaties voor kiezen om niveau A (geen notificatie) als voldoende te beschouwen en direct tot verwijdering over te gaan.
 
 
+#### Toegankelijkheid van archiefdata
+
+Gearchiveerde data moet raadpleegbaar blijven voor geautoriseerde gebruikers (zoals zorgaanbieders en beheerders). Hierbij gelden de volgende principes:
+
+- Gearchiveerde data is **alleen-lezen**: wijzigingen zijn niet toegestaan na archivering
+- De data blijft doorzoekbaar op relevante attributen
+- Toegang is beperkt tot geautoriseerde rollen, in lijn met NEN 7510
+
+Dit waarborgt zowel de operationele behoefte aan historische data als de integriteit van gearchiveerde gegevens.
+
+#### Rechten van betrokkenen
+
+De AVG (artikel 15) geeft betrokkenen het recht op inzage in hun persoonsgegevens. Dit recht geldt ook voor gearchiveerde data. De Koppeltaalvoorziening moet inzageverzoeken kunnen faciliteren zonder dat dit in conflict komt met bewaartermijnen — inzage is immers geen wijziging.
+
+In de praktijk wordt een inzageverzoek via het EPD (als verwerkingsverantwoordelijke) afgehandeld. De Koppeltaalvoorziening dient de data technisch beschikbaar te stellen aan het EPD, ook wanneer deze gearchiveerd is.
+
+#### Contractbeëindiging
+
+Bij beëindiging van een verwerkersovereenkomst is de Koppeltaalvoorziening verplicht om persoonsgegevens te verwijderen of te retourneren aan de verwerkingsverantwoordelijke (het EPD). Dit omvat:
+
+- Het retourneren of exporteren van alle persoonsgegevens aan het EPD
+- Het definitief verwijderen van de persoonsgegevens uit de Koppeltaalvoorziening
+- Het aantoonbaar vastleggen van de verwijdering via AuditEvents
+
+De `$purge` operatie kan hiervoor worden ingezet, waarbij de AuditEvents als bewijs van verwijdering dienen.
+
 ### Referenties
 
 - [FHIR Patient $purge operatie](https://build.fhir.org/patient-operation-purge.html)
@@ -156,3 +193,4 @@ Een aanvullende overweging is de relatie met de bestaande Task lifecycle. Wannee
 - [NEN 7510 - Informatiebeveiliging in de zorg](https://www.nen.nl/nen-7510-1-2017-nl-245399)
 - [NEN 7513 - Logging](https://www.nen.nl/nen-7513-2018-nl-247904)
 - [AVG - Algemene verordening gegevensbescherming](https://eur-lex.europa.eu/eli/reg/2016/679/oj)
+- [WGBO - Wet op de geneeskundige behandelingsovereenkomst](https://wetten.overheid.nl/BWBR0005290)
