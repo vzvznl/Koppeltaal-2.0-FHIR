@@ -1,0 +1,26 @@
+@startuml archivering-tag-lifecycle
+
+skinparam state {
+  BackgroundColor #f5f5f5
+  BorderColor #333333
+}
+
+[*] --> Actief
+
+Actief : Resource is actief\nen zichtbaar
+
+Actief --> ARCHIVE_PENDING : Retentiebeleid\ngeactiveerd
+
+ARCHIVE_PENDING : Gemarkeerd voor\narchivering
+ARCHIVE_PENDING --> ARCHIVED : Archivering\nbevestigd
+
+ARCHIVED : Gearchiveerd naar\nlangetermijnopslag
+ARCHIVED --> PURGE_PENDING : Verwijdering\ngeautoriseerd
+
+PURGE_PENDING : Gemarkeerd voor\ndefinitieve verwijdering
+PURGE_PENDING --> PURGED : Hard delete\nuitgevoerd
+
+PURGED : Logisch verwijderd
+PURGED --> [*] : HTTP DELETE\n→ 410 Gone
+
+@enduml

@@ -6,12 +6,15 @@
 | 0.0.2  | 2026-04-13 | Notificatiemechanisme via `meta.tag` lifecycle toegevoegd |
 | 0.0.3  | 2026-04-13 | Drie niveaus van notificatie uitgewerkt; task lifecycle als overweging |
 | 0.0.4  | 2026-04-13 | Dataclassificatie, toegankelijkheid archiefdata, rechten betrokkenen en contractbeëindiging toegevoegd |
+| 0.0.5  | 2026-04-15 | PlantUML diagrammen toegevoegd (overzicht en tag lifecycle) |
 
 ---
 
 ### Archivering
 
 Deze pagina beschrijft de uitgangspunten en oplossingsrichting voor het archiveren en verwijderen van patiëntdata binnen een Koppeltaal domein. De Koppeltaalvoorziening slaat patiëntgerelateerde FHIR resources op die na verloop van tijd gearchiveerd of verwijderd moeten worden, conform wettelijke bewaartermijnen (AVG, WGBO, NEN 7510, NEN 7513).
+
+<img src="archivering-overzicht.png" alt="Overzicht archiveringsproces" style="display: block; max-width: 100%; height: auto; margin: 1em 0;"/>
 
 ### Uitgangspunten
 
@@ -106,25 +109,7 @@ Om doelapplicaties gecontroleerd te informeren over archivering en verwijdering,
 
 De lifecycle verloopt als volgt:
 
-```
-[Actieve Resource]
-       │
-       │ (retentiebeleid geactiveerd)
-       ▼
-[ARCHIVE_PENDING]
-       │
-       │ (archivering bevestigd)
-       ▼
-  [ARCHIVED]
-       │
-       │ (verwijdering geautoriseerd)
-       ▼
-[PURGE_PENDING]
-       │
-       │ (hard delete uitgevoerd)
-       ▼
-   [PURGED] → HTTP DELETE → 410 Gone
-```
+<img src="archivering-tag-lifecycle.png" alt="meta.tag lifecycle state diagram" style="display: block; max-width: 100%; height: auto; margin: 1em 0;"/>
 
 Elke statusovergang wordt uitgevoerd via een `PUT` of `PATCH` op de resource. Hierdoor wordt `meta.versionId` en `meta.lastUpdated` automatisch bijgewerkt, wat een ingebouwde audit trail oplevert via het `_history` endpoint.
 

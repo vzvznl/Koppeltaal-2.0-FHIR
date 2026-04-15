@@ -1,0 +1,47 @@
+@startuml archivering-overzicht
+
+skinparam activity {
+  BackgroundColor #f5f5f5
+  BorderColor #333333
+}
+
+|EPD (Dossierhouder)|
+start
+:Bewaartermijn verstreken /\ncontractbeëindiging;
+
+|EPD (Dossierhouder)|
+:Gegevens veiligstellen\nuit Koppeltaalvoorziening;
+
+|Koppeltaalvoorziening|
+if (Notificatieniveau?) then (Niveau A)
+  :Geen notificatie\n(alle Tasks completed);
+elseif (Niveau B) then
+  :meta.tag lifecycle\n(ARCHIVE_PENDING → PURGE_PENDING);
+  :Subscription notificatie\nnaar doelapplicaties;
+else (Niveau C)
+  :Two-phase commit\nvia Tasks;
+  :Doelapplicaties\nbevestigen verwijdering;
+endif
+
+|EPD (Dossierhouder)|
+:Opdracht tot verwijdering;
+
+|Koppeltaalvoorziening|
+:Security labels\n(soft-delete, optioneel);
+note right
+  Resources onzichtbaar
+  in zoekresultaten
+end note
+
+:$purge operatie\n(definitieve verwijdering);
+note right
+  Patient, Task,
+  RelatedPerson, CareTeam
+  worden verwijderd
+end note
+
+:AuditEvents blijven\nbewaard (≥5 jaar);
+
+stop
+
+@enduml
