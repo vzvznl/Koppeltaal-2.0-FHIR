@@ -36,21 +36,7 @@ Er zijn twee paden voor het overdragen van resultaten van de module naar het EPD
 
 In dit patroon publiceert de module een DocumentReference in de Koppeltaal FHIR store. Het EPD detecteert de nieuwe DocumentReference — via polling of een FHIR Subscription — en haalt vervolgens het daadwerkelijke document (Binary) op bij de bronapplicatie.
 
-```
-Module                    Koppeltaal FHIR store           EPD
-  │                              │                          │
-  │ POST DocumentReference       │                          │
-  │─────────────────────────────>│                          │
-  │                              │   Subscription /         │
-  │                              │   polling detecteert     │
-  │                              │   nieuwe resource        │
-  │                              │─────────────────────────>│
-  │                              │                          │
-  │              GET Binary (bij de bron)                    │
-  │<────────────────────────────────────────────────────────│
-  │              Binary response                            │
-  │────────────────────────────────────────────────────────>│
-```
+<img src="resultaten-delen-pad-a.png" alt="Pad A: Direct ophalen via Koppeltaal FHIR store" style="display: block; max-width: 100%; height: auto; margin: 1em 0;"/>
 
 Dit is het eenvoudigste patroon. Het EPD moet echter zelf detecteren dat er nieuwe resultaten beschikbaar zijn.
 
@@ -58,22 +44,7 @@ Dit is het eenvoudigste patroon. Het EPD moet echter zelf detecteren dat er nieu
 
 In het Notified Pull patroon — gebaseerd op de [TA Notified Pull v1.0.1](https://www.nictiz.nl/) — neemt de module het initiatief door het EPD actief te notificeren dat er resultaten klaarstaan. Dit gebeurt via een Notification Task.
 
-```
-Module (Sending)          EPD (Receiving)
-  │                          │
-  │ POST Notification Task   │
-  │─────────────────────────>│
-  │                          │
-  │                          │  (EPD bepaalt wanneer
-  │                          │   en hoe op te halen)
-  │                          │
-  │   GET DocumentReference  │
-  │<─────────────────────────│
-  │   GET Binary             │
-  │<─────────────────────────│
-  │   Response               │
-  │─────────────────────────>│
-```
+<img src="resultaten-delen-pad-b.png" alt="Pad B: Notified Pull" style="display: block; max-width: 100%; height: auto; margin: 1em 0;"/>
 
 De Notification Task bevat verwijzingen naar de op te halen FHIR resources (DocumentReference, Binary). Het EPD haalt op eigen initiatief en tempo de data op bij de bron.
 

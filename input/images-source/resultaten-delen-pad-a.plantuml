@@ -1,0 +1,12 @@
+@startuml resultaten-delen-pad-a
+
+participant "Module" as Module
+participant "Koppeltaal\nFHIR store" as KT
+participant "EPD" as EPD
+
+Module -> KT : POST DocumentReference
+KT -> EPD : Subscription / polling\ndetecteert nieuwe resource
+EPD -> Module : GET Binary (bij de bron)
+Module -> EPD : Binary response
+
+@enduml

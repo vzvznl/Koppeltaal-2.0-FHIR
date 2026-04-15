@@ -1,0 +1,13 @@
+@startuml resultaten-delen-pad-b
+
+participant "Module\n(Sending)" as Module
+participant "EPD\n(Receiving)" as EPD
+
+Module -> EPD : POST Notification Task
+note right of EPD : EPD bepaalt wanneer\nen hoe op te halen
+EPD -> Module : GET DocumentReference
+Module -> EPD : DocumentReference response
+EPD -> Module : GET Binary
+Module -> EPD : Binary response
+
+@enduml
