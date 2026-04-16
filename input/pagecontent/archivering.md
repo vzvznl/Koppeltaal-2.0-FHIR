@@ -109,7 +109,9 @@ Om doelapplicaties gecontroleerd te informeren over archivering en verwijdering,
 
 De lifecycle verloopt als volgt:
 
-<img src="archivering-tag-lifecycle.png" alt="meta.tag lifecycle state diagram" style="display: block; max-width: 100%; height: auto; margin: 1em 0;"/>
+<div style="clear: both; text-align: center; margin: 1em 0;">
+  <img src="archivering-tag-lifecycle.png" alt="meta.tag lifecycle state diagram" style="display: inline-block; max-width: 350px; height: auto;"/>
+</div>
 
 Elke statusovergang wordt uitgevoerd via een `PUT` of `PATCH` op de resource. Hierdoor wordt `meta.versionId` en `meta.lastUpdated` automatisch bijgewerkt, wat een ingebouwde audit trail oplevert via het `_history` endpoint.
 
