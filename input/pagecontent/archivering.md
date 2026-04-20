@@ -14,7 +14,9 @@
 
 Deze pagina beschrijft de uitgangspunten en oplossingsrichting voor het archiveren en verwijderen van patiëntdata binnen een Koppeltaal domein. De Koppeltaalvoorziening slaat patiëntgerelateerde FHIR resources op die na verloop van tijd gearchiveerd of verwijderd moeten worden, conform wettelijke bewaartermijnen (AVG, WGBO, NEN 7510, NEN 7513).
 
-<img src="archivering-overzicht.png" alt="Overzicht archiveringsproces" style="display: block; max-width: 100%; height: auto; margin: 1em 0;"/>
+<div style="clear: both; margin: 1em 0;">
+  <img src="archivering-overzicht.png" alt="Overzicht archiveringsproces" style="display: block; max-width: 100%; height: auto;"/>
+</div>
 
 ### Uitgangspunten
 

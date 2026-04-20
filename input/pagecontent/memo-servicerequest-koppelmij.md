@@ -93,15 +93,21 @@ Dit is een **hybride model**: beide typen kunnen naast elkaar bestaan. Een modul
 
 #### Relaties tussen resources
 
-<img src="memo-sr-resource-relaties.png" alt="Relaties tussen FHIR resources in de ServiceRequest flow" style="display: block; max-width: 100%; height: auto; margin: 1em 0;"/>
+<div style="clear: both; margin: 1em 0;">
+  <img src="memo-sr-resource-relaties.png" alt="Relaties tussen FHIR resources in de ServiceRequest flow" style="display: block; max-width: 100%; height: auto;"/>
+</div>
 
 #### Interactiediagram: ServiceRequest flow (KoppelMij)
 
-<img src="memo-sr-koppelmij-flow.png" alt="ServiceRequest flow in KoppelMij" style="display: block; max-width: 100%; height: auto; margin: 1em 0;"/>
+<div style="clear: both; margin: 1em 0;">
+  <img src="memo-sr-koppelmij-flow.png" alt="ServiceRequest flow in KoppelMij" style="display: block; max-width: 100%; height: auto;"/>
+</div>
 
 #### Interactiediagram: huidige Koppeltaal-flow (ter vergelijking)
 
-<img src="memo-sr-koppeltaal-flow.png" alt="Huidige Koppeltaal flow" style="display: block; max-width: 100%; height: auto; margin: 1em 0;"/>
+<div style="clear: both; margin: 1em 0;">
+  <img src="memo-sr-koppeltaal-flow.png" alt="Huidige Koppeltaal flow" style="display: block; max-width: 100%; height: auto;"/>
+</div>
 
 #### Subscription-mechanisme
 
