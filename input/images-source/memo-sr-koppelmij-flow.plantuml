@@ -1,0 +1,38 @@
+@startuml memo-sr-koppelmij-flow
+
+participant "Behandelaar\n(EPD)" as EPD
+participant "CKT-\nvoorziening" as CKT
+participant "Module-\naanbieder" as Module
+participant "Cliënt\n(PGO)" as PGO
+
+== Configuratie (eenmalig) ==
+
+Module -> CKT : POST ActivityDefinition\n(kind=ServiceRequest)
+Module -> CKT : POST Subscription\n(criteria: ServiceRequest?\ninstantiatesCanonical=AD-X)
+
+== Toewijzing ==
+
+EPD -> CKT : POST ServiceRequest B\n(instantiatesCanonical=AD-X,\nsubject=Patient,\nrequester=Practitioner)
+
+CKT -> Module : Subscription notification\n(nieuwe ServiceRequest B)
+
+Module -> CKT : GET ServiceRequest B
+
+== Taakcreatie door module ==
+
+Module -> CKT : POST Task B1\n(basedOn=ServiceRequest B,\nfor=Patient)
+Module -> CKT : POST Task B2\n(basedOn=ServiceRequest B,\nfor=Patient)
+
+== Optioneel: handmatige taak door behandelaar ==
+
+EPD -> CKT : POST Task B3\n(basedOn=ServiceRequest B,\nfor=Patient)
+
+== Uitvoering ==
+
+PGO -> CKT : GET Task?basedOn=ServiceRequest-B\n(toont alle taken)
+
+PGO -> Module : Launch taak B1\n(SMART on FHIR / KoppelMij launch)
+
+Module -> CKT : PUT Task B1\n(status=completed)
+
+@enduml

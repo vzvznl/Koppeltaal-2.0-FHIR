@@ -1,0 +1,14 @@
+@startuml memo-sr-koppeltaal-flow
+
+participant "Behandelaar\n(EPD)" as EPD
+participant "Koppeltaal-\nvoorziening" as KT
+participant "Module" as Module
+participant "Patiënt\n(Portaal)" as Patient
+
+EPD -> KT : POST Task\n(instantiatesCanonical=AD-X,\nfor=Patient)
+
+Patient -> Module : Launch module\n(SMART on FHIR)
+
+Module -> KT : PUT Task\n(status=completed)
+
+@enduml
