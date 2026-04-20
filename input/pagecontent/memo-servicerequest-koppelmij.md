@@ -93,23 +93,7 @@ Dit is een **hybride model**: beide typen kunnen naast elkaar bestaan. Een modul
 
 #### Relaties tussen resources
 
-```
-ActivityDefinition (kind=ServiceRequest)
-        │
-        │ instantiatesCanonical
-        ▼
-ServiceRequest B
-  ├── subject ──► Patient
-  ├── requester ──► Practitioner
-  └── basedOn ──► ActivityDefinition
-        │
-        │ Task.basedOn
-        ▼
-  ┌─────┼─────┐
-  ▼     ▼     ▼
-Task   Task   Task
- B1     B2     B3
-```
+<img src="memo-sr-resource-relaties.png" alt="Relaties tussen FHIR resources in de ServiceRequest flow" style="display: block; max-width: 100%; height: auto; margin: 1em 0;"/>
 
 #### Interactiediagram: ServiceRequest flow (KoppelMij)
 
