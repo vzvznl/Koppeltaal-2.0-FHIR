@@ -11,7 +11,12 @@
 
 ## Diagrams
 - PlantUML source files go in `input/images-source/*.plantuml`. The Makefile automatically generates PNG files from these into `input/images/` during the build. Never generate PNG files manually.
-- Reference generated images in pagecontent markdown with: `<img src="filename.png" alt="Description" style="display: block; max-width: 100%; height: auto; margin: 1em 0;"/>`
+- Reference generated images in pagecontent markdown wrapped in a div to prevent text wrapping around the image:
+  ```html
+  <div style="clear: both; margin: 1em 0;">
+    <img src="filename.png" alt="Description" style="display: block; max-width: 100%; height: auto;"/>
+  </div>
+  ```
 
 ## Changelogs
 - CHANGELOG.md and input/pagecontent/changes.md reflect **only** changes to `input/fsh` (profiles, extensions, valuesets, codesystems, examples). Documentation, scripts, build process, and other non-FSH changes do NOT belong in these files. Document those changes in the files themselves (e.g. page-level changelogs).
