@@ -3,7 +3,7 @@
 participant "Behandelaar\n(EPD)" as EPD
 participant "CKT-\nvoorziening" as CKT
 participant "Module-\naanbieder" as Module
-participant "Cliënt\n(PGO)" as PGO
+participant "Client\n(PGO)" as PGO
 
 == Configuratie (eenmalig) ==
 

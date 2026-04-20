@@ -3,7 +3,7 @@
 participant "Behandelaar\n(EPD)" as EPD
 participant "Koppeltaal-\nvoorziening" as KT
 participant "Module" as Module
-participant "Patiënt\n(Portaal)" as Patient
+participant "Patient\n(Portaal)" as Patient
 
 EPD -> KT : POST Task\n(instantiatesCanonical=AD-X,\nfor=Patient)
 

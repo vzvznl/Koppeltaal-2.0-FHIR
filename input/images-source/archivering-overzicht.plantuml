@@ -7,7 +7,7 @@ skinparam activity {
 
 |EPD (Dossierhouder)|
 start
-:Bewaartermijn verstreken /\ncontractbeëindiging;
+:Bewaartermijn verstreken /\ncontractbeeindiging;
 
 |EPD (Dossierhouder)|
 :Gegevens veiligstellen\nuit Koppeltaalvoorziening;
@@ -16,7 +16,7 @@ start
 if (Notificatieniveau?) then (Niveau A)
   :Geen notificatie\n(alle Tasks completed);
 elseif (Niveau B) then
-  :meta.tag lifecycle\n(ARCHIVE_PENDING → PURGE_PENDING);
+  :meta.tag lifecycle\n(ARCHIVE_PENDING -> PURGE_PENDING);
   :Subscription notificatie\nnaar doelapplicaties;
 else (Niveau C)
   :Two-phase commit\nvia Tasks;
@@ -40,7 +40,7 @@ note right
   worden verwijderd
 end note
 
-:AuditEvents blijven\nbewaard (≥5 jaar);
+:AuditEvents blijven\nbewaard (>=5 jaar);
 
 stop
 
