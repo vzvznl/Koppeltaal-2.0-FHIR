@@ -154,16 +154,6 @@ De module-aanbieder moet genotificeerd worden over nieuwe ServiceRequests die be
 
 **Opmerking**: dit vereist een nieuwe SearchParameter voor de `instantiates` extensie op ServiceRequest, analoog aan de bestaande [`task-instantiates`](http://koppeltaal.nl/fhir/SearchParameter/task-instantiates) SearchParameter.
 
-#### Launch naar specifieke taak
-
-In het PGO moet de cliënt direct naar een specifieke taak binnen een module kunnen worden gelanceerd. Dit vereist dat de launch-context niet alleen de module identificeert, maar ook de specifieke taak:
-
-- De `launch`-parameter bevat een verwijzing naar de specifieke Task resource
-- De module ontvangt via de launch-context welke taak de cliënt wil uitvoeren
-- De module toont direct de juiste inhoud (vragenlijst, oefening, video, etc.)
-
-Dit is een verfijning van het bestaande SMART on FHIR launch-mechanisme.
-
 ### 5. Open vragen
 
 #### Wie wordt de requester van de taken?
