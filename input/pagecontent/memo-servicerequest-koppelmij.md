@@ -92,7 +92,7 @@ De HL7 [Clinical Order Workflow (COW) IG](https://build.fhir.org/ig/HL7/fhir-cow
 #### Wat betekent dit voor de module-aanbieder?
 
 - Bij `AD.kind = Task`: geen verandering. De module ontvangt taken zoals nu.
-- Bij `AD.kind = ServiceRequest`: de module moet zich **abonneren op nieuwe ServiceRequests** die naar haar verwijzen, en vervolgens **zelf taken aanmaken** binnen de Centrale Koppeltaal (CKT) voorziening.
+- Bij `AD.kind = ServiceRequest`: de module moet een ActivityDefinition **publiceren met `kind = ServiceRequest`**, zich **abonneren op nieuwe ServiceRequests** die naar deze AD verwijzen, en vervolgens **zelf taken aanmaken** binnen de Centrale Koppeltaal (CKT) voorziening.
 
 #### Wat betekent dit voor de ECD-aanbieder?
 
