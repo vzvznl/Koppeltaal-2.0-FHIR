@@ -3,6 +3,7 @@
 | Versie | Datum      | Wijziging                                |
 |--------|------------|------------------------------------------|
 | 0.0.1  | 2026-04-20 | Initiële versie                          |
+| 0.0.2  | 2026-04-21 | Feedback verwerkt: centraal overzicht benadrukt, scope-notitie behandelaar, FHIR workflow-aansluiting |
 
 ---
 
@@ -22,8 +23,8 @@ In Koppeltaal wordt een digitale interventie (module) als geheel toegewezen aan 
 
 In KoppelMij is deze granulariteit onvoldoende. Het Persoonlijke Gezondheidsomgeving (PGO) fungeert als het portaal van de cliënt — vergelijkbaar met het patiëntportaal in Koppeltaal. Cliënten en behandelaars willen de **individuele taken binnen een module** zichtbaar hebben:
 
-- De cliënt wil in het PGO zien welke taken er voor hem klaarstaan (*"Vul vragenlijst A in"*, *"Bekijk video B"*, *"Doe oefening C"*)
-- De behandelaar wil taken kunnen volgen, aanvullen en indien nodig handmatig toevoegen
+- De cliënt wil in het PGO **in één oogopslag een overzicht van taken van verschillende zorgaanbieders** — zonder eerst in afzonderlijke modules te moeten kijken. Dit centrale overzicht geeft rust en duidelijkheid voor de cliënt. Dit is ook de oplossingsrichting die bijvoorbeeld DigiZorg kiest om aan te sluiten bij de gebruikersbehoefte.
+- De behandelaar wil vanuit het ECD inzicht in welke concrete taken een cliënt uitvoert binnen een module en hoe ver hij hiermee is, zonder daarvoor naar losse modules te moeten navigeren. *Opmerking: deze behoefte wordt door de gekozen oplossingsrichting technisch mogelijk gemaakt, maar valt buiten de huidige scope van het KoppelMij-project (dat zich richt op beschikbaarheid in het PGO). Uitbreiding naar het ECD vereist interne afstemming en bespreking met de stuurgroep.*
 - Het PGO moet de cliënt direct naar een specifieke taak binnen een module kunnen launchen
 
 Dit betekent dat het proces van taakaanmaak fundamenteel anders werkt dan in Koppeltaal.
@@ -72,6 +73,18 @@ Door het veld `ActivityDefinition.kind` expliciet te vullen, kan de module-aanbi
 | `ServiceRequest` | Module werkt op opdrachtniveau | EPD maakt een ServiceRequest aan. De module luistert op nieuwe ServiceRequests en vult deze aan met taken voor de cliënt. |
 
 Dit is een **hybride model**: beide typen kunnen naast elkaar bestaan. Een module-aanbieder kan zowel ADs van type `Task` als van type `ServiceRequest` aanbieden. KoppelMij geeft aan dat `AD.kind = ServiceRequest` **noodzakelijk** is voor de gewenste cliëntbeleving in het PGO.
+
+#### Aansluiting op FHIR Workflow
+
+Het gekozen patroon sluit aan op de [FHIR Workflow](https://www.hl7.org/fhir/workflow.html) specificatie:
+
+- **ServiceRequest** beschrijft de *intentie* of *opdracht*: wat er moet gebeuren — vergelijkbaar met een order, eventueel als onderdeel van een CarePlan
+- **Task** beschrijft de *concrete uitvoering* van deze opdracht, inclusief status (`requested`, `accepted`, `in-progress`, `completed`)
+
+Het aansluiten op internationale standaarden is één van onze uitgangspunten. Door nu het patroon (Service)Request → Task te hanteren, leggen we een fundament dat in lijn is met de FHIR Workflow en voorbereid is op toekomstige uitbreidingen:
+
+- **Projectfase 2**: (Service)Request → Task → Observation — het delen van resultaten (scores, meetwaarden) die voortkomen uit de uitgevoerde taken
+- **Verdere toekomst**: uitbreiding met CarePlan als overkoepelend behandelplan, en andere typen Requests zoals DeviceRequest en MedicationRequest
 
 #### Wat betekent dit voor de module-aanbieder?
 
@@ -177,6 +190,7 @@ De relatie tussen de Task-lifecycles en de ServiceRequest-lifecycle moet eenduid
 
 ### 6. Referenties
 
+- [FHIR Workflow](https://www.hl7.org/fhir/workflow.html)
 - [FHIR ActivityDefinition](https://www.hl7.org/fhir/activitydefinition.html)
 - [FHIR ServiceRequest](https://www.hl7.org/fhir/servicerequest.html)
 - [FHIR Task](https://www.hl7.org/fhir/task.html)
