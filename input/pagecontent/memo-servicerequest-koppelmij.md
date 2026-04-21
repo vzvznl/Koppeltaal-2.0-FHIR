@@ -3,7 +3,7 @@
 | Versie | Datum      | Wijziging                                |
 |--------|------------|------------------------------------------|
 | 0.0.1  | 2026-04-20 | Initiële versie                          |
-| 0.0.2  | 2026-04-21 | Feedback verwerkt: centraal overzicht benadrukt, scope-notitie behandelaar, FHIR workflow-aansluiting |
+| 0.0.2  | 2026-04-21 | Feedback verwerkt: centraal overzicht benadrukt, scope-notitie behandelaar, FHIR workflow-aansluiting, COW IG referentie |
 
 ---
 
@@ -85,6 +85,8 @@ Het aansluiten op internationale standaarden is één van onze uitgangspunten. D
 
 - **Projectfase 2**: (Service)Request → Task → Observation — het delen van resultaten (scores, meetwaarden) die voortkomen uit de uitgevoerde taken
 - **Verdere toekomst**: uitbreiding met CarePlan als overkoepelend behandelplan, en andere typen Requests zoals DeviceRequest en MedicationRequest
+
+De HL7 [Clinical Order Workflow (COW) IG](https://build.fhir.org/ig/HL7/fhir-cow-ig/en/workflow-patterns.html) beschrijft patronen voor het coördineren van orders tussen een *Placer* (besteller) en *Filler* (uitvoerder), waaronder het gebruik van een *Coordination Task* om de onderhandeling over wie een ServiceRequest gaat invullen te faciliteren. In onze context gaan we ervan uit dat deze onderhandeling reeds heeft plaatsgevonden: de module-aanbieder is bekend en de toewijzing is overeengekomen. We sluiten aan bij het COW-patroon in zoverre dat we starten met een overeengekomen ServiceRequest met `Task.basedOn` als verbinding naar de taken. De Coordination Task — bedoeld voor het onderhandelingsproces tussen Placer en Filler — valt buiten onze scope.
 
 #### Wat betekent dit voor de module-aanbieder?
 
@@ -191,6 +193,7 @@ De relatie tussen de Task-lifecycles en de ServiceRequest-lifecycle moet eenduid
 ### 6. Referenties
 
 - [FHIR Workflow](https://www.hl7.org/fhir/workflow.html)
+- [Clinical Order Workflow (COW) IG](https://build.fhir.org/ig/HL7/fhir-cow-ig/en/workflow-patterns.html)
 - [FHIR ActivityDefinition](https://www.hl7.org/fhir/activitydefinition.html)
 - [FHIR ServiceRequest](https://www.hl7.org/fhir/servicerequest.html)
 - [FHIR Task](https://www.hl7.org/fhir/task.html)
