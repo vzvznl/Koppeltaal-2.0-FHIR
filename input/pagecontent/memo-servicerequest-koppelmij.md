@@ -124,16 +124,26 @@ De HL7 [Clinical Order Workflow (COW) IG](https://build.fhir.org/ig/HL7/fhir-cow
 {% include memo-sr-koppeltaal-flow.svg %}
 </div>
 
+#### Link naar ActivityDefinition: extensie `instantiates`
+
+In Koppeltaal wordt op de Task een custom extensie [`instantiates`](http://vzvz.nl/fhir/StructureDefinition/instantiates) gebruikt om te verwijzen naar de ActivityDefinition. Deze extensie is destijds geïntroduceerd omdat het standaard FHIR-element `Task.instantiatesCanonical` niet bruikbaar bleek als zoekcriterium. Er is een bijbehorende [SearchParameter](http://koppeltaal.nl/fhir/SearchParameter/task-instantiates) gedefinieerd die zoeken op deze extensie mogelijk maakt.
+
+Het voorstel is om dezelfde `instantiates` extensie **symmetrisch op de ServiceRequest** toe te passen. Hiermee:
+
+- Wordt de verwijzing van ServiceRequest naar ActivityDefinition op dezelfde manier geïmplementeerd als bij Task
+- Kan een vergelijkbare SearchParameter worden gedefinieerd voor ServiceRequest
+- Wordt het zoek- en Subscription-criterium gebaseerd op een bewezen mechanisme
+
 #### Subscription-mechanisme
 
-De module-aanbieder moet genotificeerd worden over nieuwe ServiceRequests die betrekking hebben op haar ActivityDefinition(s). Dit kan via een FHIR Subscription:
+De module-aanbieder moet genotificeerd worden over nieuwe ServiceRequests die betrekking hebben op haar ActivityDefinition(s). Dit kan via een FHIR Subscription op basis van de `instantiates` extensie:
 
 ```json
 {
   "resourceType": "Subscription",
   "status": "active",
   "reason": "Notificatie bij nieuwe ServiceRequests voor module X",
-  "criteria": "ServiceRequest?instantiatesCanonical=https://example.com/ActivityDefinition/module-x",
+  "criteria": "ServiceRequest?instantiates=ActivityDefinition/module-x",
   "channel": {
     "type": "rest-hook",
     "endpoint": "https://module-x.example.com/notifications/servicerequest",
@@ -142,7 +152,7 @@ De module-aanbieder moet genotificeerd worden over nieuwe ServiceRequests die be
 }
 ```
 
-**Aandachtspunt**: het `instantiatesCanonical` zoekcriterium moet door de Centrale Koppeltaal (CKT) voorziening ondersteund worden als Subscription-criterium. Dit is een uitbreiding ten opzichte van de huidige Koppeltaal-functionaliteit.
+**Opmerking**: dit vereist een nieuwe SearchParameter voor de `instantiates` extensie op ServiceRequest, analoog aan de bestaande [`task-instantiates`](http://koppeltaal.nl/fhir/SearchParameter/task-instantiates) SearchParameter.
 
 #### Launch naar specifieke taak
 

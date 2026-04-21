@@ -8,11 +8,11 @@ participant "Cliënt\n(PGO)" as PGO
 == Configuratie (eenmalig) ==
 
 Module -> CKT : POST ActivityDefinition\n(kind=ServiceRequest)
-Module -> CKT : POST Subscription\n(criteria: ServiceRequest?\ninstantiatesCanonical=AD-X)
+Module -> CKT : POST Subscription\n(criteria: ServiceRequest?\ninstantiates=AD-X)
 
 == Toewijzing ==
 
-EPD -> CKT : POST ServiceRequest B\n(instantiatesCanonical=AD-X,\nsubject=Patient,\nrequester=Practitioner)
+EPD -> CKT : POST ServiceRequest B\n(ext:instantiates=AD-X,\nsubject=Patient,\nrequester=Practitioner)
 
 CKT -> Module : Subscription notification\n(nieuwe ServiceRequest B)
 

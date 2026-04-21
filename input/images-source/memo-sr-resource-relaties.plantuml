@@ -21,7 +21,7 @@ object "Task B1" as T1
 object "Task B2" as T2
 object "Task B3" as T3
 
-SR -up-> AD : instantiatesCanonical
+SR -up-> AD : ext:instantiates
 SR -right-> Pat : subject
 SR -right-> Prac : requester
 
