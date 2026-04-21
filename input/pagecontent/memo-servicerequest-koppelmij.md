@@ -4,6 +4,7 @@
 |--------|------------|------------------------------------------|
 | 0.0.1  | 2026-04-20 | Initiële versie                          |
 | 0.0.2  | 2026-04-21 | Feedback verwerkt: centraal overzicht benadrukt, scope-notitie behandelaar, FHIR workflow-aansluiting, COW IG referentie |
+| 0.0.3  | 2026-04-21 | Impact op ECD en patiëntportaal toegevoegd |
 
 ---
 
@@ -92,6 +93,23 @@ De HL7 [Clinical Order Workflow (COW) IG](https://build.fhir.org/ig/HL7/fhir-cow
 
 - Bij `AD.kind = Task`: geen verandering. De module ontvangt taken zoals nu.
 - Bij `AD.kind = ServiceRequest`: de module moet zich **abonneren op nieuwe ServiceRequests** die naar haar verwijzen, en vervolgens **zelf taken aanmaken** binnen de Centrale Koppeltaal (CKT) voorziening.
+
+#### Impact op Koppeltaal-applicaties
+
+##### ECD (Elektronisch Cliëntendossier)
+
+Het ECD moet de ServiceRequest als nieuw concept ondersteunen. Concreet betekent dit:
+
+- **ServiceRequest aanmaken**: bij het toewijzen van een interventie met `AD.kind = ServiceRequest` moet het ECD een ServiceRequest aanmaken in plaats van (of naast) een Task
+- **Koppeling met taken**: het ECD moet de relatie tussen de ServiceRequest en de onderliggende taken inzichtelijk maken. Deze informatie zit mogelijk impliciet al in het ECD (bijv. als behandelplan of interventietoewijzing), maar moet nu expliciet gekoppeld worden aan de FHIR-resources in de Centrale Koppeltaal (CKT) voorziening
+- **Meerdere ServiceRequests**: het ECD moet meerdere actieve ServiceRequests per cliënt kunnen beheren, elk met hun eigen set aan taken
+
+##### Patiëntportaal
+
+Het patiëntportaal (of PGO in KoppelMij-context) moet omgaan met de bovenliggende ServiceRequest als groeperingsmechanisme:
+
+- **Groepering van taken**: taken worden niet langer als losse items getoond, maar gegroepeerd onder hun ServiceRequest. De cliënt ziet bijvoorbeeld *"Behandelprogramma B"* met daaronder de individuele taken B1, B2, B3
+- **UX-wijziging**: dit vereist een aanpassing in de gebruikersinterface — van een platte takenlijst naar een gestructureerd overzicht met niveaus (ServiceRequest → taken)
 
 ### 4. Technische uitwerking
 
