@@ -46,7 +46,7 @@ De behandelaar heeft geen zicht op wat er *binnen* de module gebeurt. De module 
 In KoppelMij wordt het proces uitgebreider en collaboratief:
 
 1. De behandelaar vraagt een interventie aan voor de cliënt (bijv. *"Start behandelprogramma B"*)
-2. Er ontstaat een **overkoepelende opdracht** (ServiceRequest) in de CKT-voorziening
+2. Er ontstaat een **overkoepelende opdracht** (ServiceRequest) in de Centrale Koppeltaal (CKT) voorziening
 3. De module-aanbieder detecteert deze opdracht en **vult deze aan met individuele taken** (B1, B2, B3, ...) voor de cliënt
 4. De behandelaar kan ook **handmatig extra taken toevoegen** binnen dezelfde opdracht
 5. De cliënt ziet in het PGO alle taken en kan ze individueel uitvoeren
@@ -54,7 +54,7 @@ In KoppelMij wordt het proces uitgebreider en collaboratief:
 
 Het wezenlijke verschil: de module is niet langer een black box, maar een **samenwerkingspartner** die taken aandraagt binnen een door de behandelaar geïnitieerde opdracht.
 
-### 3. Het voorstel: ActivityDefinition.kind als schakelaar
+### 3. Het voorstel: ActivityDefinition.kind als discriminator
 
 #### ActivityDefinition in Koppeltaal
 
@@ -76,7 +76,7 @@ Dit is een **hybride model**: beide typen kunnen naast elkaar bestaan. Een modul
 #### Wat betekent dit voor de module-aanbieder?
 
 - Bij `AD.kind = Task`: geen verandering. De module ontvangt taken zoals nu.
-- Bij `AD.kind = ServiceRequest`: de module moet zich **abonneren op nieuwe ServiceRequests** die naar haar verwijzen, en vervolgens **zelf taken aanmaken** binnen de CKT-voorziening.
+- Bij `AD.kind = ServiceRequest`: de module moet zich **abonneren op nieuwe ServiceRequests** die naar haar verwijzen, en vervolgens **zelf taken aanmaken** binnen de Centrale Koppeltaal (CKT) voorziening.
 
 ### 4. Technische uitwerking
 
@@ -94,19 +94,19 @@ Dit is een **hybride model**: beide typen kunnen naast elkaar bestaan. Een modul
 #### Relaties tussen resources
 
 <div style="clear: both; margin: 1em 0;">
-  <img src="memo-sr-resource-relaties.png" alt="Relaties tussen FHIR resources in de ServiceRequest flow" style="display: block; max-width: 100%; height: auto;"/>
+{% include memo-sr-resource-relaties.svg %}
 </div>
 
 #### Interactiediagram: ServiceRequest flow (KoppelMij)
 
 <div style="clear: both; margin: 1em 0;">
-  <img src="memo-sr-koppelmij-flow.png" alt="ServiceRequest flow in KoppelMij" style="display: block; max-width: 100%; height: auto;"/>
+{% include memo-sr-koppelmij-flow.svg %}
 </div>
 
 #### Interactiediagram: huidige Koppeltaal-flow (ter vergelijking)
 
 <div style="clear: both; margin: 1em 0;">
-  <img src="memo-sr-koppeltaal-flow.png" alt="Huidige Koppeltaal flow" style="display: block; max-width: 100%; height: auto;"/>
+{% include memo-sr-koppeltaal-flow.svg %}
 </div>
 
 #### Subscription-mechanisme
@@ -127,7 +127,7 @@ De module-aanbieder moet genotificeerd worden over nieuwe ServiceRequests die be
 }
 ```
 
-**Aandachtspunt**: het `instantiatesCanonical` zoekcriterium moet door de CKT-voorziening ondersteund worden als Subscription-criterium. Dit is een uitbreiding ten opzichte van de huidige Koppeltaal-functionaliteit.
+**Aandachtspunt**: het `instantiatesCanonical` zoekcriterium moet door de Centrale Koppeltaal (CKT) voorziening ondersteund worden als Subscription-criterium. Dit is een uitbreiding ten opzichte van de huidige Koppeltaal-functionaliteit.
 
 #### Launch naar specifieke taak
 

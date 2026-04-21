@@ -36,8 +36,8 @@ KoppelMij maakt gebruik van **user level autorisatie** via SMART on FHIR app lau
 
 Het transitiemodel beschrijft hoe beide autorisatiodellen worden samengevoegd tot een uniform model.
 
-<div style="clear: both;">
-<img src="transitiemodel-autorisatie.png" alt="Transitiemodel autorisatie Koppeltaal/KoppelMij" style="display: block; max-width: 100%; height: auto; margin: 1em 0;" />
+<div style="clear: both; margin: 1em 0;">
+  <img src="transitiemodel-autorisatie.png" alt="Transitiemodel autorisatie Koppeltaal/KoppelMij" style="display: block; max-width: 100%; height: auto;"/>
 </div>
 
 #### Drie fasen

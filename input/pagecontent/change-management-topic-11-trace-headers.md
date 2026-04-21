@@ -159,7 +159,9 @@ Dan zou stap 9 `X-Correlation-Id: md300` moeten hebben (de Task request, niet de
 
 ### Gecorrigeerd Diagram (Scenario B: Sequentiële Causaliteit)
 
-<img src="trace-headers-sequence.png" alt="Trace headers sequence diagram" style="display: block; max-width: 100%; height: auto; margin: 1em 0;"/>
+<div style="clear: both; margin: 1em 0;">
+{% include trace-headers-sequence.svg %}
+</div>
    
 #### Wijzigingen t.o.v. Origineel
 

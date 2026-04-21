@@ -21,6 +21,6 @@ PURGE_PENDING : Gemarkeerd voor\ndefinitieve verwijdering
 PURGE_PENDING --> PURGED : Hard delete\nuitgevoerd
 
 PURGED : Logisch verwijderd
-PURGED --> [*] : HTTP DELETE\n-> 410 Gone
+PURGED --> [*] : HTTP DELETE\n→ 410 Gone
 
 @enduml

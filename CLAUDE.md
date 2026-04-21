@@ -11,7 +11,13 @@
 
 ## Diagrams
 - PlantUML source files go in `input/images-source/*.plantuml`. The Makefile automatically generates PNG files from these into `input/images/` during the build. Never generate PNG files manually.
-- Reference generated images in pagecontent markdown wrapped in a div to prevent text wrapping around the image:
+- The IG publisher automatically converts PlantUML sources to SVG with correct UTF-8 encoding. Reference them in pagecontent markdown using Jekyll includes:
+  ```html
+  <div style="clear: both; margin: 1em 0;">
+  {% include filename.svg %}
+  </div>
+  ```
+- For non-PlantUML images (e.g. draw.io PNGs in `input/images/`), use an img tag:
   ```html
   <div style="clear: both; margin: 1em 0;">
     <img src="filename.png" alt="Description" style="display: block; max-width: 100%; height: auto;"/>

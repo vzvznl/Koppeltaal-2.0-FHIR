@@ -15,7 +15,7 @@
 Deze pagina beschrijft de uitgangspunten en oplossingsrichting voor het archiveren en verwijderen van patiëntdata binnen een Koppeltaal domein. De Koppeltaalvoorziening slaat patiëntgerelateerde FHIR resources op die na verloop van tijd gearchiveerd of verwijderd moeten worden, conform wettelijke bewaartermijnen (AVG, WGBO, NEN 7510, NEN 7513).
 
 <div style="clear: both; margin: 1em 0;">
-  <img src="archivering-overzicht.png" alt="Overzicht archiveringsproces" style="display: block; max-width: 100%; height: auto;"/>
+{% include archivering-overzicht.svg %}
 </div>
 
 ### Uitgangspunten
@@ -111,8 +111,8 @@ Om doelapplicaties gecontroleerd te informeren over archivering en verwijdering,
 
 De lifecycle verloopt als volgt:
 
-<div style="clear: both; text-align: center; margin: 1em 0;">
-  <img src="archivering-tag-lifecycle.png" alt="meta.tag lifecycle state diagram" style="display: inline-block; max-width: 350px; height: auto;"/>
+<div style="clear: both; margin: 1em 0;">
+{% include archivering-tag-lifecycle.svg %}
 </div>
 
 Elke statusovergang wordt uitgevoerd via een `PUT` of `PATCH` op de resource. Hierdoor wordt `meta.versionId` en `meta.lastUpdated` automatisch bijgewerkt, wat een ingebouwde audit trail oplevert via het `_history` endpoint.

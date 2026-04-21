@@ -148,7 +148,9 @@ Het volgende diagram toont de drie scenario's voor IdP selectie:
 - **idp_hint niet gevonden**: Misconfiguratie wordt gelogd, fallback naar default IdP
 - **geen idp_hint aanwezig**: De eerste (default) IdP uit de configuratie wordt gebruikt
 
-<img src="multiple-idp-flow.png" alt="IdP selectie flow met alt scenarios" />
+<div style="clear: both; margin: 1em 0;">
+{% include multiple-idp-flow.svg %}
+</div>
 
 ### Referenties
 
