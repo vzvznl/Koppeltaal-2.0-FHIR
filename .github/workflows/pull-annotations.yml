@@ -1,0 +1,40 @@
+name: Pull Hypothesis annotations
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'   # every 6 hours
+  workflow_dispatch: {}     # manual trigger too
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write    # to commit the state file
+      issues: write      # to create issues
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install deps
+        run: pip install requests
+
+      - name: Pull annotations
+        env:
+          HYPOTHESIS_TOKEN: ${{ secrets.HYPOTHESIS_TOKEN }}
+          HYPOTHESIS_GROUP: ${{ secrets.HYPOTHESIS_GROUP }}
+          IG_DOMAIN: ${{ vars.IG_DOMAIN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python .github/scripts/pull_annotations.py
+
+      - name: Commit state
+        run: |
+          git config user.name  "feedback-bot"
+          git config user.email "feedback-bot@users.noreply.github.com"
+          git add .feedback/processed.json
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(feedback): update processed annotations"
+            git push
+          fi
