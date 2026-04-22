@@ -24,7 +24,7 @@ In Koppeltaal wordt een digitale interventie (module) als geheel toegewezen aan 
 
 In KoppelMij is deze granulariteit onvoldoende. Het Persoonlijke Gezondheidsomgeving (PGO) fungeert als het portaal van de cliënt — vergelijkbaar met het patiëntportaal in Koppeltaal. Cliënten en behandelaars willen de **individuele taken binnen een module** zichtbaar hebben:
 
-- De cliënt wil in het PGO **in één oogopslag een overzicht van taken van verschillende zorgaanbieders** — zonder eerst in afzonderlijke modules te moeten kijken. Dit centrale overzicht geeft rust en duidelijkheid voor de cliënt. Dit is ook de oplossingsrichting die bijvoorbeeld DigiZorg kiest om aan te sluiten bij de gebruikersbehoefte.
+- De cliënt wil in het PGO **in één oogopslag een overzicht van taken van verschillende zorgaanbieders** — zonder eerst in afzonderlijke modules te moeten kijken. Dit centrale overzicht geeft rust en duidelijkheid voor de cliënt. 
 - De behandelaar wil vanuit het ECD inzicht in welke concrete taken een cliënt uitvoert binnen een module en hoe ver hij hiermee is, zonder daarvoor naar losse modules te moeten navigeren. *Opmerking: deze behoefte wordt door de gekozen oplossingsrichting technisch mogelijk gemaakt, maar valt buiten de huidige scope van het KoppelMij-project (dat zich richt op beschikbaarheid in het PGO). Uitbreiding naar het ECD vereist interne afstemming en bespreking met de stuurgroep.*
 - Het PGO moet de cliënt direct naar een specifieke taak binnen een module kunnen launchen
 
