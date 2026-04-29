@@ -1,0 +1,44 @@
+@startuml archivering-interactie
+
+participant "Initiator\n(EPD / Koppeltaal)" as Init
+participant "Koppeltaal-\nvoorziening" as KT
+participant "Doelapplicatie A" as AppA
+participant "Doelapplicatie B" as AppB
+
+== Archivering starten ==
+
+Init -> KT : PUT Patient\n(tag: ARCHIVE_PENDING)
+KT -> KT : AuditEvent\n(archive-initiated)
+KT -> AppA : Subscription notification\n(ARCHIVE_PENDING)
+KT -> AppB : Subscription notification\n(ARCHIVE_PENDING)
+
+== Grace period ==
+
+AppA -> KT : GET Patient resources\n(data veiligstellen)
+note right of AppA : Geen actie nodig\n= akkoord (opt-out)
+
+AppB -> KT : PUT Patient\n(tag: += ARCHIVE_HOLD)
+KT -> KT : AuditEvent\n(archive-hold,\nreden: "data niet veiliggesteld")
+note right of AppB : Noodrem:\nproces pauzeert
+
+...wacht op opheffing...
+
+AppB -> KT : PUT Patient\n(tag: -= ARCHIVE_HOLD)
+KT -> KT : AuditEvent\n(archive-hold-released)
+
+== Archivering voltooien ==
+
+KT -> KT : Grace period verstreken\n+ geen ARCHIVE_HOLD
+KT -> KT : PUT Patient\n(tag: ARCHIVED)
+KT -> KT : AuditEvent\n(archive-completed)
+
+== Definitieve verwijdering ==
+
+Init -> KT : PUT Patient\n(tag: PURGE_PENDING)
+KT -> KT : AuditEvent\n(purge-initiated)
+
+KT -> KT : $purge operatie
+KT -> KT : AuditEvent\n(purge-completed)
+note right of KT : AuditEvents\noverleven de $purge
+
+@enduml

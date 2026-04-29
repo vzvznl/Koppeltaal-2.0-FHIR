@@ -8,6 +8,7 @@
 | 0.0.4  | 2026-04-13 | Dataclassificatie, toegankelijkheid archiefdata, rechten betrokkenen en contractbeëindiging toegevoegd |
 | 0.0.5  | 2026-04-15 | PlantUML diagrammen toegevoegd (overzicht en tag lifecycle) |
 | 0.0.6  | 2026-04-29 | Verifieerbare notificatie, beveiliging en beheersbaarheid toegevoegd; discussiepunt initiëring archivering |
+| 0.0.7  | 2026-04-29 | Focus op meta.tag lifecycle als primaire oplossingsrichting; noodrem en AuditEvents uitgewerkt; interactiediagram toegevoegd |
 
 ---
 
@@ -68,7 +69,7 @@ Door classificatie bij creatie toe te passen, kan de Koppeltaalvoorziening bewaa
 
 #### Verifieerbare notificatie
 
-Wanneer doelapplicaties genotificeerd worden over aankomende verwijdering (zie Notificatie naar doelapplicaties), moet aantoonbaar zijn dat notificaties succesvol zijn verzonden én ontvangen. De Koppeltaalvoorziening is verantwoordelijk voor het verzenden en het vastleggen van verzending en ontvangst — niet voor het daadwerkelijk ophalen of veiligstellen van data door zorginstellingen.
+Wanneer doelapplicaties genotificeerd worden over aankomende verwijdering, moet aantoonbaar zijn dat notificaties succesvol zijn verzonden én ontvangen. De Koppeltaalvoorziening is verantwoordelijk voor het verzenden en het vastleggen van verzending en ontvangst — niet voor het daadwerkelijk ophalen of veiligstellen van data door zorginstellingen.
 
 #### Beveiliging van archiefdata
 
@@ -79,6 +80,85 @@ Archiefdata moet beschermd zijn tegen ongeautoriseerde toegang, verlies en manip
 Bewaartermijnen en archiveringsregels moeten beheerd en aangepast kunnen worden binnen vastgestelde kaders, zodat flexibiliteit behouden blijft bij wijzigingen in wet- en regelgeving of contractuele afspraken.
 
 ### Oplossingsrichting
+
+#### Archivering en verwijdering via meta.tag lifecycle
+
+Het archiverings- en verwijderproces wordt gestuurd via FHIR `meta.tag` op de Patient resource, in combinatie met AuditEvents voor aantoonbaarheid. Dit mechanisme biedt een gecontroleerde, transparante en auditeerbare flow waarbij doelapplicaties de mogelijkheid hebben om het proces te volgen en indien nodig te blokkeren.
+
+##### Tag lifecycle
+
+De Patient resource doorloopt de volgende staten, vastgelegd in een dedicated CodeSystem:
+
+| Code | Display | Beschrijving |
+|------|---------|--------------|
+| `ARCHIVE_PENDING` | Archive Pending | Patient is gemarkeerd voor archivering; grace period loopt |
+| `ARCHIVE_HOLD` | Archive Hold | Noodrem — een doelapplicatie blokkeert het archiverings­proces |
+| `ARCHIVED` | Archived | Patient is gearchiveerd; data is read-only en niet in reguliere zoekresultaten |
+| `PURGE_PENDING` | Purge Pending | Patient is gemarkeerd voor definitieve verwijdering |
+| `PURGED` | Purged | Patient is logisch verwijderd; hard delete volgt |
+
+De lifecycle verloopt als volgt:
+
+<div style="clear: both; margin: 1em 0;">
+{% include archivering-tag-lifecycle.svg %}
+</div>
+
+##### AuditEvents bij statusovergangen
+
+Elke statusovergang wordt vastgelegd in een immutable AuditEvent. Dit biedt een aantoonbare audit trail die de `$purge` overleeft:
+
+| Moment | AuditEvent type | Actor | Doel |
+|--------|-----------------|-------|------|
+| Tag → `ARCHIVE_PENDING` | archive-initiated | Initiator | Aantoonbaar: archivering is gestart, grace period begint |
+| Noodrem getrokken | archive-hold | Doelapplicatie | Aantoonbaar: welke applicatie blokkeert en waarom |
+| Noodrem opgeheven | archive-hold-released | Doelapplicatie | Aantoonbaar: blokkade is opgeheven |
+| Tag → `ARCHIVED` | archive-completed | Koppeltaalvoorziening | Aantoonbaar: archivering is voltooid |
+| Tag → `PURGE_PENDING` | purge-initiated | Initiator | Aantoonbaar: verwijdering is geautoriseerd |
+| `$purge` uitgevoerd | purge-completed | Koppeltaalvoorziening | Aantoonbaar: data is definitief vernietigd |
+
+De combinatie van tags en AuditEvents scheidt **state** (huidige toestand van de Patient) van **events** (geschiedenis van wat er is gebeurd). Tags zijn muteerbaar en representeren de actuele status; AuditEvents zijn immutable en vormen het bewijs.
+
+##### Interactie met doelapplicaties
+
+Doelapplicaties detecteren archiveringsgerelateerde statusovergangen via FHIR Subscriptions op het `_tag` zoekcriterium:
+
+```json
+{
+  "resourceType": "Subscription",
+  "status": "active",
+  "criteria": "Patient?_tag=ARCHIVE_PENDING",
+  "channel": {
+    "type": "rest-hook",
+    "endpoint": "https://module.example.com/notifications/archive"
+  }
+}
+```
+
+Na ontvangst van de notificatie heeft de doelapplicatie gedurende de grace period de gelegenheid om:
+
+- Relevante data op te halen en lokaal veilig te stellen
+- Indien nodig de noodrem te trekken (zie hieronder)
+
+Het model is **opt-out**: geen actie binnen de grace period betekent akkoord. De doelapplicatie hoeft niet expliciet te bevestigen dat data is veiliggesteld.
+
+##### Noodrem (ARCHIVE_HOLD)
+
+Een doelapplicatie die nog niet klaar is — bijvoorbeeld omdat data nog niet is veiliggesteld of er nog een actieve behandelrelatie bestaat — kan het archiveringsproces blokkeren door de tag `ARCHIVE_HOLD` toe te voegen aan de Patient resource:
+
+- **Wie mag blokkeren**: elke doelapplicatie die data heeft van de betreffende patiënt
+- **Hoe**: de doelapplicatie voegt `ARCHIVE_HOLD` toe aan `Patient.meta.tag`
+- **Effect**: het archiveringsproces pauzeert zolang `ARCHIVE_HOLD` actief is; de overgang naar `ARCHIVED` wordt geblokkeerd
+- **Vastlegging**: een AuditEvent (type `archive-hold`) wordt aangemaakt met de reden van de blokkade en de identiteit van de blokkerende applicatie
+- **Opheffing**: de doelapplicatie verwijdert de `ARCHIVE_HOLD` tag wanneer de blokkade is opgelost; een AuditEvent (type `archive-hold-released`) wordt aangemaakt
+- **Na opheffing**: de grace period herstart of het proces gaat direct verder (configureerbaar)
+
+##### Interactiediagram
+
+Het volgende diagram toont de volledige interactie tussen de initiator, de Koppeltaalvoorziening en doelapplicaties, inclusief de noodrem:
+
+<div style="clear: both; margin: 1em 0;">
+{% include archivering-interactie.svg %}
+</div>
 
 #### Definitieve verwijdering: $purge
 
@@ -105,65 +185,6 @@ Dit mechanisme is bijvoorbeeld toepasbaar op Tasks die "verjaard" zijn: de behan
 
 **Opmerking**: Security labels als archiveringmechanisme zijn een methodiek die ingezet kan worden als de behoefte zich voordoet. Het is mogelijk dat in de praktijk de `$purge` als enige verwijdermechanisme volstaat.
 
-#### Notificatie naar doelapplicaties
-
-Bij verwijdering van patiëntdata kan de vraag ontstaan of doelapplicaties (modules, portalen) hierover geïnformeerd moeten worden. Er zijn drie niveaus denkbaar, van minimaal tot maximaal coördinatie:
-
-##### Niveau A: Geen notificatie
-
-In de praktijk geldt dat wanneer een patiënt langere tijd inactief is geweest, er via Koppeltaal geen actieve interactie meer plaatsvindt. Het "verdwijnen" van de data is in dat geval geen functioneel probleem voor de doelapplicatie. Het EPD kan in dit scenario direct de `$purge` uitvoeren zonder voorafgaande coördinatie.
-
-##### Niveau B: Notificatie via `meta.tag` lifecycle
-
-Om doelapplicaties gecontroleerd te informeren over archivering en verwijdering, kan een lifecycle mechanisme op basis van FHIR `meta.tag` worden ingezet. In plaats van een directe hard delete doorloopt een resource een aantal expliciet gedefinieerde staten, vastgelegd in een dedicated CodeSystem:
-
-| Code | Display | Beschrijving |
-|------|---------|--------------|
-| `ARCHIVE_PENDING` | Archive Pending | Resource is gemarkeerd voor archivering; wacht op bevestiging |
-| `ARCHIVED` | Archived | Resource is gearchiveerd naar langetermijnopslag |
-| `PURGE_PENDING` | Purge Pending | Resource is gemarkeerd voor definitieve verwijdering; wacht op autorisatie |
-| `PURGED` | Purged | Resource is logisch verwijderd; hard delete volgt |
-
-De lifecycle verloopt als volgt:
-
-<div style="clear: both; margin: 1em 0;">
-{% include archivering-tag-lifecycle.svg %}
-</div>
-
-Elke statusovergang wordt uitgevoerd via een `PUT` of `PATCH` op de resource. Hierdoor wordt `meta.versionId` en `meta.lastUpdated` automatisch bijgewerkt, wat een ingebouwde audit trail oplevert via het `_history` endpoint.
-
-Doelapplicaties kunnen zich abonneren op specifieke statusovergangen via FHIR Subscriptions. Hiervoor wordt het `_tag` zoekcriterium gebruikt:
-
-```json
-{
-  "resourceType": "Subscription",
-  "status": "active",
-  "criteria": "Patient?_tag=PURGE_PENDING",
-  "channel": {
-    "type": "rest-hook",
-    "endpoint": "https://module.example.com/notifications/purge"
-  }
-}
-```
-
-Naast `meta.tag` kan ook de `active` flag op de Patient resource worden gebruikt als aanvullend signaal: het EPD zet `Patient.active` op `false` voorafgaand aan de archiveringscyclus.
-
-##### Niveau C: Two-phase commit via Tasks
-
-Voor situaties waarin coördinatie met doelapplicaties vereist is — bijvoorbeeld wanneer een module nog niet-gearchiveerde data bevat die eerst naar het EPD moet worden overgedragen — kan een two-phase commit model worden ingezet.
-
-Het EPD maakt voor elke doelapplicatie die data heeft van de betreffende patiënt een Task aan met een opdracht om de lokale patiëntdata te verwijderen. De Koppeltaalvoorziening weet welke applicaties data hebben op basis van de taakhistorie. De doelapplicatie kan vervolgens:
-
-- De Task op `completed` zetten als de data succesvol is verwijderd
-- De Task op `failed` zetten met een reden als de data nog niet verwijderd kan worden (bijv. omdat er nog niet-gearchiveerde gegevens naar het EPD moeten worden overgedragen)
-
-Pas wanneer alle Tasks zijn afgerond, voert het EPD de definitieve `$purge` uit.
-
-##### Overweging: Task lifecycle als indicator
-
-Een aanvullende overweging is de relatie met de bestaande Task lifecycle. Wanneer alle taken van een patiënt de status `completed` hebben, kan men beargumenteren dat alle due diligence is uitgevoerd: de behandelmodules zijn afgerond, de resultaten zijn teruggekoppeld, en er zijn geen openstaande interacties meer. In dat geval kan het EPD er in bepaalde situaties voor kiezen om niveau A (geen notificatie) als voldoende te beschouwen en direct tot verwijdering over te gaan.
-
-
 #### Toegankelijkheid van archiefdata
 
 Gearchiveerde data moet raadpleegbaar blijven voor geautoriseerde gebruikers (zoals zorgaanbieders en beheerders). Hierbij gelden de volgende principes:
@@ -189,6 +210,33 @@ Bij beëindiging van een verwerkersovereenkomst is de Koppeltaalvoorziening verp
 - Het aantoonbaar vastleggen van de verwijdering via AuditEvents
 
 De `$purge` operatie kan hiervoor worden ingezet, waarbij de AuditEvents als bewijs van verwijdering dienen.
+
+### Overwegingen
+
+Naast de gekozen oplossingsrichting (meta.tag lifecycle) zijn de volgende alternatieve benaderingen overwogen:
+
+#### Geen notificatie
+
+In de praktijk geldt dat wanneer een patiënt langere tijd inactief is geweest, er via Koppeltaal geen actieve interactie meer plaatsvindt. Het "verdwijnen" van de data is in dat geval geen functioneel probleem voor de doelapplicatie. De initiator kan in dit scenario direct de `$purge` uitvoeren zonder voorafgaande coördinatie.
+
+Dit is het eenvoudigste model, maar biedt geen mogelijkheid voor doelapplicaties om data veilig te stellen of bezwaar te maken.
+
+#### Two-phase commit via Tasks
+
+Voor situaties waarin coördinatie met doelapplicaties vereist is — bijvoorbeeld wanneer een module nog niet-gearchiveerde data bevat die eerst naar het EPD moet worden overgedragen — kan een two-phase commit model worden ingezet.
+
+De initiator maakt voor elke doelapplicatie die data heeft van de betreffende patiënt een Task aan met een opdracht om de lokale patiëntdata te verwijderen. De doelapplicatie kan vervolgens:
+
+- De Task op `completed` zetten als de data succesvol is verwijderd
+- De Task op `failed` zetten met een reden als de data nog niet verwijderd kan worden
+
+Pas wanneer alle Tasks zijn afgerond, voert de initiator de definitieve `$purge` uit.
+
+Dit model biedt maximale coördinatie maar introduceert complexiteit in de vorm van Task-management en -monitoring.
+
+#### Task lifecycle als indicator
+
+Wanneer alle taken van een patiënt de status `completed` hebben, kan men beargumenteren dat alle due diligence is uitgevoerd: de behandelmodules zijn afgerond, de resultaten zijn teruggekoppeld, en er zijn geen openstaande interacties meer. In dat geval kan de initiator er in bepaalde situaties voor kiezen om direct tot verwijdering over te gaan zonder voorafgaande notificatie.
 
 ### Referenties
 
