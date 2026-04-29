@@ -7,6 +7,7 @@
 | 0.0.3  | 2026-04-13 | Drie niveaus van notificatie uitgewerkt; task lifecycle als overweging |
 | 0.0.4  | 2026-04-13 | Dataclassificatie, toegankelijkheid archiefdata, rechten betrokkenen en contractbeëindiging toegevoegd |
 | 0.0.5  | 2026-04-15 | PlantUML diagrammen toegevoegd (overzicht en tag lifecycle) |
+| 0.0.6  | 2026-04-29 | Verifieerbare notificatie, beveiliging en beheersbaarheid toegevoegd; discussiepunt initiëring archivering |
 
 ---
 
@@ -35,15 +36,17 @@ AuditEvent resources (NEN 7513 audit trail) en persoonsgegevens (PII) hebben ver
 
 AuditEvents zijn immutable en worden centraal verzameld. Om de verschillende bewaartermijnen te ondersteunen, mogen AuditEvents geen directe persoonsgegevens bevatten — alleen verwijzingen via technische identifiers. Na verwijdering van de patiëntdata zijn deze identifiers effectief geanonimiseerd binnen de Koppeltaalvoorziening.
 
-#### Het EPD/de dossierhouder initieert verwijdering
+#### Wie initieert verwijdering?
 
 De Koppeltaalvoorziening is *verwerker* in de zin van de AVG en mag niet op eigen initiatief patiëntdata verwijderen. Het EPD (of bronsysteem) is de dossierhouder en heeft op grond van de [WGBO](https://wetten.overheid.nl/BWBR0005290) een wettelijke bewaartermijn van maximaal 20 jaar voor medische gegevens.
 
-Het EPD is verantwoordelijk voor:
+In het huidige model is het EPD verantwoordelijk voor:
 
 1. Het verzamelen en veiligstellen van alle relevante gegevens uit de Koppeltaalvoorziening
 2. Het verkrijgen van eventueel benodigd akkoord (bijv. van de behandelaar)
 3. Het geven van de opdracht tot verwijdering aan de Koppeltaalvoorziening
+
+**Discussiepunt**: er is een alternatief model in overweging waarbij de Koppeltaalvoorziening zelf automatisch archiveert na het verstrijken van de contractuele bewaartermijn (2 jaar), eventueel voorafgegaan door een notificatie- en grace period. In dit model verschuift de verantwoordelijkheid voor het *initiëren* van archivering naar de Koppeltaalvoorziening, terwijl het EPD verantwoordelijk blijft voor het tijdig veiligstellen van data. De keuze tussen beide modellen is nog in bespreking.
 
 #### Startmoment bewaartermijn moet eenduidig zijn
 
@@ -62,6 +65,18 @@ Alle data binnen de Koppeltaalvoorziening moet geclassificeerd worden op basis v
 - **Archiveringsstatus** vast te leggen op resource-niveau
 
 Door classificatie bij creatie toe te passen, kan de Koppeltaalvoorziening bewaartermijnen geautomatiseerd afdwingen en is het op elk moment duidelijk onder welk regime een resource valt.
+
+#### Verifieerbare notificatie
+
+Wanneer doelapplicaties genotificeerd worden over aankomende verwijdering (zie Notificatie naar doelapplicaties), moet aantoonbaar zijn dat notificaties succesvol zijn verzonden én ontvangen. De Koppeltaalvoorziening is verantwoordelijk voor het verzenden en het vastleggen van verzending en ontvangst — niet voor het daadwerkelijk ophalen of veiligstellen van data door zorginstellingen.
+
+#### Beveiliging van archiefdata
+
+Archiefdata moet beschermd zijn tegen ongeautoriseerde toegang, verlies en manipulatie, conform NEN 7510. Dit geldt zowel voor data in de actieve omgeving als voor data die als gearchiveerd is gemarkeerd.
+
+#### Beheersbaarheid en configuratie
+
+Bewaartermijnen en archiveringsregels moeten beheerd en aangepast kunnen worden binnen vastgestelde kaders, zodat flexibiliteit behouden blijft bij wijzigingen in wet- en regelgeving of contractuele afspraken.
 
 ### Oplossingsrichting
 
