@@ -5,42 +5,49 @@ skinparam activity {
   BorderColor #333333
 }
 
-|EPD (Dossierhouder)|
+|Initiator|
 start
-:Bewaartermijn verstreken /\ncontractbeëindiging;
-
-|EPD (Dossierhouder)|
-:Gegevens veiligstellen\nuit Koppeltaalvoorziening;
+:Bewaartermijn verstreken /\ncontractbeeindiging;
 
 |Koppeltaalvoorziening|
-if (Notificatieniveau?) then (Niveau A)
-  :Geen notificatie\n(alle Tasks completed);
-elseif (Niveau B) then
-  :meta.tag lifecycle\n(ARCHIVE_PENDING → PURGE_PENDING);
-  :Subscription notificatie\nnaar doelapplicaties;
-else (Niveau C)
-  :Two-phase commit\nvia Tasks;
-  :Doelapplicaties\nbevestigen verwijdering;
+:Patient.meta.tag =\nARCHIVE_PENDING;
+:AuditEvent\n(archive-initiated);
+:Subscription notificatie\nnaar doelapplicaties;
+
+|Doelapplicaties|
+:Grace period:\ndata veiligstellen;
+
+if (Noodrem?) then (ja)
+  :ARCHIVE_HOLD;
+  :AuditEvent\n(archive-hold);
+  :...wacht op opheffing...;
+  :ARCHIVE_HOLD\nopgeheven;
+  :AuditEvent\n(archive-hold-released);
+else (nee / time-out)
 endif
 
-|EPD (Dossierhouder)|
-:Opdracht tot verwijdering;
+|Koppeltaalvoorziening|
+:Patient.meta.tag =\nARCHIVED;
+:AuditEvent\n(archive-completed);
+note right
+  Data is read-only;
+  niet in reguliere
+  zoekresultaten
+end note
+
+|Initiator|
+:Autorisatie definitieve\nverwijdering;
 
 |Koppeltaalvoorziening|
-:Security labels\n(soft-delete, optioneel);
-note right
-  Resources onzichtbaar
-  in zoekresultaten
-end note
+:Patient.meta.tag =\nPURGE_PENDING;
+:AuditEvent\n(purge-initiated);
 
-:$purge operatie\n(definitieve verwijdering);
+:$purge operatie;
+:AuditEvent\n(purge-completed);
 note right
-  Patient, Task,
-  RelatedPerson, CareTeam
-  worden verwijderd
+  AuditEvents overleven
+  de $purge
 end note
-
-:AuditEvents blijven\nbewaard (≥5 jaar);
 
 stop
 
