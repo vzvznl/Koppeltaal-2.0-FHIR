@@ -1,6 +1,6 @@
 @startuml archivering-interactie
 
-participant "Initiator\n(EPD / Koppeltaal)" as Init
+participant "Initiator\n(ECD / Koppeltaalvoorziening)" as Init
 participant "Koppeltaal-\nvoorziening" as KT
 participant "Doelapplicatie A" as AppA
 participant "Doelapplicatie B" as AppB
