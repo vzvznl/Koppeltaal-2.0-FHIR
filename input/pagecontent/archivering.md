@@ -9,6 +9,7 @@
 | 0.0.5  | 2026-04-15 | PlantUML diagrammen toegevoegd (overzicht en tag lifecycle) |
 | 0.0.6  | 2026-04-29 | Verifieerbare notificatie, beveiliging en beheersbaarheid toegevoegd; discussiepunt initiëring archivering |
 | 0.0.7  | 2026-04-29 | Focus op meta.tag lifecycle als primaire oplossingsrichting; noodrem en AuditEvents uitgewerkt; interactiediagram toegevoegd |
+| 0.0.8  | 2026-05-04 | KT-dienst als initiator vastgelegd; laatste activiteit als startmoment; recht om vergeten te worden als aparte UC; datum in tags |
 
 ---
 
@@ -37,23 +38,19 @@ AuditEvent resources (NEN 7513 audit trail) en persoonsgegevens (PII) hebben ver
 
 AuditEvents zijn immutable en worden centraal verzameld. Om de verschillende bewaartermijnen te ondersteunen, mogen AuditEvents geen directe persoonsgegevens bevatten — alleen verwijzingen via technische identifiers. Na verwijdering van de patiëntdata zijn deze identifiers effectief geanonimiseerd binnen de Koppeltaalvoorziening.
 
-#### Wie initieert verwijdering?
+#### De Koppeltaalvoorziening initieert archivering
 
-De Koppeltaalvoorziening is *verwerker* in de zin van de AVG en mag niet op eigen initiatief patiëntdata verwijderen. Het EPD (of bronsysteem) is de dossierhouder en heeft op grond van de [WGBO](https://wetten.overheid.nl/BWBR0005290) een wettelijke bewaartermijn van maximaal 20 jaar voor medische gegevens.
+De Koppeltaalvoorziening initieert het archiverings- en verwijderproces. Wanneer de bewaartermijn van 2 jaar — gerekend vanaf de laatste activiteit — is verstreken, start de Koppeltaalvoorziening automatisch de archiveringsprocedure (zie meta.tag lifecycle). Het ECD (als dossierhouder) en doelapplicaties worden hierover genotificeerd en hebben de mogelijkheid om data veilig te stellen of het proces te blokkeren via de noodrem.
 
-In het huidige model is het EPD verantwoordelijk voor:
-
-1. Het verzamelen en veiligstellen van alle relevante gegevens uit de Koppeltaalvoorziening
-2. Het verkrijgen van eventueel benodigd akkoord (bijv. van de behandelaar)
-3. Het geven van de opdracht tot verwijdering aan de Koppeltaalvoorziening
-
-**Discussiepunt**: er is een alternatief model in overweging waarbij de Koppeltaalvoorziening zelf automatisch archiveert na het verstrijken van de contractuele bewaartermijn (2 jaar), eventueel voorafgegaan door een notificatie- en grace period. In dit model verschuift de verantwoordelijkheid voor het *initiëren* van archivering naar de Koppeltaalvoorziening, terwijl het EPD verantwoordelijk blijft voor het tijdig veiligstellen van data. De keuze tussen beide modellen is nog in bespreking.
+Het ECD heeft op grond van de [WGBO](https://wetten.overheid.nl/BWBR0005290) een eigen wettelijke bewaartermijn van maximaal 20 jaar voor medische gegevens en is verantwoordelijk voor het tijdig veiligstellen van relevante data uit de Koppeltaalvoorziening.
 
 #### Startmoment bewaartermijn moet eenduidig zijn
 
-Per datacategorie moet een eenduidig startmoment voor de bewaartermijn worden vastgesteld. Voorbeelden:
+Per datacategorie moet een eenduidig startmoment voor de bewaartermijn worden vastgesteld. Voor persoonsgegevens geldt de **laatste activiteit** binnen de patiëntcontext als startmoment. De exacte berekening van "laatste activiteit" wordt nog uitgewerkt.
 
-- Patiëntdata: laatste mutatie of laatste gebruik
+Voorbeelden per datacategorie:
+
+- Patiëntdata: laatste activiteit binnen de patiëntcontext
 - AuditEvents: datum van creatie
 - Tasks: datum van afsluiting
 
@@ -117,6 +114,10 @@ Elke statusovergang wordt vastgelegd in een immutable AuditEvent. Dit biedt een 
 | `$purge` uitgevoerd | purge-completed | Koppeltaalvoorziening | Aantoonbaar: data is definitief vernietigd |
 
 De combinatie van tags en AuditEvents scheidt **state** (huidige toestand van de Patient) van **events** (geschiedenis van wat er is gebeurd). Tags zijn muteerbaar en representeren de actuele status; AuditEvents zijn immutable en vormen het bewijs.
+
+##### Datum in tags
+
+Bij het zetten van een tag wordt een **datum** opgenomen die aangeeft wanneer de tag is gezet en — bij `ARCHIVE_PENDING` — wanneer de grace period afloopt. Dit maakt het voor doelapplicaties mogelijk om te bepalen hoeveel tijd er resteert, en voor de Koppeltaalvoorziening om de overgang naar de volgende status te automatiseren. De datum wordt vastgelegd als onderdeel van de tag (bijv. via de `extension` op `meta.tag` of via een aparte `meta.tag` met een datumcodering).
 
 ##### Interactie met doelapplicaties
 
@@ -200,6 +201,8 @@ Dit waarborgt zowel de operationele behoefte aan historische data als de integri
 De AVG (artikel 15) geeft betrokkenen het recht op inzage in hun persoonsgegevens. Dit recht geldt ook voor gearchiveerde data. De Koppeltaalvoorziening moet inzageverzoeken kunnen faciliteren zonder dat dit in conflict komt met bewaartermijnen — inzage is immers geen wijziging.
 
 In de praktijk wordt een inzageverzoek via het EPD (als verwerkingsverantwoordelijke) afgehandeld. De Koppeltaalvoorziening dient de data technisch beschikbaar te stellen aan het EPD, ook wanneer deze gearchiveerd is.
+
+Het **recht om vergeten te worden** (AVG artikel 17) is een aparte use case die losstaat van de reguliere archiveringsprocedure. Een verzoek tot verwijdering kan op elk moment worden ingediend en vereist een eigen procedure, inclusief toetsing aan uitzonderingsgronden (bijv. WGBO-bewaartermijn). De uitwerking hiervan valt buiten de scope van deze pagina.
 
 #### Contractbeëindiging
 

@@ -1,13 +1,12 @@
 @startuml archivering-interactie
 
-participant "Initiator\n(ECD / Koppeltaalvoorziening)" as Init
 participant "Koppeltaal-\nvoorziening" as KT
 participant "Doelapplicatie A" as AppA
 participant "Doelapplicatie B" as AppB
 
 == Archivering starten ==
 
-Init -> KT : PUT Patient\n(tag: ARCHIVE_PENDING)
+KT -> KT : Bewaartermijn verstreken\nPUT Patient\n(tag: ARCHIVE_PENDING)
 KT -> KT : AuditEvent\n(archive-initiated)
 KT -> AppA : Subscription notification\n(ARCHIVE_PENDING)
 KT -> AppB : Subscription notification\n(ARCHIVE_PENDING)
@@ -34,7 +33,7 @@ KT -> KT : AuditEvent\n(archive-completed)
 
 == Definitieve verwijdering ==
 
-Init -> KT : PUT Patient\n(tag: PURGE_PENDING)
+KT -> KT : PUT Patient\n(tag: PURGE_PENDING)
 KT -> KT : AuditEvent\n(purge-initiated)
 
 KT -> KT : $purge operatie

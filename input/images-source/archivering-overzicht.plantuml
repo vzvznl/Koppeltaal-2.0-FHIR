@@ -5,7 +5,7 @@ skinparam activity {
   BorderColor #333333
 }
 
-|Initiator (ECD / Koppeltaalvoorziening)|
+|Koppeltaalvoorziening|
 start
 :Bewaartermijn verstreken /\ncontractbeeindiging;
 
@@ -35,7 +35,7 @@ note right
   zoekresultaten
 end note
 
-|Initiator (ECD / Koppeltaalvoorziening)|
+|Koppeltaalvoorziening|
 :Autorisatie definitieve\nverwijdering;
 
 |Koppeltaalvoorziening|
