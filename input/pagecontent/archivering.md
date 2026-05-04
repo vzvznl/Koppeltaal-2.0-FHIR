@@ -163,7 +163,7 @@ Het volgende diagram toont de volledige interactie tussen de initiator, de Koppe
 
 #### Definitieve verwijdering: $purge
 
-Voor het definitief verwijderen van alle patiëntdata wordt de FHIR [`$purge` operatie](https://build.fhir.org/patient-operation-purge.html) gehanteerd. Deze operatie verwijdert alle resources die aan een specifieke patiënt gerelateerd zijn.
+Voor het definitief verwijderen van alle patiëntdata wordt de FHIR [`$purge` operatie](https://build.fhir.org/patient-operation-purge.html) gehanteerd. De `$purge` maakt gebruik van het [FHIR Patient Compartment](https://www.hl7.org/fhir/compartmentdefinition-patient.html) om te bepalen welke resources aan een patiënt gerelateerd zijn. Met de parameter `cascade=true` worden alle resources binnen het Patient Compartment in één operatie verwijderd, inclusief de Patient resource zelf.
 
 De scope van de `$purge` omvat onder andere:
 
