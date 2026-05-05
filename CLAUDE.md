@@ -1,4 +1,4 @@
-- Always check the sanity of the FSH files with the "Run the builds" section of the README.md, never run sushi or other tools like publisher.jar locally. If you want to run specific commands, change the entrypoint of the docker run command.
+- Always check the sanity of changes under `input/` (FSH, pagecontent, images-source, etc.) with the "Run the builds" section of the README.md, never run sushi or other tools like publisher.jar locally. If you want to run specific commands, change the entrypoint of the docker run command.
 - The docker / Makefile publishing (publish) requires FHIR_EMAIL and FHIR_PASSWORD environment variables.
 - Use Python 3 for all scripts.
 - When creating new files, add them to the git index.

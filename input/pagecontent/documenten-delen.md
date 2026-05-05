@@ -7,7 +7,7 @@
 | 0.0.3 | 2026-05-05 | Pagina hernoemd naar "Documenten delen"; sectie "Gestructureerde resultaten (Observation)" verwijderd; pagina-scope beperkt tot ongestructureerde documenten (gestructureerde data verhuist naar de KoppelMij-context) |
 | 0.0.6 | 2026-05-05 | Historische labels "Pad A", "Pad B" en "Pad C" verwijderd uit de pagina-tekst; alternatieven worden voortaan bij hun beschrijvende naam genoemd |
 | 0.0.7 | 2026-05-05 | PlantUML-diagrambestanden hernoemd: `resultaten-delen-pad-a` → `documenten-delen-direct-ophalen` en `resultaten-delen-pad-b` → `documenten-delen-notified-pull`; markdown-verwijzingen bijgewerkt |
-| 0.0.4 | 2026-05-05 | Direct ophalen via de Koppeltaal FHIR store bevestigd als voorkeursroute na kritische review (zie [memo-kritiek-pad-c.md](./../../work-documents/memo-kritiek-pad-c.md)); inline base64-attachment toegevoegd als variant zodat leveranciers met simpele documenten geen eigen Binary-endpoint hoeven aan te bieden; het alternatief "Binary als losse resource in de Koppeltaal-store" teruggeschaald tot overwogen optie; sectie "Open punten" toegevoegd |
+| 0.0.4 | 2026-05-05 | Direct ophalen via de Koppeltaal FHIR store bevestigd als voorkeursroute na kritische review; inline base64-attachment toegevoegd als variant zodat leveranciers met simpele documenten geen eigen Binary-endpoint hoeven aan te bieden; het alternatief "Binary als losse resource in de Koppeltaal-store" teruggeschaald tot overwogen optie; sectie "Open punten" toegevoegd |
 | 0.0.5 | 2026-05-05 | Notified Pull eveneens teruggeschaald tot overwogen alternatief; beide alternatieven samengevoegd onder één kopje "Overwogen alternatieven"; direct ophalen via de Koppeltaal-store is daarmee de enige aangewezen route |
 
 ---
@@ -70,7 +70,7 @@ Mocht netwerkzorg- of cross-organisatie-uitwisseling later expliciet in scope ko
 
 In een eerder ontwerp is dit alternatief overwogen: de Binary niet bij de bronapplicatie laten staan, maar als losse resource — naast de DocumentReference — in de Koppeltaal FHIR store plaatsen. Argument was onder meer centrale token-validatie, automatische AuditEvents en geen eigen resource-server bij de bronapplicatie.
 
-Bij nadere beschouwing (zie [memo-kritiek-pad-c.md](./../../work-documents/memo-kritiek-pad-c.md)) bleken een aantal van die voordelen niet onderscheidend ten opzichte van direct ophalen, en wegen er zwaarwegende bezwaren tegen op:
+Bij nadere beschouwing bleken een aantal van die voordelen niet onderscheidend ten opzichte van direct ophalen, en wegen er zwaarwegende bezwaren tegen op:
 
 - **Dataminimalisatie en bronverantwoordelijkheid**: gevoelige gezondheidsdata buiten de bronhouder plaatsen vergroot het aanvalsoppervlak en ondermijnt het principe dat de bronhouder verantwoordelijk blijft voor zijn data tijdens de uitwisseling.
 - **Verlies van het pull-signaal**: bij direct ophalen weet de bronhouder wanneer en door wie het document is opgehaald — een nuttig signaal voor archiveringsstatus, bewaartermijnen en eigen audit. Bij dit alternatief verdwijnt dat signaal.
