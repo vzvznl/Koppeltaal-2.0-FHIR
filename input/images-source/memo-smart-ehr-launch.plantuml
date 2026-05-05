@@ -1,0 +1,15 @@
+@startuml memo-smart-ehr-launch
+
+participant "Portaal" as Portal
+participant "Module" as App
+participant "Autorisatieserver" as Auth
+participant "Koppeltaal-\nvoorziening" as KT
+
+Portal -> App : launch-URL\n(iss + launch)
+App -> Auth : GET /authorize\n(launch scope + PKCE)
+Auth -> App : authorization code
+App -> Auth : POST /token\n(code + PKCE verifier)
+Auth -> App : access_token,\npatient, fhirUser
+Auth -> KT : AuditEvent\n(User Authentication)
+
+@enduml

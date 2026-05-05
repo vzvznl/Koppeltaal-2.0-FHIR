@@ -1,0 +1,17 @@
+@startuml memo-smart-standalone-launch
+
+participant "Gebruiker" as User
+participant "Module" as App
+participant "Autorisatieserver" as Auth
+participant "Koppeltaal-\nvoorziening" as KT
+
+User -> App : standalone launch-URL\n(bijv. e-mail link, app-icoon)
+App -> Auth : GET /authorize\n(launch/patient +\nopenid fhirUser + PKCE)
+Auth -> User : login +\neventueel patientenselectie
+User -> Auth : credentials
+Auth -> App : authorization code
+App -> Auth : POST /token\n(code + PKCE verifier)
+Auth -> App : access_token,\npatient, fhirUser
+Auth -> KT : AuditEvent\n(User Authentication)
+
+@enduml
