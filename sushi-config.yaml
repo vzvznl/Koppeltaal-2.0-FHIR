@@ -157,6 +157,11 @@ pages:
     extension:
       - url: http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status
         valueCode: draft
+  memo-koppelmij-scope.md:
+    title: "Memo: Scope en impact KoppelMij"
+    extension:
+      - url: http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status
+        valueCode: draft
   memo-standalone-smart-launch.md:
     title: "Memo: Standalone SMART Launch"
     extension:
@@ -223,10 +228,11 @@ menu:
     Archivering: archivering.html
     Resultaten delen: resultaten-delen.html
   Memo's:
-    Impact KoppelMij: memo-impact-koppelmij.html
-    Wijzigingen Topic 11: memo-wijzigingen-topic11.html
+    Scope en impact KoppelMij: memo-koppelmij-scope.html
+    Impact KoppelMij (detail): memo-impact-koppelmij.html
     ServiceRequest KoppelMij: memo-servicerequest-koppelmij.html
     Standalone SMART Launch: memo-standalone-smart-launch.html
+    Wijzigingen Topic 11: memo-wijzigingen-topic11.html
   Koppeltaal Extensions:
     Related Person - Multiple IdP: multiple-idp-support.html
   Profile Specific Notes:
