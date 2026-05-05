@@ -46,11 +46,15 @@ Het ECD heeft op grond van de [WGBO](https://wetten.overheid.nl/BWBR0005290) een
 
 #### Startmoment bewaartermijn moet eenduidig zijn
 
-Per datacategorie moet een eenduidig startmoment voor de bewaartermijn worden vastgesteld. Voor persoonsgegevens geldt de **laatste activiteit** binnen de patiëntcontext als startmoment. De exacte berekening van "laatste activiteit" wordt nog uitgewerkt.
+Per datacategorie moet een eenduidig startmoment voor de bewaartermijn worden vastgesteld. Voor persoonsgegevens geldt de **laatste activiteit** binnen de patiëntcontext als startmoment.
+
+De laatste activiteit wordt bepaald aan de hand van het **User Authentication** AuditEvent (zie [TOP-KT-011 - Logging en tracing](https://vzvz.atlassian.net/wiki/spaces/KTSA/pages/27125090)). Dit is het enige AuditEvent waarbij `entity.what` verwijst naar de gebruiker (Patient of RelatedPerson), wat de berekening relatief eenvoudig houdt: de datum van het meest recente User Authentication event voor een patiënt bepaalt het startmoment van de bewaartermijn.
+
+**Edge case**: een gebruiker kan in het Koppeltaal-domein actief worden zonder via een cliëntportaal te starten — bijvoorbeeld bij een standalone SMART on FHIR launch. In dat geval wordt mogelijk geen User Authentication AuditEvent aangemaakt. *TODO: dit scenario wordt uitgewerkt op een aparte pagina over standalone SMART on FHIR launch.*
 
 Voorbeelden per datacategorie:
 
-- Patiëntdata: laatste activiteit binnen de patiëntcontext
+- Patiëntdata: datum van het laatste User Authentication event
 - AuditEvents: datum van creatie
 - Tasks: datum van afsluiting
 
