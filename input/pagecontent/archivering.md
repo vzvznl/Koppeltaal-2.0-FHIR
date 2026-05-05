@@ -50,7 +50,7 @@ Per datacategorie moet een eenduidig startmoment voor de bewaartermijn worden va
 
 De laatste activiteit wordt bepaald aan de hand van het **User Authentication** AuditEvent (zie [TOP-KT-011 - Logging en tracing](https://vzvz.atlassian.net/wiki/spaces/KTSA/pages/27125090)). Dit is het enige AuditEvent waarbij `entity.what` verwijst naar de gebruiker (Patient of RelatedPerson), wat de berekening relatief eenvoudig houdt: de datum van het meest recente User Authentication event voor een patiënt bepaalt het startmoment van de bewaartermijn.
 
-**Edge case**: een gebruiker kan in het Koppeltaal-domein actief worden zonder via een cliëntportaal te starten — bijvoorbeeld bij een standalone SMART on FHIR launch. In dat geval wordt mogelijk geen User Authentication AuditEvent aangemaakt. *TODO: dit scenario wordt uitgewerkt op een aparte pagina over standalone SMART on FHIR launch.*
+**Edge case**: er zijn applicaties die momenteel direct inloggen zonder via een cliëntportaal te gaan. Bij deze directe logins wordt geen User Authentication AuditEvent aangemaakt, waardoor de laatste activiteit niet kan worden bepaald. Deze applicaties moeten in de toekomst gebruik gaan maken van de standalone SMART on FHIR launch, waarbij wél een User Authentication event wordt gegenereerd. *TODO: dit wordt uitgewerkt op een aparte pagina over standalone SMART on FHIR launch.*
 
 Voorbeelden per datacategorie:
 
