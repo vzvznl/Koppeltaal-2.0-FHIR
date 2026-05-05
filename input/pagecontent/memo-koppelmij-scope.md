@@ -26,6 +26,10 @@ Om feature creep te voorkomen worden bewuste scope-keuzes gemaakt. Er zijn drie 
 
 #### 2.1 Persoonlijke autorisatie
 
+<div style="clear: both; margin: 1em 0;">
+  <img src="koppelmij-scope-autorisatie.png" alt="Persoonlijke autorisatie" style="display: block; max-width: 100%; height: auto;"/>
+</div>
+
 **Wat verandert er?**
 Koppeltaal autoriseert op **applicatieniveau** via SMART on FHIR backend services; het access_token uit de app launch is een placeholder (`NOOP`). KoppelMij autoriseert op **persoonsniveau** via SMART on FHIR app launch — het access_token vertegenwoordigt de daadwerkelijke gebruiker en de rechten worden door het platform afgedwongen.
 
@@ -39,6 +43,10 @@ Zie [Autorisaties](autorisaties.html) en het [Transitiemodel autorisatie](autori
 
 #### 2.2 Module-level taken (ServiceRequest)
 
+<div style="clear: both; margin: 1em 0;">
+  <img src="koppelmij-scope-servicerequest.png" alt="Module-level taken via ServiceRequest" style="display: block; max-width: 100%; height: auto;"/>
+</div>
+
 **Wat verandert er?**
 In Koppeltaal wijst de behandelaar een module als geheel toe — één Task per toewijzing, de module is een black box. KoppelMij vraagt om **individuele taken binnen een module** zichtbaar te maken in het PGO. Hiervoor wordt het patroon **ServiceRequest → Task(s)** geïntroduceerd: een overkoepelende opdracht met door de module aangemaakte taken.
 
@@ -50,6 +58,10 @@ In Koppeltaal wijst de behandelaar een module als geheel toe — één Task per 
 Zie [Memo: ServiceRequest KoppelMij](memo-servicerequest-koppelmij.html) voor de volledige uitwerking, inclusief impact per actor en open vragen.
 
 #### 2.3 Resultaat delen
+
+<div style="clear: both; margin: 1em 0;">
+  <img src="koppelmij-scope-resultaten-delen.png" alt="Resultaat delen" style="display: block; max-width: 100%; height: auto;"/>
+</div>
 
 **Wat verandert er?**
 Resultaten van een interventie (vragenlijsten, scores, voortgangsinformatie) moeten gestructureerd worden teruggekoppeld van de module naar het EPD/dossier. Hiervoor worden FHIR resources zoals **DocumentReference** en **Observation** ingezet, met meerdere uitwisselpatronen (direct ophalen, Notified Pull, of via de Koppeltaal FHIR store).
