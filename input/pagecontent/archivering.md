@@ -10,6 +10,7 @@
 | 0.0.6  | 2026-04-29 | Verifieerbare notificatie, beveiliging en beheersbaarheid toegevoegd; discussiepunt initiëring archivering |
 | 0.0.7  | 2026-04-29 | Focus op meta.tag lifecycle als primaire oplossingsrichting; noodrem en AuditEvents uitgewerkt; interactiediagram toegevoegd |
 | 0.0.8  | 2026-05-04 | KT-dienst als initiator vastgelegd; laatste activiteit als startmoment; recht om vergeten te worden als aparte UC; datum in tags |
+| 0.0.9  | 2026-05-05 | Technische onderbouwing meta.tags vs. soft delete toegevoegd |
 
 ---
 
@@ -178,15 +179,25 @@ De scope van de `$purge` omvat onder andere:
 
 AuditEvent resources overleven de `$purge` — zij bevatten geen persoonsgegevens en vallen onder een langere bewaartermijn.
 
+#### Waarom meta.tags en niet FHIR soft delete?
+
+Een alternatieve benadering zou zijn om de FHIR soft delete (HTTP DELETE met bewaren van een tombstone) te gebruiken als archiveringssignaal, gevolgd door een definitieve `$purge`. Deze benadering is onderzocht en afgewezen om de volgende redenen:
+
+- **Geen revert bij cascading delete**: bij een cascading soft delete in HAPI FHIR krijgt elke resource een eigen tombstone. Ongedaan maken (noodrem) vereist dat de blokkerende applicatie per resource een VREAD doet op de voorlaatste versie en deze opnieuw PUT — niet werkbaar
+- **Geen notificaties bij DELETE**: FHIR R4 stuurt standaard geen Subscription-notificaties bij een DELETE request, waardoor doelapplicaties de archivering niet detecteren
+- **Onbekende ondersteuning**: het is niet vastgesteld of cascading soft delete wordt ondersteund door alle FHIR-serverimplementaties (bijv. InterSystems)
+
+De `meta.tag` benadering is expliciet over de lifecycle en de staat van de resource, werkt met standaard FHIR Subscriptions, en is niet afhankelijk van serverspecifieke DELETE-functionaliteit. Dit maakt het de meest robuuste en draagbare oplossing.
+
 #### Tussentijds archiveren: security labels
 
-Voor situaties waarin resources tussentijds onzichtbaar moeten worden gemaakt zonder ze fysiek te verwijderen, kunnen FHIR security labels worden ingezet. Dit biedt een "soft-delete" mechanisme waarbij:
+Naast de meta.tag lifecycle kunnen FHIR security labels worden ingezet om resources tussentijds onzichtbaar te maken zonder ze fysiek te verwijderen:
 
 - Resources worden voorzien van een security label dat aangeeft dat ze gearchiveerd zijn
 - De FHIR server filtert deze resources uit zoekresultaten
 - De resources blijven technisch bestaan tot de definitieve `$purge`
 
-Dit mechanisme is bijvoorbeeld toepasbaar op Tasks die "verjaard" zijn: de behandeling is afgerond en de gegevens hoeven niet meer zichtbaar te zijn voor gebruikers, maar het EPD heeft de definitieve verwijdering nog niet geïnitieerd.
+Dit mechanisme is bijvoorbeeld toepasbaar op Tasks die "verjaard" zijn: de behandeling is afgerond en de gegevens hoeven niet meer zichtbaar te zijn voor gebruikers, maar de definitieve verwijdering is nog niet geïnitieerd.
 
 **Opmerking**: Security labels als archiveringmechanisme zijn een methodiek die ingezet kan worden als de behoefte zich voordoet. Het is mogelijk dat in de praktijk de `$purge` als enige verwijdermechanisme volstaat.
 
