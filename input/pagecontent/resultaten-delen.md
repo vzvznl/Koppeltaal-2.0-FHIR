@@ -58,6 +58,7 @@ De Notification Task bevat verwijzingen naar de op te halen FHIR resources (Docu
 - **Actieve notificatie**: het EPD hoeft niet te pollen of een eigen Subscription-implementatie te onderhouden; de module signaleert wanneer er iets klaarstaat
 - **Volume-controle aan consumentzijde**: het EPD bepaalt zelf op welk moment en in welk tempo de data daadwerkelijk wordt opgehaald uit de aangeboden set
 - **Identificatie bij ophalen**: de ontvanger identificeert zich bij het ophalen aan de bronapplicatie, waardoor inzichtelijk is wie de data raadpleegt (mits die authenticatie is ingericht — zie bezwaren bij Pad C hieronder)
+- **Schaalbare publieke standaard**: Notified Pull is een door Nictiz beheerde, publieke standaard ([TA Notified Pull v1.0.1](https://www.nictiz.nl/)) die zorgbreed wordt toegepast. Aansluiting bij deze standaard borgt interoperabiliteit, bevordert hergebruik van bestaande implementaties en komt **netwerkzorg** ten goede: dezelfde patronen kunnen worden ingezet voor uitwisseling tussen Koppeltaal-deelnemers en andere zorgketenpartijen die al op deze standaard aansluiten
 
 #### Pad C: Directe deling via de Koppeltaal FHIR store
 
