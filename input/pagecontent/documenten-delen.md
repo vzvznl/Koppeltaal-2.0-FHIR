@@ -3,8 +3,12 @@
 | Versie | Datum | Wijziging |
 | --- | --- | --- |
 | 0.0.1 | 2026-04-13 | Initiële versie |
-| 0.0.2 | 2026-04-24 | Pad C toegevoegd (Binary in Koppeltaal-store, autorisatie via bestaande matrix) |
+| 0.0.2 | 2026-04-24 | Optie toegevoegd om de Binary als losse resource in de Koppeltaal-store te plaatsen, met autorisatie via de bestaande matrix |
 | 0.0.3 | 2026-05-05 | Pagina hernoemd naar "Documenten delen"; sectie "Gestructureerde resultaten (Observation)" verwijderd; pagina-scope beperkt tot ongestructureerde documenten (gestructureerde data verhuist naar de KoppelMij-context) |
+| 0.0.6 | 2026-05-05 | Historische labels "Pad A", "Pad B" en "Pad C" verwijderd uit de pagina-tekst; alternatieven worden voortaan bij hun beschrijvende naam genoemd |
+| 0.0.7 | 2026-05-05 | PlantUML-diagrambestanden hernoemd: `resultaten-delen-pad-a` → `documenten-delen-direct-ophalen` en `resultaten-delen-pad-b` → `documenten-delen-notified-pull`; markdown-verwijzingen bijgewerkt |
+| 0.0.4 | 2026-05-05 | Direct ophalen via de Koppeltaal FHIR store bevestigd als voorkeursroute na kritische review (zie [memo-kritiek-pad-c.md](./../../work-documents/memo-kritiek-pad-c.md)); inline base64-attachment toegevoegd als variant zodat leveranciers met simpele documenten geen eigen Binary-endpoint hoeven aan te bieden; het alternatief "Binary als losse resource in de Koppeltaal-store" teruggeschaald tot overwogen optie; sectie "Open punten" toegevoegd |
+| 0.0.5 | 2026-05-05 | Notified Pull eveneens teruggeschaald tot overwogen alternatief; beide alternatieven samengevoegd onder één kopje "Overwogen alternatieven"; direct ophalen via de Koppeltaal-store is daarmee de enige aangewezen route |
 
 ---
 
@@ -16,77 +20,63 @@ Door documenten delen expliciet te ondersteunen binnen Koppeltaal ontstaat een u
 
 ### DocumentReference en Binary
 
-Documenten zoals PDF/A-rapporten, vragenlijst-uitkomsten of samenvattingen worden uitgewisseld via het FHIR [DocumentReference](https://www.hl7.org/fhir/documentreference.html) resource. Een DocumentReference bevat metadata over het document (type, datum, auteur, patiënt) en een verwijzing naar een [Binary](https://www.hl7.org/fhir/binary.html) resource met het daadwerkelijke document.
+Documenten zoals PDF/A-rapporten, vragenlijst-uitkomsten of samenvattingen worden uitgewisseld via het FHIR [DocumentReference](https://www.hl7.org/fhir/documentreference.html) resource. Een DocumentReference bevat metadata over het document (type, datum, auteur, patiënt) en de inhoud zelf — via [`DocumentReference.content.attachment`](https://www.hl7.org/fhir/datatypes.html#Attachment).
 
-Waar de Binary wordt opgeslagen verschilt per uitwisselingspatroon: bij Pad A en Pad B blijft de Binary bij de bronapplicatie en bevat de DocumentReference een externe referentie; bij Pad C wordt de Binary in de Koppeltaal FHIR store geplaatst. Zie de sectie [Uitwisselingspatronen](#uitwisselingspatronen) voor de afweging tussen deze patronen.
+Voor de inhoud zijn twee varianten toegestaan:
+
+- **Externe referentie**: `attachment.url` verwijst naar een [Binary](https://www.hl7.org/fhir/binary.html) resource bij de bronapplicatie. Geschikt voor grotere bestanden en voor leveranciers die controle over het bestand willen behouden (data aan de bron). De bronapplicatie biedt hiervoor een beveiligd HTTP-endpoint aan.
+- **Inline base64**: `attachment.data` bevat het document zelf, base64-gecodeerd, in de DocumentReference. Geschikt voor kleinere documenten met een beperkt gevoeligheidsniveau, waarbij de leverancier geen eigen endpoint wil onderhouden. Het document wordt dan automatisch meegeleverd via de Koppeltaal FHIR store, zonder aanvullende infrastructuur aan de bron.
+
+De keuze tussen externe referentie en inline base64 is een afweging van de leverancier tussen complexiteit (eigen Binary-endpoint), bestandsgrootte en gevoeligheidsniveau. Beide varianten gebruiken hetzelfde uitwisselingspatroon (zie [Uitwisselingspatronen](#uitwisselingspatronen)) en hetzelfde Koppeltaal autorisatiemodel.
 
 De module genereert automatisch een PDF/A bij afronding van de interventie. PDF/A is het vereiste formaat voor duurzame archivering in het EPD.
 
 ### Uitwisselingspatronen
 
-Er zijn drie paden voor het overdragen van documenten van de module naar het EPD:
+Voor het overdragen van documenten van de module naar het EPD geldt **direct ophalen via de Koppeltaal FHIR store** als aangewezen route. Twee andere patronen — Notified Pull en Binary als losse resource in de Koppeltaal-store — zijn overwogen, maar niet aangewezen als standaardroute; zie [Overwogen alternatieven](#overwogen-alternatieven).
 
-#### Pad A: Direct ophalen via Koppeltaal FHIR store
+#### Direct ophalen via de Koppeltaal FHIR store
 
-In dit patroon publiceert de module een DocumentReference in de Koppeltaal FHIR store. Het EPD detecteert de nieuwe DocumentReference — via polling of een FHIR Subscription — en haalt vervolgens het daadwerkelijke document (Binary) op bij de bronapplicatie.
+In dit patroon publiceert de module een DocumentReference in de Koppeltaal FHIR store. Het EPD detecteert de nieuwe DocumentReference — via polling of een FHIR Subscription — en haalt vervolgens de inhoud op:
 
-<div style="clear: both; margin: 1em 0;">
-{% include resultaten-delen-pad-a.svg %}
-</div>
-
-Pad A kent de minste orkestratie — er is geen aparte Notification Task — maar het EPD moet zelf detecteren dat er nieuwe documenten beschikbaar zijn (via polling of een Subscription), en de bronapplicatie moet een beveiligd Binary-endpoint aanbieden. Voor de implementatielast bij bron en consument is Pad A daarmee niet eenvoudiger dan Pad C (zie hieronder).
-
-#### Pad B: Notified Pull
-
-In het Notified Pull patroon — gebaseerd op de [TA Notified Pull v1.0.1](https://www.nictiz.nl/) — neemt de module het initiatief door het EPD actief te notificeren dat er documenten klaarstaan. Dit gebeurt via een Notification Task.
+- bij een **externe referentie** (`attachment.url`): het EPD haalt de Binary op bij de bronapplicatie via het URL-adres in de DocumentReference. De bronapplicatie valideert het meegestuurde Koppeltaal access_token (zie [Open punten](#open-punten)) en levert het document.
+- bij **inline base64** (`attachment.data`): het document is al meegekomen met de DocumentReference uit de Koppeltaal-store; er is geen tweede pull nodig.
 
 <div style="clear: both; margin: 1em 0;">
-{% include resultaten-delen-pad-b.svg %}
+{% include documenten-delen-direct-ophalen.svg %}
 </div>
 
-De Notification Task bevat verwijzingen naar de op te halen FHIR resources (DocumentReference, Binary). Het EPD haalt op eigen initiatief en tempo de data op bij de bron.
+Dit patroon kent de minste orkestratie — er is geen aparte Notification Task — en biedt de leverancier de keuze tussen *data aan de bron* (externe URL, geschikt voor grote of zeer gevoelige bestanden) of *minimale infrastructuur* (inline base64, geschikt voor kleinere documenten waar het opzetten van een eigen Binary-endpoint niet loont). In beide gevallen blijft de DocumentReference — en daarmee alle metadata, autorisatie en signalering — in de Koppeltaal FHIR store.
 
-**Voordelen van Notified Pull ten opzichte van Pad A:**
+Het EPD detecteert nieuwe DocumentReferences via polling of een FHIR Subscription op de Koppeltaal-store.
 
-- **Actieve notificatie**: het EPD hoeft niet te pollen of een eigen Subscription-implementatie te onderhouden; de module signaleert wanneer er iets klaarstaat
-- **Volume-controle aan consumentzijde**: het EPD bepaalt zelf op welk moment en in welk tempo de data daadwerkelijk wordt opgehaald uit de aangeboden set
-- **Identificatie bij ophalen**: de ontvanger identificeert zich bij het ophalen aan de bronapplicatie, waardoor inzichtelijk is wie de data raadpleegt (mits die authenticatie is ingericht — zie bezwaren bij Pad C hieronder)
-- **Schaalbare publieke standaard**: Notified Pull is een door Nictiz beheerde, publieke standaard ([TA Notified Pull v1.0.1](https://www.nictiz.nl/)) die zorgbreed wordt toegepast. Aansluiting bij deze standaard borgt interoperabiliteit, bevordert hergebruik van bestaande implementaties en komt **netwerkzorg** ten goede: dezelfde patronen kunnen worden ingezet voor uitwisseling tussen Koppeltaal-deelnemers en andere zorgketenpartijen die al op deze standaard aansluiten
+#### Overwogen alternatieven
 
-#### Pad C: Directe deling via de Koppeltaal FHIR store
+Tijdens de uitwerking zijn twee andere patronen overwogen — **Notified Pull** en **Binary als losse resource in de Koppeltaal-store**. Beide zijn niet als standaardroute aangewezen; ze worden hier kort gedocumenteerd zodat de afweging traceerbaar blijft en het onderwerp opnieuw opgepakt kan worden mocht de scope van Koppeltaal in de toekomst veranderen.
 
-Pad A en Pad B gaan beide uit van Binary-opslag bij de bronapplicatie. Dat heeft drie praktische nadelen:
+##### Notified Pull
 
-1. **Adressering lastig door onbekende Device-referenties**: er is geen praktisch werkbaar mechanisme om een document aan een specifieke ontvangende applicatie toe te wijzen. Applicaties kennen elkaars `Device`-referenties binnen het domein doorgaans niet en mogen deze ook niet ophalen, waardoor de bronapplicatie in Pad B niet weet welke `Device`-id bij het beoogde EPD hoort. In Pad A ontbreekt zelfs dit adresseringsmechanisme. Pad C omzeilt dit door deling via de autorisatiematrix, zonder dat partijen elkaars `Device`-referenties hoeven te kennen.
-2. **Bronapplicatie als FHIR-server**: elke bronapplicatie moet een eigen, beveiligd FHIR-endpoint aanbieden voor de Binary — inclusief OAuth-flow, scope-enforcement, audit-logging, search-parameters en versie-onderhandeling. Dat betekent effectief een FHIR-server nabootsen naast Koppeltaal. Een toekomstige FHIR-versie (R5, R6) vereist aanpassingen bij iedere bronapplicatie.
-3. **Vertrouwen van binnenkomende requests**: de bronapplicatie moet verifiëren dat een inkomend `GET Binary` afkomstig is van een legitieme, gemachtigde ontvanger — en niet van een willekeurige partij die de referentie heeft onderschept. Dat vereist minimaal JWT-validatie van een Koppeltaal-uitgegeven access_token (via een introspection-endpoint of JWKS-handtekeningcontrole), interpretatie van de scope-claims ter plaatse, en synchronisatie met de autorisatiematrix die in Koppeltaal wordt beheerd. De huidige specificatie benoemt dit mechanisme niet. Zonder expliciete invulling is de Binary-endpoint bij de bronapplicatie effectief een open endpoint, of elke leverancier implementeert zijn eigen (mogelijk afwijkende) vertrouwensmodel — met fragmentatie en security-risico's tot gevolg.
+In dit patroon — gebaseerd op de [TA Notified Pull v1.0.1](https://www.nictiz.nl/) — neemt de module het initiatief door het EPD actief te notificeren via een Notification Task. De Notification Task bevat verwijzingen naar de op te halen FHIR resources; het EPD haalt op eigen initiatief en tempo de data op bij de bron.
 
-In Pad C wordt de Binary zelf in de Koppeltaal FHIR store geplaatst (naast de DocumentReference). Koppeltaal fungeert als tijdelijk doorgeefluik: de bronapplicatie publiceert, ontvangende applicaties halen op via een echt FHIR-endpoint, en na succesvolle archivering bij de dossierhouder kunnen DocumentReference en Binary opgeruimd worden.
+<div style="clear: both; margin: 1em 0;">
+{% include documenten-delen-notified-pull.svg %}
+</div>
 
-Autorisatie verloopt via het bestaande Koppeltaal autorisatiemodel: de permissies uit de autorisatiematrix (zie [TOP-KT-005b Rollen Matrix](https://vzvz.atlassian.net/wiki/spaces/KTSA/pages/27125119/TOP-KT-005b+-+Rollen+Matrix)) worden vertaald naar SMART scopes in het access_token en afgedwongen bij search en read. Daarmee wordt expliciet per applicatie bepaald welke documenten toegankelijk zijn, zonder dat bronapplicaties zelf een eigen OAuth- of resource-server hoeven te implementeren.
+Notified Pull is aantrekkelijk door de aansluiting op de door Nictiz beheerde TA Notified Pull-standaard (publieke standaard, **netwerkzorg**) en omdat het EPD geen polling of eigen Subscription hoeft in te richten. In de huidige Koppeltaal-scope — interventies binnen een al bekend behandelnetwerk waarin het EPD al synchroniseert via de Koppeltaal-store — voegt de Notification Task echter een extra orkestratielaag toe terwijl detectie via Subscription/polling op de Koppeltaal-store volstaat. De keuze is daarom op direct ophalen gevallen.
 
-**Voordelen van Pad C:**
+Mocht netwerkzorg- of cross-organisatie-uitwisseling later expliciet in scope komen, dan kan Notified Pull alsnog als optionele aanvulling worden gespecificeerd. De twee patronen sluiten elkaar niet uit.
 
-- **Expliciete deling per applicatie zonder Device-referenties**: de autorisatiematrix bepaalt centraal welke applicaties resources mogen ophalen, zonder dat partijen elkaars `Device`-referenties hoeven te kennen of zelf autorisatielogica hoeven te implementeren
-- **Echt FHIR-endpoint**: clients gebruiken standaard FHIR-operaties (search, read) op de Koppeltaal-server; bronapplicaties hoeven geen FHIR-server na te bootsen
-- **Toekomstbestendig bij FHIR-versiewijzigingen**: upgrades (R4 → R5 → R6) raken alleen de Koppeltaal-server, niet iedere bronapplicatie
-- **Eén autorisatie-laag**: clients gebruiken hun bestaande access_token voor Koppeltaal; geen tweede OAuth-flow naar een bronapplicatie
-- **Centrale token-validatie en introspectie**: JWT-validatie, introspection en scope-enforcement gebeuren op één plek (de Koppeltaal FHIR store), in plaats van dat elke bronapplicatie een eigen vertrouwensmodel moet implementeren en onderhouden
-- **Automatische AuditEvents (NEN 7510)**: de Koppeltaal-standaard schrijft voor dat de Koppeltaal-store bij elke search- en read-actie automatisch een AuditEvent-resource aanmaakt. Daarmee wordt de traceerbaarheid die NEN 7510 vereist centraal geborgd, zonder dat elke bronapplicatie een eigen audit-implementatie hoeft te onderhouden
-- **Opruim-permissie via matrix**: applicaties kunnen delete-permissie krijgen om na archivering de DocumentReference en Binary op te ruimen, waarmee dataminimalisatie in de Koppeltaal-store wordt geborgd
+##### Binary als losse resource in de Koppeltaal-store
 
-**Uitbreidbaarheid: fijnmaziger autorisatie**
+In een eerder ontwerp is dit alternatief overwogen: de Binary niet bij de bronapplicatie laten staan, maar als losse resource — naast de DocumentReference — in de Koppeltaal FHIR store plaatsen. Argument was onder meer centrale token-validatie, automatische AuditEvents en geen eigen resource-server bij de bronapplicatie.
 
-De initiële invulling van Pad C werkt op resource-type-niveau: de matrix bepaalt welke applicaties `DocumentReference` en `Binary` mogen lezen. Deze basis kan later stapsgewijs worden uitgebreid:
+Bij nadere beschouwing (zie [memo-kritiek-pad-c.md](./../../work-documents/memo-kritiek-pad-c.md)) bleken een aantal van die voordelen niet onderscheidend ten opzichte van direct ophalen, en wegen er zwaarwegende bezwaren tegen op:
 
-- **Category-gebonden scopes**: `DocumentReference.category` kan als filter aan scopes worden toegevoegd, zodat per soort document (bijvoorbeeld `behandelresultaat`, `tussentijdse-rapportage`, `overdrachtsdocument`) verschillende applicaties geautoriseerd worden.
-- **FHIRPath-gebonden scopes**: FHIRPath-expressies aan matrix-regels toevoegen om op *individueel* resource-niveau te delen — bijvoorbeeld alleen documenten binnen een bepaalde behandelepisode, Task of CareTeam-context, of om tijdgebonden toegang uit te drukken. FHIRPath in scopes is geen onderdeel van de huidige SMART-specificatie en zou een Koppeltaal-eigen uitbreiding zijn.
+- **Dataminimalisatie en bronverantwoordelijkheid**: gevoelige gezondheidsdata buiten de bronhouder plaatsen vergroot het aanvalsoppervlak en ondermijnt het principe dat de bronhouder verantwoordelijk blijft voor zijn data tijdens de uitwisseling.
+- **Verlies van het pull-signaal**: bij direct ophalen weet de bronhouder wanneer en door wie het document is opgehaald — een nuttig signaal voor archiveringsstatus, bewaartermijnen en eigen audit. Bij dit alternatief verdwijnt dat signaal.
+- **De inline base64-variant lost het FHIR-endpoint-bezwaar al op**: leveranciers die geen eigen Binary-endpoint willen onderhouden kunnen via `attachment.data` (inline) volstaan, zonder dat de bron de fysieke controle over het bestand verliest aan een tussenpartij.
 
-Een dergelijke uitbreiding zou mooi aansluiten op de SMART App Launch-koers die voor KoppelMij (de combinatie van Koppeltaal 2.0 en MedMij) wordt uitgewerkt: een gelaagd autorisatiemodel van resource-niveau via category-niveau naar FHIRPath-niveau. Pad C landt op het eerste niveau en is ontworpen om naar de hogere niveaus mee te kunnen groeien zonder architectuurwijziging.
-
-**Positionering ten opzichte van "data aan de bron":**
-
-Het uitgangspunt "data aan de bron" past bij inzage-scenario's waarbij de ontvanger alleen raadpleegt zonder duurzame kopie — bijvoorbeeld een live medicatielijst of gestructureerde data via een Koppeltaal launch. Documenten delen is echter per definitie een overdrachts-scenario: de dossierhouder moet het document duurzaam archiveren (bijvoorbeeld 20 jaar bewaarplicht), waardoor er hoe dan ook een kopie bij de ontvanger ontstaat. In dit scenario is dataminimalisatie beter gediend met *"tijdelijke doorvoer via Koppeltaal, duurzame opslag bij dossierhouder"* dan met *"permanent bij bronapplicatie"*.
+Dit alternatief blijft denkbaar als uitwijkmogelijkheid voor specifieke gevallen (bijvoorbeeld een bron die geen stabiel publiek endpoint kan aanbieden én waar inline base64 niet volstaat), maar is geen standaardroute van de Koppeltaal-specificatie.
 
 ### Workflow
 
@@ -96,7 +86,7 @@ Documenten delen is het sluitstuk van de bestaande Koppeltaal Task lifecycle:
 2. De patiënt voert de interventie uit via de module
 3. De interventie wordt afgerond (Task.status → `completed`)
 4. De module genereert het document (PDF/A)
-5. De module deelt het document via pad A, pad B of pad C
+5. De module publiceert een DocumentReference in de Koppeltaal FHIR store (met externe URL of inline base64)
 6. Het EPD haalt het document op en archiveert het in het patiëntdossier
 
 De DocumentReference wordt gekoppeld aan zowel de Patient als de Task, zodat het document traceerbaar is naar de specifieke interventie.
@@ -108,6 +98,48 @@ Toegang tot documenten is gebonden aan de behandelrelatie:
 - **Zorgverleners**: alleen zorgverleners met een geldige behandelrelatie — vastgelegd in het CareTeam — krijgen toegang tot documenten
 - **RelatedPerson**: personen betrokken bij de behandeling (ouders, mantelzorgers, wettelijk vertegenwoordigers) kunnen beperkte, doelgebonden en tijdgebonden inzage krijgen in documenten. Toegang vervalt automatisch bij het eindigen van de relatie, het intrekken van toestemming of het afsluiten van de behandeling
 - **Logging**: alle inzage en overdracht van documenten wordt gelogd en is auditeerbaar
+
+### Open punten
+
+Met de keuze voor direct ophalen via de Koppeltaal-store (externe URL of inline base64) als aangewezen route zijn de volgende punten nog uit te werken in samenwerking met leveranciers:
+
+#### Token-validatie aan de bronapplicatie (variant met externe URL)
+
+Wanneer de leverancier kiest voor een externe Binary-URL, ontvangt de bronapplicatie een `GET`-request met een Koppeltaal-uitgegeven access_token. Het token is gevalideerd (handtekening, expiry) en levert een set scopes op. **Open is wat de bron precies controleert** voordat zij de Binary uitlevert. Drie richtingen worden overwogen:
+
+1. **Hergebruik van de DocumentReference-scope**: de scope die nodig is om de DocumentReference te lezen geldt ook als toestemming om de bijbehorende Binary op te halen. Pragmatisch en goed uitlegbaar — dezelfde permissie geeft toegang tot zowel metadata als inhoud — maar fijngranulariteit ontbreekt (alles-of-niets per type document).
+2. **Een nieuwe, expliciete Binary-scope**: een aparte scope (bijvoorbeeld `documenten/Binary.read`) die specifiek voor het ophalen van documenten dient. Maakt het mogelijk om Binary-toegang los te koppelen van DocumentReference-toegang, ten koste van extra scope-management.
+3. **Uitbreiding van het introspect-endpoint met een scope-parameter**: de bron stuurt het token plus een gewenste actie/scope ("mag deze client deze Binary ophalen?") naar het Koppeltaal-`/introspect`-endpoint, en krijgt een eenduidig ja/nee terug. Houdt de autorisatielogica centraal bij Koppeltaal in plaats van bij elke leverancier — kan ook gecombineerd worden met optie 1 of 2.
+
+De keuze raakt zowel de Koppeltaal-specificatie (welke scopes worden uitgegeven, hoe gedraagt `/introspect` zich) als de leverancier-implementaties.
+
+#### Beveiligingseisen voor het Binary-endpoint van de bron
+
+Om fragmentatie en ongelijke beveiligingsniveaus te voorkomen wordt voorgesteld dat Koppeltaal een **handvest / set minimumeisen** publiceert voor het Binary-endpoint dat een bronapplicatie aanbiedt. Te denken valt aan:
+
+- TLS-only (minimaal TLS 1.2, geen klare HTTP)
+- Niet-raadbare paden voor Binary-resources (bijvoorbeeld UUID's of cryptografisch random identifiers; geen incrementele IDs)
+- Verplichte token-validatie (zie hierboven), inclusief afwijzing van requests zonder geldig access_token
+- Rate-limiting en standaard hardening (security headers, beperkte error-detail bij 401/403)
+- Een gedefinieerde maximale levensduur van geldige URLs (om "lekken" van URL's te beperken)
+
+Dit handvest is een **specificatie-eis aan leveranciers** die voor de externe URL-variant kiezen; voor de inline base64-variant zijn deze eisen niet van toepassing omdat het document via de Koppeltaal-store geleverd wordt.
+
+#### Audit-logging bij de bron
+
+Bij het alternatief "Binary als losse resource in de Koppeltaal-store" zou de Koppeltaal-store automatisch AuditEvents genereren bij elke read. In het gekozen patroon loopt de Binary-read niet via Koppeltaal en kent Koppeltaal die actie dus niet. **De audit-verantwoordelijkheid voor de Binary-read ligt daarmee bij de bronapplicatie**: zij logt zelf wie, wanneer, welk document heeft opgehaald. Optioneel kan dit als AuditEvent worden teruggeschreven naar een centrale Koppeltaal-AuditEvent-store, maar dat is een implementatie- en governance-keuze, geen architectuurbeslissing.
+
+Voor de inline base64-variant en voor DocumentReference-reads zelf blijft het bestaande Koppeltaal-mechanisme (automatische AuditEvent bij search/read op de Koppeltaal-store) leidend.
+
+#### Voorwaarden voor inline base64
+
+De keuze om de inhoud inline mee te leveren (`attachment.data`) is in principe vrij aan de leverancier, maar mogelijk willen we dit specificatie-zijdig **inkaderen** — bijvoorbeeld:
+
+- Een maximale bestandsgrootte (om de Koppeltaal-store niet als algemeen blob-store te gebruiken)
+- Beperkingen op categorieën documenten (bijvoorbeeld: zeer gevoelige documenten verplicht via externe URL met inzage-signaal aan de bron)
+- Verplichte expliciete keuze in een leveranciersprofiel (zodat dossierhouders weten wat ze kunnen verwachten)
+
+Of we deze voorwaarden willen vastleggen — en zo ja, op welk niveau (specificatie, conformance-statement, of vrij aan partijen) — is nog open.
 
 ### Status
 

@@ -1,4 +1,4 @@
-@startuml resultaten-delen-pad-a
+@startuml documenten-delen-direct-ophalen
 
 participant "Module" as Module
 participant "Koppeltaal\nFHIR store" as KT

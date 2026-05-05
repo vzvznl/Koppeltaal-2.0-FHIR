@@ -1,4 +1,4 @@
-@startuml resultaten-delen-pad-b
+@startuml documenten-delen-notified-pull
 
 participant "Module\n(Sending)" as Module
 participant "EPD\n(Receiving)" as EPD
