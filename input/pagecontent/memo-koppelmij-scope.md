@@ -3,6 +3,7 @@
 | Versie | Datum      | Wijziging                                |
 |--------|------------|------------------------------------------|
 | 0.0.1  | 2026-05-05 | Initiële versie: drie harmonisatie-onderwerpen en scope-keuzes |
+| 0.0.2  | 2026-05-05 | Geconsolideerd: technische details uit losse impact-memo overgenomen (return_url, profielwijzigingen, Token Exchange) |
 
 ---
 
@@ -32,6 +33,8 @@ Om feature creep te voorkomen worden bewuste scope-keuzes gemaakt. Er zijn drie 
 
 **Wat verandert er?**
 Koppeltaal autoriseert op **applicatieniveau** via SMART on FHIR backend services; het access_token uit de app launch is een placeholder (`NOOP`). KoppelMij autoriseert op **persoonsniveau** via SMART on FHIR app launch — het access_token vertegenwoordigt de daadwerkelijke gebruiker en de rechten worden door het platform afgedwongen.
+
+Voor module-leveranciers betekent dit dat het access_token niet langer applicatie-breed is, maar in de scope van de gebruiker. De module gebruikt dit token voor alle FHIR-interacties met de DVA (Dienstverlener Aanbiedertaken). De [Token Exchange (RFC 8693)](https://datatracker.ietf.org/doc/html/rfc8693) tussen PGO en DVA is daarbij transparant voor de module.
 
 **Scope eerste fase**
 
@@ -74,7 +77,30 @@ Resultaten van een interventie (vragenlijsten, scores, voortgangsinformatie) moe
 
 Zie [Resultaten delen](resultaten-delen.html) voor de huidige stand.
 
-### 3. Wat betekent dit per leveranciersrol?
+### 3. Specifieke technische wijzigingen
+
+Naast de drie hoofdonderwerpen introduceert KoppelMij een aantal kleinere, concrete wijzigingen op profielen en launch-context die voor module- en portaal-leveranciers relevant zijn.
+
+#### 3.1 Return URL in de launch context
+
+Er komt een nieuw element `return_url` in de **SMART on FHIR launch context**. Na afloop van een module-sessie wordt de gebruiker teruggestuurd naar het PGO.
+
+- Het PGO geeft een `return_url` mee in de launch context. De module **MOET** de gebruiker na afsluiting via deze URL terugsturen
+- Het PGO kan de `return_url` verrijken met query-parameters (bijvoorbeeld een `task_id`) zodat het PGO weet om welke specifieke taak het gaat
+- De module **MOET** de taakstatus (`Task.status`) bijwerken vóór de redirect naar de `return_url`
+- Bij annulering of foutgevallen kan een `error` parameter worden meegegeven (bijv. `error=temporarily_unavailable`)
+- Voor mobiele apps geldt hetzelfde mechanisme via Universal Links (iOS) en App Links (Android)
+
+#### 3.2 Profielwijzigingen
+
+De Koppeltaal FHIR-profielen worden op een aantal punten aangepast om gebruik in de MedMij-context mogelijk te maken:
+
+- **Openstellen van profielen**: de huidige Koppeltaal-profielen staan geen onbekende extensions toe ("gesloten"). Voor gebruik in de MedMij-context moeten profielen worden opengesteld zodat MedMij-specifieke extensions mogelijk zijn
+- **Endpoint: extension `client_id`**: een nieuwe extension op het Endpoint resource, die het client-ID bevat dat gebruikt wordt als `audience` parameter bij de DVA token exchange
+- **Group identifier op Tasks**: een groeps-identifier waarmee gerelateerde taken kunnen worden gegroepeerd (bijvoorbeeld alle taken binnen één COPD-zorgpad)
+- **Task.code / security labels**: mogelijke uitbreidingen voor het classificeren van taken en het toepassen van autorisatieregels — dit is nog in onderzoek
+
+### 4. Wat betekent dit per leveranciersrol?
 
 #### Module-leveranciers
 
@@ -93,18 +119,19 @@ Zie [Resultaten delen](resultaten-delen.html) voor de huidige stand.
 - **Eerste fase**: geen actie vereist
 - **Later**: UX-aanpassing om taken gegroepeerd onder een ServiceRequest te tonen (in plaats van een platte takenlijst)
 
-### 4. Waarom deze scope-keuzes?
+### 5. Waarom deze scope-keuzes?
 
 - **Impact minimaliseren**: bestaande Koppeltaal-leveranciers worden niet gedwongen om in één keer te migreren
 - **Feature creep voorkomen**: drie grote onderwerpen tegelijk volledig uitwerken zou de eerste fase onuitvoerbaar zwaar maken
 - **Leren door doen**: persoonlijke autorisatie is het meest concreet uitgewerkt en wordt als eerste beproefd; lessen uit deze pilot voeden de uitwerking van de overige onderwerpen
 - **Coexistence boven big-bang**: het transitiemodel ondersteunt parallelle werking van legacy en nieuw, zodat leveranciers in eigen tempo kunnen migreren
 
-### 5. Verwijzingen
+### 6. Verwijzingen
 
-- [Memo: Impact KoppelMij op Koppeltaal](memo-impact-koppelmij.html) — gedetailleerde technische impact per onderdeel
 - [Autorisaties](autorisaties.html) — autorisatiemodel
 - [Transitiemodel autorisatie](autorisaties-transitiemodel.html) — fasering en coexistence
 - [Memo: ServiceRequest KoppelMij](memo-servicerequest-koppelmij.html) — module-level taken
 - [Resultaten delen](resultaten-delen.html) — resultaat-overdracht
+- [Token Exchange (RFC 8693)](https://datatracker.ietf.org/doc/html/rfc8693) — DVA token exchange
 - [KoppelMij designs](https://koppelmij.github.io/koppelmij-designs/) — externe referentie
+- [KoppelMij FHIR-profiel](https://github.com/KoppelMij/MedMij-R4-KoppelMij) — externe referentie
