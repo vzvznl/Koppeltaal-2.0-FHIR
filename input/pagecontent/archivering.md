@@ -1,16 +1,16 @@
 ### Changelog
 
-| Versie | Datum      | Wijziging                                |
-|--------|------------|------------------------------------------|
-| 0.0.1  | 2026-03-24 | Initiële versie: uitgangspunten en oplossingsrichting |
-| 0.0.2  | 2026-04-13 | Notificatiemechanisme via `meta.tag` lifecycle toegevoegd |
-| 0.0.3  | 2026-04-13 | Drie niveaus van notificatie uitgewerkt; task lifecycle als overweging |
-| 0.0.4  | 2026-04-13 | Dataclassificatie, toegankelijkheid archiefdata, rechten betrokkenen en contractbeëindiging toegevoegd |
-| 0.0.5  | 2026-04-15 | PlantUML diagrammen toegevoegd (overzicht en tag lifecycle) |
-| 0.0.6  | 2026-04-29 | Verifieerbare notificatie, beveiliging en beheersbaarheid toegevoegd; discussiepunt initiëring archivering |
-| 0.0.7  | 2026-04-29 | Focus op meta.tag lifecycle als primaire oplossingsrichting; noodrem en AuditEvents uitgewerkt; interactiediagram toegevoegd |
-| 0.0.8  | 2026-05-04 | KT-dienst als initiator vastgelegd; laatste activiteit als startmoment; recht om vergeten te worden als aparte UC; datum in tags |
-| 0.0.9  | 2026-05-05 | Technische onderbouwing meta.tags vs. soft delete toegevoegd |
+| Versie | Datum | Wijziging |
+| --- | --- | --- |
+| 0.0.1 | 2026-03-24 | Initiële versie: uitgangspunten en oplossingsrichting |
+| 0.0.2 | 2026-04-13 | Notificatiemechanisme via `meta.tag` lifecycle toegevoegd |
+| 0.0.3 | 2026-04-13 | Drie niveaus van notificatie uitgewerkt; task lifecycle als overweging |
+| 0.0.4 | 2026-04-13 | Dataclassificatie, toegankelijkheid archiefdata, rechten betrokkenen en contractbeëindiging toegevoegd |
+| 0.0.5 | 2026-04-15 | PlantUML diagrammen toegevoegd (overzicht en tag lifecycle) |
+| 0.0.6 | 2026-04-29 | Verifieerbare notificatie, beveiliging en beheersbaarheid toegevoegd; discussiepunt initiëring archivering |
+| 0.0.7 | 2026-04-29 | Focus op meta.tag lifecycle als primaire oplossingsrichting; noodrem en AuditEvents uitgewerkt; interactiediagram toegevoegd |
+| 0.0.8 | 2026-05-04 | KT-dienst als initiator vastgelegd; laatste activiteit als startmoment; recht om vergeten te worden als aparte UC; datum in tags |
+| 0.0.9 | 2026-05-05 | Technische onderbouwing meta.tags vs. soft delete toegevoegd |
 
 ---
 
@@ -51,7 +51,7 @@ Per datacategorie moet een eenduidig startmoment voor de bewaartermijn worden va
 
 De laatste activiteit wordt bepaald aan de hand van het **User Authentication** AuditEvent (zie [TOP-KT-011 - Logging en tracing](https://vzvz.atlassian.net/wiki/spaces/KTSA/pages/27125090)). Dit is het enige AuditEvent waarbij `entity.what` verwijst naar de gebruiker (Patient of RelatedPerson), wat de berekening relatief eenvoudig houdt: de datum van het meest recente User Authentication event voor een patiënt bepaalt het startmoment van de bewaartermijn.
 
-**Edge case**: er zijn applicaties die momenteel direct inloggen zonder via een cliëntportaal te gaan. Bij deze directe logins wordt geen User Authentication AuditEvent aangemaakt, waardoor de laatste activiteit niet kan worden bepaald. Deze applicaties moeten in de toekomst gebruik gaan maken van de standalone SMART on FHIR launch, waarbij wél een User Authentication event wordt gegenereerd. Zie [Memo: Standalone SMART Launch](memo-standalone-smart-launch.html).
+**Edge case**: er zijn applicaties die momenteel direct inloggen zonder via een cliëntportaal te gaan. Bij deze directe logins wordt geen User Authentication AuditEvent aangemaakt, waardoor de laatste activiteit niet kan worden bepaald. Deze applicaties moeten in de toekomst gebruik gaan maken van de standalone SMART on FHIR launch, waarbij wél een User Authentication event wordt gegenereerd. Zie [memo-standalone-smart-launch.html](./memo-standalone-smart-launch.html).
 
 Voorbeelden per datacategorie:
 
@@ -92,7 +92,7 @@ Het archiverings- en verwijderproces wordt gestuurd via FHIR `meta.tag` op de Pa
 De Patient resource doorloopt de volgende staten, vastgelegd in een dedicated CodeSystem:
 
 | Code | Display | Beschrijving |
-|------|---------|--------------|
+| --- | --- | --- |
 | `ARCHIVE_PENDING` | Archive Pending | Patient is gemarkeerd voor archivering; grace period loopt |
 | `ARCHIVE_HOLD` | Archive Hold | Noodrem — een doelapplicatie blokkeert het archiverings­proces |
 | `ARCHIVED` | Archived | Patient is gearchiveerd; data is read-only en niet in reguliere zoekresultaten |
@@ -110,7 +110,7 @@ De lifecycle verloopt als volgt:
 Elke statusovergang wordt vastgelegd in een immutable AuditEvent. Dit biedt een aantoonbare audit trail die de `$purge` overleeft:
 
 | Moment | AuditEvent type | Actor | Doel |
-|--------|-----------------|-------|------|
+| --- | --- | --- | --- |
 | Tag → `ARCHIVE_PENDING` | archive-initiated | Initiator | Aantoonbaar: archivering is gestart, grace period begint |
 | Noodrem getrokken | archive-hold | Doelapplicatie | Aantoonbaar: welke applicatie blokkeert en waarom |
 | Noodrem opgeheven | archive-hold-released | Doelapplicatie | Aantoonbaar: blokkade is opgeheven |
