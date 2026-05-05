@@ -137,8 +137,8 @@ pages:
     extension:
       - url: http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status
         valueCode: draft
-  resultaten-delen.md:
-    title: Resultaten delen
+  documenten-delen.md:
+    title: Documenten delen
     extension:
       - url: http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status
         valueCode: draft
@@ -219,9 +219,9 @@ menu:
     Patient: autorisaties-patient.html
     Practitioner: autorisaties-practitioner.html
     RelatedPerson: autorisaties-relatedperson.html
-  Archivering en Resultaten:
+  Archivering en Documenten:
     Archivering: archivering.html
-    Resultaten delen: resultaten-delen.html
+    Documenten delen: documenten-delen.html
   Memo's:
     Scope en impact KoppelMij: memo-koppelmij-scope.html
     ServiceRequest KoppelMij: memo-servicerequest-koppelmij.html

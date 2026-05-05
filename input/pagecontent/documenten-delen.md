@@ -1,37 +1,30 @@
 ### Changelog
 
-| Versie | Datum      | Wijziging                                |
-|--------|------------|------------------------------------------|
-| 0.0.1  | 2026-04-13 | Initiële versie                          |
-| 0.0.2  | 2026-04-24 | Pad C toegevoegd (Binary in Koppeltaal-store, autorisatie via bestaande matrix) |
+| Versie | Datum | Wijziging |
+| --- | --- | --- |
+| 0.0.1 | 2026-04-13 | Initiële versie |
+| 0.0.2 | 2026-04-24 | Pad C toegevoegd (Binary in Koppeltaal-store, autorisatie via bestaande matrix) |
+| 0.0.3 | 2026-05-05 | Pagina hernoemd naar "Documenten delen"; sectie "Gestructureerde resultaten (Observation)" verwijderd; pagina-scope beperkt tot ongestructureerde documenten (gestructureerde data verhuist naar de KoppelMij-context) |
 
 ---
 
-### Resultaten delen
+### Documenten delen
 
-De inzet van eHealth en blended care is breed ingebed in de zorg. Digitale interventies leveren waardevolle resultaten op — zoals vragenlijsten, scores en voortgangsinformatie — die essentieel zijn voor goede behandelbeslissingen. In de praktijk zijn deze resultaten echter vaak opgesloten binnen afzonderlijke applicaties, wat leidt tot informatieversnippering en extra administratieve lasten.
+De inzet van eHealth en blended care is breed ingebed in de zorg. Digitale interventies leveren waardevolle documenten op — zoals rapportages, vragenlijst-uitkomsten en voortgangsverslagen — die essentieel zijn voor goede behandelbeslissingen. In de praktijk zijn deze documenten echter vaak opgesloten binnen afzonderlijke applicaties, wat leidt tot informatieversnippering en extra administratieve lasten.
 
-Door resultaten delen expliciet te ondersteunen binnen Koppeltaal ontstaat een uniforme en gestandaardiseerde manier om interventieresultaten veilig en geautoriseerd over te dragen van de bronapplicatie (module) naar de dossierhouder (EPD). Hierbij wordt aangesloten op bestaande MedMij- en Nictiz-standaarden. Koppeltaal fungeert als orkestratie-, transport- en autorisatielaag — niet als opslagsysteem.
+Door documenten delen expliciet te ondersteunen binnen Koppeltaal ontstaat een uniforme en gestandaardiseerde manier om documenten uit interventies veilig en geautoriseerd over te dragen van de bronapplicatie (module) naar de dossierhouder (EPD). Hierbij wordt aangesloten op bestaande MedMij- en Nictiz-standaarden. Koppeltaal fungeert als orkestratie-, transport- en autorisatielaag — niet als opslagsysteem.
 
-### Typen resultaten
+### DocumentReference en Binary
 
-#### Documenten (DocumentReference)
-
-Ongestructureerde resultaten zoals PDF/A-rapporten, vragenlijstuitkomsten of samenvattingen worden uitgewisseld via het FHIR [DocumentReference](https://www.hl7.org/fhir/documentreference.html) resource. Een DocumentReference bevat metadata over het document (type, datum, auteur, patiënt) en een verwijzing naar een [Binary](https://www.hl7.org/fhir/binary.html) resource met het daadwerkelijke document.
+Documenten zoals PDF/A-rapporten, vragenlijst-uitkomsten of samenvattingen worden uitgewisseld via het FHIR [DocumentReference](https://www.hl7.org/fhir/documentreference.html) resource. Een DocumentReference bevat metadata over het document (type, datum, auteur, patiënt) en een verwijzing naar een [Binary](https://www.hl7.org/fhir/binary.html) resource met het daadwerkelijke document.
 
 Waar de Binary wordt opgeslagen verschilt per uitwisselingspatroon: bij Pad A en Pad B blijft de Binary bij de bronapplicatie en bevat de DocumentReference een externe referentie; bij Pad C wordt de Binary in de Koppeltaal FHIR store geplaatst. Zie de sectie [Uitwisselingspatronen](#uitwisselingspatronen) voor de afweging tussen deze patronen.
 
 De module genereert automatisch een PDF/A bij afronding van de interventie. PDF/A is het vereiste formaat voor duurzame archivering in het EPD.
 
-#### Gestructureerde resultaten (Observation)
-
-Gestructureerde, meetbare uitkomsten — zoals scores, metingen of gecodeerde antwoorden — worden uitgewisseld via het FHIR [Observation](https://www.hl7.org/fhir/observation.html) resource. Observations bieden een gestandaardiseerde manier om resultaten machineleesbaar vast te leggen, inclusief codering (bijv. SNOMED CT, LOINC) en eenheden.
-
-QuestionnaireResponse-resultaten (zoals ingevulde vragenlijsten) kunnen eveneens via dit mechanisme worden overgedragen.
-
 ### Uitwisselingspatronen
 
-Er zijn drie paden voor het overdragen van resultaten van de module naar het EPD:
+Er zijn drie paden voor het overdragen van documenten van de module naar het EPD:
 
 #### Pad A: Direct ophalen via Koppeltaal FHIR store
 
@@ -41,11 +34,11 @@ In dit patroon publiceert de module een DocumentReference in de Koppeltaal FHIR 
 {% include resultaten-delen-pad-a.svg %}
 </div>
 
-Pad A kent de minste orkestratie — er is geen aparte Notification Task — maar het EPD moet zelf detecteren dat er nieuwe resultaten beschikbaar zijn (via polling of een Subscription), en de bronapplicatie moet een beveiligd Binary-endpoint aanbieden. Voor de implementatielast bij bron en consument is Pad A daarmee niet eenvoudiger dan Pad C (zie hieronder).
+Pad A kent de minste orkestratie — er is geen aparte Notification Task — maar het EPD moet zelf detecteren dat er nieuwe documenten beschikbaar zijn (via polling of een Subscription), en de bronapplicatie moet een beveiligd Binary-endpoint aanbieden. Voor de implementatielast bij bron en consument is Pad A daarmee niet eenvoudiger dan Pad C (zie hieronder).
 
 #### Pad B: Notified Pull
 
-In het Notified Pull patroon — gebaseerd op de [TA Notified Pull v1.0.1](https://www.nictiz.nl/) — neemt de module het initiatief door het EPD actief te notificeren dat er resultaten klaarstaan. Dit gebeurt via een Notification Task.
+In het Notified Pull patroon — gebaseerd op de [TA Notified Pull v1.0.1](https://www.nictiz.nl/) — neemt de module het initiatief door het EPD actief te notificeren dat er documenten klaarstaan. Dit gebeurt via een Notification Task.
 
 <div style="clear: both; margin: 1em 0;">
 {% include resultaten-delen-pad-b.svg %}
@@ -93,28 +86,28 @@ Een dergelijke uitbreiding zou mooi aansluiten op de SMART App Launch-koers die 
 
 **Positionering ten opzichte van "data aan de bron":**
 
-Het uitgangspunt "data aan de bron" past bij inzage-scenario's waarbij de ontvanger alleen raadpleegt zonder duurzame kopie — bijvoorbeeld een live medicatielijst of gestructureerde data via een Koppeltaal launch. Resultaat delen is echter per definitie een overdrachts-scenario: de dossierhouder moet het document duurzaam archiveren (bijvoorbeeld 20 jaar bewaarplicht), waardoor er hoe dan ook een kopie bij de ontvanger ontstaat. In dit scenario is dataminimalisatie beter gediend met *"tijdelijke doorvoer via Koppeltaal, duurzame opslag bij dossierhouder"* dan met *"permanent bij bronapplicatie"*.
+Het uitgangspunt "data aan de bron" past bij inzage-scenario's waarbij de ontvanger alleen raadpleegt zonder duurzame kopie — bijvoorbeeld een live medicatielijst of gestructureerde data via een Koppeltaal launch. Documenten delen is echter per definitie een overdrachts-scenario: de dossierhouder moet het document duurzaam archiveren (bijvoorbeeld 20 jaar bewaarplicht), waardoor er hoe dan ook een kopie bij de ontvanger ontstaat. In dit scenario is dataminimalisatie beter gediend met *"tijdelijke doorvoer via Koppeltaal, duurzame opslag bij dossierhouder"* dan met *"permanent bij bronapplicatie"*.
 
 ### Workflow
 
-Resultaat delen is het sluitstuk van de bestaande Koppeltaal Task lifecycle:
+Documenten delen is het sluitstuk van de bestaande Koppeltaal Task lifecycle:
 
 1. De behandelaar wijst een interventie toe aan de patiënt (Task wordt aangemaakt)
 2. De patiënt voert de interventie uit via de module
 3. De interventie wordt afgerond (Task.status → `completed`)
-4. De module genereert het resultaat (PDF/A en/of Observation)
-5. De module deelt het resultaat via pad A, pad B of pad C
-6. Het EPD haalt het resultaat op en archiveert het in het patiëntdossier
+4. De module genereert het document (PDF/A)
+5. De module deelt het document via pad A, pad B of pad C
+6. Het EPD haalt het document op en archiveert het in het patiëntdossier
 
-De DocumentReference wordt gekoppeld aan zowel de Patient als de Task, zodat het resultaat traceerbaar is naar de specifieke interventie.
+De DocumentReference wordt gekoppeld aan zowel de Patient als de Task, zodat het document traceerbaar is naar de specifieke interventie.
 
 ### Autorisatie
 
-Toegang tot resultaten is gebonden aan de behandelrelatie:
+Toegang tot documenten is gebonden aan de behandelrelatie:
 
-- **Zorgverleners**: alleen zorgverleners met een geldige behandelrelatie — vastgelegd in het CareTeam — krijgen toegang tot resultaten
-- **RelatedPerson**: personen betrokken bij de behandeling (ouders, mantelzorgers, wettelijk vertegenwoordigers) kunnen beperkte, doelgebonden en tijdgebonden inzage krijgen in resultaten. Toegang vervalt automatisch bij het eindigen van de relatie, het intrekken van toestemming of het afsluiten van de behandeling
-- **Logging**: alle inzage en overdracht van resultaten wordt gelogd en is auditeerbaar
+- **Zorgverleners**: alleen zorgverleners met een geldige behandelrelatie — vastgelegd in het CareTeam — krijgen toegang tot documenten
+- **RelatedPerson**: personen betrokken bij de behandeling (ouders, mantelzorgers, wettelijk vertegenwoordigers) kunnen beperkte, doelgebonden en tijdgebonden inzage krijgen in documenten. Toegang vervalt automatisch bij het eindigen van de relatie, het intrekken van toestemming of het afsluiten van de behandeling
+- **Logging**: alle inzage en overdracht van documenten wordt gelogd en is auditeerbaar
 
 ### Status
 
