@@ -1,12 +1,19 @@
 @startuml documenten-delen-direct-ophalen
 
-participant "Module" as Module
+participant "Module\n(bron)" as Module
 participant "Koppeltaal\nFHIR store" as KT
+participant "Authorization\nServer" as AS
 participant "EPD" as EPD
 
 Module -> KT : POST DocumentReference
 KT -> EPD : Subscription / polling\ndetecteert nieuwe resource
-EPD -> Module : GET Binary (bij de bron)
+
+note over EPD, AS: Externe referentie (attachment.url) — token-flow
+EPD -> AS : POST /token\n(client_credentials)
+AS -> EPD : access_token
+EPD -> Module : GET Binary\nAuthorization: Bearer <token>
+Module -> AS : POST /introspect (RFC 7662)
+AS -> Module : active: true, scopes
 Module -> EPD : Binary response
 
 @enduml

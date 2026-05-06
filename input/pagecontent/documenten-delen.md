@@ -10,6 +10,7 @@
 | 0.0.4 | 2026-05-05 | Direct ophalen via de Koppeltaal FHIR store bevestigd als voorkeursroute na kritische review; inline base64-attachment toegevoegd als variant zodat leveranciers met simpele documenten geen eigen Binary-endpoint hoeven aan te bieden; het alternatief "Binary als losse resource in de Koppeltaal-store" teruggeschaald tot overwogen optie; sectie "Open punten" toegevoegd |
 | 0.0.5 | 2026-05-05 | Notified Pull eveneens teruggeschaald tot overwogen alternatief; beide alternatieven samengevoegd onder één kopje "Overwogen alternatieven"; direct ophalen via de Koppeltaal-store is daarmee de enige aangewezen route |
 | 0.0.8 | 2026-05-06 | "vragenlijst-uitkomsten" expliciet aangeduid als "ongestructureerde vragenlijst-uitkomsten" om discussie over structured/unstructured scope op deze pagina te voorkomen |
+| 0.0.9 | 2026-05-06 | Token-flow bij externe referentie expliciet beschreven (tekst + sequence-diagram): EPD haalt access_token op bij de Koppeltaal authorization server; bronapplicatie valideert het token via `/introspect` (RFC 7662) bij dezelfde authorization server |
 
 ---
 
@@ -40,7 +41,7 @@ Voor het overdragen van documenten van de module naar het EPD geldt **direct oph
 
 In dit patroon publiceert de module een DocumentReference in de Koppeltaal FHIR store. Het EPD detecteert de nieuwe DocumentReference — via polling of een FHIR Subscription — en haalt vervolgens de inhoud op:
 
-- bij een **externe referentie** (`attachment.url`): het EPD haalt de Binary op bij de bronapplicatie via het URL-adres in de DocumentReference. De bronapplicatie valideert het meegestuurde Koppeltaal access_token (zie [Open punten](#open-punten)) en levert het document.
+- bij een **externe referentie** (`attachment.url`): het EPD haalt eerst een `access_token` op bij de Koppeltaal authorization server en doet daarmee een `GET` naar de Binary-URL bij de bronapplicatie (token als `Authorization: Bearer …`). De bronapplicatie valideert het token door het te introspecten bij dezelfde authorization server ([RFC 7662](https://datatracker.ietf.org/doc/html/rfc7662) `/introspect`); pas na een geldige respons (`active: true` plus passende scopes) wordt het document geleverd. Autorisatie blijft daarmee centraal bij Koppeltaal — de bronapplicatie hoeft geen eigen vertrouwensmodel te onderhouden (zie ook [Open punten](#open-punten)).
 - bij **inline base64** (`attachment.data`): het document is al meegekomen met de DocumentReference uit de Koppeltaal-store; er is geen tweede pull nodig.
 
 <div style="clear: both; margin: 1em 0;">
