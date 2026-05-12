@@ -9,22 +9,17 @@ skinparam state {
 
 Actief : Resource is actief\nen zichtbaar
 
-Actief --> ARCHIVE_PENDING : Initiator markeert\nvoor archivering
+Actief --> DELETE_PENDING : Bewaartermijn\nverstreken
 
-ARCHIVE_PENDING : Grace period loopt;\ndoelapplicaties\nhalen data op
-ARCHIVE_PENDING --> ARCHIVE_HOLD : Doelapplicatie\ntrekt noodrem
-ARCHIVE_PENDING --> ARCHIVED : Grace period\nverstreken
+DELETE_PENDING : Grace period loopt;\ndoelapplicaties\nhalen data op
+DELETE_PENDING --> DELETE_HOLD : Doelapplicatie\ntrekt noodrem
+DELETE_PENDING --> Actief : Nieuwe User\nAuthentication\n(delete-aborted)
+DELETE_PENDING --> DELETED : Grace period\nverstreken\n+ geen activiteit\n($purge)
 
-ARCHIVE_HOLD : Proces gepauzeerd;\nwacht op opheffing
-ARCHIVE_HOLD --> ARCHIVE_PENDING : Noodrem\nopgeheven
+DELETE_HOLD : Proces gepauzeerd;\nwacht op opheffing
+DELETE_HOLD --> DELETE_PENDING : Noodrem\nopgeheven
 
-ARCHIVED : Data is read-only;\nniet in reguliere\nzoekresultaten
-ARCHIVED --> PURGE_PENDING : Verwijdering\ngeautoriseerd
-
-PURGE_PENDING : Gemarkeerd voor\ndefinitieve verwijdering
-PURGE_PENDING --> PURGED : $purge\nuitgevoerd
-
-PURGED : Logisch verwijderd
-PURGED --> [*] : HTTP DELETE\n-> 410 Gone
+DELETED : Patient verwijderd;\nalleen AuditEvents\nresteren
+DELETED --> [*] : HTTP GET / DELETE\n-> 410 Gone
 
 @enduml

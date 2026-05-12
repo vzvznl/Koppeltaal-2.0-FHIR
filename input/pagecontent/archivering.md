@@ -11,12 +11,13 @@
 | 0.0.7 | 2026-04-29 | Focus op meta.tag lifecycle als primaire oplossingsrichting; noodrem en AuditEvents uitgewerkt; interactiediagram toegevoegd |
 | 0.0.8 | 2026-05-04 | KT-dienst als initiator vastgelegd; laatste activiteit als startmoment; recht om vergeten te worden als aparte UC; datum in tags |
 | 0.0.9 | 2026-05-05 | Technische onderbouwing meta.tags vs. soft delete toegevoegd |
+| 0.0.10 | 2026-05-11 | Statusmodel vereenvoudigd: `ARCHIVE_*` / `PURGE_*` vervangen door `DELETE_PENDING` / `DELETE_HOLD` / `DELETED`; activiteitscheck vóór `DELETED` toegevoegd; concept "archiefdata" en security labels-mechanisme verwijderd; rechten van betrokkenen herschreven |
 
 ---
 
 ### Archivering
 
-Deze pagina beschrijft de uitgangspunten en oplossingsrichting voor het archiveren en verwijderen van patiëntdata binnen een Koppeltaal domein. De Koppeltaalvoorziening slaat patiëntgerelateerde FHIR resources op die na verloop van tijd gearchiveerd of verwijderd moeten worden, conform wettelijke bewaartermijnen (AVG, WGBO, NEN 7510, NEN 7513).
+Deze pagina beschrijft de uitgangspunten en oplossingsrichting voor het verwijderen van patiëntdata binnen een Koppeltaal domein. De Koppeltaalvoorziening slaat patiëntgerelateerde FHIR resources op die na verloop van tijd verwijderd moeten worden, conform wettelijke bewaartermijnen (AVG, WGBO, NEN 7510, NEN 7513).
 
 <div style="clear: both; margin: 1em 0;">
 {% include archivering-overzicht.svg %}
@@ -39,9 +40,9 @@ AuditEvent resources (NEN 7513 audit trail) en persoonsgegevens (PII) hebben ver
 
 AuditEvents zijn immutable en worden centraal verzameld. Om de verschillende bewaartermijnen te ondersteunen, mogen AuditEvents geen directe persoonsgegevens bevatten — alleen verwijzingen via technische identifiers. Na verwijdering van de patiëntdata zijn deze identifiers effectief geanonimiseerd binnen de Koppeltaalvoorziening.
 
-#### De Koppeltaalvoorziening initieert archivering
+#### De Koppeltaalvoorziening initieert verwijdering
 
-De Koppeltaalvoorziening initieert het archiverings- en verwijderproces. Wanneer de bewaartermijn van 2 jaar — gerekend vanaf de laatste activiteit — is verstreken, start de Koppeltaalvoorziening automatisch de archiveringsprocedure (zie meta.tag lifecycle). Het ECD (als dossierhouder) en doelapplicaties worden hierover genotificeerd en hebben de mogelijkheid om data veilig te stellen of het proces te blokkeren via de noodrem.
+De Koppeltaalvoorziening initieert het verwijderproces. Wanneer de bewaartermijn van 2 jaar — gerekend vanaf de laatste activiteit — is verstreken, start de Koppeltaalvoorziening automatisch de verwijderprocedure (zie meta.tag lifecycle). Het ECD (als dossierhouder) en doelapplicaties worden hierover genotificeerd en hebben de mogelijkheid om data veilig te stellen of het proces te blokkeren via de noodrem.
 
 Het ECD heeft op grond van de [WGBO](https://wetten.overheid.nl/BWBR0005290) een eigen wettelijke bewaartermijn van maximaal 20 jaar voor medische gegevens en is verantwoordelijk voor het tijdig veiligstellen van relevante data uit de Koppeltaalvoorziening.
 
@@ -65,7 +66,7 @@ Alle data binnen de Koppeltaalvoorziening moet geclassificeerd worden op basis v
 
 - **Datacategorieën** te onderscheiden (persoonsgegevens, logging, transactiegegevens)
 - **Bewaartermijnen** per categorie af te dwingen (2 jaar voor PII, 5 jaar voor logging)
-- **Archiveringsstatus** vast te leggen op resource-niveau
+- **Verwijderstatus** vast te leggen op resource-niveau
 
 Door classificatie bij creatie toe te passen, kan de Koppeltaalvoorziening bewaartermijnen geautomatiseerd afdwingen en is het op elk moment duidelijk onder welk regime een resource valt.
 
@@ -73,19 +74,15 @@ Door classificatie bij creatie toe te passen, kan de Koppeltaalvoorziening bewaa
 
 Wanneer doelapplicaties genotificeerd worden over aankomende verwijdering, moet aantoonbaar zijn dat notificaties succesvol zijn verzonden én ontvangen. De Koppeltaalvoorziening is verantwoordelijk voor het verzenden en het vastleggen van verzending en ontvangst — niet voor het daadwerkelijk ophalen of veiligstellen van data door zorginstellingen.
 
-#### Beveiliging van archiefdata
-
-Archiefdata moet beschermd zijn tegen ongeautoriseerde toegang, verlies en manipulatie, conform NEN 7510. Dit geldt zowel voor data in de actieve omgeving als voor data die als gearchiveerd is gemarkeerd.
-
 #### Beheersbaarheid en configuratie
 
-Bewaartermijnen en archiveringsregels moeten beheerd en aangepast kunnen worden binnen vastgestelde kaders, zodat flexibiliteit behouden blijft bij wijzigingen in wet- en regelgeving of contractuele afspraken.
+Bewaartermijnen en verwijderregels moeten beheerd en aangepast kunnen worden binnen vastgestelde kaders, zodat flexibiliteit behouden blijft bij wijzigingen in wet- en regelgeving of contractuele afspraken.
 
 ### Oplossingsrichting
 
-#### Archivering en verwijdering via meta.tag lifecycle
+#### Verwijdering via meta.tag lifecycle
 
-Het archiverings- en verwijderproces wordt gestuurd via FHIR `meta.tag` op de Patient resource, in combinatie met AuditEvents voor aantoonbaarheid. Dit mechanisme biedt een gecontroleerde, transparante en auditeerbare flow waarbij doelapplicaties de mogelijkheid hebben om het proces te volgen en indien nodig te blokkeren.
+Het verwijderproces wordt gestuurd via FHIR `meta.tag` op de Patient resource, in combinatie met AuditEvents voor aantoonbaarheid. Dit mechanisme biedt een gecontroleerde, transparante en auditeerbare flow waarbij doelapplicaties de mogelijkheid hebben om het proces te volgen en indien nodig te blokkeren.
 
 ##### Tag lifecycle
 
@@ -93,11 +90,9 @@ De Patient resource doorloopt de volgende staten, vastgelegd in een dedicated Co
 
 | Code | Display | Beschrijving |
 | --- | --- | --- |
-| `ARCHIVE_PENDING` | Archive Pending | Patient is gemarkeerd voor archivering; grace period loopt |
-| `ARCHIVE_HOLD` | Archive Hold | Noodrem — een doelapplicatie blokkeert het archiverings­proces |
-| `ARCHIVED` | Archived | Patient is gearchiveerd; data is read-only en niet in reguliere zoekresultaten |
-| `PURGE_PENDING` | Purge Pending | Patient is gemarkeerd voor definitieve verwijdering |
-| `PURGED` | Purged | Patient is logisch verwijderd; hard delete volgt |
+| `DELETE_PENDING` | Delete Pending | Patient is gemarkeerd voor verwijdering; grace period loopt |
+| `DELETE_HOLD` | Delete Hold | Noodrem — een doelapplicatie blokkeert het verwijder­proces |
+| `DELETED` | Deleted | Patient is verwijderd via `$purge`; alleen AuditEvents resteren |
 
 De lifecycle verloopt als volgt:
 
@@ -111,31 +106,30 @@ Elke statusovergang wordt vastgelegd in een immutable AuditEvent. Dit biedt een 
 
 | Moment | AuditEvent type | Actor | Doel |
 | --- | --- | --- | --- |
-| Tag → `ARCHIVE_PENDING` | archive-initiated | Initiator | Aantoonbaar: archivering is gestart, grace period begint |
-| Noodrem getrokken | archive-hold | Doelapplicatie | Aantoonbaar: welke applicatie blokkeert en waarom |
-| Noodrem opgeheven | archive-hold-released | Doelapplicatie | Aantoonbaar: blokkade is opgeheven |
-| Tag → `ARCHIVED` | archive-completed | Koppeltaalvoorziening | Aantoonbaar: archivering is voltooid |
-| Tag → `PURGE_PENDING` | purge-initiated | Initiator | Aantoonbaar: verwijdering is geautoriseerd |
-| `$purge` uitgevoerd | purge-completed | Koppeltaalvoorziening | Aantoonbaar: data is definitief vernietigd |
+| Tag → `DELETE_PENDING` | delete-initiated | Koppeltaalvoorziening | Aantoonbaar: verwijdering is gestart, grace period begint |
+| Noodrem getrokken | delete-hold | Doelapplicatie | Aantoonbaar: welke applicatie blokkeert en waarom |
+| Noodrem opgeheven | delete-hold-released | Doelapplicatie | Aantoonbaar: blokkade is opgeheven |
+| Hernieuwde activiteit gedetecteerd | delete-aborted | Koppeltaalvoorziening | Aantoonbaar: verwijdering afgebroken vanwege nieuwe User Authentication |
+| Tag → `DELETED` (`$purge` uitgevoerd) | delete-completed | Koppeltaalvoorziening | Aantoonbaar: data is definitief vernietigd |
 
 De combinatie van tags en AuditEvents scheidt **state** (huidige toestand van de Patient) van **events** (geschiedenis van wat er is gebeurd). Tags zijn muteerbaar en representeren de actuele status; AuditEvents zijn immutable en vormen het bewijs.
 
 ##### Datum in tags
 
-Bij het zetten van een tag wordt een **datum** opgenomen die aangeeft wanneer de tag is gezet en — bij `ARCHIVE_PENDING` — wanneer de grace period afloopt. Dit maakt het voor doelapplicaties mogelijk om te bepalen hoeveel tijd er resteert, en voor de Koppeltaalvoorziening om de overgang naar de volgende status te automatiseren. De datum wordt vastgelegd als onderdeel van de tag (bijv. via de `extension` op `meta.tag` of via een aparte `meta.tag` met een datumcodering).
+Bij het zetten van een tag wordt een **datum** opgenomen die aangeeft wanneer de tag is gezet en — bij `DELETE_PENDING` — wanneer de grace period afloopt. Dit maakt het voor doelapplicaties mogelijk om te bepalen hoeveel tijd er resteert, en voor de Koppeltaalvoorziening om de overgang naar de volgende status te automatiseren. De datum wordt vastgelegd als onderdeel van de tag (bijv. via de `extension` op `meta.tag` of via een aparte `meta.tag` met een datumcodering).
 
 ##### Interactie met doelapplicaties
 
-Doelapplicaties detecteren archiveringsgerelateerde statusovergangen via FHIR Subscriptions op het `_tag` zoekcriterium:
+Doelapplicaties detecteren verwijdergerelateerde statusovergangen via FHIR Subscriptions op het `_tag` zoekcriterium:
 
 ```json
 {
   "resourceType": "Subscription",
   "status": "active",
-  "criteria": "Patient?_tag=ARCHIVE_PENDING",
+  "criteria": "Patient?_tag=DELETE_PENDING",
   "channel": {
     "type": "rest-hook",
-    "endpoint": "https://module.example.com/notifications/archive"
+    "endpoint": "https://module.example.com/notifications/delete"
   }
 }
 ```
@@ -147,16 +141,26 @@ Na ontvangst van de notificatie heeft de doelapplicatie gedurende de grace perio
 
 Het model is **opt-out**: geen actie binnen de grace period betekent akkoord. De doelapplicatie hoeft niet expliciet te bevestigen dat data is veiliggesteld.
 
-##### Noodrem (ARCHIVE_HOLD)
+##### Noodrem (`DELETE_HOLD`)
 
-Een doelapplicatie die nog niet klaar is — bijvoorbeeld omdat data nog niet is veiliggesteld of er nog een actieve behandelrelatie bestaat — kan het archiveringsproces blokkeren door de tag `ARCHIVE_HOLD` toe te voegen aan de Patient resource:
+Een doelapplicatie die nog niet klaar is — bijvoorbeeld omdat data nog niet is veiliggesteld of er nog een actieve behandelrelatie bestaat — kan het verwijderproces blokkeren door de tag `DELETE_HOLD` toe te voegen aan de Patient resource:
 
 - **Wie mag blokkeren**: elke doelapplicatie die data heeft van de betreffende patiënt
-- **Hoe**: de doelapplicatie voegt `ARCHIVE_HOLD` toe aan `Patient.meta.tag`
-- **Effect**: het archiveringsproces pauzeert zolang `ARCHIVE_HOLD` actief is; de overgang naar `ARCHIVED` wordt geblokkeerd
-- **Vastlegging**: een AuditEvent (type `archive-hold`) wordt aangemaakt met de reden van de blokkade en de identiteit van de blokkerende applicatie
-- **Opheffing**: de doelapplicatie verwijdert de `ARCHIVE_HOLD` tag wanneer de blokkade is opgelost; een AuditEvent (type `archive-hold-released`) wordt aangemaakt
+- **Hoe**: de doelapplicatie voegt `DELETE_HOLD` toe aan `Patient.meta.tag`
+- **Effect**: het verwijderproces pauzeert zolang `DELETE_HOLD` actief is; de overgang naar `DELETED` wordt geblokkeerd
+- **Vastlegging**: een AuditEvent (type `delete-hold`) wordt aangemaakt met de reden van de blokkade en de identiteit van de blokkerende applicatie
+- **Opheffing**: de doelapplicatie verwijdert de `DELETE_HOLD` tag wanneer de blokkade is opgelost; een AuditEvent (type `delete-hold-released`) wordt aangemaakt
 - **Na opheffing**: de grace period herstart of het proces gaat direct verder (configureerbaar)
+
+##### Activiteitscheck vóór `DELETED`
+
+Voordat de Koppeltaalvoorziening de overgang van `DELETE_PENDING` naar `DELETED` uitvoert, controleert zij of er sinds het zetten van `DELETE_PENDING` een nieuw **User Authentication** AuditEvent voor de betreffende patiënt (of een aan deze patiënt gekoppelde RelatedPerson) is aangemaakt. Indien dit het geval is, wordt de patiënt opnieuw als actief beschouwd en wordt de verwijdering afgebroken:
+
+- De `DELETE_PENDING` tag wordt verwijderd
+- Een AuditEvent (type `delete-aborted`) wordt aangemaakt met als reden "hernieuwde activiteit" en een verwijzing naar het bepalende User Authentication event
+- De bewaartermijn van 2 jaar begint opnieuw vanaf de datum van de nieuwe activiteit
+
+Deze controle voorkomt dat data wordt verwijderd van patiënten die tijdens of vlak na de grace period weer actief worden — bijvoorbeeld doordat zij na een lange inactieve periode opnieuw inloggen via een doelapplicatie. De controle wordt op het moment van de geplande `$purge` uitgevoerd, zodat ook activiteit aan het einde van de grace period wordt meegenomen.
 
 ##### Interactiediagram
 
@@ -166,9 +170,9 @@ Het volgende diagram toont de volledige interactie tussen de initiator, de Koppe
 {% include archivering-interactie.svg %}
 </div>
 
-#### Definitieve verwijdering: $purge
+#### Definitieve verwijdering: `$purge`
 
-Voor het definitief verwijderen van alle patiëntdata wordt de FHIR [`$purge` operatie](https://build.fhir.org/patient-operation-purge.html) gehanteerd. De `$purge` maakt gebruik van het [FHIR Patient Compartment](https://www.hl7.org/fhir/compartmentdefinition-patient.html) om te bepalen welke resources aan een patiënt gerelateerd zijn. Met de parameter `cascade=true` worden alle resources binnen het Patient Compartment in één operatie verwijderd, inclusief de Patient resource zelf.
+De overgang naar `DELETED` wordt technisch uitgevoerd via de FHIR [`$purge` operatie](https://build.fhir.org/patient-operation-purge.html). De `$purge` maakt gebruik van het [FHIR Patient Compartment](https://www.hl7.org/fhir/compartmentdefinition-patient.html) om te bepalen welke resources aan een patiënt gerelateerd zijn. Met de parameter `cascade=true` worden alle resources binnen het Patient Compartment in één operatie verwijderd, inclusief de Patient resource zelf.
 
 De scope van de `$purge` omvat onder andere:
 
@@ -181,43 +185,21 @@ AuditEvent resources overleven de `$purge` — zij bevatten geen persoonsgegeven
 
 #### Waarom meta.tags en niet FHIR soft delete?
 
-Een alternatieve benadering zou zijn om de FHIR soft delete (HTTP DELETE met bewaren van een tombstone) te gebruiken als archiveringssignaal, gevolgd door een definitieve `$purge`. Deze benadering is onderzocht en afgewezen om de volgende redenen:
+Een alternatieve benadering zou zijn om de FHIR soft delete (HTTP DELETE met bewaren van een tombstone) te gebruiken als verwijdersignaal, gevolgd door een definitieve `$purge`. Deze benadering is onderzocht en afgewezen om de volgende redenen:
 
 - **Geen revert bij cascading delete**: bij een cascading soft delete in HAPI FHIR krijgt elke resource een eigen tombstone. Ongedaan maken (noodrem) vereist dat de blokkerende applicatie per resource een VREAD doet op de voorlaatste versie en deze opnieuw PUT — niet werkbaar
-- **Geen notificaties bij DELETE**: FHIR R4 stuurt standaard geen Subscription-notificaties bij een DELETE request, waardoor doelapplicaties de archivering niet detecteren
+- **Geen notificaties bij DELETE**: FHIR R4 stuurt standaard geen Subscription-notificaties bij een DELETE request, waardoor doelapplicaties de verwijdering niet detecteren
 - **Onbekende ondersteuning**: het is niet vastgesteld of cascading soft delete wordt ondersteund door alle FHIR-serverimplementaties (bijv. InterSystems)
 
 De `meta.tag` benadering is expliciet over de lifecycle en de staat van de resource, werkt met standaard FHIR Subscriptions, en is niet afhankelijk van serverspecifieke DELETE-functionaliteit. Dit maakt het de meest robuuste en draagbare oplossing.
 
-#### Tussentijds archiveren: security labels
-
-Naast de meta.tag lifecycle kunnen FHIR security labels worden ingezet om resources tussentijds onzichtbaar te maken zonder ze fysiek te verwijderen:
-
-- Resources worden voorzien van een security label dat aangeeft dat ze gearchiveerd zijn
-- De FHIR server filtert deze resources uit zoekresultaten
-- De resources blijven technisch bestaan tot de definitieve `$purge`
-
-Dit mechanisme is bijvoorbeeld toepasbaar op Tasks die "verjaard" zijn: de behandeling is afgerond en de gegevens hoeven niet meer zichtbaar te zijn voor gebruikers, maar de definitieve verwijdering is nog niet geïnitieerd.
-
-**Opmerking**: Security labels als archiveringmechanisme zijn een methodiek die ingezet kan worden als de behoefte zich voordoet. Het is mogelijk dat in de praktijk de `$purge` als enige verwijdermechanisme volstaat.
-
-#### Toegankelijkheid van archiefdata
-
-Gearchiveerde data moet raadpleegbaar blijven voor geautoriseerde gebruikers (zoals zorgaanbieders en beheerders). Hierbij gelden de volgende principes:
-
-- Gearchiveerde data is **alleen-lezen**: wijzigingen zijn niet toegestaan na archivering
-- De data blijft doorzoekbaar op relevante attributen
-- Toegang is beperkt tot geautoriseerde rollen, in lijn met NEN 7510
-
-Dit waarborgt zowel de operationele behoefte aan historische data als de integriteit van gearchiveerde gegevens.
-
 #### Rechten van betrokkenen
 
-De AVG (artikel 15) geeft betrokkenen het recht op inzage in hun persoonsgegevens. Dit recht geldt ook voor gearchiveerde data. De Koppeltaalvoorziening moet inzageverzoeken kunnen faciliteren zonder dat dit in conflict komt met bewaartermijnen — inzage is immers geen wijziging.
+De AVG (artikel 15) geeft betrokkenen het recht op inzage in hun persoonsgegevens. Zolang patiëntdata in de Koppeltaalvoorziening aanwezig is — dus vóór de overgang naar `DELETED` — moet de Koppeltaalvoorziening inzageverzoeken kunnen faciliteren zonder dat dit in conflict komt met bewaartermijnen. Inzage is immers geen wijziging en herstart de bewaartermijn niet.
 
-In de praktijk wordt een inzageverzoek via het EPD (als verwerkingsverantwoordelijke) afgehandeld. De Koppeltaalvoorziening dient de data technisch beschikbaar te stellen aan het EPD, ook wanneer deze gearchiveerd is.
+In de praktijk wordt een inzageverzoek via het EPD (als verwerkingsverantwoordelijke) afgehandeld. De Koppeltaalvoorziening dient de data technisch beschikbaar te stellen aan het EPD. Na `DELETED` resteren binnen de Koppeltaalvoorziening alleen AuditEvents; de inhoudelijke persoonsgegevens zijn dan via het ECD/EPD te raadplegen op grond van de daar geldende bewaartermijn.
 
-Het **recht om vergeten te worden** (AVG artikel 17) is een aparte use case die losstaat van de reguliere archiveringsprocedure. Een verzoek tot verwijdering kan op elk moment worden ingediend en vereist een eigen procedure, inclusief toetsing aan uitzonderingsgronden (bijv. WGBO-bewaartermijn). De uitwerking hiervan valt buiten de scope van deze pagina.
+Het **recht om vergeten te worden** (AVG artikel 17) is een aparte use case die losstaat van de reguliere verwijderprocedure. Een verzoek tot verwijdering kan op elk moment worden ingediend en vereist een eigen procedure, inclusief toetsing aan uitzonderingsgronden (bijv. WGBO-bewaartermijn). De uitwerking hiervan valt buiten de scope van deze pagina.
 
 #### Contractbeëindiging
 
@@ -241,7 +223,7 @@ Dit is het eenvoudigste model, maar biedt geen mogelijkheid voor doelapplicaties
 
 #### Two-phase commit via Tasks
 
-Voor situaties waarin coördinatie met doelapplicaties vereist is — bijvoorbeeld wanneer een module nog niet-gearchiveerde data bevat die eerst naar het EPD moet worden overgedragen — kan een two-phase commit model worden ingezet.
+Voor situaties waarin coördinatie met doelapplicaties vereist is — bijvoorbeeld wanneer een module nog niet-overgedragen data bevat die eerst naar het EPD moet worden gestuurd — kan een two-phase commit model worden ingezet.
 
 De initiator maakt voor elke doelapplicatie die data heeft van de betreffende patiënt een Task aan met een opdracht om de lokale patiëntdata te verwijderen. De doelapplicatie kan vervolgens:
 

@@ -10,40 +10,34 @@ start
 :Bewaartermijn verstreken /\ncontractbeeindiging;
 
 |Koppeltaalvoorziening|
-:Patient.meta.tag =\nARCHIVE_PENDING;
-:AuditEvent\n(archive-initiated);
+:Patient.meta.tag =\nDELETE_PENDING;
+:AuditEvent\n(delete-initiated);
 :Subscription notificatie\nnaar doelapplicaties;
 
 |Doelapplicaties|
 :Grace period:\ndata veiligstellen;
 
 if (Noodrem?) then (ja)
-  :ARCHIVE_HOLD;
-  :AuditEvent\n(archive-hold);
+  :DELETE_HOLD;
+  :AuditEvent\n(delete-hold);
   :...wacht op opheffing...;
-  :ARCHIVE_HOLD\nopgeheven;
-  :AuditEvent\n(archive-hold-released);
+  :DELETE_HOLD\nopgeheven;
+  :AuditEvent\n(delete-hold-released);
 else (nee / time-out)
 endif
 
 |Koppeltaalvoorziening|
-:Patient.meta.tag =\nARCHIVED;
-:AuditEvent\n(archive-completed);
-note right
-  Data is read-only;
-  niet in reguliere
-  zoekresultaten
-end note
+if (Nieuwe User\nAuthentication\ntijdens grace period?) then (ja)
+  :Tag DELETE_PENDING\nverwijderen;
+  :AuditEvent\n(delete-aborted);
+  stop
+else (nee)
+endif
 
 |Koppeltaalvoorziening|
-:Autorisatie definitieve\nverwijdering;
-
-|Koppeltaalvoorziening|
-:Patient.meta.tag =\nPURGE_PENDING;
-:AuditEvent\n(purge-initiated);
-
 :$purge operatie;
-:AuditEvent\n(purge-completed);
+:Patient.meta.tag =\nDELETED;
+:AuditEvent\n(delete-completed);
 note right
   AuditEvents overleven
   de $purge
