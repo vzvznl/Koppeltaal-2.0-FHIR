@@ -20,6 +20,6 @@ DELETE_HOLD : Proces gepauzeerd;\nwacht op opheffing
 DELETE_HOLD --> DELETE_PENDING : Noodrem\nopgeheven
 
 DELETED : Patient verwijderd;\nalleen AuditEvents\nresteren
-DELETED --> [*] : HTTP GET / DELETE\n-> 410 Gone
+DELETED --> [*] : HTTP GET / DELETE\n-> 404 Not Found
 
 @enduml

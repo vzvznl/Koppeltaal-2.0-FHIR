@@ -13,6 +13,7 @@
 | 0.0.9 | 2026-05-05 | Technische onderbouwing meta.tags vs. soft delete toegevoegd |
 | 0.0.10 | 2026-05-11 | Statusmodel vereenvoudigd: `ARCHIVE_*` / `PURGE_*` vervangen door `DELETE_PENDING` / `DELETE_HOLD` / `DELETED`; activiteitscheck vóór `DELETED` toegevoegd; concept "archiefdata" en security labels-mechanisme verwijderd; rechten van betrokkenen herschreven |
 | 0.0.11 | 2026-05-12 | Startmoment bewaartermijn geabstraheerd naar "laatste betrokkenheid" (User Authentication AuditEvent als kandidaat onder discussie); diagrammen: hernieuwde betrokkenheid laat de bewaartermijn herstarten |
+| 0.0.12 | 2026-05-12 | Tag-lifecycle-diagram: HTTP-status na `$purge` gecorrigeerd van 410 Gone naar 404 Not Found (geen tombstone bij hard delete) |
 
 ---
 
