@@ -28,7 +28,7 @@ KT -> KT : AuditEvent\n(delete-hold-released)
 == Activiteitscheck ==
 
 KT -> KT : Grace period verstreken\n+ geen DELETE_HOLD
-KT -> KT : Check: nieuw User\nAuthentication AuditEvent\nsinds DELETE_PENDING?
+KT -> KT : Check: hernieuwde\nbetrokkenheid sinds\nDELETE_PENDING?
 note right of KT : Bij ja:\ndelete-aborted,\ntag verwijderd,\nbewaartermijn herstart
 
 == Definitieve verwijdering ==

@@ -7,6 +7,7 @@ skinparam activity {
 
 |Koppeltaalvoorziening|
 start
+label start_termijn
 :Bewaartermijn verstreken /\ncontractbeeindiging;
 
 |Koppeltaalvoorziening|
@@ -27,10 +28,11 @@ else (nee / time-out)
 endif
 
 |Koppeltaalvoorziening|
-if (Nieuwe User\nAuthentication\ntijdens grace period?) then (ja)
+if (Hernieuwde\nbetrokkenheid\ntijdens grace period?) then (ja)
   :Tag DELETE_PENDING\nverwijderen;
   :AuditEvent\n(delete-aborted);
-  stop
+  :Bewaartermijn\nherstart;
+  goto start_termijn
 else (nee)
 endif
 

@@ -12,6 +12,7 @@
 | 0.0.8 | 2026-05-04 | KT-dienst als initiator vastgelegd; laatste activiteit als startmoment; recht om vergeten te worden als aparte UC; datum in tags |
 | 0.0.9 | 2026-05-05 | Technische onderbouwing meta.tags vs. soft delete toegevoegd |
 | 0.0.10 | 2026-05-11 | Statusmodel vereenvoudigd: `ARCHIVE_*` / `PURGE_*` vervangen door `DELETE_PENDING` / `DELETE_HOLD` / `DELETED`; activiteitscheck vóór `DELETED` toegevoegd; concept "archiefdata" en security labels-mechanisme verwijderd; rechten van betrokkenen herschreven |
+| 0.0.11 | 2026-05-12 | Startmoment bewaartermijn geabstraheerd naar "laatste betrokkenheid" (User Authentication AuditEvent als kandidaat onder discussie); diagrammen: hernieuwde betrokkenheid laat de bewaartermijn herstarten |
 
 ---
 
@@ -48,15 +49,13 @@ Het ECD heeft op grond van de [WGBO](https://wetten.overheid.nl/BWBR0005290) een
 
 #### Startmoment bewaartermijn moet eenduidig zijn
 
-Per datacategorie moet een eenduidig startmoment voor de bewaartermijn worden vastgesteld. Voor persoonsgegevens geldt de **laatste activiteit** binnen de patiëntcontext als startmoment.
+Per datacategorie moet een eenduidig startmoment voor de bewaartermijn worden vastgesteld. Voor persoonsgegevens geldt de **laatste betrokkenheid van de patiënt** als startmoment — het moment waarop de patiënt voor het laatst aantoonbaar actief was binnen het Koppeltaal-domein.
 
-De laatste activiteit wordt bepaald aan de hand van het **User Authentication** AuditEvent (zie [TOP-KT-011 - Logging en tracing](https://vzvz.atlassian.net/wiki/spaces/KTSA/pages/27125090)). Dit is het enige AuditEvent waarbij `entity.what` verwijst naar de gebruiker (Patient of RelatedPerson), wat de berekening relatief eenvoudig houdt: de datum van het meest recente User Authentication event voor een patiënt bepaalt het startmoment van de bewaartermijn.
-
-**Edge case**: er zijn applicaties die momenteel direct inloggen zonder via een cliëntportaal te gaan. Bij deze directe logins wordt geen User Authentication AuditEvent aangemaakt, waardoor de laatste activiteit niet kan worden bepaald. Deze applicaties moeten in de toekomst gebruik gaan maken van de standalone SMART on FHIR launch, waarbij wél een User Authentication event wordt gegenereerd. Zie [memo-standalone-smart-launch.html](./memo-standalone-smart-launch.html).
+Welk signaal in de Koppeltaalvoorziening die laatste betrokkenheid het beste vertegenwoordigt, is nog onderwerp van discussie. Een kansrijke kandidaat is het User Authentication AuditEvent (zie [TOP-KT-011 - Logging en tracing](https://vzvz.atlassian.net/wiki/spaces/KTSA/pages/27125090)), omdat dit het enige AuditEvent is waarbij `entity.what` direct naar de gebruiker (Patient of RelatedPerson) verwijst. Aandachtspunt is dat niet elke applicatie momenteel via een User Authentication-event inlogt; voor die gevallen moet een aanvullend of vervangend signaal worden afgesproken (bijvoorbeeld via de standalone SMART on FHIR launch — zie [memo-standalone-smart-launch.html](./memo-standalone-smart-launch.html)).
 
 Voorbeelden per datacategorie:
 
-- Patiëntdata: datum van het laatste User Authentication event
+- Patiëntdata: datum van de laatste aantoonbare betrokkenheid van de patiënt
 - AuditEvents: datum van creatie
 - Tasks: datum van afsluiting
 
@@ -109,7 +108,7 @@ Elke statusovergang wordt vastgelegd in een immutable AuditEvent. Dit biedt een 
 | Tag → `DELETE_PENDING` | delete-initiated | Koppeltaalvoorziening | Aantoonbaar: verwijdering is gestart, grace period begint |
 | Noodrem getrokken | delete-hold | Doelapplicatie | Aantoonbaar: welke applicatie blokkeert en waarom |
 | Noodrem opgeheven | delete-hold-released | Doelapplicatie | Aantoonbaar: blokkade is opgeheven |
-| Hernieuwde activiteit gedetecteerd | delete-aborted | Koppeltaalvoorziening | Aantoonbaar: verwijdering afgebroken vanwege nieuwe User Authentication |
+| Hernieuwde betrokkenheid gedetecteerd | delete-aborted | Koppeltaalvoorziening | Aantoonbaar: verwijdering afgebroken vanwege hernieuwde patiëntbetrokkenheid |
 | Tag → `DELETED` (`$purge` uitgevoerd) | delete-completed | Koppeltaalvoorziening | Aantoonbaar: data is definitief vernietigd |
 
 De combinatie van tags en AuditEvents scheidt **state** (huidige toestand van de Patient) van **events** (geschiedenis van wat er is gebeurd). Tags zijn muteerbaar en representeren de actuele status; AuditEvents zijn immutable en vormen het bewijs.
@@ -154,13 +153,13 @@ Een doelapplicatie die nog niet klaar is — bijvoorbeeld omdat data nog niet is
 
 ##### Activiteitscheck vóór `DELETED`
 
-Voordat de Koppeltaalvoorziening de overgang van `DELETE_PENDING` naar `DELETED` uitvoert, controleert zij of er sinds het zetten van `DELETE_PENDING` een nieuw **User Authentication** AuditEvent voor de betreffende patiënt (of een aan deze patiënt gekoppelde RelatedPerson) is aangemaakt. Indien dit het geval is, wordt de patiënt opnieuw als actief beschouwd en wordt de verwijdering afgebroken:
+Voordat de Koppeltaalvoorziening de overgang van `DELETE_PENDING` naar `DELETED` uitvoert, controleert zij of er sinds het zetten van `DELETE_PENDING` opnieuw aantoonbare betrokkenheid van de patiënt (of een aan deze patiënt gekoppelde RelatedPerson) is geregistreerd, op basis van het afgesproken signaal voor "laatste betrokkenheid" (zie [Startmoment bewaartermijn](#startmoment-bewaartermijn-moet-eenduidig-zijn)). Indien dit het geval is, wordt de patiënt opnieuw als actief beschouwd en wordt de verwijdering afgebroken:
 
 - De `DELETE_PENDING` tag wordt verwijderd
-- Een AuditEvent (type `delete-aborted`) wordt aangemaakt met als reden "hernieuwde activiteit" en een verwijzing naar het bepalende User Authentication event
-- De bewaartermijn van 2 jaar begint opnieuw vanaf de datum van de nieuwe activiteit
+- Een AuditEvent (type `delete-aborted`) wordt aangemaakt met als reden "hernieuwde betrokkenheid" en een verwijzing naar het bepalende activiteitssignaal
+- De bewaartermijn van 2 jaar begint opnieuw vanaf de datum van de nieuwe betrokkenheid
 
-Deze controle voorkomt dat data wordt verwijderd van patiënten die tijdens of vlak na de grace period weer actief worden — bijvoorbeeld doordat zij na een lange inactieve periode opnieuw inloggen via een doelapplicatie. De controle wordt op het moment van de geplande `$purge` uitgevoerd, zodat ook activiteit aan het einde van de grace period wordt meegenomen.
+Deze controle voorkomt dat data wordt verwijderd van patiënten die tijdens of vlak na de grace period weer actief worden — bijvoorbeeld doordat zij na een lange inactieve periode opnieuw inloggen via een doelapplicatie. De controle wordt op het moment van de geplande `$purge` uitgevoerd, zodat ook betrokkenheid aan het einde van de grace period wordt meegenomen.
 
 ##### Interactiediagram
 

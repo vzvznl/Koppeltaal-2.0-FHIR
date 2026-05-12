@@ -13,8 +13,8 @@ Actief --> DELETE_PENDING : Bewaartermijn\nverstreken
 
 DELETE_PENDING : Grace period loopt;\ndoelapplicaties\nhalen data op
 DELETE_PENDING --> DELETE_HOLD : Doelapplicatie\ntrekt noodrem
-DELETE_PENDING --> Actief : Nieuwe User\nAuthentication\n(delete-aborted)
-DELETE_PENDING --> DELETED : Grace period\nverstreken\n+ geen activiteit\n($purge)
+DELETE_PENDING --> Actief : Hernieuwde\nbetrokkenheid\n(delete-aborted)
+DELETE_PENDING --> DELETED : Grace period\nverstreken\n+ geen betrokkenheid\n($purge)
 
 DELETE_HOLD : Proces gepauzeerd;\nwacht op opheffing
 DELETE_HOLD --> DELETE_PENDING : Noodrem\nopgeheven
