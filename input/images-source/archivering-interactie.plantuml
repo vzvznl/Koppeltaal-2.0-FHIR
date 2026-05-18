@@ -34,8 +34,7 @@ note right of KT : Bij ja:\ndelete-aborted,\ntag verwijderd,\nbewaartermijn hers
 == Definitieve verwijdering ==
 
 KT -> KT : $purge operatie
-KT -> KT : Patient.meta.tag = DELETED
-KT -> KT : AuditEvent\n(delete-completed)
+KT -> KT : AuditEvent\n(delete-completed)\nGET Patient -> 404
 note right of KT : AuditEvents\noverleven de $purge
 
 @enduml

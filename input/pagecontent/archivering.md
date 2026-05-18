@@ -14,6 +14,7 @@
 | 0.0.10 | 2026-05-11 | Statusmodel vereenvoudigd: `ARCHIVE_*` / `PURGE_*` vervangen door `DELETE_PENDING` / `DELETE_HOLD` / `DELETED`; activiteitscheck vóór `DELETED` toegevoegd; concept "archiefdata" en security labels-mechanisme verwijderd; rechten van betrokkenen herschreven |
 | 0.0.11 | 2026-05-12 | Startmoment bewaartermijn geabstraheerd naar "laatste betrokkenheid" (User Authentication AuditEvent als kandidaat onder discussie); diagrammen: hernieuwde betrokkenheid laat de bewaartermijn herstarten |
 | 0.0.12 | 2026-05-12 | Tag-lifecycle-diagram: HTTP-status na `$purge` gecorrigeerd van 410 Gone naar 404 Not Found (geen tombstone bij hard delete) |
+| 0.0.13 | 2026-05-13 | DELETED geschrapt als tag (kan na `$purge` niet meer bestaan); Actief en DELETED expliciet als conceptuele eindstaten benoemd; `Patient.meta.tag = DELETED`-stap uit overzicht- en interactiediagram verwijderd ([#58](https://github.com/vzvznl/Koppeltaal-2.0-FHIR/issues/58)) |
 
 ---
 
@@ -86,13 +87,12 @@ Het verwijderproces wordt gestuurd via FHIR `meta.tag` op de Patient resource, i
 
 ##### Tag lifecycle
 
-De Patient resource doorloopt de volgende staten, vastgelegd in een dedicated CodeSystem:
+De Patient resource doorloopt een aantal staten. **Actief** en **DELETED** zijn conceptuele eindstaten en worden niet door een tag op de Patient resource gerepresenteerd: een actieve resource bestaat zonder verwijdertag, een DELETED-resource bestaat helemaal niet meer (HTTP GET levert 404 Not Found). De tussenliggende staten worden wél via `meta.tag` vastgelegd, in een dedicated CodeSystem:
 
 | Code | Display | Beschrijving |
 | --- | --- | --- |
 | `DELETE_PENDING` | Delete Pending | Patient is gemarkeerd voor verwijdering; grace period loopt |
 | `DELETE_HOLD` | Delete Hold | Noodrem — een doelapplicatie blokkeert het verwijder­proces |
-| `DELETED` | Deleted | Patient is verwijderd via `$purge`; alleen AuditEvents resteren |
 
 De lifecycle verloopt als volgt:
 
@@ -110,7 +110,7 @@ Elke statusovergang wordt vastgelegd in een immutable AuditEvent. Dit biedt een 
 | Noodrem getrokken | delete-hold | Doelapplicatie | Aantoonbaar: welke applicatie blokkeert en waarom |
 | Noodrem opgeheven | delete-hold-released | Doelapplicatie | Aantoonbaar: blokkade is opgeheven |
 | Hernieuwde betrokkenheid gedetecteerd | delete-aborted | Koppeltaalvoorziening | Aantoonbaar: verwijdering afgebroken vanwege hernieuwde patiëntbetrokkenheid |
-| Tag → `DELETED` (`$purge` uitgevoerd) | delete-completed | Koppeltaalvoorziening | Aantoonbaar: data is definitief vernietigd |
+| `$purge` uitgevoerd | delete-completed | Koppeltaalvoorziening | Aantoonbaar: data is definitief vernietigd; Patient bestaat niet meer |
 
 De combinatie van tags en AuditEvents scheidt **state** (huidige toestand van de Patient) van **events** (geschiedenis van wat er is gebeurd). Tags zijn muteerbaar en representeren de actuele status; AuditEvents zijn immutable en vormen het bewijs.
 
