@@ -16,6 +16,7 @@
 | 0.0.12 | 2026-05-18 | Sectie "Verplichte velden" toegevoegd onder DocumentReference en Binary: `subject` (Patient), `context.related` (Task) en `date` zijn verplicht binnen Koppeltaal |
 | 0.0.13 | 2026-05-18 | Sectie "Verplichte velden" geherformuleerd als **voorstel** tot aanpassing aan het (nog te creëren) Koppeltaal DocumentReference-profiel; geëxpliciteerd dat de regels pas afdwingbaar worden zodra het profiel in `input/fsh` is uitgewerkt |
 | 0.0.14 | 2026-05-18 | Afwijzing van het alternatief "Uitbreiding van `/introspect` met een scope-parameter" aangescherpt: de optie valt af omdat RFC 7662 `/introspect` strikt definieert als token-introspectie zonder request-parameters voor per-resource autorisatiebeslissingen; een policy-decision-point hoort, indien nodig, in een aparte voorziening (UMA/PDP), niet in `/introspect` |
+| 0.0.15 | 2026-05-19 | Verwijzing naar **TOP-KT-008 — Beveiliging aspecten** toegevoegd onder "Beveiligingseisen voor het Binary-endpoint van de bron": de generieke Koppeltaal-beveiligingseisen (HTTPS-only, JWT-algoritmes, security headers, CORS, input-validatie) gelden onverkort voor het Binary-endpoint; de eisen op deze pagina zijn aanvullend en specifiek voor de externe URL-variant |
 
 ---
 
@@ -148,6 +149,8 @@ De DocumentReference wordt in principe **beperkt bewaard** in de Koppeltaal FHIR
 #### Beveiligingseisen voor het Binary-endpoint van de bron
 
 Om fragmentatie en ongelijke beveiligingsniveaus te voorkomen publiceert Koppeltaal een set eisen voor het Binary-endpoint dat een bronapplicatie aanbiedt. De eisen worden gesplitst in **harde eisen** (verplicht; conformance-criterium voor de externe URL-variant) en **zachte aanbevelingen** (best practice; sterk aangeraden maar niet afdwingbaar).
+
+De generieke Koppeltaal-beveiligingseisen uit **TOP-KT-008 — Beveiliging aspecten** (onder andere: HTTPS-only, JWT-handtekening met asymmetrische algoritmes, security headers zoals `Cache-Control: no-store`, `Strict-Transport-Security`, `X-Content-Type-Options: nosniff` en expliciete `Content-Type`, restrictieve CORS, input-validatie) gelden onverkort ook voor het Binary-endpoint. De eisen hieronder zijn **aanvullend** en specifiek voor de externe URL-variant van het uitwisselingspatroon.
 
 **Hard — verplicht:**
 
