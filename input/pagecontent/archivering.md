@@ -15,6 +15,7 @@
 | 0.0.11 | 2026-05-12 | Startmoment bewaartermijn geabstraheerd naar "laatste betrokkenheid" (User Authentication AuditEvent als kandidaat onder discussie); diagrammen: hernieuwde betrokkenheid laat de bewaartermijn herstarten |
 | 0.0.12 | 2026-05-12 | Tag-lifecycle-diagram: HTTP-status na `$purge` gecorrigeerd van 410 Gone naar 404 Not Found (geen tombstone bij hard delete) |
 | 0.0.13 | 2026-05-13 | DELETED geschrapt als tag (kan na `$purge` niet meer bestaan); Actief en DELETED expliciet als conceptuele eindstaten benoemd; `Patient.meta.tag = DELETED`-stap uit overzicht- en interactiediagram verwijderd ([#58](https://github.com/vzvznl/Koppeltaal-2.0-FHIR/issues/58)) |
+| 0.0.14 | 2026-05-19 | Naamgeving van de conceptuele eindstaat "Deleted" geüniformeerd: in tekst en tag-lifecycle-diagram niet langer in caps (`DELETED`) of met code-styling, maar als gewoon woord parallel aan "Actief" — `DELETE_PENDING` en `DELETE_HOLD` blijven als echte tag-waarden wél in caps |
 
 ---
 
@@ -87,7 +88,7 @@ Het verwijderproces wordt gestuurd via FHIR `meta.tag` op de Patient resource, i
 
 ##### Tag lifecycle
 
-De Patient resource doorloopt een aantal staten. **Actief** en **DELETED** zijn conceptuele eindstaten en worden niet door een tag op de Patient resource gerepresenteerd: een actieve resource bestaat zonder verwijdertag, een DELETED-resource bestaat helemaal niet meer (HTTP GET levert 404 Not Found). De tussenliggende staten worden wél via `meta.tag` vastgelegd, in een dedicated CodeSystem:
+De Patient resource doorloopt een aantal staten. **Actief** en **Deleted** zijn conceptuele eindstaten en worden niet door een tag op de Patient resource gerepresenteerd: een actieve resource bestaat zonder verwijdertag, een Deleted-resource bestaat helemaal niet meer (HTTP GET levert 404 Not Found). De tussenliggende staten worden wél via `meta.tag` vastgelegd, in een dedicated CodeSystem:
 
 | Code | Display | Beschrijving |
 | --- | --- | --- |
@@ -147,14 +148,14 @@ Een doelapplicatie die nog niet klaar is — bijvoorbeeld omdat data nog niet is
 
 - **Wie mag blokkeren**: elke doelapplicatie die data heeft van de betreffende patiënt
 - **Hoe**: de doelapplicatie voegt `DELETE_HOLD` toe aan `Patient.meta.tag`
-- **Effect**: het verwijderproces pauzeert zolang `DELETE_HOLD` actief is; de overgang naar `DELETED` wordt geblokkeerd
+- **Effect**: het verwijderproces pauzeert zolang `DELETE_HOLD` actief is; de overgang naar Deleted wordt geblokkeerd
 - **Vastlegging**: een AuditEvent (type `delete-hold`) wordt aangemaakt met de reden van de blokkade en de identiteit van de blokkerende applicatie
 - **Opheffing**: de doelapplicatie verwijdert de `DELETE_HOLD` tag wanneer de blokkade is opgelost; een AuditEvent (type `delete-hold-released`) wordt aangemaakt
 - **Na opheffing**: de grace period herstart of het proces gaat direct verder (configureerbaar)
 
-##### Activiteitscheck vóór `DELETED`
+##### Activiteitscheck vóór Deleted
 
-Voordat de Koppeltaalvoorziening de overgang van `DELETE_PENDING` naar `DELETED` uitvoert, controleert zij of er sinds het zetten van `DELETE_PENDING` opnieuw aantoonbare betrokkenheid van de patiënt (of een aan deze patiënt gekoppelde RelatedPerson) is geregistreerd, op basis van het afgesproken signaal voor "laatste betrokkenheid" (zie [Startmoment bewaartermijn](#startmoment-bewaartermijn-moet-eenduidig-zijn)). Indien dit het geval is, wordt de patiënt opnieuw als actief beschouwd en wordt de verwijdering afgebroken:
+Voordat de Koppeltaalvoorziening de overgang van `DELETE_PENDING` naar Deleted uitvoert, controleert zij of er sinds het zetten van `DELETE_PENDING` opnieuw aantoonbare betrokkenheid van de patiënt (of een aan deze patiënt gekoppelde RelatedPerson) is geregistreerd, op basis van het afgesproken signaal voor "laatste betrokkenheid" (zie [Startmoment bewaartermijn](#startmoment-bewaartermijn-moet-eenduidig-zijn)). Indien dit het geval is, wordt de patiënt opnieuw als actief beschouwd en wordt de verwijdering afgebroken:
 
 - De `DELETE_PENDING` tag wordt verwijderd
 - Een AuditEvent (type `delete-aborted`) wordt aangemaakt met als reden "hernieuwde betrokkenheid" en een verwijzing naar het bepalende activiteitssignaal
@@ -172,7 +173,7 @@ Het volgende diagram toont de volledige interactie tussen de initiator, de Koppe
 
 #### Definitieve verwijdering: `$purge`
 
-De overgang naar `DELETED` wordt technisch uitgevoerd via de FHIR [`$purge` operatie](https://build.fhir.org/patient-operation-purge.html). De `$purge` maakt gebruik van het [FHIR Patient Compartment](https://www.hl7.org/fhir/compartmentdefinition-patient.html) om te bepalen welke resources aan een patiënt gerelateerd zijn. Met de parameter `cascade=true` worden alle resources binnen het Patient Compartment in één operatie verwijderd, inclusief de Patient resource zelf.
+De overgang naar Deleted wordt technisch uitgevoerd via de FHIR [`$purge` operatie](https://build.fhir.org/patient-operation-purge.html). De `$purge` maakt gebruik van het [FHIR Patient Compartment](https://www.hl7.org/fhir/compartmentdefinition-patient.html) om te bepalen welke resources aan een patiënt gerelateerd zijn. Met de parameter `cascade=true` worden alle resources binnen het Patient Compartment in één operatie verwijderd, inclusief de Patient resource zelf.
 
 De scope van de `$purge` omvat onder andere:
 
@@ -195,9 +196,9 @@ De `meta.tag` benadering is expliciet over de lifecycle en de staat van de resou
 
 #### Rechten van betrokkenen
 
-De AVG (artikel 15) geeft betrokkenen het recht op inzage in hun persoonsgegevens. Zolang patiëntdata in de Koppeltaalvoorziening aanwezig is — dus vóór de overgang naar `DELETED` — moet de Koppeltaalvoorziening inzageverzoeken kunnen faciliteren zonder dat dit in conflict komt met bewaartermijnen. Inzage is immers geen wijziging en herstart de bewaartermijn niet.
+De AVG (artikel 15) geeft betrokkenen het recht op inzage in hun persoonsgegevens. Zolang patiëntdata in de Koppeltaalvoorziening aanwezig is — dus vóór de overgang naar Deleted — moet de Koppeltaalvoorziening inzageverzoeken kunnen faciliteren zonder dat dit in conflict komt met bewaartermijnen. Inzage is immers geen wijziging en herstart de bewaartermijn niet.
 
-In de praktijk wordt een inzageverzoek via het EPD (als verwerkingsverantwoordelijke) afgehandeld. De Koppeltaalvoorziening dient de data technisch beschikbaar te stellen aan het EPD. Na `DELETED` resteren binnen de Koppeltaalvoorziening alleen AuditEvents; de inhoudelijke persoonsgegevens zijn dan via het ECD/EPD te raadplegen op grond van de daar geldende bewaartermijn.
+In de praktijk wordt een inzageverzoek via het EPD (als verwerkingsverantwoordelijke) afgehandeld. De Koppeltaalvoorziening dient de data technisch beschikbaar te stellen aan het EPD. Na Deleted resteren binnen de Koppeltaalvoorziening alleen AuditEvents; de inhoudelijke persoonsgegevens zijn dan via het ECD/EPD te raadplegen op grond van de daar geldende bewaartermijn.
 
 Het **recht om vergeten te worden** (AVG artikel 17) is een aparte use case die losstaat van de reguliere verwijderprocedure. Een verzoek tot verwijdering kan op elk moment worden ingediend en vereist een eigen procedure, inclusief toetsing aan uitzonderingsgronden (bijv. WGBO-bewaartermijn). De uitwerking hiervan valt buiten de scope van deze pagina.
 
