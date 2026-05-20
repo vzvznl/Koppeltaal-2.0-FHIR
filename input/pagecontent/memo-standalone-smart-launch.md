@@ -27,7 +27,7 @@ De SMART on FHIR specificatie biedt hiervoor een gestandaardiseerd alternatief: 
 
 Het ondersteunen van de standalone launch naast de bestaande EHR launch adresseert twee concrete behoeften:
 
-1. **Archivering**: de bewaartermijn van patiëntdata wordt bepaald op basis van de laatste User Authentication. Wanneer interactie buiten de launch om plaatsvindt, wordt dit event niet aangemaakt en kan de bewaartermijn niet correct worden berekend (zie [Archivering](archivering.html#startmoment-bewaartermijn-moet-eenduidig-zijn))
+1. **Opschoning Patient-data**: de bewaartermijn van patiëntdata wordt bepaald op basis van de laatste betrokkenheid van de patiënt, vastgelegd in de `last-patient-engagement`-extension op `Patient.meta`. Wanneer interactie buiten de standaard launch-flows plaatsvindt, wordt deze extension niet automatisch door de Koppeltaalvoorziening bijgewerkt en moet de applicatie het veld zelf onderhouden (zie [Opschoning Patient-data - startmoment](opschoning-patient-data-startmoment.html))
 2. **Autorisatie**: het geharmoniseerde autorisatiemodel vereist dat de identiteit en context van de gebruiker bij elke sessie worden vastgesteld — niet alleen bij de eerste launch vanuit een portaal (zie [Autorisaties](autorisaties.html))
 
 ### 2. EHR Launch vs. Standalone Launch
@@ -127,5 +127,5 @@ Module-applicaties moeten ondersteuning voor de standalone launch registreren bi
 - [SMART App Launch - App Launch](https://build.fhir.org/ig/HL7/smart-app-launch/app-launch.html)
 - [SMART App Launch - Scopes and Launch Context](https://build.fhir.org/ig/HL7/smart-app-launch/scopes-and-launch-context.html)
 - [PKCE (RFC 7636)](https://datatracker.ietf.org/doc/html/rfc7636)
-- [Archivering - Startmoment bewaartermijn](archivering.html)
+- [Opschoning Patient-data - startmoment](opschoning-patient-data-startmoment.html)
 - [Autorisaties](autorisaties.html)

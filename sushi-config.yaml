@@ -132,8 +132,13 @@ pages:
     extension:
       - url: http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status
         valueCode: draft
-  archivering.md:
-    title: Archivering
+  opschoning-patient-data.md:
+    title: Opschoning Patient-data
+    extension:
+      - url: http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status
+        valueCode: draft
+  opschoning-patient-data-startmoment.md:
+    title: Opschoning Patient-data - startmoment
     extension:
       - url: http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status
         valueCode: draft
@@ -220,7 +225,8 @@ menu:
     Practitioner: autorisaties-practitioner.html
     RelatedPerson: autorisaties-relatedperson.html
   Archivering en Documenten:
-    Archivering: archivering.html
+    Opschoning Patient-data: opschoning-patient-data.html
+    Opschoning Patient-data - startmoment: opschoning-patient-data-startmoment.html
     Documenten delen: documenten-delen.html
   Memo's:
     Scope en impact KoppelMij: memo-koppelmij-scope.html

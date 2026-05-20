@@ -1,0 +1,40 @@
+@startuml opschoning-patient-data-interactie
+
+participant "Koppeltaal-\nvoorziening" as KT
+participant "Doelapplicatie A" as AppA
+participant "Doelapplicatie B" as AppB
+
+== Verwijdering starten ==
+
+KT -> KT : Bewaartermijn verstreken\nPUT Patient\n(tag: DELETE_PENDING)
+KT -> KT : AuditEvent\n(delete-initiated)
+KT -> AppA : Subscription notification\n(DELETE_PENDING)
+KT -> AppB : Subscription notification\n(DELETE_PENDING)
+
+== Grace period ==
+
+AppA -> KT : GET Patient resources\n(data veiligstellen)
+note right of AppA : Geen actie nodig\n= akkoord (opt-out)
+
+AppB -> KT : PUT Patient\n(tag: += DELETE_HOLD)
+KT -> KT : AuditEvent\n(delete-hold,\nreden: "data niet veiliggesteld")
+note right of AppB : Noodrem:\nproces pauzeert
+
+...wacht op opheffing...
+
+AppB -> KT : PUT Patient\n(tag: -= DELETE_HOLD)
+KT -> KT : AuditEvent\n(delete-hold-released)
+
+== Activiteitscheck ==
+
+KT -> KT : Grace period verstreken\n+ geen DELETE_HOLD
+KT -> KT : Check: hernieuwde\nbetrokkenheid sinds\nDELETE_PENDING?
+note right of KT : Bij ja:\ndelete-aborted,\ntag verwijderd,\nbewaartermijn herstart
+
+== Definitieve verwijdering ==
+
+KT -> KT : $purge operatie
+KT -> KT : AuditEvent\n(delete-completed)\nGET Patient -> 404
+note right of KT : AuditEvents\noverleven de $purge
+
+@enduml
