@@ -224,7 +224,7 @@ menu:
     Patient: autorisaties-patient.html
     Practitioner: autorisaties-practitioner.html
     RelatedPerson: autorisaties-relatedperson.html
-  Archivering en Documenten:
+  Opschoning en Documenten delen:
     Opschoning Patient-data: opschoning-patient-data.html
     Opschoning Patient-data - startmoment: opschoning-patient-data-startmoment.html
     Documenten delen: documenten-delen.html
