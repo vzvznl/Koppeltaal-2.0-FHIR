@@ -18,8 +18,10 @@
 | 0.0.14 | 2026-05-19 | Naamgeving van de conceptuele eindstaat "Deleted" geüniformeerd: in tekst en tag-lifecycle-diagram niet langer in caps (`DELETED`) of met code-styling, maar als gewoon woord parallel aan "Actief" — `DELETE_PENDING` en `DELETE_HOLD` blijven als echte tag-waarden wél in caps |
 | 0.0.15 | 2026-05-19 | Signaal voor "laatste betrokkenheid" vastgesteld: AuditEvents bij de `/authorize`-call van de SMART on FHIR launch en bij de `/introspect`-call van het HTI token — open discussiepunt uit 0.0.11 hiermee gesloten |
 | 0.0.16 | 2026-05-19 | Sectie "Welke events resetten de bewaartermijn" toegevoegd: Practitioner-logins resetten de bewaartermijn van de Patient niet (administratieve activiteit ≠ patiëntbetrokkenheid); Patient- en RelatedPerson-logins wél |
-| 0.0.17 | 2026-05-19 | Pagina hernoemd van "Archivering" naar "Opschoning Patient-data"; PlantUML-bronnen meegerenamed (`archivering-*.plantuml` → `opschoning-patient-data-*.plantuml`). Conceptshift gedocumenteerd: "laatste betrokkenheid" wordt niet langer afgeleid uit het nieuwste AuditEvent maar opgeslagen als expliciete extension op `Patient.meta` (FSH-uitwerking volgt in apart traject). Detailbeschrijving van events, update-mechanisme, backfill en overwegingen verhuist naar de nieuwe pagina [Opschoning Patient-data - startmoment](opschoning-patient-data-startmoment.html); activiteitscheck vóór Deleted leest voortaan de meta-extension i.p.v. AuditEvents te bevragen |
+| 0.0.17 | 2026-05-19 | Pagina hernoemd van "Archivering" naar "Opschoning Patient-data"; PlantUML-bronnen meegerenamed (`archivering-*.plantuml` → `opschoning-patient-data-*.plantuml`). Conceptshift gedocumenteerd: "laatste betrokkenheid" wordt niet langer afgeleid uit het nieuwste AuditEvent maar opgeslagen als expliciete extension op `Patient.meta` (FSH-uitwerking volgt in apart traject). Detailbeschrijving van events, update-mechanisme, backfill en overwegingen verhuist naar de nieuwe pagina [opschoning-patient-data-startmoment.html](./opschoning-patient-data-startmoment.html); activiteitscheck vóór Deleted leest voortaan de meta-extension i.p.v. AuditEvents te bevragen |
 | 0.0.18 | 2026-05-19 | Sectie "Waarom meta.tags en niet FHIR soft delete?" verplaatst van onder "Oplossingsrichting" naar "Overwegingen" (waar afgewezen alternatieven thuishoren); herbenoemd tot "FHIR soft delete in plaats van meta.tag lifecycle" voor consistentie met de andere overwegingen |
+| 0.0.19 | 2026-05-20 | "Verifieerbare notificatie" hernoemd en herschreven naar "Notificatie is informatief": notificaties zijn een informatief signaal aan doelapplicaties dat Patient-data uit de Koppeltaalvoorziening gaat verdwijnen, niet een toezegging tot veiligstelling. Bevestigde ontvangst is geen voorwaarde meer voor verwijdering; doelapplicaties hanteren hun eigen bewaartermijnen. Recht om vergeten te worden (AVG art. 17) heeft een aparte route. |
+| 0.0.20 | 2026-05-20 | Sectie "Notificatie en abonnement" aangevuld: notificatie is óók een signaal (MAY) aan andere systemen om hun eigen lokale kopie op te schonen; Subscription op Patient-changes is **verplicht** voor applicaties in het domein, met twee toegestane patronen (tag-specifiek op `Patient?_tag=DELETE_PENDING` of breed op `Patient`/`Patient?_id`). Subscriben op AuditEvents is voor pre-delete signalen geen geldig alternatief — een AuditEvent is bewijslog, geen betrouwbare trigger. Ontbrekende Subscription kan KT2 periodiek detecteren en als AuditEvent vastleggen. Aanbeveling: leveranciers richten eigen alerting in op gefaalde tag-specifieke deliveries (`Subscription.status=error`). Open punt "Post-delete-notificatie" toegevoegd: standaard R4-Subscription vuurt niet op DELETE. Twee R4-compatibele opties in overweging — (1) subscriben op `AuditEvent?type=delete-completed`, (2) delete-notificatie via Subscription-extensie (HAPI's `subscription-send-delete-messages` of KT2-eigen variant). R5 SubscriptionTopic-backport overwogen maar afgewezen wegens migratie-last. |
 
 ---
 
@@ -60,7 +62,7 @@ Per datacategorie moet een eenduidig startmoment voor de bewaartermijn worden va
 
 Dit moment wordt vastgelegd als expliciete state op de Patient resource zelf, in een dedicated extension onder `Patient.meta`. Dit vervangt de eerdere benadering waarbij de laatste betrokkenheid telkens werd afgeleid uit het nieuwste AuditEvent: een expliciete waarde op de Patient is leesbaar zonder AuditEvent-query, ondersteunt apps die buiten de standaard launch-flows om hun eigen onboarding doen, en geeft één canonieke bron van waarheid voor het verwijdermoment.
 
-De uitwerking van het veld, welke events het updaten, hoe applicaties zelf updates kunnen aanleveren, en de migratiestrategie voor bestaande Patient-resources zijn beschreven in de aparte pagina [Opschoning Patient-data - startmoment](opschoning-patient-data-startmoment.html).
+De uitwerking van het veld, welke events het updaten, hoe applicaties zelf updates kunnen aanleveren, en de migratiestrategie voor bestaande Patient-resources zijn beschreven in de aparte pagina [opschoning-patient-data-startmoment.html](./opschoning-patient-data-startmoment.html).
 
 Voorbeelden per datacategorie:
 
@@ -78,9 +80,39 @@ Alle data binnen de Koppeltaalvoorziening moet geclassificeerd worden op basis v
 
 Door classificatie bij creatie toe te passen, kan de Koppeltaalvoorziening bewaartermijnen geautomatiseerd afdwingen en is het op elk moment duidelijk onder welk regime een resource valt.
 
-#### Verifieerbare notificatie
+#### Notificatie en abonnement
 
-Wanneer doelapplicaties genotificeerd worden over aankomende verwijdering, moet aantoonbaar zijn dat notificaties succesvol zijn verzonden én ontvangen. De Koppeltaalvoorziening is verantwoordelijk voor het verzenden en het vastleggen van verzending en ontvangst — niet voor het daadwerkelijk ophalen of veiligstellen van data door zorginstellingen.
+De notificatie aan doelapplicaties bij aankomende verwijdering vervult twee rollen:
+
+1. **Informatief**: zij meldt dat de Patient en gerelateerde data uit de Koppeltaalvoorziening gaan verdwijnen.
+2. **Signaal tot eigen opschoning** (MAY): deelnemende systemen worden aangemoedigd om hun eigen, lokaal opgeslagen kopie ook op te ruimen, tenzij wettelijke of contractuele bewaarplichten een eigen, andere termijn voorschrijven. Doelapplicaties hanteren hun eigen bewaartermijnen en zijn zelf verantwoordelijk voor de juiste afhandeling.
+
+**Subscription is verplicht voor applicaties in het domein.** Applicaties die in een Koppeltaal-domein opereren registreren een Subscription op Patient-changes. Twee patronen zijn toegestaan:
+
+- **Tag-specifiek**: `Patient?_tag=...|DELETE_PENDING` — meest gericht, hoogste signaal-ruisverhouding; alleen verwijderaankondigingen.
+- **Breed op Patient-changes**: `Patient` of `Patient?_id=...` — applicatie ontvangt alle Patient-updates en filtert zelf op `meta.tag`. Past bij applicaties die om andere redenen ook Patient-changes willen volgen.
+
+Subscriben op AuditEvents is **voor pre-delete signalen geen geldig alternatief**: zolang de Patient nog bestaat, is de tag op de Patient de waarheid en is de AuditEvent slechts bewijslog. Voor het post-delete signaal (zie hieronder) ligt dat mogelijk anders, omdat de Patient dan niet meer bestaat als bron — dit is nog een open keuze.
+
+Een applicatie zonder Subscription op één van beide toegestane patronen luistert per implicatie niet naar opschoning en zal de noodrem niet kunnen trekken. De Koppeltaalvoorziening kan dit periodiek detecteren door per geregistreerd `Device`/`Endpoint` te scannen op het bestaan van een matchende Subscription en hier zelf een AuditEvent over te schrijven; deelnemers zien zo via de audit-trail wie wel en wie niet luistert.
+
+##### Post-delete-notificatie — open keuze
+
+De Subscriptions hierboven dekken de pre-delete signalen (overgangen naar `DELETE_PENDING` en `DELETE_HOLD`). Het signaal van de **daadwerkelijke verwijdering** past niet in standaard R4-Subscription: de spec stuurt geen notificaties bij een DELETE. Juist dat moment is voor doelapplicaties het belangrijkste signaal om hun eigen, lokaal opgeslagen kopie op te ruimen.
+
+Twee R4-compatibele opties zijn in overweging; nog te beslissen:
+
+1. **Subscribe op `AuditEvent?type=delete-completed`.** De Koppeltaalvoorziening schrijft direct na de hard-delete een `delete-completed` AuditEvent; doelapplicaties subscriben hierop met standaard R4-Subscription op AuditEvent-create. Geen vendor-extensies, geen backport. De Patient is op dat moment al weg — er is geen andere bron meer dan de AuditEvent zelf.
+
+2. **Delete-notificatie via Subscription-extensie.** Een extensie op de Subscription-resource die de FHIR-server opdraagt ook DELETE-events af te vuren voor matchende resources. HAPI ondersteunt dit native via `http://hapifhir.io/fhir/StructureDefinition/subscription-send-delete-messages` (opt-in; HAPI negeert DELETE-events default). KT2 kan kiezen voor de HAPI-URL (vendor-koppeling) of een KT2-eigen extensie met dezelfde semantiek (vendor-neutraal, maar elke server moet het zelf implementeren).
+
+De [R5 SubscriptionTopic-backport](https://hl7.org/fhir/uv/subscriptions-backport/) is overwogen maar afgewezen als te ingrijpende migratie voor R4-implementaties.
+
+**Verzending wordt gelogd; bevestigde ontvangst niet vereist.** Delivery-pogingen worden in AuditEvents vastgelegd zodat aantoonbaar is dat de notificatie is uitgestuurd. Bij opeenvolgende delivery-failures wordt de Subscription op `status=error` gezet en gaat de lifecycle door — de verantwoordelijkheid voor een werkende webhook ligt bij de leverancier.
+
+**Aanbevolen: alerting op gefaalde tag-specifieke deliveries.** Voor applicaties met een tag-specifieke Subscription wordt aangeraden om aan eigen zijde alerting in te richten op delivery-failures (`Subscription.status = error`). Een doodgelopen webhook betekent dat de noodrem niet meer kan worden getrokken; die zichtbaarheid hoort op leveranciersniveau te zijn geborgd.
+
+Voor scenario's waarin data daadwerkelijk moet worden teruggehaald — zoals het recht om vergeten te worden (AVG art. 17) — gelden aparte routes en mechanismen.
 
 #### Beheersbaarheid en configuratie
 
@@ -161,7 +193,7 @@ Een doelapplicatie die nog niet klaar is — bijvoorbeeld omdat data nog niet is
 
 ##### Activiteitscheck vóór Deleted
 
-Voordat de Koppeltaalvoorziening de overgang van `DELETE_PENDING` naar Deleted uitvoert, leest zij de `last-patient-engagement`-extension op `Patient.meta` (zie [Opschoning Patient-data - startmoment](opschoning-patient-data-startmoment.html)) en vergelijkt deze met het moment waarop `DELETE_PENDING` is gezet. Wanneer de extension is bijgewerkt sinds dat moment — bijvoorbeeld doordat de patiënt of een aan deze patiënt gekoppelde RelatedPerson opnieuw heeft ingelogd, of doordat een zelf-inloggende applicatie het veld heeft bijgewerkt — wordt de patiënt opnieuw als actief beschouwd en wordt de verwijdering afgebroken:
+Voordat de Koppeltaalvoorziening de overgang van `DELETE_PENDING` naar Deleted uitvoert, leest zij de `last-patient-engagement`-extension op `Patient.meta` (zie [opschoning-patient-data-startmoment.html](./opschoning-patient-data-startmoment.html)) en vergelijkt deze met het moment waarop `DELETE_PENDING` is gezet. Wanneer de extension is bijgewerkt sinds dat moment — bijvoorbeeld doordat de patiënt of een aan deze patiënt gekoppelde RelatedPerson opnieuw heeft ingelogd, of doordat een zelf-inloggende applicatie het veld heeft bijgewerkt — wordt de patiënt opnieuw als actief beschouwd en wordt de verwijdering afgebroken:
 
 - De `DELETE_PENDING` tag wordt verwijderd
 - Een AuditEvent (type `delete-aborted`) wordt aangemaakt met als reden "hernieuwde betrokkenheid"
@@ -179,7 +211,7 @@ Het volgende diagram toont de volledige interactie tussen de initiator, de Koppe
 
 #### Definitieve verwijdering: `$purge`
 
-De overgang naar Deleted wordt technisch uitgevoerd via de FHIR [`$purge` operatie](https://build.fhir.org/patient-operation-purge.html). De `$purge` maakt gebruik van het [FHIR Patient Compartment](https://www.hl7.org/fhir/compartmentdefinition-patient.html) om te bepalen welke resources aan een patiënt gerelateerd zijn. Met de parameter `cascade=true` worden alle resources binnen het Patient Compartment in één operatie verwijderd, inclusief de Patient resource zelf.
+De overgang naar Deleted wordt technisch uitgevoerd via de FHIR [`$purge` operatie](https://build.fhir.org/patient-operation-purge.html). De `$purge `maakt gebruik van het [FHIR Patient Compartment](https://www.hl7.org/fhir/compartmentdefinition-patient.html) om te bepalen welke resources aan een patiënt gerelateerd zijn. Met de parameter` cascade=true` worden alle resources binnen het Patient Compartment in één operatie verwijderd, inclusief de Patient resource zelf.
 
 De scope van de `$purge` omvat onder andere:
 
