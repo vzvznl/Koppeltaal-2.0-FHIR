@@ -167,6 +167,11 @@ pages:
     extension:
       - url: http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status
         valueCode: draft
+  memo-herziening-tech-community-process.md:
+    title: "Memo: Herziening tech community process"
+    extension:
+      - url: http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status
+        valueCode: draft
   changes.md:
     title: Changelog
 
@@ -233,6 +238,7 @@ menu:
     ServiceRequest KoppelMij: memo-servicerequest-koppelmij.html
     Standalone SMART Launch: memo-standalone-smart-launch.html
     Wijzigingen Topic 11: memo-wijzigingen-topic11.html
+    Herziening tech community process: memo-herziening-tech-community-process.html
   Koppeltaal Extensions:
     Related Person - Multiple IdP: multiple-idp-support.html
   Profile Specific Notes:
