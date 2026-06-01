@@ -4,6 +4,7 @@
 |--------|------------|------------------------------------------|
 | 0.0.1  | 2026-05-05 | Initiële versie                          |
 | 0.0.2  | 2026-05-18 | Verwerking hypothesis-feedback: id_token/token response (#54), open vraag IdP-selectie (#55), "Log in met Koppeltaal"-UX (#56), launch-URL mag gedeeld (#57) |
+| 0.0.3  | 2026-06-01 | Aanleiding-punt 1 herschreven: de bewaartermijn van patiëntdata wordt niet langer afgeleid uit een `last-patient-engagement`-extension op `Patient.meta`, maar uit AuditEvents (`/authorize`, `/introspect[hti]`) en `Task.owner==Patient`. Voor standalone-launch-applicaties betekent dit dat het schrijven van het AuditEvent bij `/authorize` voldoende is — geen aparte schrijfactie op `Patient.meta` meer nodig. Referentie naar de verwijderde pagina `opschoning-patient-data-startmoment` weggehaald |
 
 ---
 
@@ -27,7 +28,7 @@ De SMART on FHIR specificatie biedt hiervoor een gestandaardiseerd alternatief: 
 
 Het ondersteunen van de standalone launch naast de bestaande EHR launch adresseert twee concrete behoeften:
 
-1. **Opschoning Patient-data**: de bewaartermijn van patiëntdata wordt bepaald op basis van de laatste betrokkenheid van de patiënt, vastgelegd in de `last-patient-engagement`-extension op `Patient.meta`. Wanneer interactie buiten de standaard launch-flows plaatsvindt, wordt deze extension niet automatisch door de Koppeltaalvoorziening bijgewerkt en moet de applicatie het veld zelf onderhouden (zie [Opschoning Patient-data - startmoment](opschoning-patient-data-startmoment.html))
+1. **Opschoning Patient-data**: de bewaartermijn van patiëntdata wordt bepaald op basis van de laatste betrokkenheid van de patiënt. Die wordt op het moment van de activiteitscheck afgeleid uit AuditEvents bij `/authorize` en `/introspect[hti]` en uit Tasks waar de patiënt de uitvoerder is — zie [Opschoning Patient-data](opschoning-patient-data.html#startmoment-bewaartermijn-moet-eenduidig-zijn). Door de standalone launch via de Koppeltaal-`/authorize` te laten lopen, ontstaat het AuditEvent dat dit signaal voedt; de applicatie hoeft daarvoor zelf niets extra's te doen
 2. **Autorisatie**: het geharmoniseerde autorisatiemodel vereist dat de identiteit en context van de gebruiker bij elke sessie worden vastgesteld — niet alleen bij de eerste launch vanuit een portaal (zie [Autorisaties](autorisaties.html))
 
 ### 2. EHR Launch vs. Standalone Launch
@@ -127,5 +128,5 @@ Module-applicaties moeten ondersteuning voor de standalone launch registreren bi
 - [SMART App Launch - App Launch](https://build.fhir.org/ig/HL7/smart-app-launch/app-launch.html)
 - [SMART App Launch - Scopes and Launch Context](https://build.fhir.org/ig/HL7/smart-app-launch/scopes-and-launch-context.html)
 - [PKCE (RFC 7636)](https://datatracker.ietf.org/doc/html/rfc7636)
-- [Opschoning Patient-data - startmoment](opschoning-patient-data-startmoment.html)
+- [Opschoning Patient-data](opschoning-patient-data.html)
 - [Autorisaties](autorisaties.html)

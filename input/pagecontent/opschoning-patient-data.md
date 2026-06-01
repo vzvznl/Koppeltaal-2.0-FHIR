@@ -18,10 +18,11 @@
 | 0.0.14 | 2026-05-19 | Naamgeving van de conceptuele eindstaat "Deleted" geüniformeerd: in tekst en tag-lifecycle-diagram niet langer in caps (`DELETED`) of met code-styling, maar als gewoon woord parallel aan "Actief" — `DELETE_PENDING` en `DELETE_HOLD` blijven als echte tag-waarden wél in caps |
 | 0.0.15 | 2026-05-19 | Signaal voor "laatste betrokkenheid" vastgesteld: AuditEvents bij de `/authorize`-call van de SMART on FHIR launch en bij de `/introspect`-call van het HTI token — open discussiepunt uit 0.0.11 hiermee gesloten |
 | 0.0.16 | 2026-05-19 | Sectie "Welke events resetten de bewaartermijn" toegevoegd: Practitioner-logins resetten de bewaartermijn van de Patient niet (administratieve activiteit ≠ patiëntbetrokkenheid); Patient- en RelatedPerson-logins wél |
-| 0.0.17 | 2026-05-19 | Pagina hernoemd van "Archivering" naar "Opschoning Patient-data"; PlantUML-bronnen meegerenamed (`archivering-*.plantuml` → `opschoning-patient-data-*.plantuml`). Conceptshift gedocumenteerd: "laatste betrokkenheid" wordt niet langer afgeleid uit het nieuwste AuditEvent maar opgeslagen als expliciete extension op `Patient.meta` (FSH-uitwerking volgt in apart traject). Detailbeschrijving van events, update-mechanisme, backfill en overwegingen verhuist naar de nieuwe pagina [opschoning-patient-data-startmoment.html](./opschoning-patient-data-startmoment.html); activiteitscheck vóór Deleted leest voortaan de meta-extension i.p.v. AuditEvents te bevragen |
+| 0.0.17 | 2026-05-19 | Pagina hernoemd van "Archivering" naar "Opschoning Patient-data"; PlantUML-bronnen meegerenamed (`archivering-*.plantuml` → `opschoning-patient-data-*.plantuml`). Conceptshift gedocumenteerd: "laatste betrokkenheid" wordt niet langer afgeleid uit het nieuwste AuditEvent maar opgeslagen als expliciete extension op `Patient.meta` (FSH-uitwerking volgt in apart traject). Detailbeschrijving van events, update-mechanisme, backfill en overwegingen verhuist naar een aparte pagina `opschoning-patient-data-startmoment` (in 0.0.21 weer afgevoerd ten gunste van een querybenadering); activiteitscheck vóór Deleted leest voortaan de meta-extension i.p.v. AuditEvents te bevragen |
 | 0.0.18 | 2026-05-19 | Sectie "Waarom meta.tags en niet FHIR soft delete?" verplaatst van onder "Oplossingsrichting" naar "Overwegingen" (waar afgewezen alternatieven thuishoren); herbenoemd tot "FHIR soft delete in plaats van meta.tag lifecycle" voor consistentie met de andere overwegingen |
 | 0.0.19 | 2026-05-20 | "Verifieerbare notificatie" hernoemd en herschreven naar "Notificatie is informatief": notificaties zijn een informatief signaal aan doelapplicaties dat Patient-data uit de Koppeltaalvoorziening gaat verdwijnen, niet een toezegging tot veiligstelling. Bevestigde ontvangst is geen voorwaarde meer voor verwijdering; doelapplicaties hanteren hun eigen bewaartermijnen. Recht om vergeten te worden (AVG art. 17) heeft een aparte route. |
 | 0.0.20 | 2026-05-20 | Sectie "Notificatie en abonnement" aangevuld: notificatie is óók een signaal (MAY) aan andere systemen om hun eigen lokale kopie op te schonen; Subscription op Patient-changes is **verplicht** voor applicaties in het domein, met twee toegestane patronen (tag-specifiek op `Patient?_tag=DELETE_PENDING` of breed op `Patient`/`Patient?_id`). Subscriben op AuditEvents is voor pre-delete signalen geen geldig alternatief — een AuditEvent is bewijslog, geen betrouwbare trigger. Ontbrekende Subscription kan KT2 periodiek detecteren en als AuditEvent vastleggen. Aanbeveling: leveranciers richten eigen alerting in op gefaalde tag-specifieke deliveries (`Subscription.status=error`). Open punt "Post-delete-notificatie" toegevoegd: standaard R4-Subscription vuurt niet op DELETE. Twee R4-compatibele opties in overweging — (1) subscriben op `AuditEvent?type=delete-completed`, (2) delete-notificatie via Subscription-extensie (HAPI's `subscription-send-delete-messages` of KT2-eigen variant). R5 SubscriptionTopic-backport overwogen maar afgewezen wegens migratie-last. |
+| 0.0.21 | 2026-06-01 | Startmoment-aanpak herzien naar een **query-gebaseerde afleiding**: `last-patient-engagement` is geen state meer op `Patient.meta` maar wordt op het moment van de activiteitscheck berekend als `max(T_authorize, T_introspect_hti, T_task_owner)` over bestaande AuditEvents (`/authorize` en `/introspect[hti]` met Patient of gekoppelde RelatedPerson als actor) en `Task.meta.lastUpdated` waar `Task.owner` naar de Patient verwijst. De eerder voorgestelde meta-extension `KT2_LastPatientEngagement` en de aparte pagina `opschoning-patient-data-startmoment` komen daarmee te vervallen; de AuditEvent voor `/introspect[hti]` moet nog worden uitgewerkt (TOP-KT-021). |
 
 ---
 
@@ -60,13 +61,25 @@ Het ECD heeft op grond van de [WGBO](https://wetten.overheid.nl/BWBR0005290) een
 
 Per datacategorie moet een eenduidig startmoment voor de bewaartermijn worden vastgesteld. Voor persoonsgegevens geldt de **laatste betrokkenheid van de patiënt** als startmoment — het moment waarop de patiënt voor het laatst aantoonbaar actief was binnen het Koppeltaal-domein.
 
-Dit moment wordt vastgelegd als expliciete state op de Patient resource zelf, in een dedicated extension onder `Patient.meta`. Dit vervangt de eerdere benadering waarbij de laatste betrokkenheid telkens werd afgeleid uit het nieuwste AuditEvent: een expliciete waarde op de Patient is leesbaar zonder AuditEvent-query, ondersteunt apps die buiten de standaard launch-flows om hun eigen onboarding doen, en geeft één canonieke bron van waarheid voor het verwijdermoment.
+Dit moment wordt **niet als state opgeslagen** maar op het moment van de [activiteitscheck](#activiteitscheck-vóór-deleted) afgeleid uit drie bestaande bronnen, waarvan het maximum wordt genomen:
 
-De uitwerking van het veld, welke events het updaten, hoe applicaties zelf updates kunnen aanleveren, en de migratiestrategie voor bestaande Patient-resources zijn beschreven in de aparte pagina [opschoning-patient-data-startmoment.html](./opschoning-patient-data-startmoment.html).
+| Bron | Definitie | Status |
+| --- | --- | --- |
+| `T_authorize` | Meest recente `AuditEvent` voor de SMART `/authorize`-call van de Koppeltaal-launch, waar de actor de Patient is of een aan deze Patient gekoppelde RelatedPerson (`agent.who`) | Reeds gespecificeerd — type `DCM#110114` / subtype `DCM#110122` (zie `auditevent-launch-example.fsh`) |
+| `T_introspect_hti` | Meest recente `AuditEvent` voor de `/introspect`-call **uitsluitend wanneer het geïntrospecteerde token een HTI launch token is**, met dezelfde actor-filtering | **Nog te ontwikkelen** — `/introspect` accepteert ook access- en id-tokens (zie [TOP-KT-021](https://vzvz.atlassian.net/wiki/spaces/KTSA/pages/27125106)); alleen introspectie van HTI launch tokens telt als patiëntbetrokkenheid. Tot deze AuditEvent is uitgewerkt blijft dit pad inactief |
+| `T_task_owner` | Meest recente `Task.meta.lastUpdated` voor Tasks waar `Task.owner` direct naar de Patient verwijst | Beschikbaar in het huidige Task-profiel. **Niet** `Task.for` — Tasks die *over* de patiënt gaan tellen niet; alleen Tasks waarvan de patiënt de **uitvoerder** is |
+
+`last-patient-engagement = max(T_authorize, T_introspect_hti, T_task_owner)`.
+
+Practitioner-activiteit telt niet mee: behandelaaractiviteit is administratief / zorginhoudelijk en valt onder de bewaartermijn van het EPD (WGBO, 20 jaar). De AVG-bewaartermijn van 2 jaar voor persoonsgegevens is gekoppeld aan betrokkenheid van de patiënt zelf. Door op de actor van het AuditEvent te filteren (`agent.who`) en op `Task.owner`, vallen Practitioner-acties automatisch buiten de berekening.
+
+Activiteit van een aan de Patient gekoppelde RelatedPerson telt **in principe** wél mee — uitgewerkt in zowel de AuditEvent-actorfilter als de `Task.owner`-filter. Zie [overweging "RelatedPerson in de mix"](#relatedperson-in-de-mix) voor de motivatie en implementatie.
+
+Voordelen van de querybenadering: geen state-onderhoud op `Patient.meta`, geen schrijfpaden bij zelf-inloggende applicaties, geen conflictresolutie en geen backfill-migratie. De afleiding gebruikt de resources die al de bron van waarheid zijn — AuditEvents voor activiteit (NEN 7513) en Tasks voor uitvoeringsbetrokkenheid. De controle vindt alleen plaats op het moment van `$purge`; drie tot vijf gerichte queries per kandidaat-Patient zijn acceptabel.
 
 Voorbeelden per datacategorie:
 
-- Patiëntdata: datum uit de `last-patient-engagement`-extension op `Patient.meta`
+- Patiëntdata: `last-patient-engagement` zoals hierboven gedefinieerd
 - AuditEvents: datum van creatie
 - Tasks: datum van afsluiting
 
@@ -193,13 +206,34 @@ Een doelapplicatie die nog niet klaar is — bijvoorbeeld omdat data nog niet is
 
 ##### Activiteitscheck vóór Deleted
 
-Voordat de Koppeltaalvoorziening de overgang van `DELETE_PENDING` naar Deleted uitvoert, leest zij de `last-patient-engagement`-extension op `Patient.meta` (zie [opschoning-patient-data-startmoment.html](./opschoning-patient-data-startmoment.html)) en vergelijkt deze met het moment waarop `DELETE_PENDING` is gezet. Wanneer de extension is bijgewerkt sinds dat moment — bijvoorbeeld doordat de patiënt of een aan deze patiënt gekoppelde RelatedPerson opnieuw heeft ingelogd, of doordat een zelf-inloggende applicatie het veld heeft bijgewerkt — wordt de patiënt opnieuw als actief beschouwd en wordt de verwijdering afgebroken:
+Voordat de Koppeltaalvoorziening de overgang van `DELETE_PENDING` naar Deleted uitvoert, berekent zij `last-patient-engagement` (zoals gedefinieerd onder [Startmoment bewaartermijn](#startmoment-bewaartermijn-moet-eenduidig-zijn)) en vergelijkt het resultaat met het moment waarop `DELETE_PENDING` is gezet. Wanneer de berekende waarde later ligt — bijvoorbeeld doordat de patiënt of een aan deze patiënt gekoppelde RelatedPerson opnieuw heeft ingelogd, of doordat de patiënt als uitvoerder een Task heeft afgehandeld — wordt de patiënt opnieuw als actief beschouwd en wordt de verwijdering afgebroken:
 
 - De `DELETE_PENDING` tag wordt verwijderd
 - Een AuditEvent (type `delete-aborted`) wordt aangemaakt met als reden "hernieuwde betrokkenheid"
-- De bewaartermijn van 2 jaar begint opnieuw vanaf de datum uit de extension
+- De bewaartermijn van 2 jaar begint opnieuw vanaf de berekende `last-patient-engagement`-waarde
 
-Deze controle voorkomt dat data wordt verwijderd van patiënten die tijdens of vlak na de grace period weer actief worden — bijvoorbeeld doordat zij na een lange inactieve periode opnieuw inloggen via een doelapplicatie. De controle wordt op het moment van de geplande `$purge` uitgevoerd, zodat ook betrokkenheid aan het einde van de grace period wordt meegenomen. Doordat het signaal nu als state op de Patient staat (en niet als afgeleide query over AuditEvents), is de controle één resource-read i.p.v. een tijdsgebonden search.
+De berekening bestaat uit een aantal gerichte FHIR-searches per kandidaat-Patient. Conceptueel ziet dat er als volgt uit (exacte search-parameters volgen het profiel van `KT2_AuditEvent` en `KT2_Task`):
+
+```
+# Meest recente /authorize-login door de Patient
+GET /AuditEvent?agent=Patient/{id}&type=110114&_sort=-date&_count=1
+
+# Meest recente /authorize-login door een gekoppelde RelatedPerson
+GET /AuditEvent?agent=RelatedPerson/{rp-id}&type=110114&_sort=-date&_count=1
+
+# Meest recente /introspect op een HTI launch token (subtype TBD — zie overweging)
+GET /AuditEvent?agent=Patient/{id}&type={hti-introspect-code}&_sort=-date&_count=1
+
+# Meest recente Task met de Patient als uitvoerder
+GET /Task?owner=Patient/{id}&_sort=-_lastUpdated&_count=1
+
+# Meest recente Task met een gekoppelde RelatedPerson als uitvoerder
+GET /Task?owner=RelatedPerson/{rp-id}&_sort=-_lastUpdated&_count=1
+```
+
+De Koppeltaalvoorziening neemt `max(...)` over de gevonden timestamps. Is die later dan het moment waarop `DELETE_PENDING` is gezet, dan wordt de verwijdering afgebroken. De set gekoppelde RelatedPersons volgt uit `GET /RelatedPerson?patient=Patient/{id}`.
+
+Deze controle voorkomt dat data wordt verwijderd van patiënten die tijdens of vlak na de grace period weer actief worden — bijvoorbeeld doordat zij na een lange inactieve periode opnieuw inloggen via een doelapplicatie. De controle wordt op het moment van de geplande `$purge` uitgevoerd, zodat ook betrokkenheid aan het einde van de grace period wordt meegenomen.
 
 ##### Interactiediagram
 
@@ -276,6 +310,28 @@ Dit model biedt maximale coördinatie maar introduceert complexiteit in de vorm 
 #### Task lifecycle als indicator
 
 Wanneer alle taken van een patiënt de status `completed` hebben, kan men beargumenteren dat alle due diligence is uitgevoerd: de behandelmodules zijn afgerond, de resultaten zijn teruggekoppeld, en er zijn geen openstaande interacties meer. In dat geval kan de initiator er in bepaalde situaties voor kiezen om direct tot verwijdering over te gaan zonder voorafgaande notificatie.
+
+#### RelatedPerson in de mix
+
+In het Koppeltaal-model is een RelatedPerson per definitie gekoppeld aan één specifieke Patient (`RelatedPerson.patient`). Activiteit van die RelatedPerson — een login via `/authorize`, of een Task waarvan de RelatedPerson de uitvoerder is — geldt daarom als betrokkenheid bij die patiënt en telt mee in `last-patient-engagement`.
+
+Praktisch betekent dit dat de [activiteitscheck](#activiteitscheck-vóór-deleted) eerst de set gekoppelde RelatedPersons bepaalt (`RelatedPerson?patient=Patient/{id}`) en vervolgens de AuditEvent- en Task-queries herhaalt per RelatedPerson. De RelatedPersons zelf worden in de `$purge`-cascade meegenomen (zij vallen binnen het Patient Compartment).
+
+Open vraag voor latere iteratie: willen we deze regel óók expliciet vastleggen in een StructureDefinition-invariant of in het CapabilityStatement, zodat een implementatie de afdwingbaarheid niet zelf hoeft af te leiden uit deze pagina?
+
+#### AuditEvent voor `/introspect[hti]` nog te ontwikkelen
+
+`/introspect` werkt in Koppeltaal op meerdere tokentypes: HTI launch tokens, access tokens en id tokens (zie [TOP-KT-021](https://vzvz.atlassian.net/wiki/spaces/KTSA/pages/27125106)). Alleen introspectie van **HTI launch tokens** mag de bewaartermijn resetten, omdat dat het signaal is dat een doelapplicatie daadwerkelijk een patiëntgerichte launch verwerkt. Introspectie van access- of id-tokens is een technische tokenvalidatie en bewijst geen patiëntinteractie.
+
+De type/subtype-coding voor deze AuditEvent en de mapping van Patient/RelatedPerson naar `agent.who` zijn nog niet vastgesteld; uitwerking volgt in een vervolgtraject (relateert aan [TOP-KT-011 - Logging en tracing](https://vzvz.atlassian.net/wiki/spaces/KTSA/pages/27125090) en TOP-KT-021). Tot die tijd is `T_introspect_hti` inactief en steunt de berekening op `T_authorize` en `T_task_owner`.
+
+#### Vervallen: meta-extension `last-patient-engagement`
+
+In een eerdere iteratie was voorzien dat het startmoment als state werd vastgelegd in een dedicated FHIR-extension onder `Patient.meta` (`KT2_LastPatientEngagement`), bijgewerkt door de Koppeltaalvoorziening bij `/authorize` en `/introspect` en door zelf-inloggende applicaties via directe PATCH met ETag-gebaseerde optimistic locking, plus een eenmalige backfill voor bestaande Patient-resources. Deze aanpak komt te vervallen ten gunste van de querybenadering.
+
+Motivatie: de activiteitscheck vindt alleen plaats op het moment van `$purge`. Een paar gerichte FHIR-searches op dat moment is goedkoper dan permanent state synchroon houden in alle deelnemende systemen. Bovendien zijn AuditEvents (NEN 7513) en Tasks al de canonieke bron van waarheid voor "activiteit" en "uitvoeringsbetrokkenheid" — een aparte meta-state ernaast zou een tweede bron introduceren die in conflict kan raken met die canonieke bronnen.
+
+De afzonderlijke pagina `opschoning-patient-data-startmoment` waarin de meta-extension was uitgewerkt, is met deze beslissing verwijderd.
 
 ### Referenties
 
