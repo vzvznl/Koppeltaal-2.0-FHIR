@@ -17,6 +17,7 @@
 | 0.0.13 | 2026-05-18 | Sectie "Verplichte velden" geherformuleerd als **voorstel** tot aanpassing aan het (nog te creëren) Koppeltaal DocumentReference-profiel; geëxpliciteerd dat de regels pas afdwingbaar worden zodra het profiel in `input/fsh` is uitgewerkt |
 | 0.0.14 | 2026-05-18 | Afwijzing van het alternatief "Uitbreiding van `/introspect` met een scope-parameter" aangescherpt: de optie valt af omdat RFC 7662 `/introspect` strikt definieert als token-introspectie zonder request-parameters voor per-resource autorisatiebeslissingen; een policy-decision-point hoort, indien nodig, in een aparte voorziening (UMA/PDP), niet in `/introspect` |
 | 0.0.15 | 2026-05-19 | Verwijzing naar **TOP-KT-008 — Beveiliging aspecten** toegevoegd onder "Beveiligingseisen voor het Binary-endpoint van de bron": de generieke Koppeltaal-beveiligingseisen (HTTPS-only, JWT-algoritmes, security headers, CORS, input-validatie) gelden onverkort voor het Binary-endpoint; de eisen op deze pagina zijn aanvullend en specifiek voor de externe URL-variant |
+| 0.0.16 | 2026-06-01 | Inline base64-variant (`attachment.data`) verwijderd — alleen externe URL met Binary-endpoint bij de bron blijft over. DocumentReference-profielvoorstel uitgebreid met verplicht `type` (1..1) en optioneel `category` (0..*). Autorisatie-sectie verwijst naar SMART v2 scopes-met-query (toekomstige filtering op `type`). Nieuw expliciet principe: bronapplicatie MAY na introspect alsnog toegang weigeren (data-owner verification). Audit-logging-sectie ingekort en doorverwezen naar TOP-KT-011. Beveiligingseisen-sectie gepromoveerd van "open punt" naar reguliere sectie. 30-dagen-bewaartermijnzin verplaatst naar de juiste sectie. Confluence-input-placeholder toegevoegd in Status. |
 
 ---
 
@@ -30,12 +31,7 @@ Door documenten delen expliciet te ondersteunen binnen Koppeltaal ontstaat een u
 
 Documenten zoals PDF/A-rapporten, ongestructureerde vragenlijst-uitkomsten of samenvattingen worden uitgewisseld via het FHIR [DocumentReference](https://www.hl7.org/fhir/documentreference.html) resource. Een DocumentReference bevat metadata over het document (type, datum, auteur, patiënt) en de inhoud zelf — via [`DocumentReference.content.attachment`](https://www.hl7.org/fhir/datatypes.html#Attachment).
 
-Voor de inhoud zijn twee varianten toegestaan:
-
-- **Externe referentie**: `attachment.url` verwijst naar een [Binary](https://www.hl7.org/fhir/binary.html) resource bij de bronapplicatie. Geschikt voor grotere bestanden en voor leveranciers die controle over het bestand willen behouden (data aan de bron). De bronapplicatie biedt hiervoor een beveiligd HTTP-endpoint aan.
-- **Inline base64**: `attachment.data` bevat het document zelf, base64-gecodeerd, in de DocumentReference. Geschikt voor kleinere documenten met een beperkt gevoeligheidsniveau, waarbij de leverancier geen eigen endpoint wil onderhouden. Het document wordt dan automatisch meegeleverd via de Koppeltaal FHIR store, zonder aanvullende infrastructuur aan de bron.
-
-De keuze tussen externe referentie en inline base64 is een afweging van de leverancier tussen complexiteit (eigen Binary-endpoint), bestandsgrootte en gevoeligheidsniveau. Beide varianten gebruiken hetzelfde uitwisselingspatroon (zie [Uitwisselingspatronen](#uitwisselingspatronen)) en hetzelfde Koppeltaal autorisatiemodel.
+De inhoud wordt uitgewisseld via één variant: **externe referentie**. `attachment.url` verwijst naar een [Binary](https://www.hl7.org/fhir/binary.html) resource bij de bronapplicatie, die hiervoor een beveiligd HTTP-endpoint aanbiedt. De data blijft daarmee aan de bron; de Koppeltaal FHIR store bevat alleen de metadata in de DocumentReference. Inline base64 (`attachment.data`) wordt binnen Koppeltaal niet ondersteund — zie [Changelog](#changelog) `0.0.16` voor de afweging.
 
 De module genereert automatisch een PDF/A bij afronding van de interventie. PDF/A is het vereiste formaat voor duurzame archivering in het EPD.
 
@@ -48,6 +44,8 @@ Voorgestelde aanvullende verplichtingen ten opzichte van de FHIR-basis:
 - **`subject`** — voorgesteld als verplicht (`1..1`), met als target-profiel het Koppeltaal Patient-profiel. Zonder `subject` is het document niet routeerbaar naar het juiste dossier.
 - **`context.related`** — voorgesteld als verplicht (minimaal `1..*`), met een verwijzing naar de [Task](https://www.hl7.org/fhir/task.html) die de interventie representeert waaruit het document is voortgekomen. Hiermee blijft het document traceerbaar naar de specifieke behandelopdracht en kan het EPD het document in de juiste context plaatsen. Te bepalen: of een slice op `context.related` nodig is om de Task-referentie expliciet aan te wijzen (versus andere related resources).
 - **`date`** — voorgesteld als verplicht (`1..1`). Het tijdstip waarop de DocumentReference is aangemaakt door de module. Dit is het ankerpunt voor onder andere de [bewaartermijn](#bewaartermijn-documentreference) in de Koppeltaal-store en voor archiveringslogica in het EPD.
+- **`type`** — voorgesteld als verplicht (`1..1`). Ontvangers (dossierhouders) moeten direct kunnen zien wat voor soort document binnenkomt — rapportage, ongestructureerde vragenlijst-uitkomst, voortgangsverslag, etc. — zonder de Binary te hoeven openen. De binding/ValueSet (LOINC via [valueset-c80-doc-typecodes](https://www.hl7.org/fhir/valueset-c80-doc-typecodes.html) of een Koppeltaal-specifieke ValueSet) wordt nog uitgewerkt; zie [Open punten](#open-punten).
+- **`category`** — voorgesteld als optioneel (`0..*`). Leveranciers MOGEN categorieën meegeven (bv. om type-codes op een hoger niveau te groeperen), maar het is geen eis.
 
 Dit zijn voorstellen, geen vastgestelde profielregels. Na consensus volgt de uitwerking in een DocumentReference-profiel in `input/fsh`, met bijbehorende validatie via de IG-publisher. Pas vanaf dat moment kunnen niet-conformante resources op deze regels worden afgewezen.
 
@@ -57,16 +55,13 @@ Voor het overdragen van documenten van de module naar het EPD geldt **direct oph
 
 #### Direct ophalen via de Koppeltaal FHIR store
 
-In dit patroon publiceert de module een DocumentReference in de Koppeltaal FHIR store. Het EPD detecteert de nieuwe DocumentReference — via polling of een FHIR Subscription — en haalt vervolgens de inhoud op:
-
-- bij een **externe referentie** (`attachment.url`): het EPD haalt eerst een `access_token` op bij de Koppeltaal authorization server en doet daarmee een `GET` naar de Binary-URL bij de bronapplicatie (token als `Authorization: Bearer …`). De bronapplicatie valideert het token door het te introspecten bij dezelfde authorization server ([RFC 7662](https://datatracker.ietf.org/doc/html/rfc7662) `/introspect`); pas na een geldige respons (`active: true` plus passende scopes) wordt het document geleverd. Autorisatie blijft daarmee centraal bij Koppeltaal — de bronapplicatie hoeft geen eigen vertrouwensmodel te onderhouden (zie ook [Open punten](#open-punten)).
-- bij **inline base64** (`attachment.data`): het document is al meegekomen met de DocumentReference uit de Koppeltaal-store; er is geen tweede pull nodig.
+In dit patroon publiceert de module een DocumentReference in de Koppeltaal FHIR store. Het EPD detecteert de nieuwe DocumentReference — via polling of een FHIR Subscription — en haalt vervolgens de inhoud op via de externe referentie (`attachment.url`): het EPD haalt eerst een `access_token` op bij de Koppeltaal authorization server en doet daarmee een `GET` naar de Binary-URL bij de bronapplicatie (token als `Authorization: Bearer …`). De bronapplicatie valideert het token door het te introspecten bij dezelfde authorization server ([RFC 7662](https://datatracker.ietf.org/doc/html/rfc7662) `/introspect`); pas na een geldige respons (`active: true` plus passende scopes) wordt het document geleverd. Autorisatie blijft daarmee centraal bij Koppeltaal — de bronapplicatie hoeft geen eigen vertrouwensmodel te onderhouden (zie ook [Open punten](#open-punten)).
 
 <div style="clear: both; margin: 1em 0;">
 {% include documenten-delen-direct-ophalen.svg %}
 </div>
 
-Dit patroon kent de minste orkestratie — er is geen aparte Notification Task — en biedt de leverancier de keuze tussen *data aan de bron* (externe URL, geschikt voor grote of zeer gevoelige bestanden) of *minimale infrastructuur* (inline base64, geschikt voor kleinere documenten waar het opzetten van een eigen Binary-endpoint niet loont). In beide gevallen blijft de DocumentReference — en daarmee alle metadata, autorisatie en signalering — in de Koppeltaal FHIR store.
+Dit patroon kent de minste orkestratie — er is geen aparte Notification Task — en houdt de **data aan de bron**: de fysieke controle over het bestand blijft bij de bronhouder, terwijl de DocumentReference — en daarmee alle metadata, autorisatie en signalering — in de Koppeltaal FHIR store blijft.
 
 Het EPD detecteert nieuwe DocumentReferences via polling of een FHIR Subscription op de Koppeltaal-store.
 
@@ -94,9 +89,8 @@ Bij nadere beschouwing bleken een aantal van die voordelen niet onderscheidend t
 
 - **Dataminimalisatie en bronverantwoordelijkheid**: gevoelige gezondheidsdata buiten de bronhouder plaatsen vergroot het aanvalsoppervlak en ondermijnt het principe dat de bronhouder verantwoordelijk blijft voor zijn data tijdens de uitwisseling.
 - **Verlies van het pull-signaal**: bij direct ophalen weet de bronhouder wanneer en door wie het document is opgehaald — een nuttig signaal voor archiveringsstatus, bewaartermijnen en eigen audit. Bij dit alternatief verdwijnt dat signaal.
-- **De inline base64-variant lost het FHIR-endpoint-bezwaar al op**: leveranciers die geen eigen Binary-endpoint willen onderhouden kunnen via `attachment.data` (inline) volstaan, zonder dat de bron de fysieke controle over het bestand verliest aan een tussenpartij.
 
-Dit alternatief blijft denkbaar als uitwijkmogelijkheid voor specifieke gevallen (bijvoorbeeld een bron die geen stabiel publiek endpoint kan aanbieden én waar inline base64 niet volstaat), maar is geen standaardroute van de Koppeltaal-specificatie.
+Dit alternatief blijft denkbaar als uitwijkmogelijkheid voor specifieke gevallen (bijvoorbeeld een bron die geen stabiel publiek endpoint kan aanbieden), maar is geen standaardroute van de Koppeltaal-specificatie.
 
 ### Workflow
 
@@ -106,7 +100,7 @@ Documenten delen is het sluitstuk van de bestaande Koppeltaal Task lifecycle:
 2. De patiënt voert de interventie uit via de module
 3. De interventie wordt afgerond (Task.status → `completed`)
 4. De module genereert het document (PDF/A)
-5. De module publiceert een DocumentReference in de Koppeltaal FHIR store (met externe URL of inline base64)
+5. De module publiceert een DocumentReference in de Koppeltaal FHIR store
 6. Het EPD haalt het document op en archiveert het in het patiëntdossier
 
 De DocumentReference wordt gekoppeld aan zowel de Patient als de Task, zodat het document traceerbaar is naar de specifieke interventie.
@@ -119,10 +113,13 @@ Toegang tot documenten is gebonden aan de behandelrelatie:
 - **RelatedPerson**: personen betrokken bij de behandeling (ouders, mantelzorgers, wettelijk vertegenwoordigers) kunnen beperkte, doelgebonden en tijdgebonden inzage krijgen in documenten. Toegang vervalt automatisch bij het eindigen van de relatie, het intrekken van toestemming of het afsluiten van de behandeling
 - **Logging**: alle inzage en overdracht van documenten wordt gelogd en is auditeerbaar
 
+Het Koppeltaal-scope-model is gebaseerd op SMART on FHIR v2 scopes met query-parameters (zie [autorisaties.html](./autorisaties.html) en TOP-KT-016). Het patroon `system/Resource.[crud]?param=value` — al toegepast voor `resource-origin` — maakt het mogelijk om in een toekomstige iteratie filtering op bijvoorbeeld `DocumentReference.type` te ondersteunen. De concrete scope-syntax voor DocumentReference wordt vastgelegd in de Koppeltaal-autorisatiematrix; zie [Open punten](#open-punten).
+
 ### Bewaartermijn DocumentReference
 
+De DocumentReference wordt in principe **beperkt bewaard** in de Koppeltaal FHIR store. De standaardtermijn is **30 dagen** vanaf publicatie; daarna wordt de resource opgeruimd via het reguliere [opschoningsproces voor Patient-data](./opschoning-patient-data.html) van Koppeltaal.
 
-Deze termijn weerspiegelt de rol van Koppeltaal als orkestratie- en transportlaag, niet als langetermijn-archief: zodra het document is opgehaald en gearchiveerd in het EPD-dossier, is de DocumentReference in de Koppeltaal-store overbodig. Een korte termijn beperkt het aanvalsoppervlak, voorkomt dat de Koppeltaal-store de facto een tweede dossierstore wordt, en sluit aan op het principe dat de bronhouder verantwoordelijk blijft voor de inhoud (bij externe URL) respectievelijk dat de dossierhouder verantwoordelijk wordt na archivering (bij inline base64).
+Deze termijn weerspiegelt de rol van Koppeltaal als orkestratie- en transportlaag, niet als langetermijn-archief: zodra het document is opgehaald en gearchiveerd in het EPD-dossier, is de DocumentReference in de Koppeltaal-store overbodig. Een korte termijn beperkt het aanvalsoppervlak, voorkomt dat de Koppeltaal-store de facto een tweede dossierstore wordt, en sluit aan op het principe dat de bronhouder verantwoordelijk blijft voor de inhoud.
 
 Consequenties:
 
@@ -130,56 +127,53 @@ Consequenties:
 - **De bronapplicatie** behoudt — bij de variant met externe URL — de Binary in haar eigen omgeving, onafhankelijk van de Koppeltaal-bewaartermijn. De levenscyclus van het brondocument volgt het beleid van de bronhouder.
 - **Afwijken van de standaard** (langer of korter dan 30 dagen) is in specifieke gebruiksscenario's mogelijk, maar moet expliciet worden vastgelegd in het leveranciersprofiel of een aanvullende afspraak. Of, en op welk niveau, individuele afwijkingen mogelijk worden gemaakt is nog uit te werken (zie [Open punten](#open-punten)).
 
-### Open punten
+### Beveiligingseisen voor het Binary-endpoint van de bron
 
-Met de keuze voor direct ophalen via de Koppeltaal-store (externe URL of inline base64) als aangewezen route zijn de volgende punten nog uit te werken in samenwerking met leveranciers:
+Om fragmentatie en ongelijke beveiligingsniveaus te voorkomen publiceert Koppeltaal een set eisen voor het Binary-endpoint dat een bronapplicatie aanbiedt. De eisen worden gesplitst in **harde eisen** (verplicht; conformance-criterium) en **zachte aanbevelingen** (best practice; sterk aangeraden maar niet afdwingbaar).
 
-#### Token-validatie aan de bronapplicatie (variant met externe URL)
-
-Wanneer de leverancier kiest voor een externe Binary-URL, ontvangt de bronapplicatie een `GET`-request met een Koppeltaal-uitgegeven access_token. De bronapplicatie introspecteert het token bij de Koppeltaal authorization server ([RFC 7662](https://datatracker.ietf.org/doc/html/rfc7662) `/introspect`) en krijgt een set scopes terug. **De regel is**: de scope die het EPD nodig heeft om de DocumentReference te lezen geldt ook als toestemming om de bijbehorende Binary op te halen. Dezelfde permissie dekt zowel metadata als inhoud.
-
-Deze keuze is pragmatisch en goed uitlegbaar: een client die de DocumentReference legitiem mag lezen, mag ook bij de bijhorende inhoud. Fijngranulariteit (apart toegang geven tot reference vs. inhoud) wordt bewust niet geboden — dat zou een onduidelijke status opleveren (wel toegang tot de reference, niet tot de data) en heeft geen praktische meerwaarde voor het gebruiksscenario.
-
-Twee alternatieven zijn overwogen en niet gekozen:
-
-- **Een nieuwe, expliciete Binary-scope** (bijvoorbeeld `documenten/Binary.read`): zou Binary-toegang loskoppelen van DocumentReference-toegang. Verworpen omdat het de onduidelijke status hierboven institutionaliseert zonder een gebruiksscenario dat dat onderscheid nodig maakt, ten koste van extra scope-management.
-- **Uitbreiding van het introspect-endpoint met een scope-parameter** (de bron vraagt aan Koppeltaal "mag deze client deze Binary ophalen?"): valt af. [RFC 7662](https://datatracker.ietf.org/doc/html/rfc7662) definieert `/introspect` strikt als token-introspectie — het endpoint geeft geldigheid en attributen van het token zelf terug en kent geen request-parameters voor een per-resource autorisatiebeslissing. Een dergelijke uitbreiding zou een Koppeltaal-eigen, niet-standaard variant van `/introspect` opleveren, terwijl standaardconformiteit juist het uitgangspunt van Koppeltaal is. Een policy-decision-point hoort, indien ooit nodig, in een aparte voorziening (bijvoorbeeld een UMA-/PDP-pattern), niet in `/introspect`.
-
-De DocumentReference wordt in principe **beperkt bewaard** in de Koppeltaal FHIR store. De standaardtermijn is **30 dagen** vanaf publicatie; daarna wordt de resource opgeruimd via het reguliere [opschoningsproces voor Patient-data](./opschoning-patient-data.html) van Koppeltaal.
-#### Beveiligingseisen voor het Binary-endpoint van de bron
-
-Om fragmentatie en ongelijke beveiligingsniveaus te voorkomen publiceert Koppeltaal een set eisen voor het Binary-endpoint dat een bronapplicatie aanbiedt. De eisen worden gesplitst in **harde eisen** (verplicht; conformance-criterium voor de externe URL-variant) en **zachte aanbevelingen** (best practice; sterk aangeraden maar niet afdwingbaar).
-
-De generieke Koppeltaal-beveiligingseisen uit **TOP-KT-008 — Beveiliging aspecten** (onder andere: HTTPS-only, JWT-handtekening met asymmetrische algoritmes, security headers zoals `Cache-Control: no-store`, `Strict-Transport-Security`, `X-Content-Type-Options: nosniff` en expliciete `Content-Type`, restrictieve CORS, input-validatie) gelden onverkort ook voor het Binary-endpoint. De eisen hieronder zijn **aanvullend** en specifiek voor de externe URL-variant van het uitwisselingspatroon.
+De generieke Koppeltaal-beveiligingseisen uit TOP-KT-008 — Beveiliging aspecten (onder andere: HTTPS-only, JWT-handtekening met asymmetrische algoritmes, security headers zoals Cache-Control: no-store, Strict-Transport-Security, X-Content-Type-Options: nosniff en expliciete Content-Type, restrictieve CORS, input-validatie) gelden onverkort ook voor het Binary-endpoint. De eisen hieronder zijn **aanvullend** en specifiek voor het Binary-endpoint van de bronapplicatie.
 
 **Hard — verplicht:**
 
 - **TLS-only** (minimaal TLS 1.2, geen klare HTTP)
-- **Verplichte token-validatie** (zie [Token-validatie aan de bronapplicatie](#token-validatie-aan-de-bronapplicatie-variant-met-externe-url)), inclusief afwijzing van requests zonder geldig access_token
+- **Verplichte token-validatie** (zie [Token-validatie en data-owner-verificatie](#token-validatie-en-data-owner-verificatie)), inclusief afwijzing van requests zonder geldig access_token
 
 **Zacht — aanbevolen:**
 
 - Niet-raadbare paden voor Binary-resources (bijvoorbeeld UUID's of cryptografisch random identifiers; geen incrementele IDs)
 - Rate-limiting en standaard hardening (security headers, beperkte error-detail bij 401/403)
 
-De harde eisen zijn een **specificatie-eis aan leveranciers** die voor de externe URL-variant kiezen; voor de inline base64-variant zijn deze eisen niet van toepassing omdat het document via de Koppeltaal-store geleverd wordt.
+Voor toekomstige fijngranulariteit (bijvoorbeeld filtering op `DocumentReference.type`) ligt de richting bij **SMART on FHIR v2 scopes-met-query** — het patroon dat Koppeltaal al toepast voor `resource-origin`. De concrete uitwerking volgt in de Koppeltaal-autorisatiematrix; zie [Concrete scope-syntax voor DocumentReference in de autorisatiematrix](#concrete-scope-syntax-voor-documentreference-in-de-autorisatiematrix) onder Open punten.
 
-#### Audit-logging bij de bron
+### Audit-logging bij de bron
 
-Bij het alternatief "Binary als losse resource in de Koppeltaal-store" zou de Koppeltaal-store automatisch AuditEvents genereren bij elke read. In het gekozen patroon loopt de Binary-read niet via Koppeltaal en kent Koppeltaal die actie dus niet. **De audit-verantwoordelijkheid voor de Binary-read ligt daarmee bij de bronapplicatie**: zij logt zelf wie, wanneer, welk document heeft opgehaald. Optioneel kan dit als AuditEvent worden teruggeschreven naar een centrale Koppeltaal-AuditEvent-store, maar dat is een implementatie- en governance-keuze, geen architectuurbeslissing.
+De Binary-read loopt niet via Koppeltaal; de **bronapplicatie is verantwoordelijk voor de audit-registratie** van wie/wanneer/welk document. Detail-eisen, AuditEvent-structuur en eventuele uitwisseling met een centrale Koppeltaal-AuditEvent-store worden behandeld in [change-management-topic-11-implementation-feedback.html](./change-management-topic-11-implementation-feedback.html).
 
-Voor de inline base64-variant en voor DocumentReference-reads zelf blijft het bestaande Koppeltaal-mechanisme (automatische AuditEvent bij search/read op de Koppeltaal-store) leidend.
+### Open punten
 
-#### Voorwaarden voor inline base64
+De volgende punten zijn nog uit te werken in samenwerking met leveranciers:
 
-De keuze om de inhoud inline mee te leveren (`attachment.data`) is in principe vrij aan de leverancier, maar mogelijk willen we dit specificatie-zijdig **inkaderen** — bijvoorbeeld:
+#### Token-validatie en data-owner-verificatie
 
-- Een maximale bestandsgrootte (om de Koppeltaal-store niet als algemeen blob-store te gebruiken)
-- Beperkingen op categorieën documenten (bijvoorbeeld: zeer gevoelige documenten verplicht via externe URL met inzage-signaal aan de bron)
-- Verplichte expliciete keuze in een leveranciersprofiel (zodat dossierhouders weten wat ze kunnen verwachten)
+Wanneer het EPD een externe Binary-URL aanroept, ontvangt de bronapplicatie een `GET`-request met een Koppeltaal-uitgegeven access_token. De bronapplicatie introspecteert het token bij de Koppeltaal authorization server ([RFC 7662](https://datatracker.ietf.org/doc/html/rfc7662) `/introspect`; zie ook **TOP-KT-021 — Token introspection**) en krijgt een set scopes terug. **De regel is**: de scope die het EPD nodig heeft om de DocumentReference te lezen geldt ook als toestemming om de bijbehorende Binary op te halen. Dezelfde permissie dekt zowel metadata als inhoud.
 
-Of we deze voorwaarden willen vastleggen — en zo ja, op welk niveau (specificatie, conformance-statement, of vrij aan partijen) — is nog open.
+**Data-owner verification** — een succesvolle introspect (`active: true` plus passende scopes) is een **noodzakelijke maar geen voldoende voorwaarde** voor levering. De bronapplicatie MAY na een geldige introspect alsnog toegang weigeren of intrekken op basis van eigen beleid (bijvoorbeeld ingetrokken patiënt-toestemming, bron-specifieke regels, vermoeden van misbruik). In dat geval reageert de bron met `403 Forbidden` en logt de afwijzing zelf (zie [Audit-logging bij de bron](#audit-logging-bij-de-bron)).
+
+Twee alternatieven zijn overwogen en niet gekozen:
+
+- **Een nieuwe, expliciete Binary-scope** (bijvoorbeeld `documenten/Binary.read`): zou Binary-toegang loskoppelen van DocumentReference-toegang. Verworpen omdat het een onduidelijke status institutionaliseert (wel toegang tot de reference, niet tot de data) zonder een gebruiksscenario dat dat onderscheid nodig maakt.
+- **Uitbreiding van het introspect-endpoint met een scope-parameter** (de bron vraagt aan Koppeltaal "mag deze client deze Binary ophalen?"): valt af. [RFC 7662](https://datatracker.ietf.org/doc/html/rfc7662) definieert `/introspect` strikt als token-introspectie en kent geen request-parameters voor een per-resource autorisatiebeslissing. Een policy-decision-point hoort, indien ooit nodig, in een aparte voorziening (UMA-/PDP-pattern), niet in `/introspect`.
+
+#### ValueSet/binding voor `DocumentReference.type`
+
+Welke codes mogen leveranciers gebruiken voor `type`? Opties: LOINC ([valueset-c80-doc-typecodes](https://www.hl7.org/fhir/valueset-c80-doc-typecodes.html), de FHIR R4-default), een Koppeltaal-specifieke ValueSet voor ongestructureerde behandeluitkomsten, of een gelaagde aanpak (LOINC als basis met aanvullende Koppeltaal-codes). Te bepalen samen met leveranciers en op te nemen in het toekomstige `KT2_DocumentReference`-profiel.
+
+#### Concrete scope-syntax voor DocumentReference in de autorisatiematrix
+
+Het SMART v2 scopes-met-query-patroon (`system/DocumentReference.read?type=…`) moet worden uitgewerkt voor DocumentReference: welke parameters worden ondersteund, welke combinaties, en hoe verhouden filter-scopes zich tot de generieke `DocumentReference.read`. Op te nemen in [autorisaties.html](./autorisaties.html) (of een sibling-pagina) zodra de eerste consument hier behoefte aan heeft.
 
 ### Status
+
+Aanvullende inhoudelijke uitwerking volgt uit een door de Technical Community aangeleverde Confluence-documentatie (TC, juni 2026); deze pagina wordt aangevuld zodra die input beschikbaar is.
 
 Deze pagina beschrijft de oplossingsrichting op hoog niveau. De exacte invulling van profielen, uitwisselingspatronen en autorisatieregels wordt in samenwerking met leveranciers bepaald.

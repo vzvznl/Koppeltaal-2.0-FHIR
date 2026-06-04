@@ -11,16 +11,10 @@ KT -> EPD : Subscription / polling\ndetecteert nieuwe resource
 EPD -> AS : POST /token\n(client_credentials)
 AS -> EPD : access_token
 
-alt Externe referentie (attachment.url naar de bron)
-  EPD -> Module : GET Binary\nAuthorization: Bearer <token>
-  Module -> AS : POST /introspect (RFC 7662)
-  AS -> Module : active: true, scopes
-  Module -> EPD : Binary response
-else Binary in de Koppeltaal-store (attachment.url naar KT)
-  EPD -> KT : GET Binary\nAuthorization: Bearer <token>
-  KT -> AS : POST /introspect (RFC 7662)
-  AS -> KT : active: true, scopes
-  KT -> EPD : Binary response
-end
+EPD -> Module : GET Binary\nAuthorization: Bearer <token>
+Module -> AS : POST /introspect (RFC 7662)
+AS -> Module : active: true, scopes
+note over Module : Data-owner policy check\n(MAY deny op eigen gronden)
+Module -> EPD : Binary response
 
 @enduml
