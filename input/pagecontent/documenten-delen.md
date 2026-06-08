@@ -19,6 +19,7 @@
 | 0.0.15 | 2026-05-19 | Verwijzing naar **TOP-KT-008 — Beveiliging aspecten** toegevoegd onder "Beveiligingseisen voor het Binary-endpoint van de bron": de generieke Koppeltaal-beveiligingseisen (HTTPS-only, JWT-algoritmes, security headers, CORS, input-validatie) gelden onverkort voor het Binary-endpoint; de eisen op deze pagina zijn aanvullend en specifiek voor de externe URL-variant |
 | 0.0.16 | 2026-06-01 | Inline base64-variant (`attachment.data`) verwijderd — alleen externe URL met Binary-endpoint bij de bron blijft over. DocumentReference-profielvoorstel uitgebreid met verplicht `type` (1..1) en optioneel `category` (0..*). Autorisatie-sectie verwijst naar SMART v2 scopes-met-query (toekomstige filtering op `type`). Nieuw expliciet principe: bronapplicatie MAY na introspect alsnog toegang weigeren (data-owner verification). Audit-logging-sectie ingekort en doorverwezen naar TOP-KT-011. Beveiligingseisen-sectie gepromoveerd van "open punt" naar reguliere sectie. 30-dagen-bewaartermijnzin verplaatst naar de juiste sectie. Confluence-input-placeholder toegevoegd in Status. |
 | 0.0.17 | 2026-06-04 | Reviewopmerkingen verwerkt: FHIR-spec-links naar de **R4**-versie gecorrigeerd; uitvoering van de 30-dagen-bewaartermijn expliciet belegd bij de **bronapplicatie** als resource-origin-eigenaar (Patient-data-opschoning alleen als vangnet); Workflow verduidelijkt dat een document **niet** afhankelijk is van een afgeronde Task (`completed`) en op elk moment in de lifecycle gepubliceerd mag worden; rationale toegevoegd dat de verplichte Task-koppeling documenten altijd binnen een taakcontext plaatst; Autorisatie-sectie expliciet gemaakt dat binding aan de behandelrelatie het **toekomstige** model beschrijft — het huidige model autoriseert op applicatieniveau. |
+| 0.0.18 | 2026-06-08 | Sectie "Aankondiging via de ActivityDefinition" toegevoegd: documenten delen behandeld als optionele uitbreiding (TOP-KT-025); een module kondigt via `ActivityDefinition.useContext` (codesysteem `KoppeltaalExpansion`) aan dat de interventie een document oplevert, zodat de toewijzende applicatie er rekening mee houdt dat er een `DocumentReference` op de `Task` wordt aangemaakt en deze kan verwerken. Illustratief voorbeeld toegevoegd met voorgestelde code `029-DocumentenDelen` en een `useContext`-fragment. Bijbehorend open punt voor de concrete uitbreidingscode toegevoegd. |
 
 ---
 
@@ -107,6 +108,54 @@ De DocumentReference wordt gekoppeld aan zowel de Patient als de Task, zodat het
 
 **Een afgeronde Task is geen voorwaarde.** Een document mag op elk moment in de Task-lifecycle worden gepubliceerd; de Task hoeft hiervoor **niet** de status `completed` te hebben. Zo kunnen ook tussentijdse rapportages worden gedeeld terwijl de interventie nog loopt.
 
+### Aankondiging via de ActivityDefinition
+
+Of een digitale interventie een document oplevert, is voor de applicatie die de interventie toewijst niet vanzelfsprekend. Documenten delen wordt daarom behandeld als een **optionele uitbreiding** van de Koppeltaal standaard (zie **TOP-KT-025 — Optionele uitbreiding van de Koppeltaal standaard**). Een module-applicatie kondigt vooraf — in de `ActivityDefinition` — aan dat de betreffende interventie een document oplevert.
+
+Dit gebeurt via de `useContext` van de `ActivityDefinition`: de module neemt een uitbreidingscode op uit het `KoppeltaalExpansion`-codesysteem (hetzelfde patroon als de uitbreiding "Rol van de naaste"). Deze code is het signaal dat er op basis van de hieruit voortkomende `Task` een `DocumentReference` zal worden aangemaakt.
+
+Het voorstel is om hiervoor een nieuwe code op te nemen in het `KoppeltaalExpansion`-codesysteem (`http://vzvz.nl/fhir/CodeSystem/koppeltaal-expansion`):
+
+```text
+029-DocumentenDelen — "Documenten Delen"
+Met de "Documenten Delen" uitbreiding kunnen applicaties op basis van Taken
+voor de patiënt een document door middel van een DocumentReference delen met
+andere applicaties in het domein.
+```
+
+Een module die documenten oplevert, neemt deze code dan als volgt op in de `useContext` van haar `ActivityDefinition` (illustratief; de code is nog niet vastgelegd in `input/fsh`):
+
+```json
+"useContext": [
+  {
+    "code": {
+      "system": "http://vzvz.nl/fhir/CodeSystem/koppeltaal-usage-context-type",
+      "code": "koppeltaal-expansion"
+    },
+    "valueCodeableConcept": {
+      "coding": [
+        {
+          "system": "http://vzvz.nl/fhir/CodeSystem/koppeltaal-expansion",
+          "code": "029-DocumentenDelen",
+          "display": "Documenten Delen"
+        }
+      ]
+    }
+  }
+]
+```
+
+> Dit voorbeeld dient ter illustratie van het patroon. De definitieve codewaarde en uitwerking worden vastgelegd in `input/fsh`; zie [Open punten](#open-punten).
+
+De applicatie die de interventie toewijst (doorgaans het ECD/EPD) leest deze `useContext` bij het [inzien en selecteren](#workflow) van interventies. Daarmee weet de toewijzende applicatie **vooraf** dat:
+
+- er op basis van de aangemaakte `Task` een `DocumentReference` in de Koppeltaal FHIR store gepubliceerd zal worden;
+- zij in staat moet zijn dit document te verwerken: detecteren (polling of Subscription), ophalen via de externe referentie en archiveren in het dossier (zie [Workflow](#workflow)).
+
+De toewijzende applicatie moet hier dus expliciet rekening mee houden. Een applicatie die documenten delen niet ondersteunt, kan op basis van de `useContext` besluiten de interventie niet aan te bieden of toe te wijzen — net als bij andere optionele uitbreidingen. Zo wordt voorkomen dat een interventie wordt toegewezen waarvan het opgeleverde document vervolgens niet verwerkt kan worden.
+
+Conform het MVP-model van TOP-KT-025 zijn er geen technische controles in het Koppeltaal-stelsel die afdwingen dat de toewijzende applicatie documenten kan verwerken; dit wordt geborgd via acceptatie per uitbreiding en afspraken op zorgaanbieder-domeinniveau. De concrete uitbreidingscode voor documenten delen is nog uit te werken (zie [Open punten](#open-punten)).
+
 ### Autorisatie
 
 > **Let op — huidig versus toekomstig model.** In het **huidige** Koppeltaal-autorisatiemodel worden **applicaties** geautoriseerd, niet individuele personen (zie [autorisaties.html](./autorisaties.html#huidig-autorisatiemodel-koppeltaal)). Toegang tot een DocumentReference loopt daarmee via de applicatie-autorisatiematrix en is op dit moment **niet** gebonden aan de behandelrelatie. De hieronder beschreven binding aan de behandelrelatie beschrijft het **toekomstige** model; die wordt pas werkelijkheid zodra de persoonsgebonden autorisatie is geïmplementeerd (zie [autorisaties.html](./autorisaties.html)).
@@ -177,6 +226,10 @@ Welke codes mogen leveranciers gebruiken voor `type`? Opties: LOINC ([valueset-c
 #### Concrete scope-syntax voor DocumentReference in de autorisatiematrix
 
 Het SMART v2 scopes-met-query-patroon (`system/DocumentReference.read?type=…`) moet worden uitgewerkt voor DocumentReference: welke parameters worden ondersteund, welke combinaties, en hoe verhouden filter-scopes zich tot de generieke `DocumentReference.read`. Op te nemen in [autorisaties.html](./autorisaties.html) (of een sibling-pagina) zodra de eerste consument hier behoefte aan heeft.
+
+#### Uitbreidingscode voor documenten delen
+
+De [aankondiging via de ActivityDefinition](#aankondiging-via-de-activitydefinition) vereist een concrete uitbreidingscode in het `KoppeltaalExpansion`-codesysteem (`input/fsh`), naar analogie van `026-RolvdNaaste`. Vast te leggen na afstemming met leveranciers: de codewaarde en het label, en of documenten delen één enkele uitbreiding vormt of verder verfijnd wordt (bijvoorbeeld onderscheid tussen verplicht en optioneel opleveren van een document). Pas zodra de code in `input/fsh` is opgenomen, kan de `useContext` op deze waarde worden gevalideerd.
 
 ### Status
 
