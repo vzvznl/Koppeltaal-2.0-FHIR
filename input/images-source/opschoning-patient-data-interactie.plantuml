@@ -4,37 +4,40 @@ participant "Koppeltaal-\nvoorziening" as KT
 participant "Doelapplicatie A" as AppA
 participant "Doelapplicatie B" as AppB
 
-== Verwijdering starten ==
+== Verwijdering aankondigen ==
 
-KT -> KT : Bewaartermijn verstreken\nPUT Patient\n(tag: DELETE_PENDING)
-KT -> KT : AuditEvent\n(delete-initiated)
-KT -> AppA : Subscription notification\n(DELETE_PENDING)
-KT -> AppB : Subscription notification\n(DELETE_PENDING)
+KT -> KT : Bewaartermijn verstreken
+KT -> AppA : POST Task\n(code=delete-pending,\nowner=Device A, status=requested)
+KT -> AppB : POST Task\n(code=delete-pending,\nowner=Device B, status=requested)
+KT -> KT : AuditEvent (archive)
+note over AppA, AppB : Subscription:\nTask?code=delete-pending\n&status=requested
 
 == Grace period ==
 
 AppA -> KT : GET Patient resources\n(data veiligstellen)
-note right of AppA : Geen actie nodig\n= akkoord (opt-out)
+AppA -> KT : PUT Task A\n(status=accepted)
+note right of AppA : Groen licht
 
-AppB -> KT : PUT Patient\n(tag: += DELETE_HOLD)
-KT -> KT : AuditEvent\n(delete-hold,\nreden: "data niet veiliggesteld")
+AppB -> KT : PUT Task B\n(status=on-hold, statusReason)
+KT -> KT : AuditEvent (hold)
 note right of AppB : Noodrem:\nproces pauzeert
 
 ...wacht op opheffing...
 
-AppB -> KT : PUT Patient\n(tag: -= DELETE_HOLD)
-KT -> KT : AuditEvent\n(delete-hold-released)
+AppB -> KT : PUT Task B\n(status=accepted)
+KT -> KT : AuditEvent (unhold)
 
 == Activiteitscheck ==
 
-KT -> KT : Grace period verstreken\n+ geen DELETE_HOLD
-KT -> KT : Check: hernieuwde\nbetrokkenheid sinds\nDELETE_PENDING?
-note right of KT : Bij ja:\ndelete-aborted,\ntag verwijderd,\nbewaartermijn herstart
+KT -> KT : Grace verstreken, geen blokkade\nof alle Tasks accepted (fast-track)
+KT -> KT : Check: hernieuwde\nbetrokkenheid?
+note right of KT : Bij ja: Tasks cancelled,\nAuditEvent (reactivate),\nbewaartermijn herstart
 
 == Definitieve verwijdering ==
 
-KT -> KT : $purge operatie
-KT -> KT : AuditEvent\n(delete-completed)\nGET Patient -> 404
-note right of KT : AuditEvents\noverleven de $purge
+KT -> KT : Tasks status=completed
+KT -> KT : $purge (Patient + compartment,\nincl. de Tasks)
+KT -> KT : AuditEvent (destroy)
+note right of KT : destroy-AuditEvent overleeft\nde $purge -> post-delete signaal
 
 @enduml

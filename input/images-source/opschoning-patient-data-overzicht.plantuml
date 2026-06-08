@@ -9,39 +9,38 @@ skinparam activity {
 start
 label start_termijn
 :Bewaartermijn verstreken /\ncontractbeeindiging;
-
-|Koppeltaalvoorziening|
-:Patient.meta.tag =\nDELETE_PENDING;
-:AuditEvent\n(delete-initiated);
-:Subscription notificatie\nnaar doelapplicaties;
+:Maak Task per opt-in doelapp\n(code=delete-pending,\nowner=Device, status=requested);
+:AuditEvent (archive);
+:Subscription-notificatie\nnaar doelapplicaties;
 
 |Doelapplicaties|
 :Grace period:\ndata veiligstellen;
-
-if (Noodrem?) then (ja)
-  :DELETE_HOLD;
-  :AuditEvent\n(delete-hold);
+if (Reactie?) then (noodrem)
+  :Task status=on-hold\n(of rejected = permanent);
+  :AuditEvent (hold);
   :...wacht op opheffing...;
-  :DELETE_HOLD\nopgeheven;
-  :AuditEvent\n(delete-hold-released);
-else (nee / time-out)
+  :Task status=accepted;
+  :AuditEvent (unhold);
+else (groen licht / geen actie)
+  :Task status=accepted\n(of geen actie = opt-out);
 endif
 
 |Koppeltaalvoorziening|
 if (Hernieuwde\nbetrokkenheid\ntijdens grace period?) then (ja)
-  :Tag DELETE_PENDING\nverwijderen;
-  :AuditEvent\n(delete-aborted);
-  :Bewaartermijn\nherstart;
+  :Tasks status=cancelled;
+  :AuditEvent (reactivate);
+  :Bewaartermijn herstart;
   goto start_termijn
 else (nee)
 endif
 
 |Koppeltaalvoorziening|
+:Tasks status=completed;
 :$purge operatie;
-:AuditEvent\n(delete-completed);
+:AuditEvent (destroy);
 note right
-  AuditEvents overleven
-  de $purge
+  AuditEvents (incl. destroy)
+  overleven de $purge
 end note
 
 stop

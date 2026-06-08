@@ -1,0 +1,42 @@
+@startuml opschoning-patient-data-tasklifecycle
+
+skinparam state {
+  BackgroundColor #f5f5f5
+  BorderColor #333333
+}
+
+state "on-hold" as on_hold
+
+note as N1
+  Eén Task per (Patient x doelapplicatie); status = Task.status.
+  "Actief" en "Deleted" zijn conceptuele staten, geen Task.
+end note
+
+[*] --> Actief
+Actief : Patient actief;\ngeen aankondigings-Task
+Actief --> requested : Bewaartermijn verstreken\n(KT maakt Task, AE archive)
+
+requested : Aangekondigd;\ngrace period loopt
+requested --> on_hold : Doelapp pauzeert\n(noodrem, AE hold)
+requested --> rejected : Doelapp blokkeert\npermanent (AE hold)
+requested --> accepted : Doelapp geeft\ngroen licht
+
+on_hold : Tijdelijke noodrem;\nstatusReason = reden
+on_hold --> accepted : Opgeheven\n(AE unhold)
+
+accepted : Groen licht / akkoord
+accepted --> on_hold : Doelapp herziet\n(AE hold)
+
+rejected : Permanente blokkade\n("nooit goedvinden")
+rejected --> accepted : Bezwaar ingetrokken\n(AE unhold)
+
+requested --> Actief : Hernieuwde betrokkenheid\n(cancelled, AE reactivate)
+accepted --> Actief : Hernieuwde betrokkenheid\n(cancelled, AE reactivate)
+
+requested --> Deleted : Grace verstreken,\ngeen blokkade\n(completed, AE destroy)
+accepted --> Deleted : Fast-track: alle apps\naccepted (completed, AE destroy)
+
+Deleted : Patient verwijderd;\nalleen AuditEvents resteren
+Deleted --> [*] : GET Patient -> 404
+
+@enduml

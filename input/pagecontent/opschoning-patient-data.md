@@ -2,33 +2,14 @@
 
 | Versie | Datum | Wijziging |
 | --- | --- | --- |
-| 0.0.1 | 2026-03-24 | Initiële versie: uitgangspunten en oplossingsrichting |
-| 0.0.2 | 2026-04-13 | Notificatiemechanisme via `meta.tag` lifecycle toegevoegd |
-| 0.0.3 | 2026-04-13 | Drie niveaus van notificatie uitgewerkt; task lifecycle als overweging |
-| 0.0.4 | 2026-04-13 | Dataclassificatie, toegankelijkheid archiefdata, rechten betrokkenen en contractbeëindiging toegevoegd |
-| 0.0.5 | 2026-04-15 | PlantUML diagrammen toegevoegd (overzicht en tag lifecycle) |
-| 0.0.6 | 2026-04-29 | Verifieerbare notificatie, beveiliging en beheersbaarheid toegevoegd; discussiepunt initiëring archivering |
-| 0.0.7 | 2026-04-29 | Focus op meta.tag lifecycle als primaire oplossingsrichting; noodrem en AuditEvents uitgewerkt; interactiediagram toegevoegd |
-| 0.0.8 | 2026-05-04 | KT-dienst als initiator vastgelegd; laatste activiteit als startmoment; recht om vergeten te worden als aparte UC; datum in tags |
-| 0.0.9 | 2026-05-05 | Technische onderbouwing meta.tags vs. soft delete toegevoegd |
-| 0.0.10 | 2026-05-11 | Statusmodel vereenvoudigd: `ARCHIVE_*` / `PURGE_*` vervangen door `DELETE_PENDING` / `DELETE_HOLD` / `DELETED`; activiteitscheck vóór `DELETED` toegevoegd; concept "archiefdata" en security labels-mechanisme verwijderd; rechten van betrokkenen herschreven |
-| 0.0.11 | 2026-05-12 | Startmoment bewaartermijn geabstraheerd naar "laatste betrokkenheid" (User Authentication AuditEvent als kandidaat onder discussie); diagrammen: hernieuwde betrokkenheid laat de bewaartermijn herstarten |
-| 0.0.12 | 2026-05-12 | Tag-lifecycle-diagram: HTTP-status na `$purge` gecorrigeerd van 410 Gone naar 404 Not Found (geen tombstone bij hard delete) |
-| 0.0.13 | 2026-05-13 | DELETED geschrapt als tag (kan na `$purge` niet meer bestaan); Actief en DELETED expliciet als conceptuele eindstaten benoemd; `Patient.meta.tag = DELETED`-stap uit overzicht- en interactiediagram verwijderd ([#58](https://github.com/vzvznl/Koppeltaal-2.0-FHIR/issues/58)) |
-| 0.0.14 | 2026-05-19 | Naamgeving van de conceptuele eindstaat "Deleted" geüniformeerd: in tekst en tag-lifecycle-diagram niet langer in caps (`DELETED`) of met code-styling, maar als gewoon woord parallel aan "Actief" — `DELETE_PENDING` en `DELETE_HOLD` blijven als echte tag-waarden wél in caps |
-| 0.0.15 | 2026-05-19 | Signaal voor "laatste betrokkenheid" vastgesteld: AuditEvents bij de `/authorize`-call van de SMART on FHIR launch en bij de `/introspect`-call van het HTI token — open discussiepunt uit 0.0.11 hiermee gesloten |
-| 0.0.16 | 2026-05-19 | Sectie "Welke events resetten de bewaartermijn" toegevoegd: Practitioner-logins resetten de bewaartermijn van de Patient niet (administratieve activiteit ≠ patiëntbetrokkenheid); Patient- en RelatedPerson-logins wél |
-| 0.0.17 | 2026-05-19 | Pagina hernoemd van "Archivering" naar "Opschoning Patient-data"; PlantUML-bronnen meegerenamed (`archivering-*.plantuml` → `opschoning-patient-data-*.plantuml`). Conceptshift gedocumenteerd: "laatste betrokkenheid" wordt niet langer afgeleid uit het nieuwste AuditEvent maar opgeslagen als expliciete extension op `Patient.meta` (FSH-uitwerking volgt in apart traject). Detailbeschrijving van events, update-mechanisme, backfill en overwegingen verhuist naar een aparte pagina `opschoning-patient-data-startmoment` (in 0.0.21 weer afgevoerd ten gunste van een querybenadering); activiteitscheck vóór Deleted leest voortaan de meta-extension i.p.v. AuditEvents te bevragen |
-| 0.0.18 | 2026-05-19 | Sectie "Waarom meta.tags en niet FHIR soft delete?" verplaatst van onder "Oplossingsrichting" naar "Overwegingen" (waar afgewezen alternatieven thuishoren); herbenoemd tot "FHIR soft delete in plaats van meta.tag lifecycle" voor consistentie met de andere overwegingen |
-| 0.0.19 | 2026-05-20 | "Verifieerbare notificatie" hernoemd en herschreven naar "Notificatie is informatief": notificaties zijn een informatief signaal aan doelapplicaties dat Patient-data uit de Koppeltaalvoorziening gaat verdwijnen, niet een toezegging tot veiligstelling. Bevestigde ontvangst is geen voorwaarde meer voor verwijdering; doelapplicaties hanteren hun eigen bewaartermijnen. Recht om vergeten te worden (AVG art. 17) heeft een aparte route. |
-| 0.0.20 | 2026-05-20 | Sectie "Notificatie en abonnement" aangevuld: notificatie is óók een signaal (MAY) aan andere systemen om hun eigen lokale kopie op te schonen; Subscription op Patient-changes is **verplicht** voor applicaties in het domein, met twee toegestane patronen (tag-specifiek op `Patient?_tag=DELETE_PENDING` of breed op `Patient`/`Patient?_id`). Subscriben op AuditEvents is voor pre-delete signalen geen geldig alternatief — een AuditEvent is bewijslog, geen betrouwbare trigger. Ontbrekende Subscription kan KT2 periodiek detecteren en als AuditEvent vastleggen. Aanbeveling: leveranciers richten eigen alerting in op gefaalde tag-specifieke deliveries (`Subscription.status=error`). Open punt "Post-delete-notificatie" toegevoegd: standaard R4-Subscription vuurt niet op DELETE. Twee R4-compatibele opties in overweging — (1) subscriben op `AuditEvent?type=delete-completed`, (2) delete-notificatie via Subscription-extensie (HAPI's `subscription-send-delete-messages` of KT2-eigen variant). R5 SubscriptionTopic-backport overwogen maar afgewezen wegens migratie-last. |
-| 0.0.21 | 2026-06-01 | Startmoment-aanpak herzien naar een **query-gebaseerde afleiding**: `last-patient-engagement` is geen state meer op `Patient.meta` maar wordt op het moment van de activiteitscheck berekend als `max(T_authorize, T_introspect_hti, T_task_owner)` over bestaande AuditEvents (`/authorize` en `/introspect[hti]` met Patient of gekoppelde RelatedPerson als actor) en `Task.meta.lastUpdated` waar `Task.owner` naar de Patient verwijst. De eerder voorgestelde meta-extension `KT2_LastPatientEngagement` en de aparte pagina `opschoning-patient-data-startmoment` komen daarmee te vervallen; de AuditEvent voor `/introspect[hti]` moet nog worden uitgewerkt (TOP-KT-021). |
+| 0.0.1 | 2026-06-08 | Initiële versie |
 
 ---
 
 ### Opschoning Patient-data
 
 Deze pagina beschrijft de uitgangspunten en oplossingsrichting voor het verwijderen van patiëntdata binnen een Koppeltaal domein. De Koppeltaalvoorziening slaat patiëntgerelateerde FHIR resources op die na verloop van tijd verwijderd moeten worden, conform wettelijke bewaartermijnen (AVG, WGBO, NEN 7510, NEN 7513).
+
 
 <div style="clear: both; margin: 1em 0;">
 {% include opschoning-patient-data-overzicht.svg %}
@@ -53,7 +34,7 @@ AuditEvents zijn immutable en worden centraal verzameld. Om de verschillende bew
 
 #### De Koppeltaalvoorziening initieert verwijdering
 
-De Koppeltaalvoorziening initieert het verwijderproces. Wanneer de bewaartermijn van 2 jaar — gerekend vanaf de laatste activiteit — is verstreken, start de Koppeltaalvoorziening automatisch de verwijderprocedure (zie meta.tag lifecycle). Het ECD (als dossierhouder) en doelapplicaties worden hierover genotificeerd en hebben de mogelijkheid om data veilig te stellen of het proces te blokkeren via de noodrem.
+De Koppeltaalvoorziening initieert het verwijderproces. Wanneer de bewaartermijn van 2 jaar — gerekend vanaf de laatste activiteit — is verstreken, start de Koppeltaalvoorziening automatisch de verwijderprocedure (zie [Oplossingsrichting](#oplossingsrichting)). Het ECD (als dossierhouder) en doelapplicaties worden hierover genotificeerd en hebben de mogelijkheid om data veilig te stellen of het proces te blokkeren via de noodrem.
 
 Het ECD heeft op grond van de [WGBO](https://wetten.overheid.nl/BWBR0005290) een eigen wettelijke bewaartermijn van maximaal 20 jaar voor medische gegevens en is verantwoordelijk voor het tijdig veiligstellen van relevante data uit de Koppeltaalvoorziening.
 
@@ -61,13 +42,13 @@ Het ECD heeft op grond van de [WGBO](https://wetten.overheid.nl/BWBR0005290) een
 
 Per datacategorie moet een eenduidig startmoment voor de bewaartermijn worden vastgesteld. Voor persoonsgegevens geldt de **laatste betrokkenheid van de patiënt** als startmoment — het moment waarop de patiënt voor het laatst aantoonbaar actief was binnen het Koppeltaal-domein.
 
-Dit moment wordt **niet als state opgeslagen** maar op het moment van de [activiteitscheck](#activiteitscheck-vóór-deleted) afgeleid uit drie bestaande bronnen, waarvan het maximum wordt genomen:
+Dit moment wordt **niet als state opgeslagen** maar op het moment van de [activiteitscheck](#activiteitscheck-vóór-verwijdering) afgeleid uit drie bestaande bronnen, waarvan het maximum wordt genomen:
 
 | Bron | Definitie | Status |
 | --- | --- | --- |
 | `T_authorize` | Meest recente `AuditEvent` voor de SMART `/authorize`-call van de Koppeltaal-launch, waar de actor de Patient is of een aan deze Patient gekoppelde RelatedPerson (`agent.who`) | Reeds gespecificeerd — type `DCM#110114` / subtype `DCM#110122` (zie `auditevent-launch-example.fsh`) |
-| `T_introspect_hti` | Meest recente `AuditEvent` voor de `/introspect`-call **uitsluitend wanneer het geïntrospecteerde token een HTI launch token is**, met dezelfde actor-filtering | **Nog te ontwikkelen** — `/introspect` accepteert ook access- en id-tokens (zie [TOP-KT-021](https://vzvz.atlassian.net/wiki/spaces/KTSA/pages/27125106)); alleen introspectie van HTI launch tokens telt als patiëntbetrokkenheid. Tot deze AuditEvent is uitgewerkt blijft dit pad inactief |
-| `T_task_owner` | Meest recente `Task.meta.lastUpdated` voor Tasks waar `Task.owner` direct naar de Patient verwijst | Beschikbaar in het huidige Task-profiel. **Niet** `Task.for` — Tasks die *over* de patiënt gaan tellen niet; alleen Tasks waarvan de patiënt de **uitvoerder** is |
+| `T_introspect_hti` | Meest recente `AuditEvent` voor de `/introspect`-call **uitsluitend wanneer het geïntrospecteerde token een HTI launch token is**, met dezelfde actor-filtering | **In uitwerking** — voorstel: het bestaande User Authentication AuditEvent (`type DCM#110114`) met een eigen subtype (voorstel `DCM#110143`); te bevestigen in [TOP-KT-021](https://vzvz.atlassian.net/wiki/spaces/KTSA/pages/27125106). Tot dit is vastgesteld blijft dit pad inactief |
+| `T_task_owner` | Meest recente `Task.meta.lastUpdated` voor Tasks waar `Task.owner` direct naar de Patient verwijst | Beschikbaar in het huidige Task-profiel. **Niet** `Task.for` — Tasks die *over* de patiënt gaan tellen niet; alleen Tasks waarvan de patiënt de **uitvoerder** is. De aankondigings-Task (`KT2_DeletePendingTask`, `owner` = `Device`) valt hier per definitie buiten |
 
 `last-patient-engagement = max(T_authorize, T_introspect_hti, T_task_owner)`.
 
@@ -76,6 +57,8 @@ Practitioner-activiteit telt niet mee: behandelaaractiviteit is administratief /
 Activiteit van een aan de Patient gekoppelde RelatedPerson telt **in principe** wél mee — uitgewerkt in zowel de AuditEvent-actorfilter als de `Task.owner`-filter. Zie [overweging "RelatedPerson in de mix"](#relatedperson-in-de-mix) voor de motivatie en implementatie.
 
 Voordelen van de querybenadering: geen state-onderhoud op `Patient.meta`, geen schrijfpaden bij zelf-inloggende applicaties, geen conflictresolutie en geen backfill-migratie. De afleiding gebruikt de resources die al de bron van waarheid zijn — AuditEvents voor activiteit (NEN 7513) en Tasks voor uitvoeringsbetrokkenheid. De controle vindt alleen plaats op het moment van `$purge`; drie tot vijf gerichte queries per kandidaat-Patient zijn acceptabel.
+
+**Edge-case "nooit betrokken".** Is er voor een kandidaat-Patient na 2 jaar geen enkel relevant event (`max(...)` is leeg — bijvoorbeeld een Patient die wel is aangemaakt maar waarvoor nooit een Launch of Task heeft plaatsgevonden), dan start gewoon de reguliere purge-procedure.
 
 Voorbeelden per datacategorie:
 
@@ -93,37 +76,35 @@ Alle data binnen de Koppeltaalvoorziening moet geclassificeerd worden op basis v
 
 Door classificatie bij creatie toe te passen, kan de Koppeltaalvoorziening bewaartermijnen geautomatiseerd afdwingen en is het op elk moment duidelijk onder welk regime een resource valt.
 
-#### Notificatie en abonnement
+#### Opt-in, notificatie en abonnement
 
 De notificatie aan doelapplicaties bij aankomende verwijdering vervult twee rollen:
 
 1. **Informatief**: zij meldt dat de Patient en gerelateerde data uit de Koppeltaalvoorziening gaan verdwijnen.
 2. **Signaal tot eigen opschoning** (MAY): deelnemende systemen worden aangemoedigd om hun eigen, lokaal opgeslagen kopie ook op te ruimen, tenzij wettelijke of contractuele bewaarplichten een eigen, andere termijn voorschrijven. Doelapplicaties hanteren hun eigen bewaartermijnen en zijn zelf verantwoordelijk voor de juiste afhandeling.
 
-**Subscription is verplicht voor applicaties in het domein.** Applicaties die in een Koppeltaal-domein opereren registreren een Subscription op Patient-changes. Twee patronen zijn toegestaan:
+**Opt-in.** Een doelapplicatie wordt alleen in het opschoningsproces meegenomen — en ontvangt dus alleen aankondigings-Tasks — wanneer zij zich daarvoor heeft aangemeld. Deze opt-in wordt beheerd via de admin console (domeinbeheer) en vastgelegd als property op het `Device`-resource van de applicatie. De Koppeltaalvoorziening leidt de set te notificeren doelapplicaties per Patient af uit deze opt-in.
 
-- **Tag-specifiek**: `Patient?_tag=...|DELETE_PENDING` — meest gericht, hoogste signaal-ruisverhouding; alleen verwijderaankondigingen.
-- **Breed op Patient-changes**: `Patient` of `Patient?_id=...` — applicatie ontvangt alle Patient-updates en filtert zelf op `meta.tag`. Past bij applicaties die om andere redenen ook Patient-changes willen volgen.
+**Abonnement.** Een opt-in doelapplicatie registreert een Subscription op haar aankondigings-Tasks:
 
-Subscriben op AuditEvents is **voor pre-delete signalen geen geldig alternatief**: zolang de Patient nog bestaat, is de tag op de Patient de waarheid en is de AuditEvent slechts bewijslog. Voor het post-delete signaal (zie hieronder) ligt dat mogelijk anders, omdat de Patient dan niet meer bestaat als bron — dit is nog een open keuze.
+```json
+{
+  "resourceType": "Subscription",
+  "status": "active",
+  "criteria": "Task?code=delete-pending&status=requested",
+  "channel": {
+    "type": "rest-hook",
+    "endpoint": "https://module.example.com/notifications/delete"
+  }
+}
+```
 
-Een applicatie zonder Subscription op één van beide toegestane patronen luistert per implicatie niet naar opschoning en zal de noodrem niet kunnen trekken. De Koppeltaalvoorziening kan dit periodiek detecteren door per geregistreerd `Device`/`Endpoint` te scannen op het bestaan van een matchende Subscription en hier zelf een AuditEvent over te schrijven; deelnemers zien zo via de audit-trail wie wel en wie niet luistert.
-
-##### Post-delete-notificatie — open keuze
-
-De Subscriptions hierboven dekken de pre-delete signalen (overgangen naar `DELETE_PENDING` en `DELETE_HOLD`). Het signaal van de **daadwerkelijke verwijdering** past niet in standaard R4-Subscription: de spec stuurt geen notificaties bij een DELETE. Juist dat moment is voor doelapplicaties het belangrijkste signaal om hun eigen, lokaal opgeslagen kopie op te ruimen.
-
-Twee R4-compatibele opties zijn in overweging; nog te beslissen:
-
-1. **Subscribe op `AuditEvent?type=delete-completed`.** De Koppeltaalvoorziening schrijft direct na de hard-delete een `delete-completed` AuditEvent; doelapplicaties subscriben hierop met standaard R4-Subscription op AuditEvent-create. Geen vendor-extensies, geen backport. De Patient is op dat moment al weg — er is geen andere bron meer dan de AuditEvent zelf.
-
-2. **Delete-notificatie via Subscription-extensie.** Een extensie op de Subscription-resource die de FHIR-server opdraagt ook DELETE-events af te vuren voor matchende resources. HAPI ondersteunt dit native via `http://hapifhir.io/fhir/StructureDefinition/subscription-send-delete-messages` (opt-in; HAPI negeert DELETE-events default). KT2 kan kiezen voor de HAPI-URL (vendor-koppeling) of een KT2-eigen extensie met dezelfde semantiek (vendor-neutraal, maar elke server moet het zelf implementeren).
-
-De [R5 SubscriptionTopic-backport](https://hl7.org/fhir/uv/subscriptions-backport/) is overwogen maar afgewezen als te ingrijpende migratie voor R4-implementaties.
+Het opschoningsproces wordt aangekondigd en gecoördineerd via een **Task** per doelapplicatie (`KT2_DeletePendingTask`), met **AuditEvents** voor de aantoonbaarheid en de definitieve verwijdering via de FHIR `$purge`-operatie.
+Via `Task.owner` ziet elke applicatie uitsluitend haar eigen Tasks. Subscriben op AuditEvents is **voor pre-delete signalen geen geldig alternatief**: de Task is de werkbare, muteerbare drager van de aankondiging; de AuditEvent is bewijslog. Voor het **post-delete** signaal ligt dat anders — zie [AuditEvents bij statusovergangen](#auditevents-bij-statusovergangen): de Task valt in het Patient-compartiment en verdwijnt mee in de `$purge`, dus dat signaal landt op de `destroy`-AuditEvent.
 
 **Verzending wordt gelogd; bevestigde ontvangst niet vereist.** Delivery-pogingen worden in AuditEvents vastgelegd zodat aantoonbaar is dat de notificatie is uitgestuurd. Bij opeenvolgende delivery-failures wordt de Subscription op `status=error` gezet en gaat de lifecycle door — de verantwoordelijkheid voor een werkende webhook ligt bij de leverancier.
 
-**Aanbevolen: alerting op gefaalde tag-specifieke deliveries.** Voor applicaties met een tag-specifieke Subscription wordt aangeraden om aan eigen zijde alerting in te richten op delivery-failures (`Subscription.status = error`). Een doodgelopen webhook betekent dat de noodrem niet meer kan worden getrokken; die zichtbaarheid hoort op leveranciersniveau te zijn geborgd.
+**Aanbevolen: alerting op gefaalde deliveries.** Leveranciers wordt aangeraden aan eigen zijde alerting in te richten op delivery-failures (`Subscription.status = error`). **Een doodgelopen webhook betekent dat de noodrem niet meer kan worden getrokken; die zichtbaarheid hoort op leveranciersniveau te zijn geborgd.**
 
 Voor scenario's waarin data daadwerkelijk moet worden teruggehaald — zoals het recht om vergeten te worden (AVG art. 17) — gelden aparte routes en mechanismen.
 
@@ -133,83 +114,77 @@ Bewaartermijnen en verwijderregels moeten beheerd en aangepast kunnen worden bin
 
 ### Oplossingsrichting
 
-#### Verwijdering via meta.tag lifecycle
+#### Coördinatie via Task (`KT2_DeletePendingTask`)
 
-Het verwijderproces wordt gestuurd via FHIR `meta.tag` op de Patient resource, in combinatie met AuditEvents voor aantoonbaarheid. Dit mechanisme biedt een gecontroleerde, transparante en auditeerbare flow waarbij doelapplicaties de mogelijkheid hebben om het proces te volgen en indien nodig te blokkeren.
+Het verwijderproces wordt aangekondigd en gecoördineerd via een FHIR `Task` per doelapplicatie, in combinatie met AuditEvents voor de aantoonbaarheid. De Patient zelf wordt daarbij niet aangeraakt.
 
-##### Tag lifecycle
+**Doorslaggevend** voor de keuze van een Task boven een `meta.tag` op de Patient is dat de **status van de opschoningsworkflow én de verslaglegging daarvan per applicatie afzonderlijk kan worden vastgelegd**. Eén tag op de gedeelde Patient-resource representeert maar één toestand voor alle deelnemers tegelijk; een Task per (Patient × doelapplicatie) geeft iedere applicatie een eigen, onafhankelijk bij te werken statusobject met een eigen audit-spoor. Daarmee zijn meerdere gelijktijdige holds, een eigen "groen licht" (`accepted`) en een eigen verslaglegging vanzelfsprekend in plaats van iets dat uit een gedeelde log gereconstrueerd moet worden.
 
-De Patient resource doorloopt een aantal staten. **Actief** en **Deleted** zijn conceptuele eindstaten en worden niet door een tag op de Patient resource gerepresenteerd: een actieve resource bestaat zonder verwijdertag, een Deleted-resource bestaat helemaal niet meer (HTTP GET levert 404 Not Found). De tussenliggende staten worden wél via `meta.tag` vastgelegd, in een dedicated CodeSystem:
+Bijkomende voordelen: de Patient wordt niet gemuteerd (geen `versionId`/`lastUpdated`-bump, geen "herleven" van een dormante Patient, geen vervuiling van het reguliere Patient-abonnement), de AuditEvent blijft zuiver bewijslog, en de noodrem is een native statusovergang op de eigen Task in plaats van een cross-tenant schrijfactie op een gedeelde resource.
 
-| Code | Display | Beschrijving |
+**Eén Task per (Patient × doelapplicatie).** Bij het ingaan van de grace period maakt de Koppeltaalvoorziening voor elke opt-in doelapplicatie die data heeft van de betreffende Patient één Task aan. Het profiel `KT2_DeletePendingTask` legt de belangrijkste constraints vast:
+
+| Element | Waarde / constraint | Toelichting |
 | --- | --- | --- |
-| `DELETE_PENDING` | Delete Pending | Patient is gemarkeerd voor verwijdering; grace period loopt |
-| `DELETE_HOLD` | Delete Hold | Noodrem — een doelapplicatie blokkeert het verwijder­proces |
+| `code` | `delete-pending` (CodeSystem `koppeltaal-task-code`) | Type van de aankondigings-Task |
+| `intent` | `order` | Een vaststaande purge wordt aangekondigd |
+| `for` | `Reference(KT2_Patient)` | De Patient die wordt opgeschoond; plaatst de Task in het Patient-compartiment |
+| `owner` | `Reference(KT2_Device)` | De opt-in doelapplicatie (altijd een `Device`); **nooit** de Patient/RelatedPerson (zou de bewaartermijn-klok `T_task_owner` resetten) |
+| `requester` | `Reference(KT2_Device)` | De Koppeltaalvoorziening |
+| `restriction.period.end` | grace-deadline | Geplande `$purge`; de doelapplicatie leest hieruit hoeveel tijd resteert |
+| `status` | zie lifecycle hieronder | Native Task-lifecycle; de toestand leeft op de Task, niet op de Patient |
 
-De lifecycle verloopt als volgt:
+#### Status-lifecycle
+
+De Task doorloopt een native lifecycle. De toestand "Actief" (geen aankondigings-Task) en "Deleted" (Patient bestaat niet meer; HTTP GET levert 404 Not Found) zijn conceptuele eindstaten die niet als Task-status bestaan.
 
 <div style="clear: both; margin: 1em 0;">
-{% include opschoning-patient-data-tag-lifecycle.svg %}
+{% include opschoning-patient-data-tasklifecycle.svg %}
 </div>
 
-##### AuditEvents bij statusovergangen
-
-Elke statusovergang wordt vastgelegd in een immutable AuditEvent. Dit biedt een aantoonbare audit trail die de `$purge` overleeft:
-
-| Moment | AuditEvent type | Actor | Doel |
+| `Task.status` | Wie zet 'm | Betekenis |  |
 | --- | --- | --- | --- |
-| Tag → `DELETE_PENDING` | delete-initiated | Koppeltaalvoorziening | Aantoonbaar: verwijdering is gestart, grace period begint |
-| Noodrem getrokken | delete-hold | Doelapplicatie | Aantoonbaar: welke applicatie blokkeert en waarom |
-| Noodrem opgeheven | delete-hold-released | Doelapplicatie | Aantoonbaar: blokkade is opgeheven |
-| Hernieuwde betrokkenheid gedetecteerd | delete-aborted | Koppeltaalvoorziening | Aantoonbaar: verwijdering afgebroken vanwege hernieuwde patiëntbetrokkenheid |
-| `$purge` uitgevoerd | delete-completed | Koppeltaalvoorziening | Aantoonbaar: data is definitief vernietigd; Patient bestaat niet meer |
+| `requested` | Koppeltaalvoorziening (create) | Aangekondigd; grace period loopt; nog geen reactie |  |
+| `on-hold` | Doelapplicatie | Tijdelijke noodrem — nog bezig; `statusReason` bevat de reden. Reversibel; opheffen → `accepted` |  |
+| `accepted` | Doelapplicatie | Groen licht: lokale data veiliggesteld / akkoord; telt mee voor fast-track. Ook de bestemming bij het opheffen van een `on-hold` |  |
+| `rejected` | Doelapplicatie | Permanente blokkade — "ik wil/kan het niet en ga het nooit goedvinden"; blokkeert zoals `on-hold` maar blijvend |  |
+| `cancelled` | Koppeltaalvoorziening | Afgebroken vanwege hernieuwde patiëntbetrokkenheid |  |
+| `completed` | Koppeltaalvoorziening | `$purge` uitgevoerd; de Task verdwijnt daarna mee |  |
 
-De combinatie van tags en AuditEvents scheidt **state** (huidige toestand van de Patient) van **events** (geschiedenis van wat er is gebeurd). Tags zijn muteerbaar en representeren de actuele status; AuditEvents zijn immutable en vormen het bewijs.
+**Governance. De Koppeltaalvoorziening creëert de Task en zet cancelled en completed.** Een doelapplicatie schrijft uitsluitend op haar **eigen** Task en alleen de waarden `on-hold`, `accepted` of `rejected`. Het opheffen van een tijdelijke noodrem gebeurt door de Task van `on-hold` naar `accepted` te zetten.
 
-##### Datum in tags
+#### Grace period en noodrem
+De `$purge` mag pas plaatsvinden wanneer **geen enkele** `delete-pending`-Task voor deze Patient op `on-hold` of `rejected` staat, **én** ofwel de grace-deadline (`restriction.period.end`) is verstreken, **ofwel** álle relevante doelapplicatie-Tasks staan op `accepted` (fast-track).
 
-Bij het zetten van een tag wordt een **datum** opgenomen die aangeeft wanneer de tag is gezet en — bij `DELETE_PENDING` — wanneer de grace period afloopt. Dit maakt het voor doelapplicaties mogelijk om te bepalen hoeveel tijd er resteert, en voor de Koppeltaalvoorziening om de overgang naar de volgende status te automatiseren. De datum wordt vastgelegd als onderdeel van de tag (bijv. via de `extension` op `meta.tag` of via een aparte `meta.tag` met een datumcodering).
+Na ontvangst van de aankondiging heeft de doelapplicatie gedurende de grace period (`restriction.period`) de gelegenheid om relevante data op te halen en lokaal veilig te stellen, en — indien nodig — de noodrem te trekken.
 
-##### Interactie met doelapplicaties
+- **Tijdelijke noodrem (on-hold): een doelapplicatie die nog niet klaar is, pauzeert de verwijdering door haar eigen Task op on-hold te zetten met een statusReason. Omdat elke applicatie een eigen Task heeft, zijn meerdere gelijktijdige noodremmen vanzelf onafhankelijk. Opheffen gebeurt door de Task op accepted te zetten (klaar én akkoord).**
+- **Permanente blokkade (`rejected`)**: een doelapplicatie die de verwijdering principieel niet wil of kan toestaan ("ik ga het nooit goedvinden"), zet haar Task op `rejected` met een `statusReason`. Dit blokkeert de `$purge` net als `on-hold`, maar is bedoeld als blijvend signaal in plaats van een tijdelijke pauze.
+- **Groen licht (`accepted`)**: een doelapplicatie die klaar is, zet haar Task op `accepted`. Wanneer **alle** relevante doelapplicaties `accepted` hebben gezet, mag de `$purge` **vóór** het verstrijken van de grace-deadline plaatsvinden (fast-track).
+- De **noodrem-grace** is voorlopig **oneindig**; een latere time-out (bijvoorbeeld 30 dagen) is een operationele regel die het model niet verandert.
 
-Doelapplicaties detecteren verwijdergerelateerde statusovergangen via FHIR Subscriptions op het `_tag` zoekcriterium:
+Het model is **opt-out** binnen de grace period: geen actie betekent dat de verwijdering doorgaat zodra de deadline verstrijkt en geen enkele Task `on-hold` of `rejected` staat.
 
-```json
-{
-  "resourceType": "Subscription",
-  "status": "active",
-  "criteria": "Patient?_tag=DELETE_PENDING",
-  "channel": {
-    "type": "rest-hook",
-    "endpoint": "https://module.example.com/notifications/delete"
-  }
-}
-```
+#### AuditEvents bij statusovergangen
 
-Na ontvangst van de notificatie heeft de doelapplicatie gedurende de grace period de gelegenheid om:
+Elke statusovergang wordt vastgelegd in een immutable AuditEvent met ISO 21089 lifecycle-codes op `AuditEvent.type` (`http://terminology.hl7.org/CodeSystem/iso-21089-lifecycle`). Dit biedt een aantoonbare audit trail die de `$purge` overleeft:
 
-- Relevante data op te halen en lokaal veilig te stellen
-- Indien nodig de noodrem te trekken (zie hieronder)
+| Moment | ISO 21089 `type` | Actor | Doel |
+| --- | --- | --- | --- |
+| Task aangemaakt (`requested`) | `archive` | Koppeltaalvoorziening | Aantoonbaar: verwijdering aangekondigd, grace period begint |
+| Blokkade gezet (`on-hold` of `rejected`) | `hold` | Doelapplicatie | Aantoonbaar: welke applicatie blokkeert en waarom |
+| Blokkade opgeheven (`accepted`) | `unhold` | Doelapplicatie | Aantoonbaar: blokkade is opgeheven |
+| Afgebroken (`cancelled`) | `reactivate` | Koppeltaalvoorziening | Aantoonbaar: verwijdering afgebroken vanwege hernieuwde betrokkenheid |
+| `$purge` uitgevoerd (`completed`) | `destroy` | Koppeltaalvoorziening | Aantoonbaar: data is definitief vernietigd; draagt tevens het **post-delete** signaal |
 
-Het model is **opt-out**: geen actie binnen de grace period betekent akkoord. De doelapplicatie hoeft niet expliciet te bevestigen dat data is veiliggesteld.
+Een `accepted`-overgang ná een `on-hold`/`rejected` legt een `unhold`-AuditEvent vast; een `accepted` als eerste reactie (zonder voorafgaande blokkade) is een coördinatiesignaal zonder eigen lifecycle-AuditEvent. De destroy-AuditEvent overleeft de $purge en is daarmee de enige bron voor het post-delete signaal — doelapplicaties die het definitieve verwijdermoment willen weten, subscriben op AuditEvent met type = …iso-21089-lifecycle|destroy.
 
-##### Noodrem (`DELETE_HOLD`)
+#### Activiteitscheck vóór verwijdering
 
-Een doelapplicatie die nog niet klaar is — bijvoorbeeld omdat data nog niet is veiliggesteld of er nog een actieve behandelrelatie bestaat — kan het verwijderproces blokkeren door de tag `DELETE_HOLD` toe te voegen aan de Patient resource:
+Voordat de Koppeltaalvoorziening tot `$purge` overgaat, berekent zij `last-patient-engagement` (zoals gedefinieerd onder [Startmoment bewaartermijn](#startmoment-bewaartermijn-moet-eenduidig-zijn)) en vergelijkt het resultaat met het moment waarop de aankondigings-Task is aangemaakt. Wanneer de berekende waarde later ligt — bijvoorbeeld doordat de patiënt of een aan deze patiënt gekoppelde RelatedPerson opnieuw heeft ingelogd, of doordat de patiënt als uitvoerder een Task heeft afgehandeld — wordt de patiënt opnieuw als actief beschouwd en wordt de verwijdering afgebroken:
 
-- **Wie mag blokkeren**: elke doelapplicatie die data heeft van de betreffende patiënt
-- **Hoe**: de doelapplicatie voegt `DELETE_HOLD` toe aan `Patient.meta.tag`
-- **Effect**: het verwijderproces pauzeert zolang `DELETE_HOLD` actief is; de overgang naar Deleted wordt geblokkeerd
-- **Vastlegging**: een AuditEvent (type `delete-hold`) wordt aangemaakt met de reden van de blokkade en de identiteit van de blokkerende applicatie
-- **Opheffing**: de doelapplicatie verwijdert de `DELETE_HOLD` tag wanneer de blokkade is opgelost; een AuditEvent (type `delete-hold-released`) wordt aangemaakt
-- **Na opheffing**: de grace period herstart of het proces gaat direct verder (configureerbaar)
-
-##### Activiteitscheck vóór Deleted
-
-Voordat de Koppeltaalvoorziening de overgang van `DELETE_PENDING` naar Deleted uitvoert, berekent zij `last-patient-engagement` (zoals gedefinieerd onder [Startmoment bewaartermijn](#startmoment-bewaartermijn-moet-eenduidig-zijn)) en vergelijkt het resultaat met het moment waarop `DELETE_PENDING` is gezet. Wanneer de berekende waarde later ligt — bijvoorbeeld doordat de patiënt of een aan deze patiënt gekoppelde RelatedPerson opnieuw heeft ingelogd, of doordat de patiënt als uitvoerder een Task heeft afgehandeld — wordt de patiënt opnieuw als actief beschouwd en wordt de verwijdering afgebroken:
-
-- De `DELETE_PENDING` tag wordt verwijderd
-- Een AuditEvent (type `delete-aborted`) wordt aangemaakt met als reden "hernieuwde betrokkenheid"
+- De aankondigings-Task(s) worden op `cancelled` gezet
+- Een AuditEvent (`reactivate`) wordt aangemaakt met als reden "hernieuwde betrokkenheid"
 - De bewaartermijn van 2 jaar begint opnieuw vanaf de berekende `last-patient-engagement`-waarde
 
 De berekening bestaat uit een aantal gerichte FHIR-searches per kandidaat-Patient. Conceptueel ziet dat er als volgt uit (exacte search-parameters volgen het profiel van `KT2_AuditEvent` en `KT2_Task`):
@@ -231,13 +206,13 @@ GET /Task?owner=Patient/{id}&_sort=-_lastUpdated&_count=1
 GET /Task?owner=RelatedPerson/{rp-id}&_sort=-_lastUpdated&_count=1
 ```
 
-De Koppeltaalvoorziening neemt `max(...)` over de gevonden timestamps. Is die later dan het moment waarop `DELETE_PENDING` is gezet, dan wordt de verwijdering afgebroken. De set gekoppelde RelatedPersons volgt uit `GET /RelatedPerson?patient=Patient/{id}`.
+De Koppeltaalvoorziening neemt max(...) over de gevonden timestamps. Is die later dan het moment waarop de aankondiging is gedaan, dan wordt de verwijdering afgebroken. De set gekoppelde RelatedPersons volgt uit GET /RelatedPerson?patient=Patient/{id}. De aankondigings-Task zelf (`owner` = `Device`) komt niet in de `owner=Patient`-query voor en beïnvloedt de klok dus niet.
 
-Deze controle voorkomt dat data wordt verwijderd van patiënten die tijdens of vlak na de grace period weer actief worden — bijvoorbeeld doordat zij na een lange inactieve periode opnieuw inloggen via een doelapplicatie. De controle wordt op het moment van de geplande `$purge` uitgevoerd, zodat ook betrokkenheid aan het einde van de grace period wordt meegenomen.
+Deze controle voorkomt dat data wordt verwijderd van patiënten die tijdens of vlak na de grace period weer actief worden. De controle wordt op het moment van de geplande $purge uitgevoerd, zodat ook betrokkenheid aan het einde van de grace period wordt meegenomen.
 
-##### Interactiediagram
+#### Interactiediagram
 
-Het volgende diagram toont de volledige interactie tussen de initiator, de Koppeltaalvoorziening en doelapplicaties, inclusief de noodrem:
+Het volgende diagram toont de volledige interactie tussen de initiator, de Koppeltaalvoorziening en doelapplicaties, inclusief de noodrem.
 
 <div style="clear: both; margin: 1em 0;">
 {% include opschoning-patient-data-interactie.svg %}
@@ -247,10 +222,11 @@ Het volgende diagram toont de volledige interactie tussen de initiator, de Koppe
 
 De overgang naar Deleted wordt technisch uitgevoerd via de FHIR [`$purge` operatie](https://build.fhir.org/patient-operation-purge.html). De `$purge `maakt gebruik van het [FHIR Patient Compartment](https://www.hl7.org/fhir/compartmentdefinition-patient.html) om te bepalen welke resources aan een patiënt gerelateerd zijn. Met de parameter` cascade=true` worden alle resources binnen het Patient Compartment in één operatie verwijderd, inclusief de Patient resource zelf.
 
+
 De scope van de `$purge` omvat onder andere:
 
 - Patient
-- Task
+- Task (inclusief de aankondigings-Tasks zelf)
 - RelatedPerson
 - CareTeam
 
@@ -276,9 +252,28 @@ De `$purge` operatie kan hiervoor worden ingezet, waarbij de AuditEvents als bew
 
 ### Overwegingen
 
-Naast de gekozen oplossingsrichting (meta.tag lifecycle) zijn de volgende alternatieve benaderingen overwogen:
+Naast de gekozen oplossingsrichting (Task-coördinatie) zijn de volgende alternatieve benaderingen overwogen:
 
-#### FHIR soft delete in plaats van meta.tag lifecycle
+#### `meta.tag` lifecycle in plaats van Task
+
+Een eerdere oplossingsrichting stuurde het verwijderproces via `meta.tag` op de Patient resource: een tag `DELETE_PENDING` markeerde de aankondiging en een tag `DELETE_HOLD` de noodrem, met FHIR Subscriptions op `Patient?_tag=…`. Deze benadering is afgewezen:
+
+- **Geen per-applicatie status of verslaglegging**: één tag op de gedeelde Patient representeert maar één toestand voor álle deelnemers tegelijk. De individuele workflow-status en verslaglegging per doelapplicatie — en meerdere gelijktijdige holds — moeten dan uit de AuditEvent-log gereconstrueerd worden in plaats van als eersteklas state te bestaan.
+- **Mutatie van de Patient**: het zetten van een tag wijzigt `versionId`/`lastUpdated` en kan (server-afhankelijk) een REST-AuditEvent en Patient-subscription-notificatie triggeren. Daardoor "herleeft" een twee jaar dormante Patient als gewijzigd, precies wat we willen vermijden.
+- **Cross-tenant schrijven**: de noodrem vereist dat een doelapplicatie op de gedeelde Patient-resource schrijft.
+
+Het `meta.tag`-model is uitgewerkt in onderstaande lifecycle (ter referentie; **niet** de gekozen richting):
+
+| Code | Display | Beschrijving |
+| --- | --- | --- |
+| `DELETE_PENDING` | Delete Pending | Patient is gemarkeerd voor verwijdering; grace period loopt |
+| `DELETE_HOLD` | Delete Hold | Noodrem — een doelapplicatie blokkeert het verwijderproces |
+
+<div style="clear: both; margin: 1em 0;">
+{% include opschoning-patient-data-tag-lifecycle.svg %}
+</div>
+
+#### FHIR soft delete
 
 Een alternatieve benadering zou zijn om de FHIR soft delete (HTTP DELETE met bewaren van een tombstone) te gebruiken als verwijdersignaal, gevolgd door een definitieve `$purge`. Deze benadering is onderzocht en afgewezen om de volgende redenen:
 
@@ -286,7 +281,7 @@ Een alternatieve benadering zou zijn om de FHIR soft delete (HTTP DELETE met bew
 - **Geen notificaties bij DELETE**: FHIR R4 stuurt standaard geen Subscription-notificaties bij een DELETE request, waardoor doelapplicaties de verwijdering niet detecteren
 - **Onbekende ondersteuning**: het is niet vastgesteld of cascading soft delete wordt ondersteund door alle FHIR-serverimplementaties (bijv. InterSystems)
 
-De `meta.tag` benadering is expliciet over de lifecycle en de staat van de resource, werkt met standaard FHIR Subscriptions, en is niet afhankelijk van serverspecifieke DELETE-functionaliteit. Dit maakt het de meest robuuste en draagbare oplossing.
+De Task-benadering is expliciet over de lifecycle en de staat per applicatie, werkt met standaard FHIR Subscriptions, en is niet afhankelijk van serverspecifieke DELETE-functionaliteit.
 
 #### Geen notificatie
 
@@ -296,16 +291,7 @@ Dit is het eenvoudigste model, maar biedt geen mogelijkheid voor doelapplicaties
 
 #### Two-phase commit via Tasks
 
-Voor situaties waarin coördinatie met doelapplicaties vereist is — bijvoorbeeld wanneer een module nog niet-overgedragen data bevat die eerst naar het EPD moet worden gestuurd — kan een two-phase commit model worden ingezet.
-
-De initiator maakt voor elke doelapplicatie die data heeft van de betreffende patiënt een Task aan met een opdracht om de lokale patiëntdata te verwijderen. De doelapplicatie kan vervolgens:
-
-- De Task op `completed` zetten als de data succesvol is verwijderd
-- De Task op `failed` zetten met een reden als de data nog niet verwijderd kan worden
-
-Pas wanneer alle Tasks zijn afgerond, voert de initiator de definitieve `$purge` uit.
-
-Dit model biedt maximale coördinatie maar introduceert complexiteit in de vorm van Task-management en -monitoring.
+De gekozen oplossingsrichting gebruikt een **aankondigings**-Task: een lichte coördinatie waarbij geen actie van de doelapplicatie vereist is (opt-out). Een zwaardere variant is een two-phase commit, waarbij de Koppeltaalvoorziening per doelapplicatie een Task aanmaakt met een expliciete **opdracht** om de lokale patiëntdata te verwijderen, en pas tot `$purge` overgaat wanneer alle Tasks `completed` zijn. Dit biedt maximale coördinatie maar introduceert complexiteit in de vorm van Task-management en -monitoring, en maakt de doelapplicaties blokkerend in plaats van geïnformeerd.
 
 #### Task lifecycle als indicator
 
@@ -315,15 +301,15 @@ Wanneer alle taken van een patiënt de status `completed` hebben, kan men beargu
 
 In het Koppeltaal-model is een RelatedPerson per definitie gekoppeld aan één specifieke Patient (`RelatedPerson.patient`). Activiteit van die RelatedPerson — een login via `/authorize`, of een Task waarvan de RelatedPerson de uitvoerder is — geldt daarom als betrokkenheid bij die patiënt en telt mee in `last-patient-engagement`.
 
-Praktisch betekent dit dat de [activiteitscheck](#activiteitscheck-vóór-deleted) eerst de set gekoppelde RelatedPersons bepaalt (`RelatedPerson?patient=Patient/{id}`) en vervolgens de AuditEvent- en Task-queries herhaalt per RelatedPerson. De RelatedPersons zelf worden in de `$purge`-cascade meegenomen (zij vallen binnen het Patient Compartment).
+Praktisch betekent dit dat de [activiteitscheck](#activiteitscheck-vóór-verwijdering) eerst de set gekoppelde RelatedPersons bepaalt (`RelatedPerson?patient=Patient/{id}`) en vervolgens de AuditEvent- en Task-queries herhaalt per RelatedPerson. De RelatedPersons zelf worden in de `$purge`-cascade meegenomen (zij vallen binnen het Patient Compartment).
 
 Open vraag voor latere iteratie: willen we deze regel óók expliciet vastleggen in een StructureDefinition-invariant of in het CapabilityStatement, zodat een implementatie de afdwingbaarheid niet zelf hoeft af te leiden uit deze pagina?
 
-#### AuditEvent voor `/introspect[hti]` nog te ontwikkelen
+#### AuditEvent voor `/introspect[hti]`
 
 `/introspect` werkt in Koppeltaal op meerdere tokentypes: HTI launch tokens, access tokens en id tokens (zie [TOP-KT-021](https://vzvz.atlassian.net/wiki/spaces/KTSA/pages/27125106)). Alleen introspectie van **HTI launch tokens** mag de bewaartermijn resetten, omdat dat het signaal is dat een doelapplicatie daadwerkelijk een patiëntgerichte launch verwerkt. Introspectie van access- of id-tokens is een technische tokenvalidatie en bewijst geen patiëntinteractie.
 
-De type/subtype-coding voor deze AuditEvent en de mapping van Patient/RelatedPerson naar `agent.who` zijn nog niet vastgesteld; uitwerking volgt in een vervolgtraject (relateert aan [TOP-KT-011 - Logging en tracing](https://vzvz.atlassian.net/wiki/spaces/KTSA/pages/27125090) en TOP-KT-021). Tot die tijd is `T_introspect_hti` inactief en steunt de berekening op `T_authorize` en `T_task_owner`.
+Voorstel: hergebruik het bestaande User Authentication AuditEvent (`type DCM#110114`, zie TOP-KT-011) met een eigen subtype (voorstel `DCM#110143`) en de mapping van Patient/RelatedPerson naar `agent.who`. Hiermee is geen nieuw AuditEvent-type nodig. De definitieve subtype-coding wordt bevestigd in een vervolgtraject (relateert aan [TOP-KT-011 - Logging en tracing](https://vzvz.atlassian.net/wiki/spaces/KTSA/pages/27125090) en TOP-KT-021). Tot die tijd is `T_introspect_hti` inactief en steunt de berekening op `T_authorize` en `T_task_owner`.
 
 #### Vervallen: meta-extension `last-patient-engagement`
 
@@ -336,6 +322,8 @@ De afzonderlijke pagina `opschoning-patient-data-startmoment` waarin de meta-ext
 ### Referenties
 
 - [FHIR Patient $purge operatie](https://build.fhir.org/patient-operation-purge.html)
+- [FHIR R4 Task](https://hl7.org/fhir/R4/task.html) / [TaskStatus](https://hl7.org/fhir/R4/valueset-task-status.html)
+- [ISO 21089 lifecycle CodeSystem](https://terminology.hl7.org/7.1.0/en/CodeSystem-iso-21089-lifecycle.html)
 - [FHIR Security Labels](https://www.hl7.org/fhir/security-labels.html)
 - [NEN 7510 - Informatiebeveiliging in de zorg](https://www.nen.nl/nen-7510-1-2017-nl-245399)
 - [NEN 7513 - Logging](https://www.nen.nl/nen-7513-2018-nl-247904)
