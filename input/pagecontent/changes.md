@@ -2,6 +2,15 @@
 
 Deze pagina bevat een overzicht van de wijzigingen per versie van de Koppeltaal 2.0 Implementation Guide.
 
+### 0.16.3 (2026-06-09)
+
+#### Toegevoegd
+- **KT2DeletePendingTask profiel**: nieuw Task-profiel dat de aankondiging van patiëntdata-verwijdering (`$purge`) per doelapplicatie coördineert. Vaste `code` (`delete-pending`), `intent = order`, `for` (KT2_Patient), `owner` en `requester` (KT2_Device) en een verplichte `restriction.period.end` (grace-deadline). Reageren gebeurt via de native Task-lifecycle (`on-hold` als noodrem, `accepted` als groen licht). Eerste voorstel; zie de pagina Opschoning Patient-data.
+- **KoppeltaalTaskCode codesysteem**: code `delete-pending` toegevoegd voor de aankondigings-Task.
+- **KoppeltaalDevicePropertyType codesysteem**: nieuw codesysteem met code `deletion-process-opt-in` waarmee via `Device.property` wordt vastgelegd dat een applicatie zich heeft aangemeld (opt-in) voor het opschoningsproces.
+- **KT2Device profiel**: `Device.property` weer toegestaan met een slice `deletionOptIn` voor de opt-in op het opschoningsproces.
+- **Voorbeelden**: `task-delete-pending` (aankondigings-Task), `device-opschoning-opt-in` (Device met opt-in property) en `auditevent-introspect-hti` (AuditEvent bij introspectie van een HTI launch token, voorgesteld subtype `DCM#110143`).
+
 ### 0.16.2 (2026-04-02)
 
 #### Hersteld

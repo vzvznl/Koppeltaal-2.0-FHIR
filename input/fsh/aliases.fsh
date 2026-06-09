@@ -33,6 +33,7 @@ Alias: $rolcode-vektis-urn = urn:oid:2.16.840.1.113883.2.4.3.11.22.472
 
 // Koppeltaal specific
 Alias: $koppeltaal-definition-topic = http://vzvz.nl/fhir/CodeSystem/koppeltaal-definition-topic
+Alias: $koppeltaal-device-property-type = http://vzvz.nl/fhir/CodeSystem/koppeltaal-device-property-type
 Alias: $koppeltaal-endpoint-connection-type = http://vzvz.nl/fhir/CodeSystem/koppeltaal-endpoint-connection-type
 Alias: $koppeltaal-endpoint-connection-type-vs = http://vzvz.nl/fhir/ValueSet/endpoint-connection-type
 Alias: $koppeltaal-task-code = http://vzvz.nl/fhir/CodeSystem/koppeltaal-task-code

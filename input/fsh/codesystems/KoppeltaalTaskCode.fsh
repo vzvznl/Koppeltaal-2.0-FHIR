@@ -13,5 +13,6 @@ Description: "Type of Task.code specifically used in Koppeltaal"
 * ^version = "2024-07-15"
 * ^experimental = false
 * ^caseSensitive = true
-* ^count = 1
+* ^count = 2
 * #view "This task can be viewed"
+* #delete-pending "Delete pending" "Aankondigings-Task waarmee wordt gemeld dat de data van een patiënt gepland staat voor definitieve verwijdering (`$purge`) uit de Koppeltaalvoorziening."

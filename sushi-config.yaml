@@ -7,7 +7,7 @@ fhirVersion: 4.0.1
 FSHOnly: false
 applyExtensionMetadataToRoot: false
 status: draft
-version: 0.16.2
+version: 0.16.3
 copyrightYear: 2024+
 releaseLabel: ci-build
 # license: CC0-1.0 # https://www.hl7.org/fhir/valueset-spdx-license.html
@@ -239,6 +239,7 @@ menu:
     ActivityDefinition: StructureDefinition-KT2ActivityDefinition.html
     AuditEvent: StructureDefinition-KT2AuditEvent.html
     CareTeam: StructureDefinition-KT2CareTeam.html
+    Delete Pending Task: StructureDefinition-KT2DeletePendingTask.html
     Device: StructureDefinition-KT2Device.html
     Endpoint: StructureDefinition-KT2Endpoint.html
     Organization: StructureDefinition-KT2Organization.html

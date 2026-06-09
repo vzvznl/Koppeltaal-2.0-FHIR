@@ -31,7 +31,14 @@ Description: "The Device resource represents a software application or system th
 * partNumber ..0
 * specialization ..0
 * version ..0
-* property ..0
+* property ^slicing.discriminator.type = #pattern
+  * ^slicing.discriminator.path = "type"
+  * ^slicing.rules = #open
+  * ^slicing.description = "Koppeltaal-specifieke Device-properties, onderscheiden op `type`."
+* property contains deletionOptIn 0..1
+* property[deletionOptIn].type = $koppeltaal-device-property-type#deletion-process-opt-in (exactly)
+  * ^short = "Opt-in voor het opschoningsproces"
+  * ^definition = "De aanwezigheid van deze property markeert dat de applicatie zich heeft aangemeld (opt-in) voor het opschoningsproces van patiëntdata. Alleen aangemelde applicaties ontvangen aankondigings-Tasks (KT2_DeletePendingTask). Afwezigheid betekent geen opt-in."
 * patient ..0
 * owner only Reference(KT2_Organization)
 * contact ..0
