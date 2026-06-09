@@ -243,11 +243,11 @@ Bij beëindiging van een verwerkersovereenkomst is de Koppeltaalvoorziening verp
 
 De `$purge` operatie kan hiervoor worden ingezet, waarbij de AuditEvents als bewijs van verwijdering dienen.
 
-### Alternatieven
+### Overwogen alternatieven
 
 Naast de gekozen oplossingsrichting (Task-coördinatie) zijn de volgende alternatieve benaderingen overwogen en afgewezen (of als variant genoteerd):
 
-#### `meta.tag` lifecycle in plaats van Task
+#### ~~`meta.tag` lifecycle in plaats van Task~~
 
 Een eerdere oplossingsrichting stuurde het verwijderproces via `meta.tag` op de Patient resource: een tag `DELETE_PENDING` markeerde de aankondiging en een tag `DELETE_HOLD` de noodrem, met FHIR Subscriptions op `Patient?_tag=…`. Deze benadering is afgewezen:
 
@@ -266,7 +266,7 @@ Het `meta.tag`-model is uitgewerkt in onderstaande lifecycle (ter referentie; **
 {% include opschoning-patient-data-tag-lifecycle.svg %}
 </div>
 
-#### FHIR soft delete
+#### ~~FHIR soft delete~~
 
 Een alternatieve benadering zou zijn om de FHIR soft delete (HTTP DELETE met bewaren van een tombstone) te gebruiken als verwijdersignaal, gevolgd door een definitieve `$purge`. Deze benadering is onderzocht en afgewezen om de volgende redenen:
 
@@ -276,21 +276,21 @@ Een alternatieve benadering zou zijn om de FHIR soft delete (HTTP DELETE met bew
 
 De Task-benadering is expliciet over de lifecycle en de staat per applicatie, werkt met standaard FHIR Subscriptions, en is niet afhankelijk van serverspecifieke DELETE-functionaliteit.
 
-#### Geen notificatie
+#### ~~Geen notificatie~~
 
 In de praktijk geldt dat wanneer een patiënt langere tijd inactief is geweest, er via Koppeltaal geen actieve interactie meer plaatsvindt. Het "verdwijnen" van de data is in dat geval geen functioneel probleem voor de doelapplicatie. De initiator kan in dit scenario direct de `$purge` uitvoeren zonder voorafgaande coördinatie.
 
 Dit is het eenvoudigste model, maar biedt geen mogelijkheid voor doelapplicaties om data veilig te stellen of bezwaar te maken.
 
-#### Two-phase commit via Tasks
+#### ~~Two-phase commit via Tasks~~
 
 De gekozen oplossingsrichting gebruikt een **aankondigings**-Task: een lichte coördinatie waarbij geen actie van de doelapplicatie vereist is (opt-out). Een zwaardere variant is een two-phase commit, waarbij de Koppeltaalvoorziening per doelapplicatie een Task aanmaakt met een expliciete **opdracht** om de lokale patiëntdata te verwijderen, en pas tot `$purge` overgaat wanneer alle Tasks `completed` zijn. Dit biedt maximale coördinatie maar introduceert complexiteit in de vorm van Task-management en -monitoring, en maakt de doelapplicaties blokkerend in plaats van geïnformeerd.
 
-#### Task lifecycle als indicator
+#### ~~Task lifecycle als indicator~~
 
 Wanneer alle taken van een patiënt de status `completed` hebben, kan men beargumenteren dat alle due diligence is uitgevoerd: de behandelmodules zijn afgerond, de resultaten zijn teruggekoppeld, en er zijn geen openstaande interacties meer. In dat geval kan de initiator er in bepaalde situaties voor kiezen om direct tot verwijdering over te gaan zonder voorafgaande notificatie.
 
-#### Vervallen: meta-extension `last-patient-engagement`
+#### ~~meta-extension `last-patient-engagement`~~
 
 
 Motivatie: de activiteitscheck vindt alleen plaats op het moment van `$purge`. Een paar gerichte FHIR-searches op dat moment is goedkoper dan permanent state synchroon houden in alle deelnemende systemen. Bovendien zijn AuditEvents (NEN 7513) en Tasks al de canonieke bron van waarheid voor "activiteit" en "uitvoeringsbetrokkenheid" — een aparte meta-state ernaast zou een tweede bron introduceren die in conflict kan raken met die canonieke bronnen.
