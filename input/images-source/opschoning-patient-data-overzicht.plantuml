@@ -16,7 +16,7 @@ label start_termijn
 |Doelapplicaties|
 :Grace period:\ndata veiligstellen;
 if (Reactie?) then (noodrem)
-  :Task status=on-hold\n(of rejected = permanent);
+  :Task status=on-hold;
   :AuditEvent (hold);
   :...wacht op opheffing...;
   :Task status=accepted;

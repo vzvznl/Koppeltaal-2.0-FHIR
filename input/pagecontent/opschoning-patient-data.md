@@ -141,23 +141,21 @@ De Task doorloopt een native lifecycle. De toestand "Actief" (geen aankondigings
 | `requested` | Koppeltaalvoorziening (create) | Aangekondigd; grace period loopt; nog geen reactie |  |
 | `on-hold` | Doelapplicatie | Tijdelijke noodrem — nog bezig; `statusReason` bevat de reden. Reversibel; opheffen → `accepted` |  |
 | `accepted` | Doelapplicatie | Groen licht: lokale data veiliggesteld / akkoord; telt mee voor fast-track. Ook de bestemming bij het opheffen van een `on-hold` |  |
-| `rejected` | Doelapplicatie | Permanente blokkade — "ik wil/kan het niet en ga het nooit goedvinden"; blokkeert zoals `on-hold` maar blijvend |  |
 | `cancelled` | Koppeltaalvoorziening | Afgebroken vanwege hernieuwde patiëntbetrokkenheid |  |
 | `completed` | Koppeltaalvoorziening | `$purge` uitgevoerd; de Task verdwijnt daarna mee |  |
 
-**Governance. De Koppeltaalvoorziening creëert de Task en zet cancelled en completed.** Een doelapplicatie schrijft uitsluitend op haar **eigen** Task en alleen de waarden `on-hold`, `accepted` of `rejected`. Het opheffen van een tijdelijke noodrem gebeurt door de Task van `on-hold` naar `accepted` te zetten.
+**Governance.** De Koppeltaalvoorziening creëert de Task en zet `cancelled` en `completed`. Een doelapplicatie schrijft uitsluitend op haar **eigen** Task en alleen de waarden `on-hold` of `accepted`. Het opheffen van een tijdelijke noodrem gebeurt door de Task van `on-hold` naar `accepted` te zetten.
 
 #### Grace period en noodrem
-De `$purge` mag pas plaatsvinden wanneer **geen enkele** `delete-pending`-Task voor deze Patient op `on-hold` of `rejected` staat, **én** ofwel de grace-deadline (`restriction.period.end`) is verstreken, **ofwel** álle relevante doelapplicatie-Tasks staan op `accepted` (fast-track).
+De `$purge` mag pas plaatsvinden wanneer **geen enkele** `delete-pending`-Task voor deze Patient op `on-hold` staat, **én** ofwel de grace-deadline (`restriction.period.end`) is verstreken, **ofwel** álle relevante doelapplicatie-Tasks staan op `accepted` (fast-track).
 
 Na ontvangst van de aankondiging heeft de doelapplicatie gedurende de grace period (`restriction.period`) de gelegenheid om relevante data op te halen en lokaal veilig te stellen, en — indien nodig — de noodrem te trekken.
 
-- **Tijdelijke noodrem (on-hold): een doelapplicatie die nog niet klaar is, pauzeert de verwijdering door haar eigen Task op on-hold te zetten met een statusReason. Omdat elke applicatie een eigen Task heeft, zijn meerdere gelijktijdige noodremmen vanzelf onafhankelijk. Opheffen gebeurt door de Task op accepted te zetten (klaar én akkoord).**
-- **Permanente blokkade (`rejected`)**: een doelapplicatie die de verwijdering principieel niet wil of kan toestaan ("ik ga het nooit goedvinden"), zet haar Task op `rejected` met een `statusReason`. Dit blokkeert de `$purge` net als `on-hold`, maar is bedoeld als blijvend signaal in plaats van een tijdelijke pauze.
+- **Tijdelijke noodrem (`on-hold`)**: een doelapplicatie die nog niet klaar is, pauzeert de verwijdering door haar eigen Task op `on-hold` te zetten met een `statusReason`. Omdat elke applicatie een eigen Task heeft, zijn meerdere gelijktijdige noodremmen vanzelf onafhankelijk. Opheffen gebeurt door de Task op `accepted` te zetten (klaar én akkoord).
 - **Groen licht (`accepted`)**: een doelapplicatie die klaar is, zet haar Task op `accepted`. Wanneer **alle** relevante doelapplicaties `accepted` hebben gezet, mag de `$purge` **vóór** het verstrijken van de grace-deadline plaatsvinden (fast-track).
 - De **noodrem-grace** is voorlopig **oneindig**; een latere time-out (bijvoorbeeld 30 dagen) is een operationele regel die het model niet verandert.
 
-Het model is **opt-out** binnen de grace period: geen actie betekent dat de verwijdering doorgaat zodra de deadline verstrijkt en geen enkele Task `on-hold` of `rejected` staat.
+Het model is **opt-out** binnen de grace period: geen actie betekent dat de verwijdering doorgaat zodra de deadline verstrijkt en geen enkele Task `on-hold` staat.
 
 #### AuditEvents bij statusovergangen
 
@@ -166,12 +164,12 @@ Elke statusovergang wordt vastgelegd in een immutable AuditEvent met ISO 21089 l
 | Moment | ISO 21089 `type` | Actor | Doel |
 | --- | --- | --- | --- |
 | Task aangemaakt (`requested`) | `archive` | Koppeltaalvoorziening | Aantoonbaar: verwijdering aangekondigd, grace period begint |
-| Blokkade gezet (`on-hold` of `rejected`) | `hold` | Doelapplicatie | Aantoonbaar: welke applicatie blokkeert en waarom |
+| Noodrem getrokken (`on-hold`) | `hold` | Doelapplicatie | Aantoonbaar: welke applicatie blokkeert en waarom |
 | Blokkade opgeheven (`accepted`) | `unhold` | Doelapplicatie | Aantoonbaar: blokkade is opgeheven |
 | Afgebroken (`cancelled`) | `reactivate` | Koppeltaalvoorziening | Aantoonbaar: verwijdering afgebroken vanwege hernieuwde betrokkenheid |
 | `$purge` uitgevoerd (`completed`) | `destroy` | Koppeltaalvoorziening | Aantoonbaar: data is definitief vernietigd; draagt tevens het **post-delete** signaal |
 
-Een `accepted`-overgang ná een `on-hold`/`rejected` legt een `unhold`-AuditEvent vast; een `accepted` als eerste reactie (zonder voorafgaande blokkade) is een coördinatiesignaal zonder eigen lifecycle-AuditEvent. De destroy-AuditEvent overleeft de $purge en is daarmee de enige bron voor het post-delete signaal — doelapplicaties die het definitieve verwijdermoment willen weten, subscriben op AuditEvent met type = …iso-21089-lifecycle|destroy.
+Een `accepted`-overgang ná een `on-hold` legt een `unhold`-AuditEvent vast; een `accepted` als eerste reactie (zonder voorafgaande noodrem) is een coördinatiesignaal zonder eigen lifecycle-AuditEvent. De destroy-AuditEvent overleeft de $purge en is daarmee de enige bron voor het post-delete signaal — doelapplicaties die het definitieve verwijdermoment willen weten, subscriben op AuditEvent met type = …iso-21089-lifecycle|destroy.
 
 #### Activiteitscheck vóór verwijdering
 
@@ -294,7 +292,6 @@ Wanneer alle taken van een patiënt de status `completed` hebben, kan men beargu
 
 #### Vervallen: meta-extension `last-patient-engagement`
 
-In een eerdere iteratie was voorzien dat het startmoment als state werd vastgelegd in een dedicated FHIR-extension onder `Patient.meta` (`KT2_LastPatientEngagement`), bijgewerkt door de Koppeltaalvoorziening bij `/authorize` en `/introspect` en door zelf-inloggende applicaties via directe PATCH met ETag-gebaseerde optimistic locking, plus een eenmalige backfill voor bestaande Patient-resources. Deze aanpak komt te vervallen ten gunste van de querybenadering.
 
 Motivatie: de activiteitscheck vindt alleen plaats op het moment van `$purge`. Een paar gerichte FHIR-searches op dat moment is goedkoper dan permanent state synchroon houden in alle deelnemende systemen. Bovendien zijn AuditEvents (NEN 7513) en Tasks al de canonieke bron van waarheid voor "activiteit" en "uitvoeringsbetrokkenheid" — een aparte meta-state ernaast zou een tweede bron introduceren die in conflict kan raken met die canonieke bronnen.
 
@@ -318,6 +315,7 @@ Open vraag voor latere iteratie: willen we deze regel óók expliciet vastleggen
 
 Voorstel: hergebruik het bestaande User Authentication AuditEvent (`type DCM#110114`, zie TOP-KT-011) met een eigen subtype (voorstel `DCM#110143`) en de mapping van Patient/RelatedPerson naar `agent.who`. Hiermee is geen nieuw AuditEvent-type nodig. De definitieve subtype-coding wordt bevestigd in een vervolgtraject (relateert aan [TOP-KT-011 - Logging en tracing](https://vzvz.atlassian.net/wiki/spaces/KTSA/pages/27125090) en TOP-KT-021). Tot die tijd is `T_introspect_hti` inactief en steunt de berekening op `T_authorize` en `T_task_owner`.
 
+In een eerdere iteratie was voorzien dat het startmoment als state werd vastgelegd in een dedicated FHIR-extension onder `Patient.meta` (`KT2_LastPatientEngagement`), bijgewerkt door de Koppeltaalvoorziening bij `/authorize` en `/introspect` en door zelf-inloggende applicaties via directe PATCH met ETag-gebaseerde optimistic locking, plus een eenmalige backfill voor bestaande Patient-resources. Deze aanpak komt te vervallen ten gunste van de querybenadering.
 ### Referenties
 
 - [FHIR Patient $purge operatie](https://build.fhir.org/patient-operation-purge.html)

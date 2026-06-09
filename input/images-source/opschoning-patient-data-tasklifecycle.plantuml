@@ -18,7 +18,6 @@ Actief --> requested : Bewaartermijn verstreken\n(KT maakt Task, AE archive)
 
 requested : Aangekondigd;\ngrace period loopt
 requested --> on_hold : Doelapp pauzeert\n(noodrem, AE hold)
-requested --> rejected : Doelapp blokkeert\npermanent (AE hold)
 requested --> accepted : Doelapp geeft\ngroen licht
 
 on_hold : Tijdelijke noodrem;\nstatusReason = reden
@@ -27,13 +26,10 @@ on_hold --> accepted : Opgeheven\n(AE unhold)
 accepted : Groen licht / akkoord
 accepted --> on_hold : Doelapp herziet\n(AE hold)
 
-rejected : Permanente blokkade\n("nooit goedvinden")
-rejected --> accepted : Bezwaar ingetrokken\n(AE unhold)
-
 requested --> Actief : Hernieuwde betrokkenheid\n(cancelled, AE reactivate)
 accepted --> Actief : Hernieuwde betrokkenheid\n(cancelled, AE reactivate)
 
-requested --> Deleted : Grace verstreken,\ngeen blokkade\n(completed, AE destroy)
+requested --> Deleted : Grace verstreken,\ngeen noodrem\n(completed, AE destroy)
 accepted --> Deleted : Fast-track: alle apps\naccepted (completed, AE destroy)
 
 Deleted : Patient verwijderd;\nalleen AuditEvents resteren
