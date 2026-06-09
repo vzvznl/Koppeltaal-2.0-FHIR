@@ -187,19 +187,21 @@ De berekening bestaat uit een aantal gerichte FHIR-searches per kandidaat-Patien
 # Meest recente patiëntbetrokkenheid via authenticatie (type DCM#110114):
 #   /authorize-login (subtype DCM#110122) of /introspect[hti] (subtype TBD, voorstel DCM#110143)
 #   — access-/id-token-introspectie valt buiten dit subtype-filter
+# ... met de Patient zelf als actor
 GET /AuditEvent?agent=Patient/{id}&type=110114&subtype=110122,{hti-introspect-subtype}&_sort=-date&_count=1
 
-# Idem voor een gekoppelde RelatedPerson
-GET /AuditEvent?agent=RelatedPerson/{rp-id}&type=110114&subtype=110122,{hti-introspect-subtype}&_sort=-date&_count=1
+# ... met een aan deze Patient gekoppelde RelatedPerson als actor
+#     (chained op de agent-referentie; geen aparte RelatedPerson-lookup nodig)
+GET /AuditEvent?agent:RelatedPerson.patient=Patient/{id}&type=110114&subtype=110122,{hti-introspect-subtype}&_sort=-date&_count=1
 
 # Meest recente Task met de Patient als uitvoerder
 GET /Task?owner=Patient/{id}&_sort=-_lastUpdated&_count=1
 
-# Meest recente Task met een gekoppelde RelatedPerson als uitvoerder
-GET /Task?owner=RelatedPerson/{rp-id}&_sort=-_lastUpdated&_count=1
+# Meest recente Task met een gekoppelde RelatedPerson als uitvoerder (chained op owner)
+GET /Task?owner:RelatedPerson.patient=Patient/{id}&_sort=-_lastUpdated&_count=1
 ```
 
-De Koppeltaalvoorziening neemt max(...) over de gevonden timestamps. Is die later dan het moment waarop de aankondiging is gedaan, dan wordt de verwijdering afgebroken. De set gekoppelde RelatedPersons volgt uit GET /RelatedPerson?patient=Patient/{id}. De aankondigings-Task zelf (`owner` = `Device`) komt niet in de `owner=Patient`-query voor en beïnvloedt de klok dus niet.
+De Koppeltaalvoorziening neemt max(...) over de gevonden timestamps. Is die later dan het moment waarop de aankondiging is gedaan, dan wordt de verwijdering afgebroken. Door op `agent`/`owner` te chainen naar `RelatedPerson.patient` worden de gekoppelde RelatedPersons in dezelfde query meegenomen — een aparte `GET /RelatedPerson?patient=Patient/{id}` is dus niet nodig. (Wie op de patient-identifier wil matchen in plaats van de logische referentie, gebruikt `…patient:identifier=<system|waarde>`.) De aankondigings-Task zelf (`owner` = `Device`) komt niet in de `owner=Patient`-query voor en beïnvloedt de klok dus niet.
 
 Deze controle voorkomt dat data wordt verwijderd van patiënten die tijdens of vlak na de grace period weer actief worden. De controle wordt op het moment van de geplande $purge uitgevoerd, zodat ook betrokkenheid aan het einde van de grace period wordt meegenomen.
 
@@ -294,7 +296,7 @@ Wanneer alle taken van een patiënt de status `completed` hebben, kan men beargu
 
 In het Koppeltaal-model is een RelatedPerson per definitie gekoppeld aan één specifieke Patient (`RelatedPerson.patient`). Activiteit van die RelatedPerson — een login via `/authorize`, of een Task waarvan de RelatedPerson de uitvoerder is — geldt daarom als betrokkenheid bij die patiënt en telt mee in `last-patient-engagement`.
 
-Praktisch betekent dit dat de [activiteitscheck](#activiteitscheck-vóór-verwijdering) eerst de set gekoppelde RelatedPersons bepaalt (`RelatedPerson?patient=Patient/{id}`) en vervolgens de AuditEvent- en Task-queries herhaalt per RelatedPerson. De RelatedPersons zelf worden in de `$purge`-cascade meegenomen (zij vallen binnen het Patient Compartment).
+Praktisch kan de [activiteitscheck](#activiteitscheck-vóór-verwijdering) de gekoppelde RelatedPersons in dezelfde query meenemen via een chained search (`agent:RelatedPerson.patient` resp. `owner:RelatedPerson.patient`), zonder ze eerst apart op te halen. De RelatedPersons zelf worden in de `$purge`-cascade meegenomen (zij vallen binnen het Patient Compartment).
 
 Open vraag voor latere iteratie: willen we deze regel óók expliciet vastleggen in een StructureDefinition-invariant of in het CapabilityStatement, zodat een implementatie de afdwingbaarheid niet zelf hoeft af te leiden uit deze pagina?
 
