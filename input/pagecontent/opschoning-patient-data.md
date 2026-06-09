@@ -144,7 +144,7 @@ De Task doorloopt een native lifecycle. De toestand "Actief" (geen aankondigings
 | `cancelled` | Koppeltaalvoorziening | Afgebroken vanwege hernieuwde patiëntbetrokkenheid |  |
 | `completed` | Koppeltaalvoorziening | `$purge` uitgevoerd; de Task verdwijnt daarna mee |  |
 
-**Governance.** De Koppeltaalvoorziening creëert de Task en zet `cancelled` en `completed`. Een doelapplicatie schrijft uitsluitend op haar **eigen** Task en alleen de waarden `on-hold` of `accepted`. Het opheffen van een tijdelijke noodrem gebeurt door de Task van `on-hold` naar `accepted` te zetten.
+**Governance. De Koppeltaalvoorziening creëert de Task en zet cancelled en completed.** Een doelapplicatie schrijft uitsluitend op haar **eigen** Task en alleen de waarden `on-hold` of `accepted`. **Het opheffen van een tijdelijke noodrem gebeurt door de Task van on-hold naar accepted te zetten.**
 
 #### Grace period en noodrem
 De `$purge` mag pas plaatsvinden wanneer **geen enkele** `delete-pending`-Task voor deze Patient op `on-hold` staat, **én** ofwel de grace-deadline (`restriction.period.end`) is verstreken, **ofwel** álle relevante doelapplicatie-Tasks staan op `accepted` (fast-track).
@@ -315,7 +315,7 @@ Open vraag voor latere iteratie: willen we deze regel óók expliciet vastleggen
 
 Voorstel: hergebruik het bestaande User Authentication AuditEvent (`type DCM#110114`, zie TOP-KT-011) met een eigen subtype (voorstel `DCM#110143`) en de mapping van Patient/RelatedPerson naar `agent.who`. Hiermee is geen nieuw AuditEvent-type nodig. De definitieve subtype-coding wordt bevestigd in een vervolgtraject (relateert aan [TOP-KT-011 - Logging en tracing](https://vzvz.atlassian.net/wiki/spaces/KTSA/pages/27125090) en TOP-KT-021). Tot die tijd is `T_introspect_hti` inactief en steunt de berekening op `T_authorize` en `T_task_owner`.
 
-In een eerdere iteratie was voorzien dat het startmoment als state werd vastgelegd in een dedicated FHIR-extension onder `Patient.meta` (`KT2_LastPatientEngagement`), bijgewerkt door de Koppeltaalvoorziening bij `/authorize` en `/introspect` en door zelf-inloggende applicaties via directe PATCH met ETag-gebaseerde optimistic locking, plus een eenmalige backfill voor bestaande Patient-resources. Deze aanpak komt te vervallen ten gunste van de querybenadering.
+In een eerdere iteratie was voorzien dat het startmoment als state werd vastgelegd in een dedicated FHIR-extension onder `Patient.meta` (`KT2_LastPatientEngagement`), bijgewerkt door de Koppeltaalvoorziening bij `/authorize` en `/introspect` en door zelf-inloggende applicaties, plus een eenmalige backfill voor bestaande Patient-resources. Deze aanpak komt te vervallen ten gunste van de querybenadering.
 ### Referenties
 
 - [FHIR Patient $purge operatie](https://build.fhir.org/patient-operation-purge.html)
