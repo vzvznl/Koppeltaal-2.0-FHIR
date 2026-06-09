@@ -2,7 +2,7 @@
 
 | Versie | Datum | Wijziging |
 | --- | --- | --- |
-| 0.0.1 | 2026-06-08 | Initiële versie |
+| 0.1.0 | 2026-06-08 | Initiële versie |
 
 ---
 
@@ -102,9 +102,18 @@ Via `Task.owner` ziet elke applicatie uitsluitend haar eigen Tasks. Subscriben o
 
 Voor scenario's waarin data daadwerkelijk moet worden teruggehaald — zoals het recht om vergeten te worden (AVG art. 17) — gelden aparte routes en mechanismen.
 
-#### Beheersbaarheid en configuratie
+#### Termijnen: vast, tenzij onderbouwd afgeweken
 
-Bewaartermijnen en verwijderregels moeten beheerd en aangepast kunnen worden binnen vastgestelde kaders, zodat flexibiliteit behouden blijft bij wijzigingen in wet- en regelgeving of contractuele afspraken.
+De bewaar- en verwijdertermijnen liggen vast, zodat alle deelnemers een eenduidig en voorspelbaar kader hebben. Een deelnemer **SHOULD** de onderstaande termijnen hanteren; afwijken **MAY**, maar uitsluitend met een aantoonbaar goede reden — bijvoorbeeld een wettelijke of contractuele bewaarplicht die een andere termijn voorschrijft.
+
+| Termijn | Waarde | Toelichting |
+| --- | --- | --- |
+| Bewaartermijn persoonsgegevens (PII) | 2 jaar | Gerekend vanaf de laatste betrokkenheid van de patiënt (`last-patient-engagement`); 2 jaar is tevens het wettelijk maximum |
+| Bewaartermijn AuditEvents (logging) | 5 jaar | AuditEvents bevatten geen PII en overleven de `$purge`; 5 jaar is het wettelijk minimum |
+| Grace period (reactietermijn op aankondigings-Task) | 10 dagen | Window tussen aankondiging (`requested`) en geplande `$purge`; wordt vastgelegd in `restriction.period.end`. Hierbinnen kan de doelapplicatie data veiligstellen en de noodrem trekken |
+| Noodrem-time-out (`on-hold`) | voorlopig oneindig | Een latere time-out (bijvoorbeeld 30 dagen) is een operationele regel die het model niet verandert |
+
+Vaste termijnen verdienen de voorkeur boven volledige configureerbaarheid: ze geven alle deelnemers hetzelfde, voorspelbare kader en voorkomen dat per domein of applicatie afwijkende termijnen ontstaan die de interoperabiliteit en aantoonbaarheid ondermijnen. De ruimte om — onderbouwd — af te wijken vangt wijzigingen in wet- en regelgeving of contractuele afspraken op.
 
 ### Oplossingsrichting
 
@@ -149,7 +158,7 @@ De Task doorloopt een native lifecycle. De toestand "Actief" (geen aankondigings
 #### Grace period en noodrem
 De `$purge` mag pas plaatsvinden wanneer **geen enkele** `delete-pending`-Task voor deze Patient op `on-hold` staat, **én** ofwel de grace-deadline (`restriction.period.end`) is verstreken, **ofwel** álle relevante doelapplicatie-Tasks staan op `accepted` (fast-track).
 
-Na ontvangst van de aankondiging heeft de doelapplicatie gedurende de grace period (`restriction.period`) de gelegenheid om relevante data op te halen en lokaal veilig te stellen, en — indien nodig — de noodrem te trekken.
+Na ontvangst van de aankondiging heeft de doelapplicatie gedurende de grace period (`restriction.period`, standaard **10 dagen**) de gelegenheid om relevante data op te halen en lokaal veilig te stellen, en — indien nodig — de noodrem te trekken.
 
 - **Tijdelijke noodrem (`on-hold`)**: een doelapplicatie die nog niet klaar is, pauzeert de verwijdering door haar eigen Task op `on-hold` te zetten met een `statusReason`. Omdat elke applicatie een eigen Task heeft, zijn meerdere gelijktijdige noodremmen vanzelf onafhankelijk. Opheffen gebeurt door de Task op `accepted` te zetten (klaar én akkoord).
 - **Groen licht (`accepted`)**: een doelapplicatie die klaar is, zet haar Task op `accepted`. Wanneer **alle** relevante doelapplicaties `accepted` hebben gezet, mag de `$purge` **vóór** het verstrijken van de grace-deadline plaatsvinden (fast-track).
