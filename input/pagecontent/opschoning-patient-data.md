@@ -184,14 +184,13 @@ Voordat de Koppeltaalvoorziening tot `$purge` overgaat, berekent zij `last-patie
 De berekening bestaat uit een aantal gerichte FHIR-searches per kandidaat-Patient. Conceptueel ziet dat er als volgt uit (exacte search-parameters volgen het profiel van `KT2_AuditEvent` en `KT2_Task`):
 
 ```
-# Meest recente /authorize-login door de Patient
-GET /AuditEvent?agent=Patient/{id}&type=110114&_sort=-date&_count=1
+# Meest recente patiëntbetrokkenheid via authenticatie (type DCM#110114):
+#   /authorize-login (subtype DCM#110122) of /introspect[hti] (subtype TBD, voorstel DCM#110143)
+#   — access-/id-token-introspectie valt buiten dit subtype-filter
+GET /AuditEvent?agent=Patient/{id}&type=110114&subtype=110122,{hti-introspect-subtype}&_sort=-date&_count=1
 
-# Meest recente /authorize-login door een gekoppelde RelatedPerson
-GET /AuditEvent?agent=RelatedPerson/{rp-id}&type=110114&_sort=-date&_count=1
-
-# Meest recente /introspect op een HTI launch token (subtype TBD — zie overweging)
-GET /AuditEvent?agent=Patient/{id}&type={hti-introspect-code}&_sort=-date&_count=1
+# Idem voor een gekoppelde RelatedPerson
+GET /AuditEvent?agent=RelatedPerson/{rp-id}&type=110114&subtype=110122,{hti-introspect-subtype}&_sort=-date&_count=1
 
 # Meest recente Task met de Patient als uitvoerder
 GET /Task?owner=Patient/{id}&_sort=-_lastUpdated&_count=1
