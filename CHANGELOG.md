@@ -1,5 +1,12 @@
 CHANGELOG
 
+## 0.16.3 (2026-06-09)
+
+### Toegevoegd
+- **KT2DocumentReference profiel**: nieuw profiel voor het delen van documenten vanuit een interventie (module) naar de dossierhouder (EPD). Verplicht `subject` (KT2_Patient), `type`, `date` en `content.attachment.url`; `context.related` bevat een verplichte slice `task` (verwijzing naar KT2_Task). Het profiel blijft open voor extensions. Eerste voorstel; nadere uitwerking volgt na afstemming met leveranciers.
+- **KoppeltaalExpansion codesysteem**: code `029-DocumentenDelen` ("Documenten Delen") toegevoegd voor aankondiging van documentoplevering via `ActivityDefinition.useContext`.
+- **Voorbeelden**: `documentreference-documenten-delen` (DocumentReference met externe referentie) en `activitydefinition-documenten-delen` (ActivityDefinition met de useContext-uitbreiding Documenten Delen).
+
 ## 0.16.2 (2026-04-02)
 
 ### Hersteld
