@@ -245,9 +245,9 @@ Bij beëindiging van een verwerkersovereenkomst is de Koppeltaalvoorziening verp
 
 De `$purge` operatie kan hiervoor worden ingezet, waarbij de AuditEvents als bewijs van verwijdering dienen.
 
-### Overwegingen
+### Alternatieven
 
-Naast de gekozen oplossingsrichting (Task-coördinatie) zijn de volgende alternatieve benaderingen overwogen:
+Naast de gekozen oplossingsrichting (Task-coördinatie) zijn de volgende alternatieve benaderingen overwogen en afgewezen (of als variant genoteerd):
 
 #### `meta.tag` lifecycle in plaats van Task
 
@@ -292,6 +292,18 @@ De gekozen oplossingsrichting gebruikt een **aankondigings**-Task: een lichte co
 
 Wanneer alle taken van een patiënt de status `completed` hebben, kan men beargumenteren dat alle due diligence is uitgevoerd: de behandelmodules zijn afgerond, de resultaten zijn teruggekoppeld, en er zijn geen openstaande interacties meer. In dat geval kan de initiator er in bepaalde situaties voor kiezen om direct tot verwijdering over te gaan zonder voorafgaande notificatie.
 
+#### Vervallen: meta-extension `last-patient-engagement`
+
+In een eerdere iteratie was voorzien dat het startmoment als state werd vastgelegd in een dedicated FHIR-extension onder `Patient.meta` (`KT2_LastPatientEngagement`), bijgewerkt door de Koppeltaalvoorziening bij `/authorize` en `/introspect` en door zelf-inloggende applicaties via directe PATCH met ETag-gebaseerde optimistic locking, plus een eenmalige backfill voor bestaande Patient-resources. Deze aanpak komt te vervallen ten gunste van de querybenadering.
+
+Motivatie: de activiteitscheck vindt alleen plaats op het moment van `$purge`. Een paar gerichte FHIR-searches op dat moment is goedkoper dan permanent state synchroon houden in alle deelnemende systemen. Bovendien zijn AuditEvents (NEN 7513) en Tasks al de canonieke bron van waarheid voor "activiteit" en "uitvoeringsbetrokkenheid" — een aparte meta-state ernaast zou een tweede bron introduceren die in conflict kan raken met die canonieke bronnen.
+
+De afzonderlijke pagina `opschoning-patient-data-startmoment` waarin de meta-extension was uitgewerkt, is met deze beslissing verwijderd.
+
+### Overwegingen
+
+Bij de gekozen oplossingsrichting gelden de volgende aandachtspunten en open punten:
+
 #### RelatedPerson in de mix
 
 In het Koppeltaal-model is een RelatedPerson per definitie gekoppeld aan één specifieke Patient (`RelatedPerson.patient`). Activiteit van die RelatedPerson — een login via `/authorize`, of een Task waarvan de RelatedPerson de uitvoerder is — geldt daarom als betrokkenheid bij die patiënt en telt mee in `last-patient-engagement`.
@@ -305,14 +317,6 @@ Open vraag voor latere iteratie: willen we deze regel óók expliciet vastleggen
 `/introspect` werkt in Koppeltaal op meerdere tokentypes: HTI launch tokens, access tokens en id tokens (zie [TOP-KT-021](https://vzvz.atlassian.net/wiki/spaces/KTSA/pages/27125106)). Alleen introspectie van **HTI launch tokens** mag de bewaartermijn resetten, omdat dat het signaal is dat een doelapplicatie daadwerkelijk een patiëntgerichte launch verwerkt. Introspectie van access- of id-tokens is een technische tokenvalidatie en bewijst geen patiëntinteractie.
 
 Voorstel: hergebruik het bestaande User Authentication AuditEvent (`type DCM#110114`, zie TOP-KT-011) met een eigen subtype (voorstel `DCM#110143`) en de mapping van Patient/RelatedPerson naar `agent.who`. Hiermee is geen nieuw AuditEvent-type nodig. De definitieve subtype-coding wordt bevestigd in een vervolgtraject (relateert aan [TOP-KT-011 - Logging en tracing](https://vzvz.atlassian.net/wiki/spaces/KTSA/pages/27125090) en TOP-KT-021). Tot die tijd is `T_introspect_hti` inactief en steunt de berekening op `T_authorize` en `T_task_owner`.
-
-#### Vervallen: meta-extension `last-patient-engagement`
-
-In een eerdere iteratie was voorzien dat het startmoment als state werd vastgelegd in een dedicated FHIR-extension onder `Patient.meta` (`KT2_LastPatientEngagement`), bijgewerkt door de Koppeltaalvoorziening bij `/authorize` en `/introspect` en door zelf-inloggende applicaties via directe PATCH met ETag-gebaseerde optimistic locking, plus een eenmalige backfill voor bestaande Patient-resources. Deze aanpak komt te vervallen ten gunste van de querybenadering.
-
-Motivatie: de activiteitscheck vindt alleen plaats op het moment van `$purge`. Een paar gerichte FHIR-searches op dat moment is goedkoper dan permanent state synchroon houden in alle deelnemende systemen. Bovendien zijn AuditEvents (NEN 7513) en Tasks al de canonieke bron van waarheid voor "activiteit" en "uitvoeringsbetrokkenheid" — een aparte meta-state ernaast zou een tweede bron introduceren die in conflict kan raken met die canonieke bronnen.
-
-De afzonderlijke pagina `opschoning-patient-data-startmoment` waarin de meta-extension was uitgewerkt, is met deze beslissing verwijderd.
 
 ### Referenties
 
