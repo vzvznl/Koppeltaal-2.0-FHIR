@@ -2,24 +2,7 @@
 
 | Versie | Datum | Wijziging |
 | --- | --- | --- |
-| 0.0.1 | 2026-04-13 | Initiële versie |
-| 0.0.2 | 2026-04-24 | Optie toegevoegd om de Binary als losse resource in de Koppeltaal-store te plaatsen, met autorisatie via de bestaande matrix |
-| 0.0.3 | 2026-05-05 | Pagina hernoemd naar "Documenten delen"; sectie "Gestructureerde resultaten (Observation)" verwijderd; pagina-scope beperkt tot ongestructureerde documenten (gestructureerde data verhuist naar de KoppelMij-context) |
-| 0.0.6 | 2026-05-05 | Historische labels "Pad A", "Pad B" en "Pad C" verwijderd uit de pagina-tekst; alternatieven worden voortaan bij hun beschrijvende naam genoemd |
-| 0.0.7 | 2026-05-05 | PlantUML-diagrambestanden hernoemd: `resultaten-delen-pad-a` → `documenten-delen-direct-ophalen` en `resultaten-delen-pad-b` → `documenten-delen-notified-pull`; markdown-verwijzingen bijgewerkt |
-| 0.0.4 | 2026-05-05 | Direct ophalen via de Koppeltaal FHIR store bevestigd als voorkeursroute na kritische review; inline base64-attachment toegevoegd als variant zodat leveranciers met simpele documenten geen eigen Binary-endpoint hoeven aan te bieden; het alternatief "Binary als losse resource in de Koppeltaal-store" teruggeschaald tot overwogen optie; sectie "Open punten" toegevoegd |
-| 0.0.5 | 2026-05-05 | Notified Pull eveneens teruggeschaald tot overwogen alternatief; beide alternatieven samengevoegd onder één kopje "Overwogen alternatieven"; direct ophalen via de Koppeltaal-store is daarmee de enige aangewezen route |
-| 0.0.8 | 2026-05-06 | "vragenlijst-uitkomsten" expliciet aangeduid als "ongestructureerde vragenlijst-uitkomsten" om discussie over structured/unstructured scope op deze pagina te voorkomen |
-| 0.0.9 | 2026-05-06 | Token-flow bij externe referentie expliciet beschreven (tekst + sequence-diagram): EPD haalt access_token op bij de Koppeltaal authorization server; bronapplicatie valideert het token via `/introspect` (RFC 7662) bij dezelfde authorization server |
-| 0.0.10 | 2026-05-18 | Open punten aangescherpt: keuze voor hergebruik van de DocumentReference-scope vastgelegd als token-validatieregel aan de bron (overwogen alternatieven — aparte Binary-scope, scope-parameter op `/introspect` — verworpen); beveiligingseisen voor het Binary-endpoint opgesplitst in **harde eisen** (TLS, token-validatie) en **zachte aanbevelingen** (niet-raadbare paden, rate-limiting/hardening); eis voor maximale URL-levensduur geschrapt |
-| 0.0.11 | 2026-05-18 | Sectie "Bewaartermijn DocumentReference" toegevoegd: DocumentReference wordt in principe beperkt bewaard in de Koppeltaal-store, standaard 30 dagen; rationale en consequenties voor EPD en bronapplicatie beschreven |
-| 0.0.12 | 2026-05-18 | Sectie "Verplichte velden" toegevoegd onder DocumentReference en Binary: `subject` (Patient), `context.related` (Task) en `date` zijn verplicht binnen Koppeltaal |
-| 0.0.13 | 2026-05-18 | Sectie "Verplichte velden" geherformuleerd als **voorstel** tot aanpassing aan het (nog te creëren) Koppeltaal DocumentReference-profiel; geëxpliciteerd dat de regels pas afdwingbaar worden zodra het profiel in `input/fsh` is uitgewerkt |
-| 0.0.14 | 2026-05-18 | Afwijzing van het alternatief "Uitbreiding van `/introspect` met een scope-parameter" aangescherpt: de optie valt af omdat RFC 7662 `/introspect` strikt definieert als token-introspectie zonder request-parameters voor per-resource autorisatiebeslissingen; een policy-decision-point hoort, indien nodig, in een aparte voorziening (UMA/PDP), niet in `/introspect` |
-| 0.0.15 | 2026-05-19 | Verwijzing naar **TOP-KT-008 — Beveiliging aspecten** toegevoegd onder "Beveiligingseisen voor het Binary-endpoint van de bron": de generieke Koppeltaal-beveiligingseisen (HTTPS-only, JWT-algoritmes, security headers, CORS, input-validatie) gelden onverkort voor het Binary-endpoint; de eisen op deze pagina zijn aanvullend en specifiek voor de externe URL-variant |
-| 0.0.16 | 2026-06-01 | Inline base64-variant (`attachment.data`) verwijderd — alleen externe URL met Binary-endpoint bij de bron blijft over. DocumentReference-profielvoorstel uitgebreid met verplicht `type` (1..1) en optioneel `category` (0..*). Autorisatie-sectie verwijst naar SMART v2 scopes-met-query (toekomstige filtering op `type`). Nieuw expliciet principe: bronapplicatie MAY na introspect alsnog toegang weigeren (data-owner verification). Audit-logging-sectie ingekort en doorverwezen naar TOP-KT-011. Beveiligingseisen-sectie gepromoveerd van "open punt" naar reguliere sectie. 30-dagen-bewaartermijnzin verplaatst naar de juiste sectie. Confluence-input-placeholder toegevoegd in Status. |
-| 0.0.17 | 2026-06-04 | Reviewopmerkingen verwerkt: FHIR-spec-links naar de **R4**-versie gecorrigeerd; uitvoering van de 30-dagen-bewaartermijn expliciet belegd bij de **bronapplicatie** als resource-origin-eigenaar (Patient-data-opschoning alleen als vangnet); Workflow verduidelijkt dat een document **niet** afhankelijk is van een afgeronde Task (`completed`) en op elk moment in de lifecycle gepubliceerd mag worden; rationale toegevoegd dat de verplichte Task-koppeling documenten altijd binnen een taakcontext plaatst; Autorisatie-sectie expliciet gemaakt dat binding aan de behandelrelatie het **toekomstige** model beschrijft — het huidige model autoriseert op applicatieniveau. |
-| 0.0.18 | 2026-06-08 | Sectie "Aankondiging via de ActivityDefinition" toegevoegd: documenten delen behandeld als optionele uitbreiding (TOP-KT-025); een module kondigt via `ActivityDefinition.useContext` (codesysteem `KoppeltaalExpansion`) aan dat de interventie een document oplevert, zodat de toewijzende applicatie er rekening mee houdt dat er een `DocumentReference` op de `Task` wordt aangemaakt en deze kan verwerken. Illustratief voorbeeld toegevoegd met voorgestelde code `029-DocumentenDelen` en een `useContext`-fragment. Bijbehorend open punt voor de concrete uitbreidingscode toegevoegd. |
+| 0.1.0 | 2026-06-09 | Eerste samengevoegde versie van de pagina "Documenten delen". |
 
 ---
 
@@ -33,9 +16,25 @@ Door documenten delen expliciet te ondersteunen binnen Koppeltaal ontstaat een u
 
 Documenten zoals PDF/A-rapporten, ongestructureerde vragenlijst-uitkomsten of samenvattingen worden uitgewisseld via het FHIR [DocumentReference](https://www.hl7.org/fhir/R4/documentreference.html) resource. Een DocumentReference bevat metadata over het document (type, datum, auteur, patiënt) en de inhoud zelf — via [`DocumentReference.content.attachment`](https://www.hl7.org/fhir/R4/datatypes.html#Attachment).
 
-De inhoud wordt uitgewisseld via één variant: **externe referentie**. `attachment.url` verwijst naar een [Binary](https://www.hl7.org/fhir/R4/binary.html) resource bij de bronapplicatie, die hiervoor een beveiligd HTTP-endpoint aanbiedt. De data blijft daarmee aan de bron; de Koppeltaal FHIR store bevat alleen de metadata in de DocumentReference. Inline base64 (`attachment.data`) wordt binnen Koppeltaal niet ondersteund — zie [Changelog](#changelog) `0.0.16` voor de afweging.
+De inhoud wordt uitgewisseld via één variant: **externe referentie**. `attachment.url` verwijst naar een [Binary](https://www.hl7.org/fhir/R4/binary.html) resource bij de bronapplicatie, die hiervoor een beveiligd HTTP-endpoint aanbiedt. De data blijft daarmee aan de bron; de Koppeltaal FHIR store bevat alleen de metadata in de DocumentReference. Inline base64 (`attachment.data`) wordt binnen Koppeltaal niet ondersteund: de data blijft aan de bron. Zie [Overwogen alternatieven](#overwogen-alternatieven) voor de afwegingen rond het plaatsen van binaire data.
 
-De module genereert een PDF/A — typisch bij afronding van de interventie, maar desgewenst ook tussentijds. PDF/A is het vereiste formaat voor duurzame archivering in het EPD.
+De module genereert het document — typisch bij afronding van de interventie, maar desgewenst ook tussentijds.
+
+#### Onveranderlijk en self-contained
+
+Het bestand waarnaar een DocumentReference verwijst, moet **onveranderlijk** en **self-contained** zijn: de inhoud staat op zichzelf, zonder externe afhankelijkheden, en wijzigt na publicatie niet meer.
+
+Er is **geen verplicht bestandsformaat**. Het kan een PDF/A-rapport zijn, maar net zo goed een geluidsopname, video of ander bestand — zolang het maar onveranderlijk en self-contained is. PDF/A is voor tekstdocumenten een goede keuze (fonts en resources zijn ingesloten en het is geschikt voor duurzame archivering in het EPD), maar het is geen eis.
+
+Uit de onveranderlijkheid volgt een concrete regel: zodra een Binary is gepubliceerd, mag de inhoud op die `attachment.url` niet meer worden gewijzigd. Een eenmaal gepubliceerde versie is definitief. Een EPD dat het bestand heeft opgehaald en gearchiveerd, kan er zo op vertrouwen dat de inhoud achter die URL niet stilzwijgend verandert.
+
+Ontstaat er tijdens de behandeling een **nieuwe versie**, dan:
+
+- genereert de module een nieuwe Binary op een **nieuwe URL** — de bestaande Binary blijft ongewijzigd;
+- werkt de module de bestaande DocumentReference bij (`PUT` of `PATCH`) zodat `content.attachment.url` naar de nieuwe Binary verwijst;
+- detecteert het EPD de bijgewerkte DocumentReference (polling of Subscription) en haalt de nieuwe versie op.
+
+Versiehistorie wordt **niet expliciet vastgelegd** via aparte resources: een update van de bestaande DocumentReference naar een nieuwe Binary-URL volstaat. De DocumentReference verwijst altijd naar de actuele versie; eerdere versies worden in Koppeltaal niet als aparte resources bijgehouden, maar blijven beschikbaar via de versiehistorie van de DocumentReference zelf (FHIR-resourceversionering, op te vragen via `_history`/`vread`).
 
 #### Voorstel: aanpassingen aan het DocumentReference-profiel
 
@@ -67,42 +66,17 @@ Dit patroon kent de minste orkestratie — er is geen aparte Notification Task �
 
 Het EPD detecteert nieuwe DocumentReferences via polling of een FHIR Subscription op de Koppeltaal-store.
 
-#### Overwogen alternatieven
-
-Tijdens de uitwerking zijn twee andere patronen overwogen — **Notified Pull** en **Binary als losse resource in de Koppeltaal-store**. Beide zijn niet als standaardroute aangewezen; ze worden hier kort gedocumenteerd zodat de afweging traceerbaar blijft en het onderwerp opnieuw opgepakt kan worden mocht de scope van Koppeltaal in de toekomst veranderen.
-
-##### ~~Notified Pull~~
-
-In dit patroon — gebaseerd op de [TA Notified Pull v1.0.1](https://www.nictiz.nl/) — neemt de module het initiatief door het EPD actief te notificeren via een Notification Task. De Notification Task bevat verwijzingen naar de op te halen FHIR resources; het EPD haalt op eigen initiatief en tempo de data op bij de bron.
-
-<div style="clear: both; margin: 1em 0;">
-{% include documenten-delen-notified-pull.svg %}
-</div>
-
-Notified Pull is aantrekkelijk door de aansluiting op de door Nictiz beheerde TA Notified Pull-standaard (publieke standaard, **netwerkzorg**) en omdat het EPD geen polling of eigen Subscription hoeft in te richten. In de huidige Koppeltaal-scope — interventies binnen een al bekend behandelnetwerk waarin het EPD al synchroniseert via de Koppeltaal-store — voegt de Notification Task echter een extra orkestratielaag toe terwijl detectie via Subscription/polling op de Koppeltaal-store volstaat. De keuze is daarom op direct ophalen gevallen.
-
-Mocht netwerkzorg- of cross-organisatie-uitwisseling later expliciet in scope komen, dan kan Notified Pull alsnog als optionele aanvulling worden gespecificeerd. De twee patronen sluiten elkaar niet uit.
-
-##### ~~Binary als losse resource in de Koppeltaal-store~~
-
-In een eerder ontwerp is dit alternatief overwogen: de Binary niet bij de bronapplicatie laten staan, maar als losse resource — naast de DocumentReference — in de Koppeltaal FHIR store plaatsen. Argument was onder meer centrale token-validatie, automatische AuditEvents en geen eigen resource-server bij de bronapplicatie.
-
-Bij nadere beschouwing bleken een aantal van die voordelen niet onderscheidend ten opzichte van direct ophalen, en wegen er zwaarwegende bezwaren tegen op:
-
-- **Dataminimalisatie en bronverantwoordelijkheid**: gevoelige gezondheidsdata buiten de bronhouder plaatsen vergroot het aanvalsoppervlak en ondermijnt het principe dat de bronhouder verantwoordelijk blijft voor zijn data tijdens de uitwisseling.
-- **Verlies van het pull-signaal**: bij direct ophalen weet de bronhouder wanneer en door wie het document is opgehaald — een nuttig signaal voor archiveringsstatus, bewaartermijnen en eigen audit. Bij dit alternatief verdwijnt dat signaal.
-
-Dit alternatief blijft denkbaar als uitwijkmogelijkheid voor specifieke gevallen (bijvoorbeeld een bron die geen stabiel publiek endpoint kan aanbieden), maar is geen standaardroute van de Koppeltaal-specificatie.
-
 ### Workflow
 
-Documenten delen sluit aan op de bestaande Koppeltaal Task lifecycle:
+Documenten delen sluit aan op de bestaande Koppeltaal Task lifecycle, maar begint al vóór de toewijzing — bij de publicatie van de `ActivityDefinition` en het herkennen van de feature flag door het initiërende platform:
 
-1. De behandelaar wijst een interventie toe aan de patiënt (Task wordt aangemaakt)
-2. De patiënt voert de interventie uit via de module
-3. De module genereert een document (bijvoorbeeld een PDF/A) — bij afronding van de interventie of tussentijds
-4. De module publiceert een DocumentReference in de Koppeltaal FHIR store, gekoppeld aan de Patient en de Task
-5. Het EPD haalt het document op en archiveert het in het patiëntdossier
+1. De module-applicatie publiceert een `ActivityDefinition` met de documenten-delen-uitbreiding in `useContext` (de feature flag; zie [Aankondiging via de ActivityDefinition](#aankondiging-via-de-activitydefinition))
+2. De toewijzende applicatie (ECD/EPD) leest de `ActivityDefinition`, herkent aan de `useContext` dat deze interventie een document oplevert, en stelt vast dat zij de te verwachten `DocumentReference` kan verwerken — kan zij dat niet, dan biedt zij de interventie niet aan
+3. De behandelaar wijst de interventie toe aan de patiënt (Task wordt aangemaakt)
+4. De patiënt voert de interventie uit via de module
+5. De module genereert een document (bijvoorbeeld een PDF/A) — bij afronding van de interventie of tussentijds
+6. De module publiceert een DocumentReference in de Koppeltaal FHIR store, gekoppeld aan de Patient en de Task
+7. Het EPD haalt het document op en archiveert het in het patiëntdossier
 
 De DocumentReference wordt gekoppeld aan zowel de Patient als de Task, zodat het document traceerbaar is naar de specifieke interventie.
 
@@ -203,6 +177,33 @@ Voor toekomstige fijngranulariteit (bijvoorbeeld filtering op `DocumentReference
 ### Audit-logging bij de bron
 
 De Binary-read loopt niet via Koppeltaal; de **bronapplicatie is verantwoordelijk voor de audit-registratie** van wie/wanneer/welk document. Detail-eisen, AuditEvent-structuur en eventuele uitwisseling met een centrale Koppeltaal-AuditEvent-store worden behandeld in [change-management-topic-11-implementation-feedback.html](./change-management-topic-11-implementation-feedback.html).
+
+### Overwogen alternatieven
+
+Bij [Uitwisselingspatronen](#uitwisselingspatronen) is **direct ophalen via de Koppeltaal FHIR store** als aangewezen route beschreven. Tijdens de uitwerking zijn twee andere patronen overwogen — **Notified Pull** en **Binary als losse resource in de Koppeltaal-store**. Beide zijn niet als standaardroute aangewezen; ze worden hier kort gedocumenteerd zodat de afweging traceerbaar blijft en het onderwerp opnieuw opgepakt kan worden mocht de scope van Koppeltaal in de toekomst veranderen.
+
+#### ~~Notified Pull~~
+
+In dit patroon — gebaseerd op de [TA Notified Pull v1.0.1](https://www.nictiz.nl/) — neemt de module het initiatief door het EPD actief te notificeren via een Notification Task. De Notification Task bevat verwijzingen naar de op te halen FHIR resources; het EPD haalt op eigen initiatief en tempo de data op bij de bron.
+
+<div style="clear: both; margin: 1em 0;">
+{% include documenten-delen-notified-pull.svg %}
+</div>
+
+Notified Pull is aantrekkelijk door de aansluiting op de door Nictiz beheerde TA Notified Pull-standaard (publieke standaard, **netwerkzorg**) en omdat het EPD geen polling of eigen Subscription hoeft in te richten. In de huidige Koppeltaal-scope — interventies binnen een al bekend behandelnetwerk waarin het EPD al synchroniseert via de Koppeltaal-store — voegt de Notification Task echter een extra orkestratielaag toe terwijl detectie via Subscription/polling op de Koppeltaal-store volstaat. De keuze is daarom op direct ophalen gevallen.
+
+Mocht netwerkzorg- of cross-organisatie-uitwisseling later expliciet in scope komen, dan kan Notified Pull alsnog als optionele aanvulling worden gespecificeerd. De twee patronen sluiten elkaar niet uit.
+
+#### ~~Binary als losse resource in de Koppeltaal-store~~
+
+In een eerder ontwerp is dit alternatief overwogen: de Binary niet bij de bronapplicatie laten staan, maar als losse resource — naast de DocumentReference — in de Koppeltaal FHIR store plaatsen. Argument was onder meer centrale token-validatie, automatische AuditEvents en geen eigen resource-server bij de bronapplicatie.
+
+Bij nadere beschouwing bleken een aantal van die voordelen niet onderscheidend ten opzichte van direct ophalen, en wegen er zwaarwegende bezwaren tegen op:
+
+- **Dataminimalisatie en bronverantwoordelijkheid**: gevoelige gezondheidsdata buiten de bronhouder plaatsen vergroot het aanvalsoppervlak en ondermijnt het principe dat de bronhouder verantwoordelijk blijft voor zijn data tijdens de uitwisseling.
+- **Verlies van het pull-signaal**: bij direct ophalen weet de bronhouder wanneer en door wie het document is opgehaald — een nuttig signaal voor archiveringsstatus, bewaartermijnen en eigen audit. Bij dit alternatief verdwijnt dat signaal.
+
+Dit alternatief blijft denkbaar als uitwijkmogelijkheid voor specifieke gevallen (bijvoorbeeld een bron die geen stabiel publiek endpoint kan aanbieden), maar is geen standaardroute van de Koppeltaal-specificatie.
 
 ### Open punten
 
