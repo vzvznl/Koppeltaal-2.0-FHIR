@@ -2,7 +2,9 @@
 
 Deze pagina bevat een overzicht van de wijzigingen per versie van de Koppeltaal 2.0 Implementation Guide.
 
-### 0.16.3 (2026-06-09)
+### 0.16.4 (2026-06-09)
+
+> Let op: dit kan bij merge ook 0.16.3 worden. PR #66 (documenten delen) zet de versie al naar 0.16.3; afhankelijk van de merge-volgorde landt deze wijziging op 0.16.3 of 0.16.4.
 
 #### Toegevoegd
 - **KT2DeletePendingTask profiel**: nieuw Task-profiel dat de aankondiging van patiëntdata-verwijdering (`$purge`) per doelapplicatie coördineert. Vaste `code` (`delete-pending`), `intent = order`, `for` (KT2_Patient), `owner` en `requester` (KT2_Device) en een verplichte `restriction.period.end` (grace-deadline). Reageren gebeurt via de native Task-lifecycle (`on-hold` als noodrem, `accepted` als groen licht). Eerste voorstel; zie de pagina Opschoning Patient-data.
