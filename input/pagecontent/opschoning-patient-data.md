@@ -60,12 +60,6 @@ Voordelen van de querybenadering: geen state-onderhoud op `Patient.meta`, geen s
 
 **Edge-case "nooit betrokken".** Is er voor een kandidaat-Patient na 2 jaar geen enkel relevant event (`max(...)` is leeg — bijvoorbeeld een Patient die wel is aangemaakt maar waarvoor nooit een Launch of Task heeft plaatsgevonden), dan start gewoon de reguliere purge-procedure.
 
-Voorbeelden per datacategorie:
-
-- Patiëntdata: `last-patient-engagement` zoals hierboven gedefinieerd
-- AuditEvents: datum van creatie
-- Tasks: datum van afsluiting
-
 #### Dataclassificatie en labeling
 
 Alle data binnen de Koppeltaalvoorziening moet geclassificeerd worden op basis van type, gevoeligheid en bewaartermijn. FHIR security labels worden hiervoor ingezet als classificatiemechanisme. Dit maakt het mogelijk om:
