@@ -3,6 +3,7 @@
 | Versie | Datum | Wijziging |
 | --- | --- | --- |
 | 0.1.0 | 2026-06-08 | Initiële versie |
+| 0.1.1 | 2026-06-10 | Veldmapping (`action`, `agent.who`, `entity.what`, `outcome`) per lifecycle-event toegevoegd onder "AuditEvents bij statusovergangen" |
 
 ---
 
@@ -177,6 +178,20 @@ Elke statusovergang wordt vastgelegd in een immutable AuditEvent met ISO 21089 l
 | Blokkade opgeheven (`accepted`) | `unhold` | Doelapplicatie | Aantoonbaar: blokkade is opgeheven |
 | Afgebroken (`cancelled`) | `reactivate` | Koppeltaalvoorziening | Aantoonbaar: verwijdering afgebroken vanwege hernieuwde betrokkenheid |
 | `$purge` uitgevoerd (`completed`) | `destroy` | Koppeltaalvoorziening | Aantoonbaar: data is definitief vernietigd; draagt tevens het **post-delete** signaal |
+
+De overige AuditEvent-velden worden per statusovergang als volgt gevuld. `AuditEvent.action` weerspiegelt de onderliggende operatie op de Task (of, bij `destroy`, op de Patient); `agent.type` is in alle gevallen `DCM#110153` "Source Role ID" met `requestor = true`:
+
+| ISO 21089 `type` | `action` | `agent.who` (handelende partij) | `entity.what` | `outcome` |
+| --- | --- | --- | --- | --- |
+| `archive` | `C` | Koppeltaalvoorziening (`Device`) | de aangemaakte `KT2_DeletePendingTask` (`Task/{id}`) | `0` |
+| `hold` | `U` | doelapplicatie (`Device`/`client_id`) | de eigen `KT2_DeletePendingTask`; reden afgeleid van `Task.statusReason` | `0` |
+| `unhold` | `U` | doelapplicatie (`Device`/`client_id`) | de eigen `KT2_DeletePendingTask` | `0` |
+| `reactivate` | `U` | Koppeltaalvoorziening (`Device`) | de `KT2_DeletePendingTask`(s) van deze Patient; reden "hernieuwde betrokkenheid" | `0` |
+| `destroy` | `D` | Koppeltaalvoorziening (`Device`) | de opgeschoonde `Patient/{id}` (technische referentie; effectief geanonimiseerd ná de `$purge`) | `0` |
+
+`entity.type` volgt de gerefereerde resource (`http://hl7.org/fhir/resource-types#Task`, respectievelijk `#Patient` bij `destroy`). Een eigen `subtype` is voor deze lifecycle-events niet nodig: de ISO 21089-code op `type` is al onderscheidend.
+
+De generieke velden gelden ook hier: de extensions `request-id` / `correlation-id` / `trace-id` voor de ketenlogging, `source.site` = domeinnaam van de Koppeltaalvoorziening, `source.observer` = `Device`-referentie van de Koppeltaalvoorziening, en `recorded` = timestamp van vastlegging. Conform [Logging en persoonsgegevens zijn gescheiden](#logging-en-persoonsgegevens-zijn-gescheiden) bevatten deze AuditEvents **geen PII** — uitsluitend technische referenties — zodat zij de langere bewaartermijn en de `$purge` overleven.
 
 Een `accepted`-overgang ná een `on-hold` legt een `unhold`-AuditEvent vast; een `accepted` als eerste reactie (zonder voorafgaande noodrem) is een coördinatiesignaal zonder eigen lifecycle-AuditEvent. De destroy-AuditEvent overleeft de $purge en is daarmee de enige bron voor het post-delete signaal — doelapplicaties die het definitieve verwijdermoment willen weten, subscriben op AuditEvent met type = …iso-21089-lifecycle|destroy.
 
