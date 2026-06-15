@@ -4,6 +4,8 @@
 | --- | --- | --- |
 | 0.1.0 | 2026-06-08 | Initiële versie |
 | 0.1.1 | 2026-06-10 | Veldmapping (`action`, `agent.who`, `entity.what`, `outcome`) per lifecycle-event toegevoegd onder "AuditEvents bij statusovergangen" |
+| 0.1.2 | 2026-06-15 | `T_authorize` en `T_introspect_hti` samengevoegd tot `T_auth` (beide gebruiken `DCM#110114` / `DCM#110122` met de gebruiker op `entity.what`, zijn daarmee query-equivalent); formule vereenvoudigd tot `max(T_auth, T_task_owner)`; activiteitscheck filtert op `entity` i.p.v. `agent`; overweging bijgewerkt |
+| 0.1.3 | 2026-06-15 | Status-lifecycle-diagram verwijderd (verwarrend); rationale toegevoegd waarom `KT2_DeletePendingTask` een apart profiel is (`Parent: Task`) en niet in `KT2_Task` wordt ondergebracht |
 
 ---
 
@@ -47,15 +49,14 @@ Dit moment wordt **niet als state opgeslagen** maar op het moment van de [activi
 
 | Bron | Definitie | Status |
 | --- | --- | --- |
-| `T_authorize` | Meest recente `AuditEvent` voor de SMART `/authorize`-call van de Koppeltaal-launch, waar de actor de Patient is of een aan deze Patient gekoppelde RelatedPerson (`agent.who`) | Reeds gespecificeerd — type `DCM#110114` / subtype `DCM#110122` (zie `auditevent-launch-example.fsh`) |
-| `T_introspect_hti` | Meest recente `AuditEvent` voor de `/introspect`-call **uitsluitend wanneer het geïntrospecteerde token een HTI launch token is**, met dezelfde actor-filtering | **In uitwerking** — voorstel: het bestaande User Authentication AuditEvent (`type DCM#110114`) met een eigen subtype (voorstel `DCM#110143`); te bevestigen in [TOP-KT-021](https://vzvz.atlassian.net/wiki/spaces/KTSA/pages/27125106). Tot dit is vastgesteld blijft dit pad inactief |
+| `T_auth` | Meest recente User Authentication `AuditEvent` (type `DCM#110114` / subtype `DCM#110122`) waarbij de geauthenticeerde gebruiker (`entity.what`) de Patient is of een aan deze Patient gekoppelde RelatedPerson — omvat zowel de SMART `/authorize`-call als HTI-tokenintrospectie | Actief — één query dekt beide signalen. Een mislukte IdP-login (`outcome = 8`) doet niet af aan een geslaagde HTI-introspectie (`outcome = 0`) van dezelfde sessie |
 | `T_task_owner` | Meest recente `Task.meta.lastUpdated` voor Tasks waar `Task.owner` direct naar de Patient verwijst | Beschikbaar in het huidige Task-profiel. **Niet** `Task.for` — Tasks die *over* de patiënt gaan tellen niet; alleen Tasks waarvan de patiënt de **uitvoerder** is. De aankondigings-Task (`KT2_DeletePendingTask`, `owner` = `Device`) valt hier per definitie buiten |
 
-`last-patient-engagement = max(T_authorize, T_introspect_hti, T_task_owner)`.
+`last-patient-engagement = max(T_auth, T_task_owner)`.
 
-Practitioner-activiteit telt niet mee: behandelaaractiviteit is administratief / zorginhoudelijk en valt onder de bewaartermijn van het EPD (WGBO, 20 jaar). De AVG-bewaartermijn van 2 jaar voor persoonsgegevens is gekoppeld aan betrokkenheid van de patiënt zelf. Door op de actor van het AuditEvent te filteren (`agent.who`) en op `Task.owner`, vallen Practitioner-acties automatisch buiten de berekening.
+Practitioner-activiteit telt niet mee: behandelaaractiviteit is administratief / zorginhoudelijk en valt onder de bewaartermijn van het EPD (WGBO, 20 jaar). De AVG-bewaartermijn van 2 jaar voor persoonsgegevens is gekoppeld aan betrokkenheid van de patiënt zelf. Door op de geauthenticeerde gebruiker van het AuditEvent te filteren (entity.what) en op Task.owner, vallen Practitioner-acties automatisch buiten de berekening — een Practitioner-login zet de Practitioner op entity.what en matcht niet op entity=Patient/{id}.
 
-Activiteit van een aan de Patient gekoppelde RelatedPerson telt **in principe** wél mee — uitgewerkt in zowel de AuditEvent-actorfilter als de `Task.owner`-filter. Zie [overweging "RelatedPerson in de mix"](#relatedperson-in-de-mix) voor de motivatie en implementatie.
+Activiteit van een aan de Patient gekoppelde RelatedPerson telt **in principe** wél mee — uitgewerkt in zowel de AuditEvent-`entity.what`-filter als de `Task.owner`-filter. Zie [overweging "RelatedPerson in de mix"](#relatedperson-in-de-mix) voor de motivatie en implementatie.
 
 Voordelen van de querybenadering: geen state-onderhoud op `Patient.meta`, geen schrijfpaden bij zelf-inloggende applicaties, geen conflictresolutie en geen backfill-migratie. De afleiding gebruikt de resources die al de bron van waarheid zijn — AuditEvents voor activiteit (NEN 7513) en Tasks voor uitvoeringsbetrokkenheid. De controle vindt alleen plaats op het moment van `$purge`; drie tot vijf gerichte queries per kandidaat-Patient zijn acceptabel.
 
@@ -138,13 +139,16 @@ Bijkomende voordelen: de Patient wordt niet gemuteerd (geen `versionId`/`lastUpd
 | `restriction.period.end` | grace-deadline | Geplande `$purge`; de doelapplicatie leest hieruit hoeveel tijd resteert |
 | `status` | zie lifecycle hieronder | Native Task-lifecycle; de toestand leeft op de Task, niet op de Patient |
 
+**Een eigen profiel, afgeleid van de base `Task` — niet ondergebracht in `KT2_Task`.** De aankondigings-Task is een door de Koppeltaalvoorziening aangestuurd **coördinatie-artefact**, geen klinische eHealth-activiteit. Het is daarom een apart profiel met `Parent: Task` (een *broer* van `KT2_Task`), om vier redenen:
+
+1. **Onverenigbare constraints.** `KT2_Task` bindt `owner` aan `CareTeam` / `Patient` / `Practitioner` / `RelatedPerson` (geen `Device`), `requester` aan `Practitioner`, en verbiedt `restriction` en `statusReason` (`0..0`). De aankondigings-Task heeft juist `owner` = `Device`, `requester` = `Device`, een `restriction.period.end` en een `statusReason` (de noodrem-reden) nodig. Inpassen in `KT2_Task` zou betekenen dat deze constraints op élke klinische Task worden losgelaten.
+2. **`owner = Device` is dragend.** De bewaartermijn-klok `T_task_owner` vraagt `GET /Task?owner=Patient/{id}`. Doordat de aankondigings-Task `owner` = `Device` heeft, valt hij per definitie buiten die query en reset hij de klok niet. Die scheiding gaat alleen op als deze Task géén owner-is-mens-Task is.
+3. **Een profiel is een validatiecontract.** De vereiste vorm (`code = delete-pending`, `owner` = `Device`, `restriction.period.end` aanwezig) is precies wat een eigen profiel afdwingt en valideert; differentiatie op alleen `code` tijdens query (`Task?code=delete-pending`) borgt die vorm niet.
+4. **Ontkoppeld van het [KoppelMij-openstellen](memo-koppelmij-scope.html#3-specifieke-technische-wijzigingen).** Dat traject maakt `KT2_Task` juist *permissiever* (open-world extensions voor de MedMij-context). De strikte aankondigings-Task hoort daar niet aan gekoppeld te zijn: een intern opschoning-artefact moet niet meebewegen met elke MedMij-wijziging op de klinische Task. Het openstellen raakt bovendien geen van de vier constraints uit punt 1 — die blijven onverenigbaar.
+
 #### Status-lifecycle
 
 De Task doorloopt een native lifecycle. De toestand "Actief" (geen aankondigings-Task) en "Deleted" (Patient bestaat niet meer; HTTP GET levert 404 Not Found) zijn conceptuele eindstaten die niet als Task-status bestaan.
-
-<div style="clear: both; margin: 1em 0;">
-{% include opschoning-patient-data-tasklifecycle.svg %}
-</div>
 
 | `Task.status` | Wie zet 'm | Betekenis |  |
 | --- | --- | --- | --- |
@@ -206,15 +210,15 @@ Voordat de Koppeltaalvoorziening tot `$purge` overgaat, berekent zij `last-patie
 De berekening bestaat uit een aantal gerichte FHIR-searches per kandidaat-Patient. Conceptueel ziet dat er als volgt uit (exacte search-parameters volgen het profiel van `KT2_AuditEvent` en `KT2_Task`):
 
 ```
-# Meest recente patiëntbetrokkenheid via authenticatie (type DCM#110114):
-#   /authorize-login (subtype DCM#110122) of /introspect[hti] (subtype TBD, voorstel DCM#110143)
-#   — access-/id-token-introspectie valt buiten dit subtype-filter
-# ... met de Patient zelf als actor
-GET /AuditEvent?agent=Patient/{id}&type=110114&subtype=110122,{hti-introspect-subtype}&_sort=-date&_count=1
+# T_auth: meest recente User Authentication-event (DCM#110114 / DCM#110122) met de Patient
+#   als geauthenticeerde gebruiker (entity.what). Dekt /authorize én HTI-introspectie in één
+#   query; access-/id-token-introspectie levert geen AuditEvent op en valt buiten dit filter
+# ... met de Patient zelf als geauthenticeerde gebruiker
+GET /AuditEvent?entity=Patient/{id}&type=110114&subtype=110122&_sort=-date&_count=1
 
-# ... met een aan deze Patient gekoppelde RelatedPerson als actor
-#     (chained op de agent-referentie; geen aparte RelatedPerson-lookup nodig)
-GET /AuditEvent?agent:RelatedPerson.patient=Patient/{id}&type=110114&subtype=110122,{hti-introspect-subtype}&_sort=-date&_count=1
+# ... met een aan deze Patient gekoppelde RelatedPerson als geauthenticeerde gebruiker
+#     (chained op de entity-referentie; geen aparte RelatedPerson-lookup nodig)
+GET /AuditEvent?entity:RelatedPerson.patient=Patient/{id}&type=110114&subtype=110122&_sort=-date&_count=1
 
 # Meest recente Task met de Patient als uitvoerder
 GET /Task?owner=Patient/{id}&_sort=-_lastUpdated&_count=1
@@ -223,7 +227,7 @@ GET /Task?owner=Patient/{id}&_sort=-_lastUpdated&_count=1
 GET /Task?owner:RelatedPerson.patient=Patient/{id}&_sort=-_lastUpdated&_count=1
 ```
 
-De Koppeltaalvoorziening neemt max(...) over de gevonden timestamps. Is die later dan het moment waarop de aankondiging is gedaan, dan wordt de verwijdering afgebroken. Door op `agent`/`owner` te chainen naar `RelatedPerson.patient` worden de gekoppelde RelatedPersons in dezelfde query meegenomen — een aparte `GET /RelatedPerson?patient=Patient/{id}` is dus niet nodig. (Wie op de patient-identifier wil matchen in plaats van de logische referentie, gebruikt `…patient:identifier=<system|waarde>`.) De aankondigings-Task zelf (`owner` = `Device`) komt niet in de `owner=Patient`-query voor en beïnvloedt de klok dus niet.
+De Koppeltaalvoorziening neemt max(...) over de gevonden timestamps. Is die later dan het moment waarop de aankondiging is gedaan, dan wordt de verwijdering afgebroken. Door op `entity`/`owner` te chainen naar `RelatedPerson.patient` worden de gekoppelde RelatedPersons in dezelfde query meegenomen — een aparte `GET /RelatedPerson?patient=Patient/{id}` is dus niet nodig. (Wie op de patient-identifier wil matchen in plaats van de logische referentie, gebruikt …patient:identifier=<system|waarde>.) De aankondigings-Task zelf (owner = Device) komt niet in de owner=Patient-query voor en beïnvloedt de klok dus niet.
 
 Deze controle voorkomt dat data wordt verwijderd van patiënten die tijdens of vlak na de grace period weer actief worden. De controle wordt op het moment van de geplande $purge uitgevoerd, zodat ook betrokkenheid aan het einde van de grace period wordt meegenomen.
 
@@ -329,7 +333,7 @@ Bij de gekozen oplossingsrichting gelden de volgende aandachtspunten en open pun
 
 In het Koppeltaal-model is een RelatedPerson per definitie gekoppeld aan één specifieke Patient (`RelatedPerson.patient`). Activiteit van die RelatedPerson — een login via `/authorize`, of een Task waarvan de RelatedPerson de uitvoerder is — geldt daarom als betrokkenheid bij die patiënt en telt mee in `last-patient-engagement`.
 
-Praktisch kan de [activiteitscheck](#activiteitscheck-vóór-verwijdering) de gekoppelde RelatedPersons in dezelfde query meenemen via een chained search (`agent:RelatedPerson.patient` resp. `owner:RelatedPerson.patient`), zonder ze eerst apart op te halen. De RelatedPersons zelf worden in de `$purge`-cascade meegenomen (zij vallen binnen het Patient Compartment).
+Praktisch kan de [activiteitscheck](#activiteitscheck-vóór-verwijdering) de gekoppelde RelatedPersons in dezelfde query meenemen via een chained search (`entity:RelatedPerson.patient` resp. `owner:RelatedPerson.patient`), zonder ze eerst apart op te halen. De RelatedPersons zelf worden in de `$purge`-cascade meegenomen (zij vallen binnen het Patient Compartment).
 
 Open vraag voor latere iteratie: willen we deze regel óók expliciet vastleggen in een StructureDefinition-invariant of in het CapabilityStatement, zodat een implementatie de afdwingbaarheid niet zelf hoeft af te leiden uit deze pagina?
 
@@ -337,7 +341,7 @@ Open vraag voor latere iteratie: willen we deze regel óók expliciet vastleggen
 
 `/introspect` werkt in Koppeltaal op meerdere tokentypes: HTI launch tokens, access tokens en id tokens (zie [TOP-KT-021](https://vzvz.atlassian.net/wiki/spaces/KTSA/pages/27125106)). Alleen introspectie van **HTI launch tokens** mag de bewaartermijn resetten, omdat dat het signaal is dat een doelapplicatie daadwerkelijk een patiëntgerichte launch verwerkt. Introspectie van access- of id-tokens is een technische tokenvalidatie en bewijst geen patiëntinteractie.
 
-Voorstel: hergebruik het bestaande User Authentication AuditEvent (`type DCM#110114`, zie TOP-KT-011) met een eigen subtype (voorstel `DCM#110143`) en de mapping van Patient/RelatedPerson naar `agent.who`. Hiermee is geen nieuw AuditEvent-type nodig. De definitieve subtype-coding wordt bevestigd in een vervolgtraject (relateert aan [TOP-KT-011 - Logging en tracing](https://vzvz.atlassian.net/wiki/spaces/KTSA/pages/27125090) en TOP-KT-021). Tot die tijd is `T_introspect_hti` inactief en steunt de berekening op `T_authorize` en `T_task_owner`.
+Omdat de coding is vastgesteld op type `DCM#110114` / subtype `DCM#110122` — dezelfde als voor de SMART `/authorize`-call, met de geauthenticeerde gebruiker op `entity.what` — zijn beide signalen **query-equivalent** en samengevoegd in `T_auth`. De berekening `last-patient-engagement = max(T_auth, T_task_owner)` dekt daarmee automatisch zowel `/authorize` als HTI-introspectie in één `entity`-query. Een mislukte IdP-login (outcome = 8) doet niet af aan een geslaagde HTI-introspectie (outcome = 0) van dezelfde sessie.
 
 In een eerdere iteratie was voorzien dat het startmoment als state werd vastgelegd in een dedicated FHIR-extension onder `Patient.meta` (`KT2_LastPatientEngagement`), bijgewerkt door de Koppeltaalvoorziening bij `/authorize` en `/introspect` en door zelf-inloggende applicaties, plus een eenmalige backfill voor bestaande Patient-resources. Deze aanpak komt te vervallen ten gunste van de querybenadering.
 ### Referenties
