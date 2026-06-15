@@ -11,6 +11,7 @@ Deze pagina bevat een overzicht van de wijzigingen per versie van de Koppeltaal 
 - **KoppeltaalTaskCode codesysteem**: code `delete-pending` toegevoegd voor de aankondigings-Task.
 - **KoppeltaalDevicePropertyType codesysteem**: nieuw codesysteem met code `deletion-process-opt-in` waarmee via `Device.property` wordt vastgelegd dat een applicatie zich heeft aangemeld (opt-in) voor het opschoningsproces.
 - **KT2Device profiel**: `Device.property` weer toegestaan met een slice `deletionOptIn` voor de opt-in op het opschoningsproces.
+- **SearchParameters**: `auditevent-entity` (`AuditEvent.entity.what`) en `task-owner` (`Task.owner`), beide met `patient`-chain, leggen de searches van de activiteitscheck expliciet vast (`entity=Patient/{id}` / `entity:RelatedPerson.patient` en `owner=Patient/{id}` / `owner:RelatedPerson.patient`).
 - **Voorbeelden**: `task-delete-pending` (aankondigings-Task), `device-opschoning-opt-in` (Device met opt-in property), `auditevent-introspect-hti` (User Authentication AuditEvent bij HTI-introspectie, `DCM#110114` / `DCM#110122` — query-equivalent met `/authorize`) en de opschoning-lifecycle AuditEvents `auditevent-opschoning-archive` / `-hold` / `-unhold` / `-reactivate` / `-destroy` (ISO 21089 lifecycle-codes).
 
 ### 0.16.2 (2026-04-02)
