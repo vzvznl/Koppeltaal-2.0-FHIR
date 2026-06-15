@@ -14,6 +14,9 @@ Description: "Het KT2_DeletePendingTask profiel representeert de aankondiging da
 // Een vaststaande purge wordt aangekondigd.
 * intent = #order (exactly)
 * status ^comment = "Native Task-lifecycle. De Koppeltaalvoorziening zet `requested` (create), `cancelled` (hernieuwde betrokkenheid) en `completed` (`$purge` uitgevoerd). De doelapplicatie zet uitsluitend `on-hold` (tijdelijke noodrem) of `accepted` (groen licht / opheffen noodrem)."
+// De noodrem-reden; expliciet toegestaan (anders dan op KT2_Task, waar statusReason 0..0 is).
+* statusReason ^short = "Reden van de noodrem bij `status = on-hold`"
+  * ^comment = "Wordt door de doelapplicatie gevuld wanneer zij haar Task op `on-hold` zet; vormt de reden in het bijbehorende `hold`-AuditEvent."
 // De Patient die wordt opgeschoond; plaatst de Task in het Patient-compartiment.
 * for 1..1
 * for only Reference(KT2_Patient)
