@@ -5,6 +5,7 @@
 | 0.0.1 | 2026-04-01 | Initiële versie |
 | 0.0.2 | 2026-06-10 | AuditEvents voor authenticatie (login: `/authorize`, IdP-call, IdP-besluit), HTI-introspectie en authenticatie aan applicatiezijde toegevoegd; AuditEvents voor de opschoning-lifecycle toegevoegd, inclusief veldmapping (`action`, `agent.who`, `entity.what`, `outcome`) per lifecycle-event |
 | 0.0.3 | 2026-06-15 | §3.6 vereenvoudigd: alle authenticatie-events gebruiken `DCM#110114` / `DCM#110122` met de geauthenticeerde gebruiker op `entity.what` (`entity.role` 1/6/15) en de handelende systemen (applicatie, IdP) op `agent.who`; differentiatie via `outcome` en `agent.who(2)`; §3.7 bijgewerkt: `T_authorize` en `T_introspect_hti` zijn query-equivalent, samengevoegd als `T_auth`; §3.8 mapping verduidelijkt |
+| 0.0.4 | 2026-06-17 | §3.6 herzien tot één **User Authentication**-sectie: vier varianten binnen subtype `DCM#110122`, onderscheiden via een prefix in `outcomeDesc` (`introspect`, `authorize`, `idp call`, `idp login`) die de AuditEvent Viewer als subtype toont; de voormalige aparte introspect-sectie is hierin opgegaan. Authenticatie aan applicatiezijde (nu §3.7) krijgt een eigen subtype `DCM#110126` "Node Authentication" (event *Application User Authentication*). Resterende secties hernummerd (§3.8→§3.7, §3.9→§3.8); §3 en §4 bijgewerkt |
 
 ---
 
@@ -35,8 +36,8 @@ Bij het verwerken van de updates uit TOPKT011 ligt de nadruk op die elementen wa
 
 AuditEvents worden in Koppeltaal door **twee producenten** aangemaakt:
 
-1. de **Koppeltaalvoorziening** — het merendeel van de REST- en lifecycle-events, de authenticatie-events rond login en HTI-introspectie (§3.6 en §3.7) en de opschoning-lifecycle (§3.9). De FHIR resource service, de autorisatiefunctie en de opschoningsfunctie zijn onderdelen van de Koppeltaalvoorziening en worden in dit memo niet als afzonderlijke producenten onderscheiden;
-2. de **applicatie van de leverancier** zelf — onder andere Launch, Launched en de authenticatie aan applicatiezijde (§3.8).
+1. de **Koppeltaalvoorziening** — het merendeel van de REST- en lifecycle-events, de authenticatie-events rond login en HTI-introspectie (§3.6) en de opschoning-lifecycle (§3.8). De FHIR resource service, de autorisatiefunctie en de opschoningsfunctie zijn onderdelen van de Koppeltaalvoorziening en worden in dit memo niet als afzonderlijke producenten onderscheiden;
+2. de **applicatie van de leverancier** zelf — onder andere Launch, Launched en de authenticatie aan applicatiezijde (§3.7).
 
 De events van producent 1 zijn voor leveranciers vooral informatief; zij zijn opgenomen omdat ze het bewijsanker vormen voor patiëntbetrokkenheid.
 
@@ -67,40 +68,34 @@ Naast de generieke wijzigingen:
 
 Geen verdere inhoudelijke wijzigingen naast de generieke aanpassingen.
 
-#### 3.6 AuditEvent: User Authentication — HTI-introspectie en IdP-besluit
+#### 3.6 AuditEvent: User Authentication
 
-De authenticatiegebeurtenissen bij een Koppeltaal-launch worden vastgelegd als `User Authentication` AuditEvents van het type `DCM#110114` / subtype `DCM#110122` "Login". De Koppeltaalvoorziening genereert deze events op het moment van de **impliciete HTI-tokenintrospectie**; de applicatie hoeft ze **niet zelf aan te maken** — ze zijn voor leveranciers relevant als bewijsanker voor patiëntbetrokkenheid (zie §3.9 en [opschoning-patient-data.html](./opschoning-patient-data.html)).
+De authenticatiegebeurtenissen binnen het Koppeltaal-domein worden vastgelegd als `User Authentication` AuditEvents van het type `DCM#110114` / subtype `DCM#110122` "Login". De Koppeltaalvoorziening genereert deze events; de applicatie hoeft ze **niet zelf aan te maken** — ze zijn voor leveranciers relevant als bewijsanker voor patiëntbetrokkenheid (zie §3.8 en [opschoning-patient-data.html](./opschoning-patient-data.html)).
 
-Alle events delen hetzelfde type/subtype (`DCM#110114` / `DCM#110122`). De **geauthenticeerde gebruiker** (Patient / RelatedPerson / Practitioner) staat altijd op `entity.what` (met `entity.role` 1 / 6 / 15); de **handelende systemen** (applicatie en — bij IdP-login — de IdP) staan op `agent.who`. De onderlinge differentiatie zit in `outcome` en in de aanwezigheid van `agent.who(2)`:
+De vier varianten delen dit ene subtype — er zijn dus **geen aparte subtypes** — en worden onderscheiden via een **prefix in `outcomeDesc`** (bijvoorbeeld `introspect: Introspect succesvol`), die de AuditEvent Viewer als subtype toont. Ze volgen de launch-flow in de tijd:
 
-| Moment | `agent.who` (handelende systemen) | `entity.what` (geauthenticeerde gebruiker) | `outcome` |
-| --- | --- | --- | --- |
-| HTI launch token geïntrospecteerd | `agent.who(1)` = aanvragende applicatie (`Device`/`client_id`), `agent.type` = `DCM#110153` Source Role ID, `requestor=true` | de `Patient` / `RelatedPerson` / `Practitioner` (`entity.role` 1 / 6 / 15) | `0` bij succes |
-| IdP-besluit (uitsluitend bij IdP-authenticatie) | `agent.who(2)` = de IdP (`identifier.system =` http://koppeltaal.nl/oidc/issuer`)`,` agent.type`` = `DCM#110152` Destination Role ID, `requestor=false` | dezelfde geauthenticeerde persoon | `0` (geslaagd) of `8` (geweigerd) |
+| Prefix | Wanneer |
+| --- | --- |
+| `introspect` | Launch via HTI: introspectie van het HTI launch token |
+| `authorize` | Launch via SMART app launch: de `/authorize`-call |
+| `idp call` | Optioneel vanuit `/authorize`: de gebruiker wordt naar de externe IdP gestuurd |
+| `idp login` | De redirect terug: het IdP-besluit (`outcome` `0` geslaagd / `8` geweigerd) |
 
-> **Let op.** Een mislukte IdP-login (`outcome = 8` op het IdP-besluit-event) doet **niet** af aan de patiëntbetrokkenheid die reeds is vastgelegd via het HTI-introspectie-event (`outcome = 0`). Beide events worden onafhankelijk vastgelegd.
+Bij elke variant staat de geauthenticeerde gebruiker (Patient / RelatedPerson / Practitioner) op `entity.what` en staan de handelende systemen — de applicatie, en bij de IdP-stappen de IdP — op `agent.who`. Een mislukte `idp login` (`outcome 8`) doet niets af aan de betrokkenheid die `introspect` of `authorize` al heeft vastgelegd.
 
-#### 3.7 AuditEvent: Token Introspection (HTI launch token)
+Het `introspect`-event wordt **alleen** vastgelegd voor HTI launch tokens; introspectie van access- of id-tokens is een technische validatie en levert géén AuditEvent op. Omdat `introspect` en `authorize` dezelfde coding delen (met de gebruiker op `entity.what`), zijn ze query-equivalent en samengevoegd in `T_auth`, wat de bewaartermijn-berekening vereenvoudigt tot `max(T_auth, T_task_owner)` (zie [opschoning-patient-data.html](./opschoning-patient-data.html)).
 
-Het HTI-introspectie-event is de eerste rij in de tabel van §3.6: type `DCM#110114` / subtype `DCM#110122` "Login", gegenereerd door de Koppeltaalvoorziening op het introspect-endpoint. Het event wordt uitsluitend vastgelegd **wanneer het geïntrospecteerde token een HTI launch token is**; introspectie van access- of id-tokens is een technische validatie en levert géén AuditEvent op.
+#### 3.7 AuditEvent: Application User Authentication (authenticatie aan applicatiezijde)
 
-- **`type` / `subtype`**: `DCM#110114` / `DCM#110122` — dezelfde coding als de overige User Authentication-events; geen afzonderlijk subtype nodig.
-- **Actor-mapping**: de bij de launch betrokken `Patient` / `RelatedPerson` wordt op `entity.what` gezet (`entity.role` 1 / 6), zodat het event als patiëntbetrokkenheid telt; `agent.who(1)` is de aanroepende applicatie (`Device`).
-- **Aanmaak**: de Koppeltaalvoorziening legt dit event vast. **De HTI-introspectie wordt aangeroepen door de doelapplicatie; het AuditEvent zelf is daarmee voor leveranciers informatief.**
+Naast de authenticatie die de Koppeltaalvoorziening zelf vastlegt (§3.6), kan een applicatie de patiënt of naaste ook **buiten de Koppeltaal-authenticatieketen** authenticeren (bijvoorbeeld een eigen sessie-login). Voor een volledige toegangslog SHOULD de applicatie hiervoor zelf een AuditEvent aanmaken en vastleggen: een eigenstandig event (Application User Authentication) met een eigen subtype DCM#110126 "Node Authentication" onder type DCM#110114. Anders dan de in-keten events (subtype DCM#110122) markeert dit patiëntactiviteit búiten de keten.
 
-Omdat de event-coding gelijk is aan die van `/authorize`-events (`DCM#110114` / `DCM#110122` met de Patient op `entity.what`), zijn beide signalen **query-equivalent**. Ze zijn daarvoor samengevoegd in `T_auth` en de bewaartermijn-berekening vereenvoudigt tot `max(T_auth, T_task_owner)` (zie [opschoning-patient-data.html](./opschoning-patient-data.html)).
-
-#### 3.8 AuditEvent: Authenticatie aan applicatiezijde
-
-Naast de authenticatie die de Koppeltaalvoorziening zelf vastlegt (§3.6 en §3.7), kan een applicatie de patiënt of naaste ook buiten de Koppeltaalvoorziening authenticeren (bijvoorbeeld in een eigen sessie). Voor een volledige toegangslog SHOULD de applicatie ook voor dit moment een User Authentication-AuditEvent (`DCM#110114` / `DCM#110122`) aanmaken en in de Koppeltaalvoorziening vastleggen. Dit sluit aan op de codering die de Koppeltaalvoorziening zelf hanteert (§3.6).
-
-- **Aanmaak**: door de applicatie zelf (dit is, anders dan §3.6/§3.7, wél een verantwoordelijkheid van de leverancier).
+- **Aanmaak**: door de applicatie zelf (dit is, anders dan §3.6, wél een verantwoordelijkheid van de leverancier).
 - **`source.site`**: de domeinnaam van de applicatie; **`source.observer`**: de `Device`-referentie van de applicatie (`Device/<id|client_id>`).
 - **`entity.what`**: de geauthenticeerde `Patient` / `RelatedPerson` / `Practitioner` (`entity.role` 1 / 6 / 15), conform de mapping van User Authentication; **`agent.who`**: de applicatie (`Device`/`client_id`, `requestor=true`).
 
-Hiermee is ook patiëntbetrokkenheid die niet via `/authorize` of de HTI-introspectie loopt aantoonbaar en telt zij mee in de bewaartermijn-afleiding (`last-patient-engagement`, zie [opschoning-patient-data.html](./opschoning-patient-data.html)).
+Hiermee is ook patiëntbetrokkenheid die niet via `/authorize` of de HTI-introspectie loopt aantoonbaar. Samen met `DCM#110122` geeft `DCM#110126` een volledig beeld van de patiëntactiviteit; beide subtypes tellen mee in de bewaartermijn-afleiding (`last-patient-engagement`, zie [opschoning-patient-data.html](./opschoning-patient-data.html)).
 
-#### 3.9 AuditEvents voor de opschoning-lifecycle
+#### 3.8 AuditEvents voor de opschoning-lifecycle
 
 Voor het opschonen van patiëntdata (zie [opschoning-patient-data.html](./opschoning-patient-data.html)) wordt elke statusovergang van de aankondigings-Task (`KT2_DeletePendingTask`) vastgelegd in een immutable AuditEvent met **ISO 21089 lifecycle-codes** op `AuditEvent.type` (`http://terminology.hl7.org/CodeSystem/iso-21089-lifecycle`). Deze events overleven de `$purge` en vormen de aantoonbare audit trail van het verwijderproces.
 
@@ -131,7 +126,7 @@ De generieke velden gelden ook hier (extensions `request-id` / `correlation-id` 
 - Er is **geen aparte kwalificatie** nodig specifiek voor Topic 11.
 - De wijzigingen worden onderdeel van de reguliere kwalificatie wanneer een leverancier zijn applicatie opnieuw laat kwalificeren.
 - Voor reeds gekwalificeerde applicaties geldt: implementatie wordt verwacht bij doorontwikkeling, maar er is geen directe verplichting tot herkwalificatie.
-- De nieuwe AuditEvents uit §3.6 t/m §3.9 hebben voorlopig geen kwalificatie-impact. De codings voor §3.6 t/m §3.8 zijn vastgesteld (DCM#110114 / DCM#110122); de tijdlijn voor opname in de reguliere kwalificatie wordt in een vervolgtraject bepaald.
+- De nieuwe AuditEvents uit §3.6 t/m §3.8 hebben voorlopig geen kwalificatie-impact. De codings zijn vastgesteld: §3.6 gebruikt DCM#110114 / DCM#110122 (met variant-differentiatie via de outcomeDesc-prefix), §3.7 gebruikt DCM#110114 / DCM#110126; de tijdlijn voor opname in de reguliere kwalificatie wordt in een vervolgtraject bepaald.
 
 ### 5. Conclusie
 

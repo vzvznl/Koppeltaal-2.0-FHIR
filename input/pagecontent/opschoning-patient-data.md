@@ -6,6 +6,7 @@
 | 0.1.1 | 2026-06-10 | Veldmapping (`action`, `agent.who`, `entity.what`, `outcome`) per lifecycle-event toegevoegd onder "AuditEvents bij statusovergangen" |
 | 0.1.2 | 2026-06-15 | `T_authorize` en `T_introspect_hti` samengevoegd tot `T_auth` (beide gebruiken `DCM#110114` / `DCM#110122` met de gebruiker op `entity.what`, zijn daarmee query-equivalent); formule vereenvoudigd tot `max(T_auth, T_task_owner)`; activiteitscheck filtert op `entity` i.p.v. `agent`; overweging bijgewerkt |
 | 0.1.3 | 2026-06-15 | Status-lifecycle-diagram verwijderd (verwarrend); rationale toegevoegd waarom `KT2_DeletePendingTask` een apart profiel is (`Parent: Task`) en niet in `KT2_Task` wordt ondergebracht |
+| 0.1.4 | 2026-06-17 | `T_auth` verbreed naar `subtype=110122,110126`: de afleiding van `last-patient-engagement` neemt naast `DCM#110122` nu ook `DCM#110126` (authenticatie aan applicatiezijde) mee, zodat die activiteit blijft meetellen |
 
 ---
 
@@ -49,7 +50,7 @@ Dit moment wordt **niet als state opgeslagen** maar op het moment van de [activi
 
 | Bron | Definitie | Status |
 | --- | --- | --- |
-| `T_auth` | Meest recente User Authentication `AuditEvent` (type `DCM#110114` / subtype `DCM#110122`) waarbij de geauthenticeerde gebruiker (`entity.what`) de Patient is of een aan deze Patient gekoppelde RelatedPerson — omvat zowel de SMART `/authorize`-call als HTI-tokenintrospectie | Actief — één query dekt beide signalen. Een mislukte IdP-login (`outcome = 8`) doet niet af aan een geslaagde HTI-introspectie (`outcome = 0`) van dezelfde sessie |
+| `T_auth` | Meest recente User Authentication `AuditEvent` (type `DCM#110114` / subtype `DCM#110122` of `DCM#110126`) waarbij de geauthenticeerde gebruiker (`entity.what`) de Patient is of een aan deze Patient gekoppelde RelatedPerson — omvat de SMART `/authorize`-call, de HTI-tokenintrospectie én de authenticatie aan applicatiezijde | Actief — één query (`subtype=110122,110126`) dekt alle signalen. Een mislukte IdP-login (`outcome = 8`) doet niet af aan een geslaagde HTI-introspectie (`outcome = 0`) van dezelfde sessie |
 | `T_task_owner` | Meest recente `Task.meta.lastUpdated` voor Tasks waar `Task.owner` direct naar de Patient verwijst | Beschikbaar in het huidige Task-profiel. **Niet** `Task.for` — Tasks die *over* de patiënt gaan tellen niet; alleen Tasks waarvan de patiënt de **uitvoerder** is. De aankondigings-Task (`KT2_DeletePendingTask`, `owner` = `Device`) valt hier per definitie buiten |
 
 `last-patient-engagement = max(T_auth, T_task_owner)`.
@@ -210,15 +211,16 @@ Voordat de Koppeltaalvoorziening tot `$purge` overgaat, berekent zij `last-patie
 De berekening bestaat uit een aantal gerichte FHIR-searches per kandidaat-Patient. Conceptueel ziet dat er als volgt uit (exacte search-parameters volgen het profiel van `KT2_AuditEvent` en `KT2_Task`):
 
 ```
-# T_auth: meest recente User Authentication-event (DCM#110114 / DCM#110122) met de Patient
-#   als geauthenticeerde gebruiker (entity.what). Dekt /authorize én HTI-introspectie in één
-#   query; access-/id-token-introspectie levert geen AuditEvent op en valt buiten dit filter
+# T_auth: meest recente User Authentication-event (DCM#110114 / subtype 110122 of 110126) met
+#   de Patient als geauthenticeerde gebruiker (entity.what). Dekt /authorize, HTI-introspectie
+#   én authenticatie aan applicatiezijde in één query (subtype 110122,110126 = OR); access-/
+#   id-token-introspectie levert geen AuditEvent op en valt buiten dit filter
 # ... met de Patient zelf als geauthenticeerde gebruiker
-GET /AuditEvent?entity=Patient/{id}&type=110114&subtype=110122&_sort=-date&_count=1
+GET /AuditEvent?entity=Patient/{id}&type=110114&subtype=110122,110126&_sort=-date&_count=1
 
 # ... met een aan deze Patient gekoppelde RelatedPerson als geauthenticeerde gebruiker
 #     (chained op de entity-referentie; geen aparte RelatedPerson-lookup nodig)
-GET /AuditEvent?entity:RelatedPerson.patient=Patient/{id}&type=110114&subtype=110122&_sort=-date&_count=1
+GET /AuditEvent?entity:RelatedPerson.patient=Patient/{id}&type=110114&subtype=110122,110126&_sort=-date&_count=1
 
 # Meest recente Task met de Patient als uitvoerder
 GET /Task?owner=Patient/{id}&_sort=-_lastUpdated&_count=1
@@ -341,7 +343,7 @@ Open vraag voor latere iteratie: willen we deze regel óók expliciet vastleggen
 
 `/introspect` werkt in Koppeltaal op meerdere tokentypes: HTI launch tokens, access tokens en id tokens (zie [TOP-KT-021](https://vzvz.atlassian.net/wiki/spaces/KTSA/pages/27125106)). Alleen introspectie van **HTI launch tokens** mag de bewaartermijn resetten, omdat dat het signaal is dat een doelapplicatie daadwerkelijk een patiëntgerichte launch verwerkt. Introspectie van access- of id-tokens is een technische tokenvalidatie en bewijst geen patiëntinteractie.
 
-Omdat de coding is vastgesteld op type `DCM#110114` / subtype `DCM#110122` — dezelfde als voor de SMART `/authorize`-call, met de geauthenticeerde gebruiker op `entity.what` — zijn beide signalen **query-equivalent** en samengevoegd in `T_auth`. De berekening `last-patient-engagement = max(T_auth, T_task_owner)` dekt daarmee automatisch zowel `/authorize` als HTI-introspectie in één `entity`-query. Een mislukte IdP-login (outcome = 8) doet niet af aan een geslaagde HTI-introspectie (outcome = 0) van dezelfde sessie.
+Omdat de coding is vastgesteld op type `DCM#110114` / subtype `DCM#110122` — dezelfde als voor de SMART `/authorize`-call, met de geauthenticeerde gebruiker op `entity.what` — zijn beide signalen **query-equivalent** en samengevoegd in `T_auth`. De berekening `last-patient-engagement = max(T_auth, T_task_owner)` dekt daarmee automatisch zowel `/authorize` als HTI-introspectie in één `entity`-query. De authenticatie aan applicatiezijde draagt subtype `DCM#110126` en wordt door diezelfde query meegenomen (`subtype=110122,110126`). Een mislukte IdP-login (outcome = 8) doet niet af aan een geslaagde HTI-introspectie (outcome = 0) van dezelfde sessie.
 
 In een eerdere iteratie was voorzien dat het startmoment als state werd vastgelegd in een dedicated FHIR-extension onder `Patient.meta` (`KT2_LastPatientEngagement`), bijgewerkt door de Koppeltaalvoorziening bij `/authorize` en `/introspect` en door zelf-inloggende applicaties, plus een eenmalige backfill voor bestaande Patient-resources. Deze aanpak komt te vervallen ten gunste van de querybenadering.
 ### Referenties
