@@ -81,7 +81,7 @@ De vier varianten delen dit ene subtype — er zijn dus **geen aparte subtypes**
 | `idp call` | Optioneel vanuit `/authorize`: de gebruiker wordt naar de externe IdP gestuurd |
 | `idp login` | De redirect terug: het IdP-besluit (`outcome` `0` geslaagd / `8` geweigerd) |
 
-Bij elke variant staat de geauthenticeerde gebruiker (Patient / RelatedPerson / Practitioner) op `entity.what` en staan de handelende systemen — de applicatie, en bij de IdP-stappen de IdP — op `agent.who`. Een mislukte `idp login` (`outcome 8`) doet niets af aan de betrokkenheid die `introspect` of `authorize` al heeft vastgelegd.
+Bij elke variant staat de geauthenticeerde gebruiker (Patient / RelatedPerson / Practitioner) op `entity.what` en de uitvoerende applicatie als `agent.who(1)`. Bij de IdP-stappen (`idp call` / `idp login`) komt de IdP daar als tweede handelende partij bij op `agent.who(2)`. Een mislukte idp login (outcome 8) doet niets af aan de betrokkenheid die introspect of authorize al heeft vastgelegd.
 
 Het `introspect`-event wordt **alleen** vastgelegd voor HTI launch tokens; introspectie van access- of id-tokens is een technische validatie en levert géén AuditEvent op. Omdat `introspect` en `authorize` dezelfde coding delen (met de gebruiker op `entity.what`), zijn ze query-equivalent en samengevoegd in `T_auth`, wat de bewaartermijn-berekening vereenvoudigt tot `max(T_auth, T_task_owner)` (zie [opschoning-patient-data.html](./opschoning-patient-data.html)).
 
