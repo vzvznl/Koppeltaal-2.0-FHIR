@@ -17,6 +17,10 @@
 
 De Koppeltaalvoorziening slaat patiëntgerelateerde FHIR resources op die na verloop van tijd verwijderd moeten worden, conform wettelijke bewaartermijnen (AVG, WGBO, NEN 7510, NEN 7513).
 
+<div style="clear: both; margin: 1em 0;">
+{% include opschoning-patient-data-overzicht.svg %}
+</div>
+
 ### Uitgangspunten
 
 **Verwijderen op patiëntniveau.** FHIR resources zijn referentieel verbonden; individueel verwijderen geeft integriteitsproblemen. Verwijdering vindt daarom op patiëntniveau plaats — alle aan de patiënt gerelateerde resources als geheel. RelatedPerson valt binnen de scope (altijd aan één patiënt gekoppeld); Practitioner niet (kan bij meerdere patiënten betrokken zijn).
@@ -27,25 +31,21 @@ De Koppeltaalvoorziening initieert het proces zodra de 2-jaarstermijn (vanaf de 
 
 #### Betrokkenheidsmodel: `last-patient-engagement`
 
-Het startmoment voor de bewaartermijn is de **laatste betrokkenheid van de patiënt**. Een Patient is opschoonbaar wanneer `last-patient-engagement` > 2 jaar geleden is. De waarde wordt **niet als state opgeslagen** maar telkens **afgeleid uit bestaande events** (de queries staan onder [Activiteitscheck](#activiteitscheck-selectie-en-hercontrole)).
+Het startmoment voor de bewaartermijn is de **laatste betrokkenheid van de patiënt**. Een Patient is opschoonbaar wanneer `last-patient-engagement` > 2 jaar geleden is. De waarde wordt **niet als state opgeslagen** maar telkens **afgeleid uit bestaande events** — geen state, geen backfill (zie ook [Activiteitscheck](#activiteitscheck-selectie-en-hercontrole)).
 
 **Primair signaal — `T_auth`.** Sinds de **Topic 11-uitbreiding** legt Koppeltaal per launch/authenticatie een geattribueerd `User Authentication`-AuditEvent vast, mét de geauthenticeerde gebruiker op `entity.what` (zie [Wijzigingen TOPKT011](memo-wijzigingen-topic11.html)). `T_auth` = de meest recente **geslaagde** (`outcome = 0`) daarvan (`DCM#110114` / subtype `DCM#110122` of `DCM#110126`) met de Patient of een gekoppelde RelatedPerson op `entity.what`. Een mislukte login (`outcome = 8`) telt niet mee. Practitioner-logins vallen vanzelf buiten `T_auth` (ze staan niet als Patient/RelatedPerson op `entity.what`).
 
-**Legacy-fallback.** Patiënten van vóór deze uitbreiding missen die attributie. Of een patiënt **legacy** is, bepalen we uit zijn **aanmaakdatum** (Patient-create-AuditEvent, `restful-interaction#create`) t.o.v. de uitrol-datum `C`:
+**Selectiecriteria.** Een Patiënt is opschoonbaar (kandidaat voor delete-pending) wanneer aan **álle** voorwaarden is voldaan:
 
-| Geval | `last-patient-engagement` |
-| --- | --- |
-| **Nieuw** (ná `C`) | `T_auth`; geen auth = opschoonbaar (geen Task-check) |
-| **Legacy** (vóór `C`) | `max(T_auth, T_legacy)` |
-| **Create-AuditEvent ontbreekt** | conservatief als **legacy** behandelen |
+1. de Patiënt **bestaat minimaal 2 jaar** (aanmaakdatum ≥ 2 jaar geleden — de ondergrens: jonger kan nooit);
+2. er is **geen geslaagd `T_auth`-event in de afgelopen 2 jaar** (Patiënt of een gekoppelde RelatedPerson op `entity.what`, `outcome = 0`);
+3. **én — zolang de Topic 11-uitrol (`C`) nog geen 2 jaar live is** — geen `Task` met deze Patiënt als `Task.for` met een `meta.lastUpdated` in de afgelopen 2 jaar, **de delete-pending Task zelf uitgezonderd** (de tijdelijke `T_legacy`-brug).
 
-`T_legacy` = meest recente `Task.meta.lastUpdated` van de patiënt (`GET /Task?patient=Patient/{id}`, dus `Task.for`), **met `code=delete-pending` uitgesloten** — anders reset een app-update van de aankondigings-Task de klok en veroudert de patiënt nooit. `T_legacy` telt any-actor mee (ook Practitioner) en is bewust conservatief (zie [Discussiepunten](#discussiepunten)). De aanmaakdatum is dus **alleen de schakelaar**, niet de waarde: geen state, geen backfill. Is `last-patient-engagement` leeg, dan start de reguliere procedure.
+De terugkerende selectie slaat daarnaast Patiënten over die **al een actieve delete-pending Task** hebben (idempotentie — anders wordt elke run opnieuw aangekondigd).
 
-De evaluatie gaat **van licht naar zwaar**: eerst `T_auth` (één query, dekt de meeste actieve patiënten af). Alleen als die níét binnen 2 jaar valt én de patiënt legacy is, wordt `T_legacy` berekend.
+**Voorwaarde 3 is tijdelijk.** Patiënten van vóór de uitrol missen `T_auth`-attributie voor hun oude activiteit; de Task-check overbrugt dat domein-breed. Vanaf `C + 2 jaar` ligt het 2-jaarsvenster volledig ná de uitrol — wie nog actief was heeft per definitie een `T_auth`-event — en vervalt de brug; `T_auth` plus de leeftijdsondergrens volstaan dan. Het is dus een **tijdelijke switch**, geen per-patiënt-kenmerk: tot `C + 2 jaar` is elke kandidaat per definitie van vóór de uitrol.
 
-<div style="clear: both; margin: 1em 0;">
-{% include opschoning-patient-data-engagement.svg %}
-</div>
+> Dit definieert betrokkenheid als **authenticatie van de Patiënt/RelatedPerson**. Ná de overgang wordt een Patiënt die alléén via Practitioner-activiteit "in zorg" is maar 2 jaar niet inlogde, opschoonbaar; de [noodrem](#status-lifecycle--server-validatie) is het vangnet ([discussiepunt](#discussiepunten)). *Hóé* een voorziening deze criteria evalueert — bijvoorbeeld één interne query met negatie, of meerdere FHIR-searches — is vrij; alleen de criteria zijn normatief.
 
 #### Termijnen
 
@@ -97,14 +97,18 @@ De marker is dus de **enige** as: lezen = domein-breed, schrijven = owner-scoped
 
 Het proces wordt aangekondigd via één FHIR `Task` per (Patient × deelnemende applicatie), met AuditEvents voor de aantoonbaarheid; de Patient zelf wordt niet aangeraakt. Een Task-per-applicatie geeft elke app een eigen, onafhankelijk statusobject met eigen audit-spoor (meerdere holds, eigen "groen licht", eigen verslaglegging). De Task is **server-owned maar door deelnemende apps leesbaar** (domein-breed, zie [Toegang buiten de matrix](#toegang-buiten-de-matrix-metasecurity)): apps lezen 'm met een gewone `GET` en de **eigen** app reageert met een `Task.status`-write (zie [Status-lifecycle](#status-lifecycle--server-validatie)).
 
-**Per deelnemende applicatie een Task.** De Koppeltaalvoorziening maakt en bezit de aankondigings-Task(s) (`requester` = de Koppeltaalvoorziening). Onder de deelnemers krijgt vooralsnog elke app een Task per opschoning. **Hoe** een app deelnemer wordt (automatisch, of een expliciete opt-in) en het versmallen naar een footprint-doelgroep (AVG art. 19) zijn [discussiepunten](#discussiepunten).
+<div style="clear: both; margin: 1em 0;">
+{% include opschoning-patient-data-interactie.svg %}
+</div>
+
+**Per deelnemende applicatie een Task.** De Koppeltaalvoorziening maakt en bezit de aankondigings-Task(s) (`requester` = de Koppeltaalvoorziening). Onder de deelnemers krijgt vooralsnog elke app een Task per opschoning.
 
 **Notificatie via een gewone `Subscription`.** Een app maakt **zelf** een standaard FHIR `Subscription` op haar delete-pending Tasks — in R4 mag elke client dat. De **subscription-narrowing** van de server moet, net als de search-narrowing, de service-Tasks waar de app recht op heeft **meenemen** zodat de criteria matchen (de `owner`-filter stuurt enkel de routering, niet de toegang). Push is best-effort; mist een app een melding, dan vindt ze openstaande verwijderingen met een gewone Task-search — die **pull is de garantie**. *(Of de Koppeltaalvoorziening Subscriptions vóór-provisioneert in plaats van de app, is een [discussiepunt](#discussiepunten).)*
 
 ```json
 {
   "resourceType": "Subscription",
-  "status": "requested",
+  "status": "active",
   "reason": "Aankondiging delete-pending (eigen Tasks)",
   "criteria": "Task?code=delete-pending&owner=Device/{appDevice}&status=requested",
   "channel": { "type": "rest-hook", "endpoint": "https://module.example.com/notifications/delete-pending" }
@@ -126,6 +130,10 @@ Het proces wordt aangekondigd via één FHIR `Task` per (Patient × deelnemende 
 #### Status-lifecycle & server-validatie
 
 De app reageert door **`Task.status` te schrijven** (`PUT` met `If-Match`) op haar eigen Task — geen custom operation; KT2 ondersteunt geen `PATCH`. De Koppeltaalvoorziening **valideert** elke overgang.
+
+<div style="clear: both; margin: 1em 0;">
+{% include opschoning-patient-data-statusflow.svg %}
+</div>
 
 | `Task.status` | Hoe gezet | Betekenis |
 | --- | --- | --- |
@@ -159,22 +167,22 @@ De verwijdering mag pas wanneer **geen enkele** Task voor deze Patient op `on-ho
 
 #### AuditEvents bij statusovergangen
 
-Elke overgang wordt vastgelegd in een immutable AuditEvent. De ISO 21089 lifecycle-code hoort in FHIR R4 op **`AuditEvent.entity.lifecycle`** (`http://terminology.hl7.org/CodeSystem/iso-21089-lifecycle`) en is de **generieke record-actie** (`archive`/`hold`/`unhold`/`amend`/`reactivate`/`destroy`); de **workflow-identiteit** (aankondiging/noodrem/accept/annulering/verwijdering) zit in `AuditEvent.type`/`subtype` — meerdere overgangen kunnen dus dezelfde lifecycle-code delen. Deze records worden bij de verwijdering expliciet behouden.
+Elke overgang wordt vastgelegd in een immutable AuditEvent. De **workflow-identiteit** zit op een **zoekbare `AuditEvent.subtype`** (CodeSystem `https://koppeltaal.nl/fhir/CodeSystem/kt2-audit-event`) — dát is waarop apps de events vinden en subscriben; de flow als geheel is vindbaar via het `kt2-delete-flow`-`_security`-label. De ISO 21089-lifecycle (`entity.lifecycle`: `archive`/`hold`/`unhold`/`amend`/`reactivate`/`destroy`) is een **optionele semantische mapping** en **geen R4-zoekparameter** — daarom is `subtype` de discriminator, niet `lifecycle` (zie [discussiepunt 6](#discussiepunten)). Deze records worden bij de verwijdering expliciet behouden.
 
 De eerste kolom noemt de **gebeurtenis** met de resulterende `Task.status`. App-acties zijn `Task.status`-writes; de overige zet de Koppeltaalvoorziening. `entity.what` is **altijd de `Patient`** (niet de Task): één patiënt-gebeurtenis raakt vaak meerdere Tasks, dus consequent naar de Patient refereren houdt het **één AuditEvent per gebeurtenis** — vindbaar via `entity=Patient/{id}`, net als de [activiteitscheck](#activiteitscheck-selectie-en-hercontrole). De Task-mutaties zelf worden via de reguliere create/update-AuditEvent en -notificatie gelogd.
 
-| Gebeurtenis | `entity.lifecycle` | `action` | `agent.who` | `entity.what` | `outcome` |
+| Gebeurtenis | `subtype` (`kt2-audit-event`) | `action` | `agent.who` | `entity.what` | `outcome` |
 | --- | --- | --- | --- | --- | --- |
-| Aankondiging — Task `requested` | `archive` | `C` | Koppeltaalvoorziening (`Device`) | de `Patient/{id}` | `0` |
-| Noodrem — Task → `on-hold` | `hold` | `U` | doelapplicatie (`Device`) | de `Patient/{id}` | `0` |
-| Holds gewist (grace-reset) — Task → `requested` | `unhold` | `U` | Koppeltaalvoorziening (`Device`) | de `Patient/{id}` | `0` |
-| Groen licht — Task → `accepted` | `amend` (zie [discussiepunt 4](#discussiepunten)) | `U` | doelapplicatie (`Device`) | de `Patient/{id}` | `0` |
-| Annulering — Task `cancelled` | `reactivate` | `U` | Koppeltaalvoorziening (`Device`) | de `Patient/{id}` | `0` |
-| Verwijdering — Task `completed` | `destroy` | `D` | Koppeltaalvoorziening (`Device`) | de `Patient/{id}` | `0` |
+| Aankondiging — Task `requested` | `delete-announced` | `C` | Koppeltaalvoorziening (`Device`) | de `Patient/{id}` | `0` |
+| Noodrem — Task → `on-hold` | `delete-hold` | `U` | doelapplicatie (`Device`) | de `Patient/{id}` | `0` |
+| Holds gewist (grace-reset) — Task → `requested` | `delete-grace-reset` | `U` | Koppeltaalvoorziening (`Device`) | de `Patient/{id}` | `0` |
+| Groen licht — Task → `accepted` | `delete-accepted` | `U` | doelapplicatie (`Device`) | de `Patient/{id}` | `0` |
+| Annulering — Task `cancelled` | `delete-cancelled` | `U` | Koppeltaalvoorziening (`Device`) | de `Patient/{id}` | `0` |
+| Verwijdering — Task `completed` | `patient-erased` | `D` | Koppeltaalvoorziening (`Device`) | de `Patient/{id}` | `0` |
 
 `agent.type` = `DCM#110153` "Source Role ID" (`requestor = true`); de generieke velden (`request-id`/`correlation-id`/`trace-id`, `source.*`, `recorded`) gelden ook. Geen demografie. De reden van een overgang (coded `statusReason`, of "hernieuwde betrokkenheid") staat op de Task of in `entity.detail` — niet in `entity.what`, dat een `Reference` is.
 
-De `destroy`-AuditEvent overleeft de verwijdering als centraal NEN 7513-record en draagt de `kt2-delete-flow`-marker — deelnemende apps mogen 'm (en de overige delete-`AuditEvent`s) **lezen/subscriben** voor de bevestiging en de flow. Omdat `entity.lifecycle` geen R4-zoekparameter heeft, krijgt het erase-event een **zoekbare `subtype`** (`https://koppeltaal.nl/fhir/CodeSystem/kt2-audit-event#patient-erased`); daarop abonneert een app:
+De `destroy`-AuditEvent overleeft de verwijdering als centraal NEN 7513-record en draagt de `kt2-delete-flow`-marker — deelnemende apps mogen 'm (en de overige delete-`AuditEvent`s) **lezen/subscriben** voor de bevestiging en de flow. Het erase-event heeft `subtype` `https://koppeltaal.nl/fhir/CodeSystem/kt2-audit-event#patient-erased`; daarop abonneert een app:
 
 ```json
 {
@@ -190,25 +198,13 @@ De `destroy`-AuditEvent is daarmee de **gezaghebbende** bevestiging; een `GET` o
 
 #### Activiteitscheck (selectie en hercontrole)
 
-De queries hieronder leveren de **initiële** `last-patient-engagement` (de selectie uit het Betrokkenheidsmodel hierboven). Vlak vóór de verwijdering draaien ze opnieuw, nu alleen om **hernieuwde betrokkenheid tijdens de grace period** te detecteren: zijn er nieuwe geslaagde auth-events, dan gaat de Task → `cancelled` (een `reactivate`-AuditEvent) en herstart de 2-jaarstermijn. De legacy-datum/Task-check wordt bij die hercontrole **niet** herhaald (bevroren bij aankondiging).
+De **criteria** uit het Betrokkenheidsmodel bepalen de initiële selectie. Vlak vóór de verwijdering wordt **alleen de auth-check** opnieuw gedraaid om **hernieuwde betrokkenheid tijdens de grace period** te detecteren: is er een nieuw geslaagd auth-event, dan gaat de Task → `cancelled` (een `reactivate`-AuditEvent) en herstart de 2-jaarstermijn. De overige criteria (leeftijd, transitie-brug) liggen vast bij aankondiging.
 
 <div style="clear: both; margin: 1em 0;">
 {% include opschoning-patient-data-activiteitscheck.svg %}
 </div>
 
-Conceptuele searches per kandidaat-Patient (chained naar `RelatedPerson.patient` neemt gekoppelde RelatedPersons mee; de aankondigings-Task telt niet mee):
-
-```
-# T_auth — meest recente geslaagde auth-event (outcome=0); subtype 110122,110126 = OR (codes = DICOM DCM; in productie fully-qualified system|code)
-GET /AuditEvent?entity=Patient/{id}&type=110114&subtype=110122,110126&outcome=0&_sort=-date&_count=1
-GET /AuditEvent?entity:RelatedPerson.patient=Patient/{id}&type=110114&subtype=110122,110126&outcome=0&_sort=-date&_count=1
-
-# Legacy-schakelaar — aanmaakmoment (create-AuditEvent)
-GET /AuditEvent?entity=Patient/{id}&subtype=create&action=C&_sort=date&_count=1
-
-# T_legacy (alleen legacy; delete-pending uitgesloten via :not)
-GET /Task?patient=Patient/{id}&code:not=delete-pending&_sort=-_lastUpdated&_count=1
-```
+> *Niet-normatief — implementatie.* Hóé een voorziening deze criteria evalueert (bijvoorbeeld als één interne query met negatie, of als losse FHIR-searches per kandidaat — waarbij chaining naar `RelatedPerson.patient` de gekoppelde RelatedPersons meeneemt en de delete-pending Task zelf wordt uitgesloten) is vrij; alleen de criteria zijn normatief.
 
 #### Definitieve verwijdering
 
@@ -230,11 +226,11 @@ Afgewezen of als variant genoteerd: **operation-/webhook-model ("hide-fully")** 
 ### Discussiepunten
 
 1. **Domein-transparantie vs. footprint (privacy).** Gekozen: de opschoon-flow is **domein-breed leesbaar** (Tasks + delete-AuditEvents) — elke deelnemer ziet welke patiënten op verwijdering staan en de overgangen (pseudonieme UUID's, coded, geen demografie/vrije tekst, binnen één DPA-domein). AVG art. 19 wijst richting **footprint-based** versmalling als mogelijke v2. Bevestigen met privacy.
-2. **`T_legacy` conservatief.** Telt any-actor `Task.meta.lastUpdated` (incl. Practitioner → over-retentie). Bewust; bevestigen. Ook: `meta.lastUpdated` is optioneel, en een legacy-patiënt die alleen via launches actief was kan onder-beschermd zijn (vangnet: noodrem).
+2. **Betrokkenheid = authenticatie (ná de transitie).** De Task-brug telt tot `C + 2 jaar` any-actor `Task.meta.lastUpdated` (incl. Practitioner → tijdelijk conservatief); dáárna geldt alleen `T_auth`. Gevolg: ná de transitie wordt een patiënt die enkel via Practitioner-activiteit "in zorg" is maar 2 jaar niet inlogde, opschoonbaar — vangnet is de noodrem. (`meta.lastUpdated` is bovendien optioneel.) Bevestigen.
 3. **Subtype `110126`.** FHIR labelt dit "Node Authentication", niet user-login. Handhaven met eigen display, of passender subtype? Nog géén harde SHALL.
 4. **Accept-lifecycle-code.** Besloten: "groen licht" = app zet `accepted` (FHIR: "afgesproken, niet gestart"), server zet daarna `completed` — geen of/of. Open: de `entity.lifecycle`-code voor de accept-overgang (`amend` als status-amendement, of `verify` als attestatie). Bevestigen.
 5. **`kt2-delete-flow`-marker formeel vastleggen.** De marker en haar interpretatie als **additieve grant** (zie [Toegang buiten de matrix](#toegang-buiten-de-matrix-metasecurity)) normatief opnemen in de autorisatiepagina's: één server-owned `meta.security`-marker, lezen domein-breed, schrijven owner-scoped op de Task (status-overgang als aparte workflow-regel). Te bevestigen: de exacte code/het CodeSystem; dat AuditEvent-read-only **KT2-beleid** is (geen FHIR-norm); en de borging (server-owned marker; DPA-domein uit de Device-registratie i.p.v. de gewiste Patient; onafhankelijke autorisatie van `_include`/contained/history/export). Verworpen als *méér*-standaard alternatief: een custom `CompartmentDefinition` (R4: compartimenten alleen door HL7 International te definiëren; het Device-compartment dekt Task/Subscription niet) en een `$`-operation (= het al afgewezen hide-fully-model). FHIR `Consent` kán exacte instances benoemen maar blijft policy-data die nog steeds een PDP vereist; server-validatie van de Task-overgangen is normatief.
-6. **Erase-event-subtype bevestigen.** Gekozen: een zoekbare `AuditEvent.subtype` (`kt2-audit-event#patient-erased`) als discriminator voor het erase-event (omdat `entity.lifecycle` geen R4-zoekparameter heeft). De exacte code/het CodeSystem bevestigen.
+6. **Discriminator op `subtype`, niet op `entity.lifecycle` — besloten.** `entity.lifecycle` (ISO 21089) is **geen R4-zoekparameter**, dus de workflow-events worden gediscrimineerd via een **zoekbare `AuditEvent.subtype`** (CodeSystem `kt2-audit-event`); de flow als geheel via het `kt2-delete-flow`-`_security`-label. `entity.lifecycle` blijft hooguit een optionele semantische mapping, geen zoek- of discriminatieveld. **Te bevestigen:** de exacte codes (`delete-announced`/`delete-hold`/`delete-grace-reset`/`delete-accepted`/`delete-cancelled`/`patient-erased`) en het CodeSystem.
 7. **Deelname/opt-in & Subscription-provisioning.** Hoe wordt een app deelnemer — automatisch elke app in het domein, of een expliciete opt-in (bv. via domeinbeheer)? En provisioneert de Koppeltaalvoorziening de notificatie-`Subscription`(s) vóór, of maakt elke app 'm zelf (R4 staat client-Subscriptions toe)? Open; te beslissen met domeinbeheer/architectuur.
 
 ### Referenties

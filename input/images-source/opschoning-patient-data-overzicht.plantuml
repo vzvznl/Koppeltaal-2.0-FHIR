@@ -1,0 +1,50 @@
+@startuml opschoning-patient-data-overzicht
+
+skinparam activity {
+  BackgroundColor #f5f5f5
+  BorderColor #333333
+}
+
+|Koppeltaalvoorziening|
+start
+label start_proces
+:Patiënt voldoet aan de opschoon-criteria\n(of contractbeëindiging);
+:Maak per deelnemende app een delete-pending Task\n(status=requested, owner=Device,\nmeta.security = kt2-delete-flow);
+:AuditEvent (archive);
+label start_grace
+:grace period loopt\n(restriction.period.end);
+
+|Deelnemende apps|
+:lezen de Task (gewone GET / Subscription),\nstellen zo nodig data veilig;
+if (reactie tijdens de grace period?) then (noodrem)
+  #fff3cd:PUT Task status=on-hold (+ statusReason);
+  note right: AuditEvent (hold)
+else (groen licht / geen actie)
+  #e2f7e2:PUT Task status=accepted (of geen actie);
+endif
+
+|Koppeltaalvoorziening|
+if (grace-deadline bereikt met nog een hold?) then (ja)
+  :wis alle holds, herstart de grace period;
+  note right: AuditEvent (unhold)
+  goto start_grace
+else (nee)
+endif
+
+if (hernieuwde betrokkenheid tijdens de grace period?) then (ja)
+  #fde2e2:Tasks status=cancelled,\nbewaartermijn herstart;
+  note right: AuditEvent (reactivate)
+  goto start_proces
+else (nee)
+endif
+
+:grace verstreken zonder hold,\nof alle Tasks accepted (fast-track);
+:Tasks status=completed;
+#fde2e2:interne erase\n(server-agnostisch, 404, geen tombstone);
+note right
+  AuditEvents (incl. destroy)
+  overleven de erase
+end note
+stop
+
+@enduml

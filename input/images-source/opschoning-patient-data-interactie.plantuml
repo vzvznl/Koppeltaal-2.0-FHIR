@@ -1,0 +1,36 @@
+@startuml opschoning-patient-data-interactie
+
+skinparam sequence {
+  LifeLineBackgroundColor #f5f5f5
+  ParticipantBorderColor #333333
+}
+
+participant "Koppeltaal-\nvoorziening" as KT
+participant "App A" as A
+participant "App B" as B
+
+== Aankondiging ==
+KT -> KT : Patiënt voldoet aan de opschoon-criteria
+KT -> KT : maak delete-pending Task per app\n(server-owned, meta.security=kt2-delete-flow)\nAuditEvent (archive)
+note over A, B : apps lezen de Task met gewone\nGET / search / Subscription — pull
+
+== Grace period ==
+A -> KT : GET Patient-resources (data veiligstellen)
+A -> KT : PUT Task A · status=accepted
+note right of A : groen licht · AuditEvent (amend)
+B -> KT : PUT Task B · status=on-hold (+ statusReason)
+note right of B : noodrem · AuditEvent (hold)
+...noodrem blijft staan...
+B -> KT : PUT Task B · status=accepted
+note right of B : heft op · AuditEvent (amend)
+
+== Bewaking & verwijdering ==
+KT -> KT : geen hold meer; grace verstreken\nof alle Tasks accepted (fast-track)
+KT -> KT : hercheck — hernieuwde betrokkenheid?
+note right of KT : bij ja: Tasks cancelled,\nAuditEvent (reactivate), bewaartermijn herstart
+KT -> KT : Tasks status=completed
+KT -> KT : interne erase (server-agnostisch, 404)\nAuditEvent (destroy)
+A -> KT : GET Task A  ->  404
+B -> KT : GET Task B  ->  404
+note over A, B : bevestiging — of via Subscription\nop de destroy-AuditEvent
+@enduml
