@@ -9,6 +9,12 @@ skinparam activity {
 start
 label start_proces
 :Patiënt voldoet aan de opschoon-criteria\n(of contractbeëindiging);
+if (C + 2 jaar bereikt én geen recente Task?) then (ja — fast-track)
+  #fde2e2:interne erase\n(direct, geen aankondiging/grace);
+  note right: alleen AuditEvent (destroy)
+  stop
+else (nee — graceful)
+endif
 :Maak per deelnemende app een delete-pending Task\n(status=requested, owner=Device,\nmeta.security = kt2-delete-flow);
 :AuditEvent (archive);
 label start_grace
@@ -38,7 +44,7 @@ if (hernieuwde betrokkenheid tijdens de grace period?) then (ja)
 else (nee)
 endif
 
-:grace verstreken zonder hold,\nof alle Tasks accepted (fast-track);
+:grace verstreken zonder hold,\nof alle Tasks accepted (vervroegde voltooiing);
 :Tasks status=completed;
 #fde2e2:interne erase\n(server-agnostisch, 404, geen tombstone);
 note right

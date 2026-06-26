@@ -25,7 +25,7 @@ B -> KT : PUT Task B · status=accepted
 note right of B : heft op · AuditEvent (amend)
 
 == Bewaking & verwijdering ==
-KT -> KT : geen hold meer; grace verstreken\nof alle Tasks accepted (fast-track)
+KT -> KT : geen hold meer; grace verstreken\nof alle Tasks accepted (vervroegde voltooiing)
 KT -> KT : hercheck — hernieuwde betrokkenheid?
 note right of KT : bij ja: Tasks cancelled,\nAuditEvent (reactivate), bewaartermijn herstart
 KT -> KT : Tasks status=completed

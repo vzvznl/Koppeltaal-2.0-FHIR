@@ -23,7 +23,7 @@ on_hold --> accepted : app · heft op · amend
 on_hold --> requested : KT · grace-deadline met hold:\nholds gewist, grace herstart · unhold
 
 accepted : data veiliggesteld / akkoord
-accepted --> completed : KT · grace verstreken óf\nalle Tasks accepted (fast-track)
+accepted --> completed : KT · grace verstreken óf\nalle Tasks accepted (vervroegde voltooiing)
 
 requested --> cancelled : KT · hernieuwde betrokkenheid · reactivate
 on_hold --> cancelled : KT · hernieuwde betrokkenheid · reactivate

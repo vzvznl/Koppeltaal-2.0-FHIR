@@ -45,7 +45,20 @@ De terugkerende selectie slaat daarnaast Patiënten over die **al een actieve de
 
 **Voorwaarde 3 is tijdelijk.** Patiënten van vóór de uitrol missen `T_auth`-attributie voor hun oude activiteit; de Task-check overbrugt dat domein-breed. Vanaf `C + 2 jaar` ligt het 2-jaarsvenster volledig ná de uitrol — wie nog actief was heeft per definitie een `T_auth`-event — en vervalt de brug; `T_auth` plus de leeftijdsondergrens volstaan dan. Het is dus een **tijdelijke switch**, geen per-patiënt-kenmerk: tot `C + 2 jaar` is elke kandidaat per definitie van vóór de uitrol.
 
-> Dit definieert betrokkenheid als **authenticatie van de Patiënt/RelatedPerson**. Ná de overgang wordt een Patiënt die alléén via Practitioner-activiteit "in zorg" is maar 2 jaar niet inlogde, opschoonbaar; de [noodrem](#status-lifecycle--server-validatie) is het vangnet ([discussiepunt](#discussiepunten)). *Hóé* een voorziening deze criteria evalueert — bijvoorbeeld één interne query met negatie, of meerdere FHIR-searches — is vrij; alleen de criteria zijn normatief.
+> Dit definieert betrokkenheid als **authenticatie van de Patiënt/RelatedPerson**. Ná de overgang wordt een Patiënt die alléén via Practitioner-activiteit "in zorg" is maar 2 jaar niet inlogde, opschoonbaar — maar het [verwijderpad](#verwijderpad-graceful-of-fast-track) bepaalt het vangnet: met een recente `Task` loopt 'ie via de graceful flow (noodrem bereikbaar), zonder recente `Task` via fast-track. *Hóé* een voorziening deze criteria evalueert — bijvoorbeeld één interne query met negatie, of meerdere FHIR-searches — is vrij; alleen de criteria zijn normatief.
+
+#### Verwijderpad: graceful of fast-track
+
+Vóór `C + 2 jaar` (het overgangsvenster) doorloopt **elke** kandidaat de graceful flow — een per-app delete-pending `Task`, de grace period en de noodrem (zie [Oplossingsrichting](#oplossingsrichting)). Tijdens de overgang is de `T_auth`-attributie nog onvolledig; dit is bewust conservatief — er wordt nooit direct verwijderd.
+
+Vanaf `C + 2 jaar` is de selectie volledig op `T_auth` gebaseerd en bepaalt een **fallback op `Task.meta.lastUpdated`** (dezelfde Task-afleiding als voorwaarde 3, de delete-pending Task uitgezonderd) het pad:
+
+| `Task.meta.lastUpdated` (Patiënt, non-delete-pending) | Pad |
+| --- | --- |
+| **≤ 2 jaar** | **Graceful** — delete-pending Task(s), grace period, noodrem mogelijk. Vangt een nog lopende behandeling die alleen via Practitioner-activiteit zichtbaar is. |
+| **geen / > 2 jaar** | **Fast-track** — directe interne erase, géén aankondiging/grace/noodrem; alleen het `patient-erased`-AuditEvent als bewijs. |
+
+De `Task` telt hier **niet** mee voor de selectie (een Patiënt zonder login blijft opschoonbaar), alléén voor de **routekeuze**. Beide paden eindigen in dezelfde [definitieve verwijdering](#definitieve-verwijdering), met vlak vóór de erase een laatste auth-hercontrole.
 
 #### Termijnen
 
@@ -57,6 +70,8 @@ Vaste termijnen voor een voorspelbaar kader; **alleen de grace period is per dom
 | Bewaartermijn PII | 2 jaar | Vanaf `last-patient-engagement` (KT2-uitgangspunt) |
 | Bewaartermijn AuditEvents | 5 jaar | Minimale logging-bewaartermijn (bevestigen tegen NEN 7513); geen demografie |
 | Noodrem-time-out (`on-hold`) | oneindig | Op de grace-deadline worden alle holds gewist en herstart de grace period; om te blijven blokkeren trekt een app telkens opnieuw — met een reden — aan de handrem |
+
+Vanaf `C + 2 jaar` kent het [fast-track-pad](#verwijderpad-graceful-of-fast-track) **geen** grace period — bij geen recente `Task` wordt direct verwijderd.
 
 ### Oplossingsrichting
 
@@ -139,7 +154,7 @@ De app reageert door **`Task.status` te schrijven** (`PUT` met `If-Match`) op ha
 | --- | --- | --- |
 | `requested` | Koppeltaalvoorziening | Aangekondigd; grace period loopt |
 | `on-hold` | app · status-write | Tijdelijke noodrem (coded `statusReason`); vervalt bij de grace-reset of zodra de app `accepted` zet |
-| `accepted` | app · status-write | Groen licht: data veiliggesteld/akkoord; telt voor fast-track |
+| `accepted` | app · status-write | Groen licht: data veiliggesteld/akkoord; telt voor vervroegde voltooiing |
 | `cancelled` | Koppeltaalvoorziening | Afgebroken wegens hernieuwde betrokkenheid; **Task blijft behouden** zodat een latere `GET` 'm onderscheidt van een uitgevoerde verwijdering |
 | `completed` | Koppeltaalvoorziening | Verwijderd; de Task wordt **mét de Patiënt** opgeruimd |
 
@@ -163,7 +178,7 @@ Noodrem trekken met een coded (non-PII) reden — `PUT Task/{id}` met `If-Match:
 }
 ```
 
-De verwijdering mag pas wanneer **geen enkele** Task voor deze Patient op `on-hold` staat, **én** ofwel de grace-deadline is verstreken, **ofwel** álle relevante Tasks staan op `accepted` (fast-track). Staat er bij het verstrijken van de grace-deadline nog een hold, dan worden **alle holds gewist en herstart de grace period** — een app moet dan opnieuw (met reden) aan de handrem trekken (zie [Termijnen](#termijnen)).
+De verwijdering mag pas wanneer **geen enkele** Task voor deze Patient op `on-hold` staat, **én** ofwel de grace-deadline is verstreken, **ofwel** álle relevante Tasks staan op `accepted` (vervroegde voltooiing). Staat er bij het verstrijken van de grace-deadline nog een hold, dan worden **alle holds gewist en herstart de grace period** — een app moet dan opnieuw (met reden) aan de handrem trekken (zie [Termijnen](#termijnen)).
 
 #### AuditEvents bij statusovergangen
 
@@ -180,7 +195,7 @@ De eerste kolom noemt de **gebeurtenis** met de resulterende `Task.status`. App-
 | Annulering — Task `cancelled` | `delete-cancelled` | `U` | Koppeltaalvoorziening (`Device`) | de `Patient/{id}` | `0` |
 | Verwijdering — Task `completed` | `patient-erased` | `D` | Koppeltaalvoorziening (`Device`) | de `Patient/{id}` | `0` |
 
-`agent.type` = `DCM#110153` "Source Role ID" (`requestor = true`); de generieke velden (`request-id`/`correlation-id`/`trace-id`, `source.*`, `recorded`) gelden ook. Geen demografie. De reden van een overgang (coded `statusReason`, of "hernieuwde betrokkenheid") staat op de Task of in `entity.detail` — niet in `entity.what`, dat een `Reference` is.
+`agent.type` = `DCM#110153` "Source Role ID" (`requestor = true`); de generieke velden (`request-id`/`correlation-id`/`trace-id`, `source.*`, `recorded`) gelden ook. Geen demografie. De reden van een overgang (coded `statusReason`, of "hernieuwde betrokkenheid") staat op de Task of in `entity.detail` — niet in `entity.what`, dat een `Reference` is. Bij **fast-track** ([Verwijderpad](#verwijderpad-graceful-of-fast-track)) ontbreken de aankondigings- en statusovergang-events; alleen het `patient-erased`-event wordt vastgelegd.
 
 De `destroy`-AuditEvent overleeft de verwijdering als centraal NEN 7513-record en draagt de `kt2-delete-flow`-marker — deelnemende apps mogen 'm (en de overige delete-`AuditEvent`s) **lezen/subscriben** voor de bevestiging en de flow. Het erase-event heeft `subtype` `https://koppeltaal.nl/fhir/CodeSystem/kt2-audit-event#patient-erased`; daarop abonneert een app:
 
@@ -211,7 +226,7 @@ De **criteria** uit het Betrokkenheidsmodel bepalen de initiële selectie. Vlak 
 De definitieve verwijdering is een **interne server-stap** — alleen de Koppeltaalvoorziening voert 'm uit, na de [activiteitscheck](#activiteitscheck-selectie-en-hercontrole). De erase-semantiek is **server-agnostisch**; *hoe* een server het uitvoert (HAPI `$expunge`, IRIS-eigen mechanisme) is implementatie-detail (FHIR R4 kent geen Patient-`$purge`).
 
 - **Echte erase, geen tombstone.** Dit is een *harde* verwijdering en **geen reguliere FHIR `DELETE`** (die behoudt de history; een latere `read` geeft dan `410 Gone`). De erase wist alle versies, waardoor de id daarna **onbekend** is: een latere `GET` geeft **404** en een `vread` is onmogelijk — anders zou je via de history alsnog PII teruglezen. Bevestiging verloopt via de **gezaghebbende** `destroy`-AuditEvent of een `GET` → 404, zoals beschreven onder [AuditEvents](#auditevents-bij-statusovergangen).
-- **Precondities**: geen Task op `on-hold`; grace verstreken óf alle relevante Tasks `accepted`; geen hernieuwde betrokkenheid. Een **lock/freeze-window** tussen de check en de verwijdering voorkomt een race.
+- **Precondities** — *graceful pad*: geen Task op `on-hold`; grace verstreken óf alle relevante Tasks `accepted`; geen hernieuwde betrokkenheid. *Fast-track pad* (vanaf `C + 2 jaar`, geen recente `Task` — zie [Verwijderpad](#verwijderpad-graceful-of-fast-track)): geen aankondiging/grace, direct na een laatste auth-hercontrole. Beide paden: een **lock/freeze-window** tussen de check en de verwijdering voorkomt een race.
 - **Scope**: het Patient Compartment, **met `AuditEvent` uitgesloten** — die overleeft als centraal record en mag de verwijderde `Patient/{id}` blijven refereren (referentiële integriteit op dat punt uitgezonderd). De Tasks van deze Patient (`Task` valt niet in het compartiment) worden **apart** mee-verwijderd: de `delete-pending`-Tasks én de historische `cancelled`-Tasks (die verwijzen nu naar een gewiste Patient). Tijdens een lopende cyclus blijft een `cancelled`-Task juist behouden (onderscheidt reactivering van een uitgevoerde verwijdering). Omvat o.a. Patient, RelatedPerson, CareTeam.
 - **cascade** vastgezet door policy; de stap is **idempotent** — een herhaling ná een voltooide erase leunt op de overlevende `destroy`-AuditEvent (de instance bestaat dan niet meer), met gedefinieerd failure/retry-gedrag.
 
@@ -226,7 +241,7 @@ Afgewezen of als variant genoteerd: **operation-/webhook-model ("hide-fully")** 
 ### Discussiepunten
 
 1. **Domein-transparantie vs. footprint (privacy).** Gekozen: de opschoon-flow is **domein-breed leesbaar** (Tasks + delete-AuditEvents) — elke deelnemer ziet welke patiënten op verwijdering staan en de overgangen (pseudonieme UUID's, coded, geen demografie/vrije tekst, binnen één DPA-domein). AVG art. 19 wijst richting **footprint-based** versmalling als mogelijke v2. Bevestigen met privacy.
-2. **Betrokkenheid = authenticatie (ná de transitie).** De Task-brug telt tot `C + 2 jaar` any-actor `Task.meta.lastUpdated` (incl. Practitioner → tijdelijk conservatief); dáárna geldt alleen `T_auth`. Gevolg: ná de transitie wordt een patiënt die enkel via Practitioner-activiteit "in zorg" is maar 2 jaar niet inlogde, opschoonbaar — vangnet is de noodrem. (`meta.lastUpdated` is bovendien optioneel.) Bevestigen.
+2. **Betrokkenheid = authenticatie (ná de transitie).** De Task-brug telt tot `C + 2 jaar` any-actor `Task.meta.lastUpdated` (incl. Practitioner → tijdelijk conservatief); dáárna geldt alleen `T_auth`. Gevolg: ná de transitie wordt een patiënt die enkel via Practitioner-activiteit "in zorg" is maar 2 jaar niet inlogde, opschoonbaar — het [verwijderpad](#verwijderpad-graceful-of-fast-track) bepaalt dan het vangnet (recente `Task` → graceful/noodrem; geen → fast-track). (`meta.lastUpdated` is bovendien optioneel.) Bevestigen.
 3. **Subtype `110126`.** FHIR labelt dit "Node Authentication", niet user-login. Handhaven met eigen display, of passender subtype? Nog géén harde SHALL.
 4. **Accept-lifecycle-code.** Besloten: "groen licht" = app zet `accepted` (FHIR: "afgesproken, niet gestart"), server zet daarna `completed` — geen of/of. Open: de `entity.lifecycle`-code voor de accept-overgang (`amend` als status-amendement, of `verify` als attestatie). Bevestigen.
 5. **`kt2-delete-flow`-marker formeel vastleggen.** De marker en haar interpretatie als **additieve grant** (zie [Toegang buiten de matrix](#toegang-buiten-de-matrix-metasecurity)) normatief opnemen in de autorisatiepagina's: één server-owned `meta.security`-marker, lezen domein-breed, schrijven owner-scoped op de Task (status-overgang als aparte workflow-regel). Te bevestigen: de exacte code/het CodeSystem; dat AuditEvent-read-only **KT2-beleid** is (geen FHIR-norm); en de borging (server-owned marker; DPA-domein uit de Device-registratie i.p.v. de gewiste Patient; onafhankelijke autorisatie van `_include`/contained/history/export). Verworpen als *méér*-standaard alternatief: een custom `CompartmentDefinition` (R4: compartimenten alleen door HL7 International te definiëren; het Device-compartment dekt Task/Subscription niet) en een `$`-operation (= het al afgewezen hide-fully-model). FHIR `Consent` kán exacte instances benoemen maar blijft policy-data die nog steeds een PDP vereist; server-validatie van de Task-overgangen is normatief.

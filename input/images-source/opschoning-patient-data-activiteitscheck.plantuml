@@ -6,10 +6,10 @@ skinparam activity {
 }
 
 start
-:Delete-pending Patient —\ngrace period verlopen;
+:Kandidaat voor verwijdering\n(graceful: grace verlopen — of\nfast-track: geen recente Task);
 
-if (Geslaagd auth-event\ntijdens de grace period?) then (ja — hernieuwde betrokkenheid)
-  #e2f7e2:annuleer delete-pending\n(Task → cancelled);
+if (Geslaagd auth-event sinds de\nlaatste check — freeze-window?) then (ja — hernieuwde betrokkenheid)
+  #e2f7e2:breek af\n(graceful: Task → cancelled;\nbewaartermijn herstart);
   stop
 else (nee)
   #fde2e2:definitieve verwijdering\n(interne erase);
