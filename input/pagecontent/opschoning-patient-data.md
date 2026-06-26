@@ -45,7 +45,7 @@ De terugkerende selectie slaat daarnaast Patiënten over die **al een actieve de
 
 **Voorwaarde 3 is tijdelijk.** Patiënten van vóór de uitrol missen `T_auth`-attributie voor hun oude activiteit; de Task-check overbrugt dat domein-breed. Vanaf `C + 2 jaar` ligt het 2-jaarsvenster volledig ná de uitrol — wie nog actief was heeft per definitie een `T_auth`-event — en vervalt de brug; `T_auth` plus de leeftijdsondergrens volstaan dan. Het is dus een **tijdelijke switch**, geen per-patiënt-kenmerk: tot `C + 2 jaar` is elke kandidaat per definitie van vóór de uitrol.
 
-> Dit definieert betrokkenheid als **authenticatie van de Patiënt/RelatedPerson**. Ná de overgang wordt een Patiënt die alléén via Practitioner-activiteit "in zorg" is maar 2 jaar niet inlogde, opschoonbaar — maar het [verwijderpad](#verwijderpad-graceful-of-fast-track) bepaalt het vangnet: met een recente `Task` loopt 'ie via de graceful flow (noodrem bereikbaar), zonder recente `Task` via fast-track. *Hóé* een voorziening deze criteria evalueert — bijvoorbeeld één interne query met negatie, of meerdere FHIR-searches — is vrij; alleen de criteria zijn normatief.
+> Dit definieert betrokkenheid als **authenticatie van de Patiënt/RelatedPerson**. Ná de overgang wordt een Patiënt die alléén via Practitioner-activiteit "in zorg" is maar 2 jaar niet inlogde, opschoonbaar — maar het [verwijderpad](#verwijderpad-graceful-of-fast-track) bepaalt het vangnet: met een recente `Task` loopt 'ie via de graceful flow (noodrem bereikbaar), zonder recente `Task` via fast-track.
 
 #### Verwijderpad: graceful of fast-track
 
@@ -71,7 +71,7 @@ Vaste termijnen voor een voorspelbaar kader; **alleen de grace period is per dom
 | Bewaartermijn AuditEvents | 5 jaar | Minimale logging-bewaartermijn (bevestigen tegen NEN 7513); geen demografie |
 | Noodrem-time-out (`on-hold`) | oneindig | Op de grace-deadline worden alle holds gewist en herstart de grace period; om te blijven blokkeren trekt een app telkens opnieuw — met een reden — aan de handrem |
 
-Vanaf `C + 2 jaar` kent het [fast-track-pad](#verwijderpad-graceful-of-fast-track) **geen** grace period — bij geen recente `Task` wordt direct verwijderd.
+De grace period geldt **niet** voor het [fast-track-pad](#verwijderpad-graceful-of-fast-track) — daar wordt direct verwijderd.
 
 ### Oplossingsrichting
 
@@ -118,7 +118,7 @@ Het proces wordt aangekondigd via één FHIR `Task` per (Patient × deelnemende 
 
 **Per deelnemende applicatie een Task.** De Koppeltaalvoorziening maakt en bezit de aankondigings-Task(s) (`requester` = de Koppeltaalvoorziening). Onder de deelnemers krijgt vooralsnog elke app een Task per opschoning.
 
-**Notificatie via een gewone `Subscription`.** Een app maakt **zelf** een standaard FHIR `Subscription` op haar delete-pending Tasks — in R4 mag elke client dat. De **subscription-narrowing** van de server moet, net als de search-narrowing, de service-Tasks waar de app recht op heeft **meenemen** zodat de criteria matchen (de `owner`-filter stuurt enkel de routering, niet de toegang). Push is best-effort; mist een app een melding, dan vindt ze openstaande verwijderingen met een gewone Task-search — die **pull is de garantie**. *(Of de Koppeltaalvoorziening Subscriptions vóór-provisioneert in plaats van de app, is een [discussiepunt](#discussiepunten).)*
+**Notificatie via een gewone `Subscription`.** Een app maakt **zelf** een standaard FHIR `Subscription` op haar delete-pending Tasks. De **subscription-narrowing** van de server moet, net als de search-narrowing, de service-Tasks waar de app recht op heeft **meenemen** zodat de criteria matchen (de `owner`-filter stuurt enkel de routering, niet de toegang). Push is best-effort; mist een app een melding, dan vindt ze openstaande verwijderingen met een gewone Task-search — die **pull is de garantie**. *(Of de Koppeltaalvoorziening Subscriptions vóór-provisioneert in plaats van de app, is een [discussiepunt](#discussiepunten).)*
 
 ```json
 {
@@ -213,7 +213,7 @@ De `destroy`-AuditEvent is daarmee de **gezaghebbende** bevestiging; een `GET` o
 
 #### Activiteitscheck (selectie en hercontrole)
 
-De **criteria** uit het Betrokkenheidsmodel bepalen de initiële selectie. Vlak vóór de verwijdering wordt **alleen de auth-check** opnieuw gedraaid om **hernieuwde betrokkenheid tijdens de grace period** te detecteren: is er een nieuw geslaagd auth-event, dan gaat de Task → `cancelled` (een `reactivate`-AuditEvent) en herstart de 2-jaarstermijn. De overige criteria (leeftijd, transitie-brug) liggen vast bij aankondiging.
+De **criteria** uit het Betrokkenheidsmodel bepalen de initiële selectie. Vlak vóór de verwijdering wordt **alleen de auth-check** opnieuw gedraaid om **hernieuwde betrokkenheid** te detecteren — bij het graceful pad tijdens de grace period, bij fast-track in de freeze-window vlak vóór de erase. Is er een nieuw geslaagd auth-event, dan stopt de verwijdering: bij graceful gaat de Task → `cancelled` (een `delete-cancelled`-AuditEvent, `entity.lifecycle = reactivate`) en herstart de 2-jaarstermijn; bij fast-track wordt simpelweg niet verwijderd. De overige criteria (leeftijd, transitie-brug) liggen vast bij de selectie.
 
 <div style="clear: both; margin: 1em 0;">
 {% include opschoning-patient-data-activiteitscheck.svg %}
