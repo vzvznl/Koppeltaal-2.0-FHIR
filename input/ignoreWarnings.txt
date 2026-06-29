@@ -94,3 +94,9 @@ The HTML fragment 'ip-statements.xhtml' is not included anywhere in the produced
 An HTML fragment from the set [cross-version-analysis.xhtml, cross-version-analysis-inline.xhtml] is not included anywhere in the produced implementation guide
 An HTML fragment from the set [dependency-table.xhtml, dependency-table-short.xhtml, dependency-table-nontech.xhtml] is not included anywhere in the produced implementation guide
 The HTML fragment 'globals-table.xhtml' is not included anywhere in the produced implementation guide
+
+# |* no-pin marker on KT2AuditEvent.entity.what makes publisher 2.2.4 stamp a
+# version-resolution-method extension it cannot resolve itself; harmless (the
+# targetProfile value stays the bare Resource canonical that the validator needs).
+The extension http://hl7.org/fhir/StructureDefinition/version-resolution-method could not be found%
+No definition could be found for URL value 'http://hl7.org/fhir/StructureDefinition/version-resolution-method'

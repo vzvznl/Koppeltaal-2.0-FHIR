@@ -1,5 +1,10 @@
 CHANGELOG
 
+## 0.16.3 (2026-06-25)
+
+### Hersteld
+- **KT2AuditEvent**: `entity.what` expliciet vastgelegd als `Reference(Resource|*)` zodat de IG Publisher het doelprofiel niet versie-pint naar `Resource|4.0.1`. Die versie-pin brak de "elke resource"-afhandeling van de FHIR-validator, waardoor AuditEvents met een `Patient`-referentie in `entity.what` werden geweigerd (`Reference_REF_WrongTarget`).
+
 ## 0.16.2 (2026-04-02)
 
 ### Hersteld
