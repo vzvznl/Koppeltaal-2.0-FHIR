@@ -1,43 +1,36 @@
 @startuml opschoning-patient-data-interactie
 
+skinparam sequence {
+  LifeLineBackgroundColor #f5f5f5
+  ParticipantBorderColor #333333
+}
+
 participant "Koppeltaal-\nvoorziening" as KT
-participant "Doelapplicatie A" as AppA
-participant "Doelapplicatie B" as AppB
+participant "App A" as A
+participant "App B" as B
 
-== Verwijdering aankondigen ==
-
-KT -> KT : Bewaartermijn verstreken
-KT -> AppA : POST Task\n(code=delete-pending,\nowner=Device A, status=requested)
-KT -> AppB : POST Task\n(code=delete-pending,\nowner=Device B, status=requested)
-KT -> KT : AuditEvent (archive)
-note over AppA, AppB : Subscription:\nTask?code=delete-pending\n&status=requested
+== Aankondiging ==
+KT -> KT : Patiënt voldoet aan de opschoon-criteria
+KT -> KT : maak delete-pending Task per app\n(server-owned, meta.security=kt2-delete-flow)\nAuditEvent (archive)
+note over A, B : apps lezen de Task met gewone\nGET / search / Subscription — pull
 
 == Grace period ==
+A -> KT : GET Patient-resources (data veiligstellen)
+A -> KT : PUT Task A · status=accepted
+note right of A : groen licht · AuditEvent (amend)
+B -> KT : PUT Task B · status=on-hold (+ statusReason)
+note right of B : noodrem · AuditEvent (hold)
+...noodrem blijft staan...
+B -> KT : PUT Task B · status=accepted
+note right of B : heft op · AuditEvent (amend)
 
-AppA -> KT : GET Patient resources\n(data veiligstellen)
-AppA -> KT : PUT Task A\n(status=accepted)
-note right of AppA : Groen licht
-
-AppB -> KT : PUT Task B\n(status=on-hold, statusReason)
-KT -> KT : AuditEvent (hold)
-note right of AppB : Noodrem:\nproces pauzeert
-
-...wacht op opheffing...
-
-AppB -> KT : PUT Task B\n(status=accepted)
-KT -> KT : AuditEvent (unhold)
-
-== Activiteitscheck ==
-
-KT -> KT : Grace verstreken, geen blokkade\nof alle Tasks accepted (fast-track)
-KT -> KT : Check: hernieuwde\nbetrokkenheid?
-note right of KT : Bij ja: Tasks cancelled,\nAuditEvent (reactivate),\nbewaartermijn herstart
-
-== Definitieve verwijdering ==
-
+== Bewaking & verwijdering ==
+KT -> KT : geen hold meer; grace verstreken\nof alle Tasks accepted (vervroegde voltooiing)
+KT -> KT : hercheck — hernieuwde betrokkenheid?
+note right of KT : bij ja: Tasks cancelled,\nAuditEvent (reactivate), bewaartermijn herstart
 KT -> KT : Tasks status=completed
-KT -> KT : $purge (Patient + compartment,\nincl. de Tasks)
-KT -> KT : AuditEvent (destroy)
-note right of KT : destroy-AuditEvent overleeft\nde $purge -> post-delete signaal
-
+KT -> KT : interne erase (server-agnostisch, 404)\nAuditEvent (destroy)
+A -> KT : GET Task A  ->  404
+B -> KT : GET Task B  ->  404
+note over A, B : bevestiging — of via Subscription\nop de destroy-AuditEvent
 @enduml

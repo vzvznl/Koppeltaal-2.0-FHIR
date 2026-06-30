@@ -7,42 +7,50 @@ skinparam activity {
 
 |Koppeltaalvoorziening|
 start
-label start_termijn
-:Bewaartermijn verstreken /\ncontractbeeindiging;
-:Maak Task per opt-in doelapp\n(code=delete-pending,\nowner=Device, status=requested);
+label start_proces
+:Patiënt voldoet aan de opschoon-criteria\n(of contractbeëindiging);
+if (C + 2 jaar bereikt én geen recente Task?) then (ja — fast-track)
+  #fde2e2:interne erase\n(direct, geen aankondiging/grace);
+  note right: alleen AuditEvent (destroy)
+  stop
+else (nee — graceful)
+endif
+:Maak per deelnemende app een delete-pending Task\n(status=requested, owner=Device,\nmeta.security = kt2-delete-flow);
 :AuditEvent (archive);
-:Subscription-notificatie\nnaar doelapplicaties;
+label start_grace
+:grace period loopt\n(restriction.period.end);
 
-|Doelapplicaties|
-:Grace period:\ndata veiligstellen;
-if (Reactie?) then (noodrem)
-  :Task status=on-hold;
-  :AuditEvent (hold);
-  :...wacht op opheffing...;
-  :Task status=accepted;
-  :AuditEvent (unhold);
+|Deelnemende apps|
+:lezen de Task (gewone GET / Subscription),\nstellen zo nodig data veilig;
+if (reactie tijdens de grace period?) then (noodrem)
+  #fff3cd:PUT Task status=on-hold (+ statusReason);
+  note right: AuditEvent (hold)
 else (groen licht / geen actie)
-  :Task status=accepted\n(of geen actie = opt-out);
+  #e2f7e2:PUT Task status=accepted (of geen actie);
 endif
 
 |Koppeltaalvoorziening|
-if (Hernieuwde\nbetrokkenheid\ntijdens grace period?) then (ja)
-  :Tasks status=cancelled;
-  :AuditEvent (reactivate);
-  :Bewaartermijn herstart;
-  goto start_termijn
+if (grace-deadline bereikt met nog een hold?) then (ja)
+  :wis alle holds, herstart de grace period;
+  note right: AuditEvent (unhold)
+  goto start_grace
 else (nee)
 endif
 
-|Koppeltaalvoorziening|
+if (hernieuwde betrokkenheid tijdens de grace period?) then (ja)
+  #fde2e2:Tasks status=cancelled,\nbewaartermijn herstart;
+  note right: AuditEvent (reactivate)
+  goto start_proces
+else (nee)
+endif
+
+:grace verstreken zonder hold,\nof alle Tasks accepted (vervroegde voltooiing);
 :Tasks status=completed;
-:$purge operatie;
-:AuditEvent (destroy);
+#fde2e2:interne erase\n(server-agnostisch, 404, geen tombstone);
 note right
   AuditEvents (incl. destroy)
-  overleven de $purge
+  overleven de erase
 end note
-
 stop
 
 @enduml
