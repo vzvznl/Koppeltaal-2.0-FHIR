@@ -26,5 +26,6 @@ Usage: #definition
 * base[+] = #OperationOutcome
 * base[+] = #Bundle
 * type = #reference
+* target = #Device
 * expression = "ActivityDefinition.extension('http://koppeltaal.nl/fhir/StructureDefinition/resource-origin') | CareTeam.extension('http://koppeltaal.nl/fhir/StructureDefinition/resource-origin') | Device.extension('http://koppeltaal.nl/fhir/StructureDefinition/resource-origin') | Organization.extension('http://koppeltaal.nl/fhir/StructureDefinition/resource-origin') | Patient.extension('http://koppeltaal.nl/fhir/StructureDefinition/resource-origin') | Practitioner.extension('http://koppeltaal.nl/fhir/StructureDefinition/resource-origin') | RelatedPerson.extension('http://koppeltaal.nl/fhir/StructureDefinition/resource-origin') | Task.extension('http://koppeltaal.nl/fhir/StructureDefinition/resource-origin') | AuditEvent.extension('http://koppeltaal.nl/fhir/StructureDefinition/resource-origin') | Endpoint.extension('http://koppeltaal.nl/fhir/StructureDefinition/resource-origin') | Subscription.extension('http://koppeltaal.nl/fhir/StructureDefinition/resource-origin')"
 * xpathUsage = #normal

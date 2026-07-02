@@ -2,6 +2,12 @@
 
 Deze pagina bevat een overzicht van de wijzigingen per versie van de Koppeltaal 2.0 Implementation Guide.
 
+### 0.16.3 (2026-07-02)
+
+#### Hersteld
+- **SearchParameter resource-origin**: `target = Device` toegevoegd. De reference-SearchParameter had geen target-element, waardoor servers die `SearchParameter.target` gebruiken voor het valideren van getypeerde zoekwaarden (bijv. `resource-origin=Device/<id>` bij search narrowing) deze zoekopdrachten afwezen. De resource-origin-extensie verwijst uitsluitend naar (KT2_)Device.
+- **SearchParameter publisherId**: onterecht `target = ActivityDefinition` verwijderd; `target` is alleen van toepassing op reference-SearchParameters en dit is een token-parameter.
+
 ### 0.16.2 (2026-04-02)
 
 #### Hersteld

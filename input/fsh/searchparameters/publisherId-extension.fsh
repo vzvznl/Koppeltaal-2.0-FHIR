@@ -18,4 +18,3 @@ Usage: #definition
 * expression = "ActivityDefinition.extension('http://koppeltaal.nl/fhir/StructureDefinition/KT2PublisherId')"
 * xpath = "f:ActivityDefinition/f:extension[@url='http://koppeltaal.nl/fhir/StructureDefinition/KT2PublisherId']"
 * xpathUsage = #normal
-* target = #ActivityDefinition
