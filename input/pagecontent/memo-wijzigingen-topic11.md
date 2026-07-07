@@ -99,31 +99,19 @@ Hiermee is ook patiëntbetrokkenheid die niet via `/authorize` of de HTI-introsp
 
 Voor het opschonen van patiëntdata (zie [opschoning-patient-data.html](./opschoning-patient-data.html)) wordt elke statusovergang van de aankondigings-Task (`KT2_DeletePendingTask`) vastgelegd in een immutable AuditEvent met **ISO 21089 lifecycle-codes** op `AuditEvent.type` (`http://terminology.hl7.org/CodeSystem/iso-21089-lifecycle`). Deze events overleven de `$purge` en vormen de aantoonbare audit trail van het verwijderproces.
 
-| Moment | ISO 21089 `type` | `agent.who` | Doel |
-| --- | --- | --- | --- |
-| Verwijdering aangekondigd (Task `requested`) | `archive` | Koppeltaalvoorziening | Aantoonbaar: verwijdering aangekondigd, grace period begint |
-| Noodrem getrokken (Task `on-hold`) | `hold` | **Doelapplicatie** | Aantoonbaar: welke applicatie blokkeert en waarom (`statusReason`) |
-| Groen licht zonder eerdere hold (Task `requested → accepted`) | `verify` | **Doelapplicatie** | Aantoonbaar: de app keurt verwijdering goed (conform eigen beleid) |
-| Holds gewist (grace-reset, Task → `requested`) | `archive` | Koppeltaalvoorziening | Aantoonbaar: grace period herstart, alle holds gewist |
-| Noodrem opgeheven (Task `on-hold → accepted`) | `unhold` | **Doelapplicatie** | Aantoonbaar: de app laat haar blokkade los |
-| Afgebroken (Task `cancelled`) | `reactivate` | Koppeltaalvoorziening | Aantoonbaar: verwijdering afgebroken wegens hernieuwde betrokkenheid |
-| `$purge` uitgevoerd (Task `completed`) | `destroy` | Koppeltaalvoorziening | Aantoonbaar: data definitief vernietigd; draagt tevens het **post-delete** signaal |
-
-Deze delete-AuditEvents zijn **server-owned**: de Koppeltaalvoorziening maakt ze (ook die van een app-actie), met de handelende partij op `agent.who`. `agent.type` is in alle gevallen `DCM#110153` "Source Role ID" met `requestor = true`; `entity.what` is — net als in [opschoning-patient-data](./opschoning-patient-data.html) — **altijd de `Patient`** (één patiënt-gebeurtenis, vindbaar via `entity=Patient/{id}`), niet de Task. Een eigen `subtype` is niet nodig — de ISO 21089-code op `type` is al onderscheidend.
-
-| ISO 21089 `type` | `action` | `agent.who` | `entity.what` | `outcome` |
+| Moment | `type` | `action` | `agent.who` | Doel |
 | --- | --- | --- | --- | --- |
-| `archive` (grace-reset) | `U` | Koppeltaalvoorziening (`Device`) | de `Patient/{id}` | `0` |
-| `verify` | `U` | doelapplicatie (`Device`/`client_id`) | de `Patient/{id}` | `0` |
-| `archive` (aankondiging) | `C` | Koppeltaalvoorziening (`Device`) | de `Patient/{id}` | `0` |
-| `hold` | `U` | doelapplicatie (`Device`/`client_id`) | de `Patient/{id}` (reden uit `Task.statusReason` → `entity.detail`) | `0` |
-| `unhold` | `U` | doelapplicatie (`Device`/`client_id`) | de `Patient/{id}` | `0` |
-| `reactivate` | `U` | Koppeltaalvoorziening (`Device`) | de `Patient/{id}` (reden "hernieuwde betrokkenheid") | `0` |
-| `destroy` | `D` | Koppeltaalvoorziening (`Device`) | de opgeschoonde `Patient/{id}` (technische referentie) | `0` |
+| Verwijdering aangekondigd (Task `requested`) | `archive` | `C` | Koppeltaalvoorziening | Aantoonbaar: verwijdering aangekondigd, grace period begint |
+| Noodrem getrokken (Task `on-hold`) | `hold` | `U` | **Doelapplicatie** | Aantoonbaar: welke applicatie blokkeert en waarom (`statusReason`) |
+| Noodrem opgeheven (Task `on-hold → accepted`) | `unhold` | `U` | **Doelapplicatie** | Aantoonbaar: de app laat haar blokkade los |
+| Groen licht zonder eerdere hold (Task `requested → accepted`) | `verify` | `U` | **Doelapplicatie** | Aantoonbaar: de app keurt verwijdering goed (conform eigen beleid) |
+| Holds gewist (grace-reset, Task → `requested`) | `archive` | `U` | Koppeltaalvoorziening | Aantoonbaar: grace period herstart, alle holds gewist |
+| Afgebroken (Task `cancelled`) | `reactivate` | `U` | Koppeltaalvoorziening | Aantoonbaar: verwijdering afgebroken wegens hernieuwde betrokkenheid |
+| `$purge` uitgevoerd (Task `completed`) | `destroy` | `D` | Koppeltaalvoorziening | Aantoonbaar: data definitief vernietigd; draagt tevens het **post-delete** signaal |
 
-De generieke velden gelden ook hier (extensions `request-id` / `correlation-id` / `trace-id`, `source.site`, `source.observer`, `recorded`). Deze AuditEvents bevatten **geen PII** — uitsluitend technische referenties — zodat zij de `$purge` en de langere bewaartermijn overleven.
+Deze delete-AuditEvents zijn **server-owned**: de Koppeltaalvoorziening maakt ze (ook die van een app-actie), met de handelende partij op `agent.who`. Enkele velden zijn voor álle events gelijk en staan daarom niet in de tabel: `agent.type` = `DCM#110153` "Source Role ID" (`requestor = true`), `outcome` = `0`, en `entity.what` = **altijd de `Patient`** (`entity=Patient/{id}`) — net als in [opschoning-patient-data](./opschoning-patient-data.html), nooit de Task. De reden van een overgang (bijv. `Task.statusReason` bij `hold`, of "hernieuwde betrokkenheid" bij `reactivate`) staat in `entity.detail`. Een eigen `subtype` is niet nodig — de ISO 21089-code op `type` is al onderscheidend. Ook de generieke velden gelden (`request-id`/`correlation-id`/`trace-id`, `source.site`, `source.observer`, `recorded`). Deze AuditEvents bevatten **geen PII** — uitsluitend technische referenties — zodat zij de `$purge` en de langere bewaartermijn overleven.
 
-**Impact voor leveranciers. Zet een doelapplicatie haar eigen Task op on-hold of accepted, dan legt de Koppeltaalvoorziening het bijbehorende hold-, unhold- of verify-event vast met de app als agent.who (unhold na een eerdere noodrem, verify bij groen licht zonder hold). Voor het moment van definitieve verwijdering subscriben doelapplicaties op het destroy-event (type = …iso-21089-lifecycle|destroy): omdat de Task in het Patient-compartiment mee verdwijnt in de $purge, is dit AuditEvent de enige bron voor het post-delete signaal.**
+**Impact voor leveranciers.** Zet een doelapplicatie haar eigen Task op `on-hold` of `accepted`, dan legt de Koppeltaalvoorziening het bijbehorende `hold`-, `unhold`- of `verify`-event vast met de app als `agent.who` (`unhold` na een eerdere noodrem, `verify` bij groen licht zonder hold). Voor het moment van definitieve verwijdering subscriben doelapplicaties op het `destroy`-event (`type = …iso-21089-lifecycle|destroy`): omdat de Task in het Patient-compartiment mee verdwijnt in de `$purge`, is dit AuditEvent de enige bron voor het post-delete signaal.
 
 ### 4. Kwalificatie-impact
 

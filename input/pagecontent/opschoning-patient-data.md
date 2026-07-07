@@ -186,19 +186,19 @@ Elke overgang wordt vastgelegd in een immutable AuditEvent. De **workflow-identi
 
 De eerste kolom noemt de **gebeurtenis** met de resulterende `Task.status`. App-acties zijn `Task.status`-writes; de overige zet de Koppeltaalvoorziening. `entity.what` is **altijd de `Patient`** (niet de Task): één patiënt-gebeurtenis raakt vaak meerdere Tasks, dus consequent naar de Patient refereren houdt het **één AuditEvent per gebeurtenis** — vindbaar via `entity=Patient/{id}`, net als de [activiteitscheck](#activiteitscheck-selectie-en-hercontrole). De Task-mutaties zelf worden via de reguliere create/update-AuditEvent en -notificatie gelogd.
 
-| Gebeurtenis | ISO 21089 `type` | `action` | `agent.who` | `entity.what` | `outcome` |
-| --- | --- | --- | --- | --- | --- |
-| Aankondiging — Task `requested` | `archive` | `C` | Koppeltaalvoorziening (`Device`) | de `Patient/{id}` | `0` |
-| Noodrem — Task → `on-hold` | `hold` | `U` | doelapplicatie (`Device`) | de `Patient/{id}` | `0` |
-| Noodrem opgeheven — Task `on-hold → accepted` | `unhold` | `U` | doelapplicatie (`Device`) | de `Patient/{id}` | `0` |
-| Groen licht (geen eerdere hold) — Task `requested → accepted` | `verify` | `U` | doelapplicatie (`Device`) | de `Patient/{id}` | `0` |
-| Holds gewist (grace-reset) — Task → `requested` | `archive` | `U` | Koppeltaalvoorziening (`Device`) | de `Patient/{id}` | `0` |
-| Annulering — Task `cancelled` | `reactivate` | `U` | Koppeltaalvoorziening (`Device`) | de `Patient/{id}` | `0` |
-| Verwijdering — Task `completed` | `destroy` | `D` | Koppeltaalvoorziening (`Device`) | de `Patient/{id}` | `0` |
+| Gebeurtenis | ISO 21089 `type` | `action` | `agent.who` |
+| --- | --- | --- | --- |
+| Aankondiging — Task `requested` | `archive` | `C` | Koppeltaalvoorziening (`Device`) |
+| Noodrem — Task → `on-hold` | `hold` | `U` | doelapplicatie (`Device`) |
+| Noodrem opgeheven — Task `on-hold → accepted` | `unhold` | `U` | doelapplicatie (`Device`) |
+| Groen licht (geen eerdere hold) — Task `requested → accepted` | `verify` | `U` | doelapplicatie (`Device`) |
+| Holds gewist (grace-reset) — Task → `requested` | `archive` | `U` | Koppeltaalvoorziening (`Device`) |
+| Annulering — Task `cancelled` | `reactivate` | `U` | Koppeltaalvoorziening (`Device`) |
+| Verwijdering — Task `completed` | `destroy` | `D` | Koppeltaalvoorziening (`Device`) |
 
-Aankondiging en grace-reset delen `archive` — onderscheidbaar via `action` (`C` = eerste aankondiging, `U` = reset). `unhold` verschijnt alleen wanneer er echt een noodrem wordt losgelaten; een groen licht **zonder** voorafgaande hold legt `verify` vast (de app bevestigt conform eigen beleid dat verwijderen mag). Beide overleven de `$purge`, zodat de goedkeuring van een app aantoonbaar blijft nadat de Task is opgeruimd. `agent.type` = `DCM#110153` "Source Role ID" (`requestor = true`); de generieke velden (`request-id`/`correlation-id`/`trace-id`, `source.*`, `recorded`) gelden ook. Geen demografie. De reden van een overgang (coded `statusReason`, of "hernieuwde betrokkenheid") staat op de Task of in `entity.detail` — niet in `entity.what`, dat een `Reference` is. Bij **fast-track** ([Verwijderpad](#verwijderpad-graceful-of-fast-track)) ontbreken de aankondigings- en statusovergang-events; alleen het `destroy`-event wordt vastgelegd.
+Aankondiging en grace-reset delen `archive` — onderscheidbaar via `action` (`C` = eerste aankondiging, `U` = reset). `unhold` verschijnt alleen wanneer er echt een noodrem wordt losgelaten; een groen licht **zonder** voorafgaande hold legt `verify` vast (de app bevestigt conform eigen beleid dat verwijderen mag). Beide overleven de `$purge`, zodat de goedkeuring van een app aantoonbaar blijft nadat de Task is opgeruimd. `agent.type` = `DCM#110153` "Source Role ID" (`requestor = true`) en `outcome` is altijd `0`; de generieke velden (`request-id`/`correlation-id`/`trace-id`, `source.*`, `recorded`) gelden ook. Geen demografie. De reden van een overgang (coded `statusReason`, of "hernieuwde betrokkenheid") staat op de Task of in `entity.detail` — niet in `entity.what`, dat een `Reference` is. Bij **fast-track** ([Verwijderpad](#verwijderpad-graceful-of-fast-track)) ontbreken de aankondigings- en statusovergang-events; alleen het `destroy`-event wordt vastgelegd.
 
-De `destroy`-AuditEvent overleeft de verwijdering als centraal NEN 7513-record en draagt de `kt2-delete-flow`-marker — deelnemende apps mogen 'm (en de overige delete-`AuditEvent`s) **lezen/subscriben** voor de bevestiging en de flow. Het erase-event heeft `type` `http://terminology.hl7.org/CodeSystem/iso-21089-lifecycle#destroyhttps://koppeltaal.nl/fhir/CodeSystem/kt2-audit-event#patient-erasedhttp://terminology.hl7.org/CodeSystem/iso-21089-lifecycle#destroy`; daarop abonneert een app:
+De `destroy`-AuditEvent overleeft de verwijdering als centraal NEN 7513-record en draagt de `kt2-delete-flow`-marker — deelnemende apps mogen 'm (en de overige delete-`AuditEvent`s) **lezen/subscriben** voor de bevestiging en de flow. Het erase-event heeft `type` `http://terminology.hl7.org/CodeSystem/iso-21089-lifecycle#destroy`; daarop abonneert een app:
 
 ```json
 {
@@ -214,7 +214,7 @@ De `destroy`-AuditEvent is daarmee de **gezaghebbende** bevestiging; een `GET` o
 
 #### Activiteitscheck (selectie en hercontrole)
 
-De criteria uit het Betrokkenheidsmodel bepalen de initiële selectie. Vlak vóór de verwijdering wordt alleen de auth-check opnieuw gedraaid om hernieuwde betrokkenheid te detecteren — bij het graceful pad tijdens de grace period, bij fast-track in de freeze-window vlak vóór de erase. Is er een nieuw geslaagd auth-event, dan stopt de verwijdering: bij graceful gaat de Task → `cancelled` (een `reactivate`-AuditEvent op `type`) en herstart de 2-jaarstermijn; bij fast-track wordt simpelweg niet verwijderd. De overige criteria (leeftijd, transitie-brug) liggen vast bij de selectie.
+De **criteria** uit het Betrokkenheidsmodel bepalen de initiële selectie. Vlak vóór de verwijdering wordt **alleen de auth-check** opnieuw gedraaid om **hernieuwde betrokkenheid** te detecteren — bij het graceful pad tijdens de grace period, bij fast-track in de freeze-window vlak vóór de erase. Is er een nieuw geslaagd auth-event, dan stopt de verwijdering: bij graceful gaat de Task → `cancelled` (een `reactivate`-AuditEvent op `type`) en herstart de 2-jaarstermijn; bij fast-track wordt simpelweg niet verwijderd. De overige criteria (leeftijd, transitie-brug) liggen vast bij de selectie.
 
 <div style="clear: both; margin: 1em 0;">
 {% include opschoning-patient-data-activiteitscheck.svg %}
