@@ -2,9 +2,10 @@
 
 Deze pagina bevat een overzicht van de wijzigingen per versie van de Koppeltaal 2.0 Implementation Guide.
 
-### 0.16.3 (2026-07-02)
+### 0.16.3 (2026-06-25)
 
 #### Hersteld
+- **KT2AuditEvent**: `entity.what` expliciet vastgelegd als `Reference(Resource|*)` zodat de IG Publisher het doelprofiel niet versie-pint naar `Resource|4.0.1`. Die versie-pin brak de "elke resource"-afhandeling van de FHIR-validator, waardoor AuditEvents met een `Patient`-referentie in `entity.what` werden geweigerd (`Reference_REF_WrongTarget`).
 - **SearchParameter resource-origin**: `target = Device` toegevoegd. De reference-SearchParameter had geen target-element, waardoor servers die `SearchParameter.target` gebruiken voor het valideren van getypeerde zoekwaarden (bijv. `resource-origin=Device/<id>` bij search narrowing) deze zoekopdrachten afwezen. De resource-origin-extensie verwijst uitsluitend naar (KT2_)Device.
 - **SearchParameter publisherId**: onterecht `target = ActivityDefinition` verwijderd; `target` is alleen van toepassing op reference-SearchParameters en dit is een token-parameter.
 
