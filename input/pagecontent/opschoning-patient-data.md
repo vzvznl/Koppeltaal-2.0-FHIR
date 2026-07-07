@@ -186,13 +186,13 @@ Elke overgang wordt vastgelegd in een immutable AuditEvent. De **workflow-identi
 
 De eerste kolom noemt de **gebeurtenis** met de resulterende `Task.status`. App-acties zijn `Task.status`-writes; de overige zet de Koppeltaalvoorziening. `entity.what` is **altijd de `Patient`** (niet de Task): één patiënt-gebeurtenis raakt vaak meerdere Tasks, dus consequent naar de Patient refereren houdt het **één AuditEvent per gebeurtenis** — vindbaar via `entity=Patient/{id}`, net als de [activiteitscheck](#activiteitscheck-selectie-en-hercontrole). De Task-mutaties zelf worden via de reguliere create/update-AuditEvent en -notificatie gelogd.
 
-| Groen licht (geen eerdere hold) — Task `requested → accepted` | `verify` | `U` | doelapplicatie (`Device`) | de `Patient/{id}` | `0` |
 | Gebeurtenis | ISO 21089 `type` | `action` | `agent.who` | `entity.what` | `outcome` |
 | --- | --- | --- | --- | --- | --- |
 | Aankondiging — Task `requested` | `archive` | `C` | Koppeltaalvoorziening (`Device`) | de `Patient/{id}` | `0` |
 | Noodrem — Task → `on-hold` | `hold` | `U` | doelapplicatie (`Device`) | de `Patient/{id}` | `0` |
-| Holds gewist (grace-reset) — Task → `requested` | `archive` | `U` | Koppeltaalvoorziening (`Device`) | de `Patient/{id}` | `0` |
 | Noodrem opgeheven — Task `on-hold → accepted` | `unhold` | `U` | doelapplicatie (`Device`) | de `Patient/{id}` | `0` |
+| Groen licht (geen eerdere hold) — Task `requested → accepted` | `verify` | `U` | doelapplicatie (`Device`) | de `Patient/{id}` | `0` |
+| Holds gewist (grace-reset) — Task → `requested` | `archive` | `U` | Koppeltaalvoorziening (`Device`) | de `Patient/{id}` | `0` |
 | Annulering — Task `cancelled` | `reactivate` | `U` | Koppeltaalvoorziening (`Device`) | de `Patient/{id}` | `0` |
 | Verwijdering — Task `completed` | `destroy` | `D` | Koppeltaalvoorziening (`Device`) | de `Patient/{id}` | `0` |
 
