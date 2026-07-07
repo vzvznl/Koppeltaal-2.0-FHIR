@@ -47,3 +47,9 @@ Description: "The AuditEvent resource is used to consolidate and track logging i
     * insert notUsedKT2
   * query ^comment = "Warning: name and query are mutually exclusive. Use query to register the full query, including parameters."
   * detail ..0
+// Keep the inherited Reference(Any) target UNVERSIONED. The IG Publisher (2.2.x) otherwise
+// version-pins it to .../Resource|4.0.1 during snapshot generation, which defeats the
+// org.hl7.fhir.core validator's "any resource" short-circuit (exact unversioned match) and
+// makes AuditEvent.entity.what -> Patient fail validation (Reference_REF_WrongTarget).
+// The trailing |* marker instructs the publisher not to pin this canonical.
+* entity.what only Reference(http://hl7.org/fhir/StructureDefinition/Resource|*)
