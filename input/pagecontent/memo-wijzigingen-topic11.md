@@ -87,7 +87,7 @@ Het `introspect`-event wordt **alleen** vastgelegd voor HTI launch tokens; intro
 
 #### 3.7 AuditEvent: Application User Authentication (authenticatie aan applicatiezijde)
 
-Naast de authenticatie die de Koppeltaalvoorziening zelf vastlegt (§3.6), kan een applicatie de patiënt of naaste ook **buiten de Koppeltaal-authenticatieketen** authenticeren (bijvoorbeeld een eigen sessie-login). Voor een volledige toegangslog SHOULD de applicatie hiervoor zelf een AuditEvent aanmaken en vastleggen: een eigenstandig event (Application User Authentication) met een eigen subtype DCM#110126 "Node Authentication" onder type DCM#110114. Anders dan de in-keten events (subtype DCM#110122) markeert dit patiëntactiviteit búiten de keten.
+Naast de authenticatie die de Koppeltaalvoorziening zelf vastlegt (§3.6), kan een applicatie de patiënt of naaste ook **buiten de Koppeltaal-authenticatieketen** authenticeren (bijvoorbeeld een eigen sessie-login). Voor een volledige toegangslog SHOULD de applicatie hiervoor zelf een AuditEvent aanmaken en vastleggen: een eigenstandig event (Application User Authentication) met een eigen subtype `DCM#110126` "Node Authentication" onder type `DCM#110114`. Anders dan de in-keten events (subtype `DCM#110122`) markeert dit patiëntactiviteit búiten de keten.
 
 - **Aanmaak**: door de applicatie zelf (dit is, anders dan §3.6, wél een verantwoordelijkheid van de leverancier).
 - **`source.site`**: de domeinnaam van de applicatie; **`source.observer`**: de `Device`-referentie van de applicatie (`Device/<id|client_id>`).
@@ -97,7 +97,7 @@ Hiermee is ook patiëntbetrokkenheid die niet via `/authorize` of de HTI-introsp
 
 #### 3.8 AuditEvents voor de opschoning-lifecycle
 
-Voor het opschonen van patiëntdata (zie [opschoning-patient-data.html](./opschoning-patient-data.html)) wordt elke statusovergang van de aankondigings-Task (`KT2_DeletePendingTask`) vastgelegd in een immutable AuditEvent met **ISO 21089 lifecycle-codes** op `AuditEvent.type` (`http://terminology.hl7.org/CodeSystem/iso-21089-lifecycle`). Deze events overleven de `$purge` en vormen de aantoonbare audit trail van het verwijderproces.
+Voor het opschonen van patiëntdata (zie [opschoning-patient-data.html](./opschoning-patient-data.html)) legt de Koppeltaalvoorziening elke **aggregaat-overgang** van het opschoon-proces (over de per-app `KT2_DeletePendingTask`s heen, niet elke losse Task-write) vast in een immutable AuditEvent met **ISO 21089 lifecycle-codes** op `AuditEvent.type` (`http://terminology.hl7.org/CodeSystem/iso-21089-lifecycle`). Deze events overleven de `$purge` en vormen de aantoonbare audit trail van het verwijderproces.
 
 | Aggregaat-overgang | `type` | `action` | Doel |
 | --- | --- | --- | --- |
@@ -117,7 +117,7 @@ Deze delete-AuditEvents zijn **server-owned** en **geaggregeerd**: de Koppeltaal
 - Er is **geen aparte kwalificatie** nodig specifiek voor Topic 11.
 - De wijzigingen worden onderdeel van de reguliere kwalificatie wanneer een leverancier zijn applicatie opnieuw laat kwalificeren.
 - Voor reeds gekwalificeerde applicaties geldt: implementatie wordt verwacht bij doorontwikkeling, maar er is geen directe verplichting tot herkwalificatie.
-- De nieuwe AuditEvents uit §3.6 t/m §3.8 hebben voorlopig geen kwalificatie-impact. De codings zijn vastgesteld: §3.6 gebruikt DCM#110114 / DCM#110122 (met variant-differentiatie via de outcomeDesc-prefix), §3.7 gebruikt DCM#110114 / DCM#110126; de tijdlijn voor opname in de reguliere kwalificatie wordt in een vervolgtraject bepaald.
+- De nieuwe AuditEvents uit §3.6 t/m §3.8 hebben voorlopig geen kwalificatie-impact. De codings zijn vastgesteld: §3.6 gebruikt `DCM#110114` / `DCM#110122` (met variant-differentiatie via de `outcomeDesc`-prefix), §3.7 gebruikt `DCM#110114` / `DCM#110126`; de tijdlijn voor opname in de reguliere kwalificatie wordt in een vervolgtraject bepaald.
 
 ### 5. Conclusie
 
