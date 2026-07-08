@@ -32,7 +32,7 @@ endif
 |Koppeltaalvoorziening|
 if (grace-deadline bereikt met nog een hold?) then (ja)
   :wis alle holds, herstart de grace period;
-  note right: AuditEvent (unhold)
+  note right: AuditEvent (archive) — grace-reset
   goto start_grace
 else (nee)
 endif

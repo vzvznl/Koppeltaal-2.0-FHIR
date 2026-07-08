@@ -17,12 +17,12 @@ note over A, B : apps lezen de Task met gewone\nGET / search / Subscription — 
 == Grace period ==
 A -> KT : GET Patient-resources (data veiligstellen)
 A -> KT : PUT Task A · status=accepted
-note right of A : groen licht · AuditEvent (amend)
+note right of A : groen licht — geen event\n(geen eerdere hold, aggregaat onveranderd)
 B -> KT : PUT Task B · status=on-hold (+ statusReason)
-note right of B : noodrem · AuditEvent (hold)
+KT -> KT : aggregaat → geblokkeerd (eerste handrem)\nAuditEvent (hold)
 ...noodrem blijft staan...
 B -> KT : PUT Task B · status=accepted
-note right of B : heft op · AuditEvent (amend)
+KT -> KT : aggregaat → gedeblokkeerd (laatste handrem eraf)\nAuditEvent (unhold)
 
 == Bewaking & verwijdering ==
 KT -> KT : geen hold meer; grace verstreken\nof alle Tasks accepted (vervroegde voltooiing)
