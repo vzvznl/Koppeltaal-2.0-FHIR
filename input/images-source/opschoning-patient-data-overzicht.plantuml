@@ -9,7 +9,7 @@ skinparam activity {
 start
 label start_proces
 :Patiënt voldoet aan de opschoon-criteria\n(of contractbeëindiging);
-if (C + 2 jaar bereikt én geen recente Task?) then (ja — fast-track)
+if (overgangsperiode voorbij én geen recente Task?) then (ja — fast-track)
   #fde2e2:interne erase\n(direct, geen aankondiging/grace);
   note right: alleen AuditEvent (destroy)
   stop
@@ -52,5 +52,10 @@ note right
   overleven de erase
 end note
 stop
+
+legend left
+  overgangsperiode = 2 jaar na de Topic 11-uitrol; daarvóór doorloopt elke kandidaat het graceful pad.
+  fast-track = directe erase zonder aankondiging/grace, alleen voor patiënten zonder recente activiteit.
+endlegend
 
 @enduml
