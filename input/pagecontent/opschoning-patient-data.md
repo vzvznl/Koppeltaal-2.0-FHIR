@@ -8,6 +8,7 @@
 | 0.1.3 | 2026-06-15 | Status-lifecycle-diagram verwijderd; rationale toegevoegd waarom `KT2_DeletePendingTask` een apart profiel is |
 | 0.1.4 | 2026-06-17 | `T_auth` verbreed naar `subtype=110122,110126` |
 | 0.2.0 | 2026-06-18 | **Herontwerp (besluitvormingsdocument; nog niet released).** Betrokkenheidsmodel = `T_auth` + legacy-fallback; grace 30 dagen. **FHIR-native Task-workflow**: per-app delete-pending `Task` die apps met gewone interacties lezen en beantwoorden (`Task.status`-write); server bewaakt de transities. Eén server-owned **`meta.security`-marker** (`kt2-delete-flow`) leest de Koppeltaalvoorziening als **additieve grant** bovenop de TOP-KT-005-matrix (geen matrixwijziging, geen aparte operation): lezen domein-breed, schrijven owner-scoped op de Task. Notificatie + bevestiging via standaard `Subscription` (Task / `destroy`-AuditEvent) of `GET` → 404. Interne harde erase (404, geen tombstone). Domein-transparant; open keuzes onderaan. |
+| 0.2.1 | 2026-07-09 | `kt2-delete-flow`-marker geconcretiseerd: CodeSystem `koppeltaal-security-label` (`http://vzvz.nl/fhir/CodeSystem/koppeltaal-security-label`) opgenomen in de IG, evenals het `koppeltaal-delete-hold-reason`-CodeSystem voor de noodrem-reden (required binding, verplichte display); URL-verwijzingen op deze pagina bijgewerkt |
 
 ---
 
@@ -89,7 +90,7 @@ Hieronder eerst de marker (de toegang), daarna de concrete Task-workflow en de v
 
 #### Toegang buiten de matrix (`meta.security`)
 
-De opschoon-resources — de `KT2_DeletePendingTask` en de delete-`AuditEvent`s — zijn **server-owned** en vallen buiten het reguliere [TOP-KT-005](autorisaties.html)-CRUD-vlak. Eén **`meta.security`-marker** regelt de toegang: `https://koppeltaal.nl/fhir/CodeSystem/security-label#kt2-delete-flow`. De marker is **doel-specifiek** (géén "overschrijf de hele matrix"-label — dat zou te breed granten) en **server-owned**: alleen de Koppeltaalvoorziening zet 'm, door apps aangeleverde labels worden geweigerd. FHIR laat de betekenis van een security-label aan het lokale toegangsbeleid (i.t.t. `meta.tag`, dat voor workflow is); de Koppeltaalvoorziening interpreteert deze marker als een **additieve leesgrant** ([Security Labels](https://hl7.org/fhir/R4/security-labels.html); access-control is per [FHIR Security](https://hl7.org/fhir/R4/security.html) bewust extern beleid).
+De opschoon-resources — de `KT2_DeletePendingTask` en de delete-`AuditEvent`s — zijn **server-owned** en vallen buiten het reguliere [TOP-KT-005](autorisaties.html)-CRUD-vlak. Eén **`meta.security`-marker** regelt de toegang: `http://vzvz.nl/fhir/CodeSystem/koppeltaal-security-label#kt2-delete-flow`. De marker is **doel-specifiek** (géén "overschrijf de hele matrix"-label — dat zou te breed granten) en **server-owned**: alleen de Koppeltaalvoorziening zet 'm, door apps aangeleverde labels worden geweigerd. FHIR laat de betekenis van een security-label aan het lokale toegangsbeleid (i.t.t. `meta.tag`, dat voor workflow is); de Koppeltaalvoorziening interpreteert deze marker als een **additieve leesgrant** ([Security Labels](https://hl7.org/fhir/R4/security-labels.html); access-control is per [FHIR Security](https://hl7.org/fhir/R4/security.html) bewust extern beleid).
 
 **In de gewone resultaten — geen aparte operation.** Een app leest de flow met dezelfde `GET`/search/`Subscription` die ze al heeft. De Koppeltaalvoorziening neemt de server-owned delete-resources waar de app recht op heeft **mee in de search- én subscription-narrowing** — ze worden dus niet weggefilterd, óók niet uit `$count`/paging of notificatie-matching. Wat `GET /Task` oplevert volgt simpelweg uit het matrix-leesrecht:
 
@@ -166,10 +167,10 @@ Noodrem trekken met een coded (non-PII) reden — `PUT Task/{id}` met `If-Match:
 {
   "resourceType": "Task",
   "id": "{id}",
-  "meta": { "security": [{ "system": "https://koppeltaal.nl/fhir/CodeSystem/security-label", "code": "kt2-delete-flow" }] },
+  "meta": { "security": [{ "system": "http://vzvz.nl/fhir/CodeSystem/koppeltaal-security-label", "code": "kt2-delete-flow" }] },
   "status": "on-hold",
   "statusReason": {
-    "coding": [{ "system": "https://koppeltaal.nl/fhir/CodeSystem/delete-hold-reason", "code": "data-export-pending", "display": "Export naar bronsysteem loopt nog" }]
+    "coding": [{ "system": "http://vzvz.nl/fhir/CodeSystem/koppeltaal-delete-hold-reason", "code": "data-export-pending", "display": "Export naar bronsysteem loopt nog" }]
   },
   "intent": "order",
   "code": { "coding": [{ "system": "https://koppeltaal.nl/fhir/CodeSystem/koppeltaal-task-code", "code": "delete-pending" }] },
@@ -204,7 +205,7 @@ De `destroy`-AuditEvent overleeft de verwijdering als centraal NEN 7513-record e
   "resourceType": "Subscription",
   "status": "requested",
   "reason": "Bevestiging definitieve verwijdering",
-  "criteria": "AuditEvent?type=http://terminology.hl7.org/CodeSystem/iso-21089-lifecycle|destroy&_security=https://koppeltaal.nl/fhir/CodeSystem/security-label|kt2-delete-flow",
+  "criteria": "AuditEvent?type=http://terminology.hl7.org/CodeSystem/iso-21089-lifecycle|destroy&_security=http://vzvz.nl/fhir/CodeSystem/koppeltaal-security-label|kt2-delete-flow",
   "channel": { "type": "rest-hook", "endpoint": "https://module.example.com/notifications/erased" }
 }
 ```
