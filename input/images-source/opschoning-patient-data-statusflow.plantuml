@@ -1,0 +1,43 @@
+@startuml opschoning-patient-data-statusflow
+
+skinparam state {
+  BackgroundColor #f5f5f5
+  BorderColor #333333
+}
+
+state "requested" as requested
+state "on-hold" as on_hold
+state "accepted" as accepted
+state "cancelled" as cancelled
+state "completed" as completed
+
+[*] --> requested : KT maakt delete-pending Task\n(grace period start) · archive
+
+requested : grace period loopt
+requested --> on_hold : app · noodrem (+ statusReason)\n→ aggregaat hold (bij de 1e handrem)
+requested --> accepted : app · groen licht\n(geen hold → geen aggregaat-event)
+requested --> completed : KT · grace verstreken, geen hold · destroy
+
+on_hold : tijdelijke noodrem
+on_hold --> accepted : app · heft op\n→ aggregaat unhold (bij de laatste hold eraf)
+on_hold --> requested : KT · grace-reset (deadline met hold):\nholds gewist, grace herstart · archive
+
+accepted : data veiliggesteld / akkoord
+accepted --> completed : KT · grace verstreken óf\nalle Tasks accepted (vervroegde voltooiing) · destroy
+
+requested --> cancelled : KT · hernieuwde betrokkenheid · reactivate
+on_hold --> cancelled : KT · hernieuwde betrokkenheid · reactivate
+accepted --> cancelled : KT · hernieuwde betrokkenheid · reactivate
+
+cancelled : afgebroken — Task blijft behouden
+cancelled --> [*]
+
+completed : Patiënt verwijderd (interne erase);\nTask mét Patiënt opgeruimd
+completed --> [*]
+
+legend right
+  Audit-codes zijn aggregaat (procesniveau), gelogd door de Koppeltaalvoorziening:
+  hold bij de 1e handrem, unhold bij de laatste; archive bij aankondiging én grace-reset.
+endlegend
+
+@enduml
