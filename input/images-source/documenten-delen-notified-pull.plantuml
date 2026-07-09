@@ -7,7 +7,7 @@ Module -> EPD : POST Notification Task
 note right of EPD : EPD bepaalt wanneer\nen hoe op te halen
 EPD -> Module : GET DocumentReference
 Module -> EPD : DocumentReference response
-EPD -> Module : GET Binary
-Module -> EPD : Binary response
+EPD -> Module : GET attachment.url
+Module -> EPD : bestand
 
 @enduml

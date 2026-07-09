@@ -11,10 +11,10 @@ KT -> EPD : Subscription / polling\ndetecteert nieuwe resource
 EPD -> AS : POST /token\n(client_credentials)
 AS -> EPD : access_token
 
-EPD -> Module : GET Binary\nAuthorization: Bearer <token>
+EPD -> Module : GET attachment.url\nAuthorization: Bearer <token>
 Module -> AS : POST /introspect (RFC 7662)
 AS -> Module : active: true, scopes
 note over Module : Data-owner policy check\n(MAY deny op eigen gronden)
-Module -> EPD : Binary response
+Module -> EPD : bestand\n(Content-Type conform attachment.contentType)
 
 @enduml
