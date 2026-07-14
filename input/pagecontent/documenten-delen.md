@@ -2,6 +2,7 @@
 
 | Versie | Datum | Wijziging |
 | --- | --- | --- |
+| 0.1.2 | 2026-07-14 | De FHIR Binary-optie is volledig vervallen: `attachment.url` MAG NIET naar een FHIR Binary resource verwijzen; het document-endpoint is een regulier HTTPS-download-endpoint, geen FHIR-endpoint. Onderbouwing toegevoegd onder [Overwogen alternatieven](#overwogen-alternatieven). |
 | 0.1.1 | 2026-07-09 | `attachment.url` verwijst naar het bestand zelf, niet per se naar een FHIR Binary resource; een Binary-endpoint is een toegestane implementatie, geen eis. Terminologie hierop aangepast (document-endpoint). |
 | 0.1.0 | 2026-06-09 | Eerste samengevoegde versie van de pagina "Documenten delen". |
 
@@ -17,7 +18,7 @@ Door documenten delen expliciet te ondersteunen binnen Koppeltaal ontstaat een u
 
 Documenten zoals PDF/A-rapporten, ongestructureerde vragenlijst-uitkomsten of samenvattingen worden uitgewisseld via het FHIR [DocumentReference](https://www.hl7.org/fhir/R4/documentreference.html) resource. Een DocumentReference bevat metadata over het document (type, datum, auteur, patiënt) en de inhoud zelf — via [`DocumentReference.content.attachment`](https://www.hl7.org/fhir/R4/datatypes.html#Attachment).
 
-De inhoud wordt uitgewisseld via één variant: **externe referentie**. `attachment.url` ("Uri where the data can be found") verwijst rechtstreeks naar **het bestand zelf**, dat de bronapplicatie aanbiedt via een beveiligd HTTPS-endpoint (het *document-endpoint*). Een `GET` op die URL levert de ruwe bestandsinhoud, met een `Content-Type` die overeenkomt met `attachment.contentType`. Een FHIR [Binary](https://www.hl7.org/fhir/R4/binary.html)-endpoint MAG als implementatie worden gebruikt — een Binary levert bij een niet-FHIR `Accept`-header immers de ruwe inhoud — maar is **geen eis**: de bronapplicatie hoeft geen FHIR-server te zijn. De data blijft daarmee aan de bron; de Koppeltaal FHIR store bevat alleen de metadata in de DocumentReference. Inline base64 (`attachment.data`) wordt binnen Koppeltaal niet ondersteund: de data blijft aan de bron. Zie [Overwogen alternatieven](#overwogen-alternatieven) voor de afwegingen rond het plaatsen van binaire data.
+De inhoud wordt uitgewisseld via één variant: **externe referentie**. `attachment.url` ("Uri where the data can be found") verwijst rechtstreeks naar **het bestand zelf**, dat de bronapplicatie aanbiedt via een beveiligd HTTPS-endpoint (het *document-endpoint*). Een `GET` op die URL levert de ruwe bestandsinhoud, met een `Content-Type` die overeenkomt met `attachment.contentType`. Het document-endpoint is een **regulier HTTPS-download-endpoint, geen FHIR-endpoint**: `attachment.url` MAG NIET naar een FHIR [Binary](https://www.hl7.org/fhir/R4/binary.html) resource verwijzen (zie [Overwogen alternatieven](#overwogen-alternatieven) voor de onderbouwing); de bronapplicatie hoeft geen FHIR-server te zijn. De data blijft daarmee aan de bron; de Koppeltaal FHIR store bevat alleen de metadata in de DocumentReference. Inline base64 (`attachment.data`) wordt binnen Koppeltaal niet ondersteund: de data blijft aan de bron. Zie [Overwogen alternatieven](#overwogen-alternatieven) voor de afwegingen rond het plaatsen van binaire data.
 
 De module genereert het document — typisch bij afronding van de interventie, maar desgewenst ook tussentijds.
 
@@ -181,7 +182,7 @@ Het ophalen van het bestand loopt niet via Koppeltaal; de **bronapplicatie is ve
 
 ### Overwogen alternatieven
 
-Bij [Uitwisselingspatronen](#uitwisselingspatronen) is **direct ophalen via de Koppeltaal FHIR store** als aangewezen route beschreven. Tijdens de uitwerking zijn twee andere patronen overwogen — **Notified Pull** en **Binary als losse resource in de Koppeltaal-store**. Beide zijn niet als standaardroute aangewezen; ze worden hier kort gedocumenteerd zodat de afweging traceerbaar blijft en het onderwerp opnieuw opgepakt kan worden mocht de scope van Koppeltaal in de toekomst veranderen.
+Bij [Uitwisselingspatronen](#uitwisselingspatronen) is **direct ophalen via de Koppeltaal FHIR store** als aangewezen route beschreven. Tijdens de uitwerking zijn twee andere patronen overwogen — **Notified Pull** en **Binary als losse resource in de Koppeltaal-store** — en daarnaast een **FHIR Binary-endpoint bij de bron** als implementatie van het document-endpoint. Geen van deze is aangewezen als (onderdeel van de) standaardroute; ze worden hier kort gedocumenteerd zodat de afweging traceerbaar blijft en het onderwerp opnieuw opgepakt kan worden mocht de scope van Koppeltaal in de toekomst veranderen.
 
 #### ~~Notified Pull~~
 
@@ -206,6 +207,16 @@ Bij nadere beschouwing bleken een aantal van die voordelen niet onderscheidend t
 
 Dit alternatief blijft denkbaar als uitwijkmogelijkheid voor specifieke gevallen (bijvoorbeeld een bron die geen stabiel publiek endpoint kan aanbieden), maar is geen standaardroute van de Koppeltaal-specificatie.
 
+#### ~~FHIR Binary-endpoint bij de bron~~
+
+In een eerdere versie van deze pagina was het toegestaan (geen eis) om het document-endpoint te implementeren als FHIR [Binary](https://www.hl7.org/fhir/R4/binary.html)-endpoint bij de bronapplicatie. Deze optie is **volledig vervallen**: `attachment.url` MAG NIET naar een FHIR Binary resource verwijzen. De overwegingen:
+
+- **Dubbel content type.** Zowel `Binary.contentType` als `attachment.contentType` beschrijven het formaat van dezelfde inhoud. Dat is redundant en introduceert een conflictrisico: wat als de attachment een PDF aankondigt en de Binary een Word-document bevat? Zonder Binary is er één bron van waarheid — `attachment.contentType`, bevestigd door de `Content-Type`-header van het document-endpoint.
+- **Een FHIR resource wekt de verwachting van een FHIR API.** Een Binary-URL suggereert dat de bron een FHIR-server is, met bijbehorende semantiek: versiegeschiedenis (`_history`/`vread`), zoekgedrag, een CapabilityStatement en FHIR-foutafhandeling (OperationOutcome). Van moduleleveranciers zou dan aanzienlijk meer verwacht worden dan het aanbieden van een enkele download-URL.
+- **Contentonderhandeling via de `Accept`-header.** Een FHIR Binary-endpoint levert afhankelijk van de `Accept`-header óf de ruwe inhoud óf een FHIR-wrapper (JSON/XML met base64-inhoud); zie [Binary — REST behavior](https://hl7.org/fhir/R4/binary.html#rest). Dit gedrag moet door zowel bron als afnemer correct geïmplementeerd worden en is een bekende bron van interoperabiliteitsproblemen.
+
+Samengenomen maakt dit de Binary-optie onnodig complex voor moduleleveranciers, terwijl een regulier HTTPS-download-endpoint volstaat.
+
 ### Open punten
 
 De volgende punten zijn nog uit te werken in samenwerking met leveranciers:
@@ -218,7 +229,7 @@ Wanneer het EPD een externe `attachment.url` aanroept, ontvangt de bronapplicati
 
 Twee alternatieven zijn overwogen en niet gekozen:
 
-- **Een nieuwe, expliciete scope voor de documentinhoud** (bijvoorbeeld `documenten/Binary.read`): zou toegang tot de inhoud loskoppelen van DocumentReference-toegang. Verworpen omdat het een onduidelijke status institutionaliseert (wel toegang tot de reference, niet tot de data) zonder een gebruiksscenario dat dat onderscheid nodig maakt.
+- **Een nieuwe, expliciete scope voor de documentinhoud** (bijvoorbeeld `documenten/content.read`): zou toegang tot de inhoud loskoppelen van DocumentReference-toegang. Verworpen omdat het een onduidelijke status institutionaliseert (wel toegang tot de reference, niet tot de data) zonder een gebruiksscenario dat dat onderscheid nodig maakt.
 - **Uitbreiding van het introspect-endpoint met een scope-parameter** (de bron vraagt aan Koppeltaal "mag deze client dit bestand ophalen?"): valt af. [RFC 7662](https://datatracker.ietf.org/doc/html/rfc7662) definieert `/introspect` strikt als token-introspectie en kent geen request-parameters voor een per-resource autorisatiebeslissing. Een policy-decision-point hoort, indien ooit nodig, in een aparte voorziening (UMA-/PDP-pattern), niet in `/introspect`.
 
 #### ValueSet/binding voor `DocumentReference.type`
