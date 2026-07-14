@@ -7,13 +7,14 @@
 | 0.1.2 | 2026-06-15 | `T_authorize` en `T_introspect_hti` samengevoegd tot `T_auth`; formule vereenvoudigd tot `max(T_auth, T_task_owner)`; activiteitscheck filtert op `entity` |
 | 0.1.3 | 2026-06-15 | Status-lifecycle-diagram verwijderd; rationale toegevoegd waarom `KT2_DeletePendingTask` een apart profiel is |
 | 0.1.4 | 2026-06-17 | `T_auth` verbreed naar `subtype=110122,110126` |
+| 0.2.1 | 2026-07-14 | **Herontwerp besloten.** De architectuurbespreking heeft het 0.2.0-herontwerp vastgesteld; status gewijzigd van besluitvormingsdocument naar besloten ontwerp. De resterende uitwerkingspunten blijven staan onder [Discussiepunten](#discussiepunten) |
 | 0.2.0 | 2026-06-18 | **Herontwerp (besluitvormingsdocument; nog niet released).** Betrokkenheidsmodel = `T_auth` + legacy-fallback; grace 30 dagen. **FHIR-native Task-workflow**: per-app delete-pending `Task` die apps met gewone interacties lezen en beantwoorden (`Task.status`-write); server bewaakt de transities. Eén server-owned **`meta.security`-marker** (`kt2-delete-flow`) leest de Koppeltaalvoorziening als **additieve grant** bovenop de TOP-KT-005-matrix (geen matrixwijziging, geen aparte operation): lezen domein-breed, schrijven owner-scoped op de Task. Notificatie + bevestiging via standaard `Subscription` (Task / `destroy`-AuditEvent) of `GET` → 404. Interne harde erase (404, geen tombstone). Domein-transparant; open keuzes onderaan. |
 
 ---
 
 ### Opschoning Patient-data
 
-> **Status: besluitvormingsdocument.** Input voor de architectuurbespreking; openstaande keuzes staan onder [Discussiepunten](#discussiepunten). Profiel-/FSH-wijzigingen en interactiediagrammen volgen ná besluitvorming.
+> **Status: besloten ontwerp.** Het herontwerp is vastgesteld in de architectuurbespreking. Profiel-/FSH-wijzigingen en interactiediagrammen volgen; de resterende uitwerkingspunten staan onder [Discussiepunten](#discussiepunten).
 
 De Koppeltaalvoorziening slaat patiëntgerelateerde FHIR resources op die na verloop van tijd verwijderd moeten worden, conform wettelijke bewaartermijnen (AVG, WGBO, NEN 7510, NEN 7513).
 

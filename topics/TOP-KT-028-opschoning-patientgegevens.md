@@ -4,8 +4,9 @@
 | --- | --- | --- | --- |
 | 0.1 | 6 mei 2026 | Concept | Concept versie topic 28 opgesteld, onder de titel "Archivering" (lifecycle via `meta.tag` op de Patient). |
 | 0.2 | 13 jul 2026 | Concept | Herontwerp overgenomen van de IG-pagina "Opschoning Patient-data" (v0.2.0). Het `meta.tag`-lifecycle-model is vervangen door een FHIR-native Task-workflow (`KT2_DeletePendingTask`) met een server-owned `meta.security`-marker (`kt2-delete-flow`). Betrokkenheidsmodel (`T_auth`), graceful/fast-track-verwijderpad en geaggregeerde AuditEvents op basis van standaard ISO 21089-lifecycle-codes toegevoegd. Titel gewijzigd van "Archivering" naar "Opschoning patiëntgegevens": het ontwerp kent geen aparte gearchiveerde (read-only) tussentoestand meer — data blijft actief tot de definitieve verwijdering. |
+| 0.3 | 14 jul 2026 | Besloten | Herontwerp vastgesteld in de architectuurbespreking; status gewijzigd van besluitvormingsdocument naar besloten ontwerp. De resterende uitwerkingspunten blijven staan onder [Discussiepunten](#discussiepunten). |
 
-> **Status: besluitvormingsdocument.** Input voor de architectuurbespreking; openstaande keuzes staan onder [Discussiepunten](#discussiepunten). Profiel-/FSH-wijzigingen en interactiediagrammen volgen ná besluitvorming.
+> **Status: besloten ontwerp.** Het herontwerp is vastgesteld in de architectuurbespreking. Profiel-/FSH-wijzigingen en interactiediagrammen volgen; de resterende uitwerkingspunten staan onder [Discussiepunten](#discussiepunten).
 
 ## Beschrijving
 
