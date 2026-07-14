@@ -13,6 +13,11 @@ endif
 # Export PATH with dotnet tools
 export PATH := $(PATH):$(DOTNET_TOOLS)
 
+# Extra flags for the IG publisher terminology handling. Examples:
+#   TX_OPTS="-tx n/a"          skip the terminology server entirely (fast, no code validation)
+#   TX_OPTS="-resetTxErrors"   retry previously failed terminology calls, keep cached successes
+TX_OPTS ?=
+
 # Default target
 .PHONY: all
 all: build
@@ -45,7 +50,7 @@ install-dependencies:
 .PHONY: build-ig
 build-ig:
 	@echo "Building Full Implementation Guide with version $(VERSION)..."
-	java -jar /usr/local/publisher.jar -ig ig.ini
+	java -jar /usr/local/publisher.jar -ig ig.ini $(TX_OPTS)
 	@echo "Fixing extension version references..."
 	@python3 scripts/fix_extension_versions.py output
 	@if [ ! -f ./output/package.tgz ]; then \
