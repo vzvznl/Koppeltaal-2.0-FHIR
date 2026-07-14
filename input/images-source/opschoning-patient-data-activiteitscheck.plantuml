@@ -9,10 +9,10 @@ start
 :Kandidaat voor verwijdering\n(graceful: grace verlopen — of\nfast-track: geen recente Task);
 
 if (Geslaagd auth-event sinds de\nlaatste check — freeze-window?) then (ja — hernieuwde betrokkenheid)
-  :breek af\n(graceful: Task → cancelled;\nbewaartermijn herstart); <<#e2f7e2>>
+  #e2f7e2:breek af\n(graceful: Task → cancelled;\nbewaartermijn herstart);
   stop
 else (nee)
-  :definitieve verwijdering\n(interne erase); <<#fde2e2>>
+  #fde2e2:definitieve verwijdering\n(interne erase);
   stop
 endif
 

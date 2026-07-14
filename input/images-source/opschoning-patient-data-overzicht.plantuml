@@ -10,7 +10,7 @@ start
 label start_proces
 :Patiënt voldoet aan de opschoon-criteria\n(of contractbeëindiging);
 if (overgangsperiode voorbij én geen recente Task?) then (ja — fast-track)
-  :interne erase\n(direct, geen aankondiging/grace); <<#fde2e2>>
+  #fde2e2:interne erase\n(direct, geen aankondiging/grace);
   note right: alleen AuditEvent (destroy)
   stop
 else (nee — graceful)
@@ -23,10 +23,10 @@ label start_grace
 |Deelnemende apps|
 :lezen de Task (gewone GET / Subscription),\nstellen zo nodig data veilig;
 if (reactie tijdens de grace period?) then (noodrem)
-  :PUT Task status=on-hold (+ statusReason); <<#fff3cd>>
+  #fff3cd:PUT Task status=on-hold (+ statusReason);
   note right: AuditEvent (hold)
 else (groen licht / geen actie)
-  :PUT Task status=accepted (of geen actie); <<#e2f7e2>>
+  #e2f7e2:PUT Task status=accepted (of geen actie);
 endif
 
 |Koppeltaalvoorziening|
@@ -38,7 +38,7 @@ else (nee)
 endif
 
 if (hernieuwde betrokkenheid tijdens de grace period?) then (ja)
-  :Tasks status=cancelled,\nbewaartermijn herstart; <<#fde2e2>>
+  #fde2e2:Tasks status=cancelled,\nbewaartermijn herstart;
   note right: AuditEvent (reactivate)
   goto start_proces
 else (nee)
@@ -46,7 +46,7 @@ endif
 
 :grace verstreken zonder hold,\nof alle Tasks accepted (vervroegde voltooiing);
 :Tasks status=completed;
-:interne erase\n(server-agnostisch, 404, geen tombstone); <<#fde2e2>>
+#fde2e2:interne erase\n(server-agnostisch, 404, geen tombstone);
 note right
   AuditEvents (incl. destroy)
   overleven de erase
