@@ -233,8 +233,9 @@ jobs:
           PUBLISH_VERSION="${{ needs.build.outputs.version }}"
           # For non-main branches, append the branch name and short commit hash to make version unique
           if [ "${{ github.ref_name }}" != "main" ]; then
-            # Sanitize branch name for npm version (replace / with -, remove special chars)
-            BRANCH_NAME=$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9._-]/-/g')
+            # Sanitize branch name for npm version: semver prerelease identifiers only
+            # allow alphanumerics and hyphens, so underscores etc. must become hyphens
+            BRANCH_NAME=$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9-]/-/g')
             PUBLISH_VERSION="${PUBLISH_VERSION}-${BRANCH_NAME}-${GITHUB_SHA::7}"
           fi
 
@@ -293,8 +294,9 @@ jobs:
           PUBLISH_VERSION="${{ needs.build.outputs.version }}-minimal"
           # For non-main branches, append the branch name and short commit hash to make version unique
           if [ "${{ github.ref_name }}" != "main" ]; then
-            # Sanitize branch name for npm version (replace / with -, remove special chars)
-            BRANCH_NAME=$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9._-]/-/g')
+            # Sanitize branch name for npm version: semver prerelease identifiers only
+            # allow alphanumerics and hyphens, so underscores etc. must become hyphens
+            BRANCH_NAME=$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9-]/-/g')
             PUBLISH_VERSION="${PUBLISH_VERSION}-${BRANCH_NAME}-${GITHUB_SHA::7}"
           fi
 
