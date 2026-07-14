@@ -21,9 +21,19 @@ De gekozen oplossingsrichting is een **standaard FHIR Task-workflow**. De Koppel
 
 ### Scope
 
-In scope van dit topic zijn de cliëntgerelateerde FHIR-resources binnen de client context en de lifecycle daarvan: bewaartermijnen, het betrokkenheidsmodel, de aankondiging aan betrokken applicaties en de onomkeerbare verwijdering op patiëntniveau. Daarnaast worden de bijbehorende rollen en verantwoordelijkheden binnen het Koppeltaal-stelsel vastgelegd.
+In scope van dit topic zijn de cliëntgerelateerde FHIR-resources binnen de client context en de lifecycle daarvan: bewaartermijnen, het betrokkenheidsmodel, de aankondiging aan betrokken applicaties en de onomkeerbare verwijdering op patiëntniveau. Concreet gaat het om de resources die aan één patiënt gebonden zijn:
 
-Buiten scope zijn niet cliënt-specifieke resources en resources die geen onderdeel vormen van de uitwisselingsdata, waaronder `Practitioner`-resources en operationele of configuratieve resources zoals `Subscription`, `Endpoint` en `Device`. Ook de langdurige archivering van medische dossiers binnen het ECD, functionele of organisatorische processen buiten Koppeltaal en technische of infrastructurele implementatiedetails vallen buiten de scope van deze standaard.
+| Resource (profiel) | Binding aan de patiënt | Positie in de opschoning |
+| --- | --- | --- |
+| `KT2_Patient` | het anker zelf | Wordt verwijderd (Patient Compartment) |
+| `KT2_RelatedPerson` | `RelatedPerson.patient` (altijd één patiënt) | Wordt mee-verwijderd |
+| `KT2_CareTeam` | `CareTeam.subject` | Wordt mee-verwijderd |
+| `KT2_Task` | `Task.for` | Wordt mee-verwijderd (valt buiten het Patient Compartment en wordt apart meegenomen, inclusief de delete-pending- en `cancelled`-Tasks — zie [Definitieve verwijdering](#definitieve-verwijdering)) |
+| `KT2_AuditEvent` | pseudonieme referentie op `entity.what` | **Uitgezonderd**: blijft als centraal NEN 7513-record behouden (zie [Uitgangspunten](#uitgangspunten)) |
+
+Daarnaast worden de bijbehorende rollen en verantwoordelijkheden binnen het Koppeltaal-stelsel vastgelegd.
+
+Buiten scope zijn niet cliënt-specifieke resources en resources die geen onderdeel vormen van de uitwisselingsdata: KT2_Practitioner (kan bij meerdere patiënten betrokken zijn) en de operationele of configuratieve resources KT2_Device, KT2_Endpoint, KT2_Subscription, KT2_Organization en KT2_ActivityDefinition. Ook de langdurige archivering van medische dossiers binnen het ECD, functionele of organisatorische processen buiten Koppeltaal en technische of infrastructurele implementatiedetails vallen buiten de scope van deze standaard.
 
 ### Uitgangspunten
 
@@ -162,13 +172,13 @@ De app reageert door **`Task.status` te schrijven** (`PUT` met `If-Match`) op ha
 
 > De PlantUML-bron van het statusdiagram is beschikbaar in `input/images-source/opschoning-patient-data-statusflow.plantuml`.
 
-| `Task.status` | Hoe gezet | Betekenis |
-| --- | --- | --- |
-| `requested` | Koppeltaalvoorziening | Aangekondigd; grace period loopt |
-| `on-hold` | app · status-write | Tijdelijke noodrem (coded `statusReason`); vervalt bij de grace-reset of zodra de app `accepted` zet |
-| `accepted` | app · status-write | Groen licht: data veiliggesteld/akkoord; telt voor vervroegde voltooiing |
-| `cancelled` | Koppeltaalvoorziening | Afgebroken wegens hernieuwde betrokkenheid; **Task blijft behouden** zodat een latere `GET` 'm onderscheidt van een uitgevoerde verwijdering |
-| `completed` | Koppeltaalvoorziening | Verwijderd; de Task wordt **mét de Patiënt** opgeruimd |
+| `Task.status` | Hoe gezet | Betekenis | Belang in het proces |
+| --- | --- | --- | --- |
+| `requested` | Koppeltaalvoorziening | Aangekondigd; grace period loopt | Geeft elke app een gegarandeerd, detecteerbaar aankondigingsmoment (push én pull) en start de grace period — het window om data veilig te stellen. Zonder deze status zou verwijdering onaangekondigd plaatsvinden. |
+| `on-hold` | app · status-write | Tijdelijke noodrem (coded `statusReason`); vervalt bij de grace-reset of zodra de app `accepted` zet | Vangt uitzonderingssituaties op (bijv. een nog lopende export) zónder een zwaar two-phase-commit-mechanisme. De reden is per app zichtbaar op de Task; de grace-reset voorkomt dat één app het proces eeuwig blokkeert. |
+| `accepted` | app · status-write | Groen licht: data veiliggesteld/akkoord; telt voor vervroegde voltooiing | Onderscheidt een expliciet akkoord van stilzwijgen en maakt **vervroegde voltooiing** mogelijk: staan álle Tasks op `accepted`, dan hoeft de grace-deadline niet afgewacht. |
+| `cancelled` | Koppeltaalvoorziening | Afgebroken wegens hernieuwde betrokkenheid; **Task blijft behouden** zodat een latere `GET` 'm onderscheidt van een uitgevoerde verwijdering | Maakt reactivering aantoonbaar en onderscheidbaar van een uitgevoerde verwijdering: een app die later kijkt, weet dat de patiënt nog bestaat en het proces is gestopt. |
+| `completed` | Koppeltaalvoorziening | Verwijderd; de Task wordt **mét de Patiënt** opgeruimd | Markeert de afronding richting de erase. Heeft ná de verwijdering geen zelfstandige informatiewaarde meer en wordt daarom mee-opgeruimd — de `destroy`-AuditEvent is het blijvende bewijs. |
 
 **Server-validatie (normatief).** De Koppeltaalvoorziening **MOET** de overgangen valideren (optimistic concurrency via `If-Match`/ETag): een app mag op haar **eigen** Task (`owner` = haar Device) alleen `status` → `on-hold`/`accepted` zetten (+ `statusReason` bij `on-hold`), en **niet** `owner`/`for`/`requester`/`code`/`restriction.period.end` of de server-owned `kt2-delete-flow`-marker muteren — een `PUT` die de marker dropt wordt geweigerd. Bij het verlaten van `on-hold` (door de app naar `accepted`, of door de server bij de grace-reset) **wist de server `statusReason`**. De hold-reden is per-applicatie en leeft **op de Task**: inzichtelijk zolang er nog geen verwijdering is; ná de erase verdwijnt hij mee. De geaggregeerde `hold`-AuditEvent draagt geen per-app reden. `cancelled`/`completed` zijn **server-only**.
 
