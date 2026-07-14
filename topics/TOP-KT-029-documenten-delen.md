@@ -1,0 +1,293 @@
+# TOP-KT-029 - Documenten delen
+
+| Versie | Datum | Status | Wijzigingen |
+| --- | --- | --- | --- |
+| 0.1.1 | 14 Jul 2026 | Concept | FHIR Binary-optie volledig vervallen: `attachment.url` MAG NIET naar een FHIR Binary resource verwijzen; het document-endpoint is een regulier HTTPS-download-endpoint. Onderbouwing opgenomen onder Overwogen alternatieven. |
+| 0.1.0 | 9 Jul 2026 | Concept | Eerste concept, gebaseerd op de IG-pagina "Documenten delen" (versie 0.1.0). |
+
+> **Let op:** Documenten delen is een optionele uitbreiding van de Koppeltaal standaard. Het gebruik ervan is niet verplicht. Zie [Topic 25](TOP-KT-025-optionele-uitbreiding-van-de-koppeltaal-standaard.md) voor meer informatie over het gebruik van optionele uitbreidingen.
+
+## Beschrijving
+
+De inzet van eHealth en blended care is breed ingebed in de zorg. Digitale interventies leveren waardevolle documenten op — zoals rapportages, ongestructureerde vragenlijst-uitkomsten en voortgangsverslagen — die essentieel zijn voor goede behandelbeslissingen. In de praktijk zijn deze documenten echter vaak opgesloten binnen afzonderlijke applicaties, wat leidt tot informatieversnippering en extra administratieve lasten.
+
+Door documenten delen expliciet te ondersteunen binnen Koppeltaal ontstaat een uniforme en gestandaardiseerde manier om documenten uit interventies veilig en geautoriseerd over te dragen van de bronapplicatie (module) naar de dossierhouder (EPD). Hierbij wordt aangesloten op bestaande MedMij- en Nictiz-standaarden. Koppeltaal fungeert als orkestratie-, transport- en autorisatielaag — **niet** als opslagsysteem.
+
+## User stories
+
+Met deze uitbreiding worden de volgende user stories mogelijk gemaakt:
+
+- Als module-applicatie kan ik een document (bijvoorbeeld een rapportage of voortgangsverslag) dat voortkomt uit een digitale interventie beschikbaar stellen aan de dossierhouder.
+- Als zorgverlener kan ik in de toewijzende applicatie (ECD/EPD) vooraf zien dat een digitale interventie een document oplevert, zodat ik weet dat mijn applicatie dit moet kunnen verwerken.
+- Als dossierhouder (EPD) kan ik nieuwe documenten detecteren, veilig en geautoriseerd ophalen bij de bron, en archiveren in het patiëntdossier.
+- Als bronhouder behoud ik de fysieke controle over het document en kan ik zien wanneer en door wie het is opgehaald.
+
+## FHIR Resources
+
+Deze uitbreiding wordt gerealiseerd door toepassing van het `DocumentReference` resource; de documentinhoud zelf wordt als bestand door de bronapplicatie aangeboden. Het `DocumentReference` resource wordt aanvullend ingezet op de in de basis gedefinieerde resources (zie [Topic 09](TOP-KT-009-overzicht-gebruikte-fhir-resources.md)).
+
+| Profiel / Resource | Omschrijving | Vindplaats |
+| --- | --- | --- |
+| DocumentReference | Metadata over het document (type, datum, auteur, patiënt) en een verwijzing naar de inhoud via `content.attachment.url`. Wordt gepubliceerd in de Koppeltaal FHIR store, conform het Koppeltaal-profiel `KT2_DocumentReference` (zie [Aanpassingen aan het DocumentReference-profiel](#aanpassingen-aan-het-documentreference-profiel)). | [FHIR R4 DocumentReference](https://www.hl7.org/fhir/R4/documentreference.html) |
+| Documentinhoud (bestand) | De feitelijke inhoud van het document. Wordt **niet** in de Koppeltaal FHIR store geplaatst, maar door de bronapplicatie aangeboden via een beveiligd HTTPS-endpoint (het *document-endpoint*), op de URL in `content.attachment.url`. | [FHIR R4 Attachment](https://www.hl7.org/fhir/R4/datatypes.html#Attachment) |
+
+De inhoud wordt uitgewisseld via één variant: **externe referentie**. `attachment.url` ("Uri where the data can be found") verwijst rechtstreeks naar **het bestand zelf** bij de bronapplicatie; een `GET` op die URL levert de ruwe bestandsinhoud, met een `Content-Type` die overeenkomt met `attachment.contentType`. Het document-endpoint is een **regulier HTTPS-download-endpoint, geen FHIR-endpoint**: `attachment.url` MAG NIET naar een FHIR [Binary](https://www.hl7.org/fhir/R4/binary.html) resource verwijzen (zie [Overwogen alternatieven](#overwogen-alternatieven) voor de onderbouwing); de bronapplicatie hoeft geen FHIR-server te zijn. De data blijft daarmee aan de bron; de Koppeltaal FHIR store bevat alleen de metadata in de DocumentReference. Inline base64 (`attachment.data`) wordt binnen Koppeltaal **niet** ondersteund.
+
+De module genereert het document — typisch bij afronding van de interventie, maar desgewenst ook tussentijds.
+
+## Overwegingen
+
+### Uitwisselingspatroon: direct ophalen via de Koppeltaal FHIR store
+
+Voor het overdragen van documenten van de module naar het EPD geldt **direct ophalen via de Koppeltaal FHIR store** als aangewezen route:
+
+1. De module publiceert een DocumentReference in de Koppeltaal FHIR store.
+2. Het EPD detecteert de nieuwe DocumentReference — via polling of een FHIR Subscription (zie [Topic 06](TOP-KT-006-abonneren-op-en-signaleren-van-gebeurtenissen.md)).
+3. Het EPD haalt een `access_token` op bij de Koppeltaal authorization server en doet daarmee een `GET` naar de `attachment.url` bij de bronapplicatie (token als `Authorization: Bearer …`).
+4. De bronapplicatie valideert het token via token introspection bij dezelfde authorization server ([RFC 7662](https://datatracker.ietf.org/doc/html/rfc7662) `/introspect`; zie [Topic 21](TOP-KT-021-token-introspection.md)). Pas na een geldige respons (`active: true` plus passende scopes) wordt het document geleverd.
+
+Autorisatie blijft daarmee centraal bij Koppeltaal — de bronapplicatie hoeft geen eigen vertrouwensmodel te onderhouden. Dit patroon kent de minste orkestratie — er is geen aparte Notification Task — en houdt de **data aan de bron**: de fysieke controle over het bestand blijft bij de bronhouder, terwijl de DocumentReference — en daarmee alle metadata, autorisatie en signalering — in de Koppeltaal FHIR store blijft.
+
+> De PlantUML-bron van het sequencediagram is beschikbaar in `input/images-source/documenten-delen-direct-ophalen.plantuml`.
+
+### Overwogen alternatieven
+
+Twee andere patronen zijn overwogen, maar niet aangewezen als standaardroute; daarnaast is een FHIR Binary-endpoint bij de bron als implementatie van het document-endpoint overwogen en vervallen. Ze worden hier gedocumenteerd zodat de afweging traceerbaar blijft en het onderwerp opnieuw opgepakt kan worden mocht de scope van Koppeltaal veranderen.
+
+#### Notified Pull (niet gekozen)
+
+In dit patroon — gebaseerd op de TA Notified Pull v1.0.1 van Nictiz — neemt de module het initiatief door het EPD actief te notificeren via een Notification Task. De Notification Task bevat verwijzingen naar de op te halen FHIR resources; het EPD haalt op eigen initiatief en tempo de data op bij de bron.
+
+Notified Pull is aantrekkelijk door de aansluiting op de door Nictiz beheerde publieke standaard (netwerkzorg) en omdat het EPD geen polling of eigen Subscription hoeft in te richten. In de huidige Koppeltaal-scope — interventies binnen een al bekend behandelnetwerk waarin het EPD al synchroniseert via de Koppeltaal-store — voegt de Notification Task echter een extra orkestratielaag toe, terwijl detectie via Subscription/polling op de Koppeltaal-store volstaat. Mocht netwerkzorg- of cross-organisatie-uitwisseling later expliciet in scope komen, dan kan Notified Pull alsnog als optionele aanvulling worden gespecificeerd; de twee patronen sluiten elkaar niet uit.
+
+> De PlantUML-bron van het sequencediagram is beschikbaar in `input/images-source/documenten-delen-notified-pull.plantuml`.
+
+#### Binary als losse resource in de Koppeltaal-store (niet gekozen)
+
+In een eerder ontwerp is overwogen om het document niet als bestand bij de bronapplicatie te laten staan, maar als Binary resource — naast de DocumentReference — in de Koppeltaal FHIR store te plaatsen. Argumenten waren onder meer centrale token-validatie, automatische AuditEvents en geen eigen resource-server bij de bronapplicatie. Bij nadere beschouwing wegen zwaarwegende bezwaren hier tegenop:
+
+- **Dataminimalisatie en bronverantwoordelijkheid:** gevoelige gezondheidsdata buiten de bronhouder plaatsen vergroot het aanvalsoppervlak en ondermijnt het principe dat de bronhouder verantwoordelijk blijft voor zijn data tijdens de uitwisseling.
+- **Verlies van het pull-signaal:** bij direct ophalen weet de bronhouder wanneer en door wie het document is opgehaald — een nuttig signaal voor archiveringsstatus, bewaartermijnen en eigen audit. Bij dit alternatief verdwijnt dat signaal.
+
+Dit alternatief blijft denkbaar als uitwijkmogelijkheid voor specifieke gevallen (bijvoorbeeld een bron die geen stabiel publiek endpoint kan aanbieden), maar is geen standaardroute van de Koppeltaal-specificatie.
+
+#### FHIR Binary-endpoint bij de bron (vervallen)
+
+In een eerdere versie was het toegestaan (geen eis) om het document-endpoint te implementeren als FHIR [Binary](https://www.hl7.org/fhir/R4/binary.html)-endpoint bij de bronapplicatie. Deze optie is **volledig vervallen**: `attachment.url` MAG NIET naar een FHIR Binary resource verwijzen. De overwegingen:
+
+- **Dubbel content type.** Zowel `Binary.contentType` als `attachment.contentType` beschrijven het formaat van dezelfde inhoud. Dat is redundant en introduceert een conflictrisico: wat als de attachment een PDF aankondigt en de Binary een Word-document bevat? Zonder Binary is er één bron van waarheid — `attachment.contentType`, bevestigd door de `Content-Type`-header van het document-endpoint.
+- **Een FHIR resource wekt de verwachting van een FHIR API.** Een Binary-URL suggereert dat de bron een FHIR-server is, met bijbehorende semantiek: versiegeschiedenis (`_history`/`vread`), zoekgedrag, een CapabilityStatement en FHIR-foutafhandeling (OperationOutcome). Van moduleleveranciers zou dan aanzienlijk meer verwacht worden dan het aanbieden van een enkele download-URL.
+- **Contentonderhandeling via de `Accept`-header.** Een FHIR Binary-endpoint levert afhankelijk van de `Accept`-header óf de ruwe inhoud óf een FHIR-wrapper (JSON/XML met base64-inhoud); zie [Binary — REST behavior](https://hl7.org/fhir/R4/binary.html#rest). Dit gedrag moet door zowel bron als afnemer correct geïmplementeerd worden en is een bekende bron van interoperabiliteitsproblemen.
+
+Samengenomen maakt dit de Binary-optie onnodig complex voor moduleleveranciers, terwijl een regulier HTTPS-download-endpoint volstaat.
+
+### Onveranderlijk en self-contained
+
+Het bestand waarnaar een DocumentReference verwijst, moet **onveranderlijk** en **self-contained** zijn: de inhoud staat op zichzelf, zonder externe afhankelijkheden, en wijzigt na publicatie niet meer.
+
+Er is **geen verplicht bestandsformaat**. Het kan een PDF/A-rapport zijn, maar net zo goed een geluidsopname, video of ander bestand — zolang het maar onveranderlijk en self-contained is. PDF/A is voor tekstdocumenten een goede keuze (fonts en resources zijn ingesloten en het is geschikt voor duurzame archivering in het EPD), maar het is geen eis.
+
+Uit de onveranderlijkheid volgt een concrete regel: zodra een bestand is gepubliceerd, mag de inhoud op die `attachment.url` niet meer worden gewijzigd. Een eenmaal gepubliceerde versie is definitief. Een EPD dat het bestand heeft opgehaald en gearchiveerd, kan er zo op vertrouwen dat de inhoud achter die URL niet stilzwijgend verandert.
+
+Ontstaat er tijdens de behandeling een **nieuwe versie**, dan:
+
+- publiceert de module het nieuwe bestand op een **nieuwe URL** — het bestaande bestand blijft ongewijzigd;
+- werkt de module de bestaande DocumentReference bij (`PUT` of `PATCH`) zodat `content.attachment.url` naar het nieuwe bestand verwijst;
+- detecteert het EPD de bijgewerkte DocumentReference (polling of Subscription) en haalt de nieuwe versie op.
+
+Versiehistorie wordt **niet expliciet vastgelegd** via aparte resources: de DocumentReference verwijst altijd naar de actuele versie. Eerdere versies blijven beschikbaar via de versiehistorie van de DocumentReference zelf (FHIR-resourceversionering, op te vragen via `_history`/`vread`).
+
+### Aanpassingen aan het DocumentReference-profiel
+
+Koppeltaal definieert een eigen DocumentReference-profiel (`KT2_DocumentReference`) met de volgende aanvullende verplichtingen ten opzichte van het standaard FHIR R4 DocumentReference-resource:
+
+| Element | Regel | Onderbouwing |
+| --- | --- | --- |
+| `subject` | Verplicht (`1..1`), target-profiel Koppeltaal Patient | Zonder `subject` is het document niet routeerbaar naar het juiste dossier. |
+| `context.related` | Verplicht (minimaal `1..*`), met verwijzing naar de `Task` van de interventie | Het document blijft traceerbaar naar de specifieke behandelopdracht; het EPD kan het document in de juiste context plaatsen. Door de Task-referentie verplicht te stellen, gebeurt het delen van een document per definitie altijd binnen de context van een taak — er bestaan geen "losse" documenten zonder taakcontext. Dat sluit aan op het Task-gebaseerde autorisatie- en orkestratiemodel van Koppeltaal. |
+| `date` | Verplicht (`1..1`) | Ankerpunt voor onder andere de bewaartermijn in de Koppeltaal-store en archiveringslogica in het EPD. |
+| `type` | Verplicht (`1..1`) | Ontvangers moeten direct kunnen zien wat voor soort document binnenkomt — rapportage, ongestructureerde vragenlijst-uitkomst, voortgangsverslag — zonder het bestand te hoeven openen. De binding/ValueSet wordt nog uitgewerkt (zie [Open punten](#open-punten)). |
+| `category` | Optioneel (`0..*`) | Leveranciers MOGEN categorieën meegeven (bijvoorbeeld om type-codes op een hoger niveau te groeperen), maar het is geen eis. |
+
+Deze regels worden vastgelegd in het `KT2_DocumentReference`-profiel (FSH), met bijbehorende validatie via de IG-publisher. Niet-conformante resources worden op deze regels afgewezen.
+
+### Autorisatie
+
+> **Let op — huidig versus toekomstig model.** In het **huidige** Koppeltaal-autorisatiemodel worden **applicaties** geautoriseerd, niet individuele personen (zie [Topic 05](TOP-KT-005-toegangsbeheersing.md)). Toegang tot een DocumentReference loopt daarmee via de applicatie-autorisatiematrix en is op dit moment **niet** gebonden aan de behandelrelatie. De binding aan de behandelrelatie hieronder beschrijft het **toekomstige** model; die wordt pas werkelijkheid zodra de persoonsgebonden autorisatie is geïmplementeerd.
+
+In het toekomstige model is toegang tot documenten gebonden aan de behandelrelatie:
+
+- **Zorgverleners:** alleen zorgverleners met een geldige behandelrelatie — vastgelegd in het CareTeam (zie [Topic 27](TOP-KT-027-zorgteams.md)) — krijgen toegang tot documenten.
+- **RelatedPerson:** personen betrokken bij de behandeling (ouders, mantelzorgers, wettelijk vertegenwoordigers; zie [Topic 26](TOP-KT-026-uitbreiding-rol-van-de-naaste.md)) kunnen beperkte, doelgebonden en tijdgebonden inzage krijgen in documenten. Toegang vervalt automatisch bij het eindigen van de relatie, het intrekken van toestemming of het afsluiten van de behandeling.
+- **Logging:** alle inzage en overdracht van documenten wordt gelogd en is auditeerbaar.
+
+Het Koppeltaal-scope-model is gebaseerd op SMART on FHIR v2 scopes met query-parameters (zie [Topic 16](TOP-KT-016-smart-on-fhir-conformiteit.md)). Het patroon `system/Resource.[crud]?param=value` — al toegepast voor `resource-origin` — maakt het mogelijk om in een toekomstige iteratie filtering op bijvoorbeeld `DocumentReference.type` te ondersteunen. De concrete scope-syntax voor DocumentReference wordt vastgelegd in de Koppeltaal-autorisatiematrix (zie [Open punten](#open-punten)).
+
+### Token-validatie en data-owner-verificatie
+
+Wanneer het EPD een externe `attachment.url` aanroept, ontvangt de bronapplicatie een `GET`-request met een Koppeltaal-uitgegeven access_token. De bronapplicatie introspecteert het token bij de Koppeltaal authorization server (zie [Topic 21](TOP-KT-021-token-introspection.md)) en krijgt een set scopes terug. **De regel is:** de scope die het EPD nodig heeft om de DocumentReference te lezen geldt ook als toestemming om het bijbehorende bestand op te halen. Dezelfde permissie dekt zowel metadata als inhoud.
+
+**Data-owner verification** — een succesvolle introspect (`active: true` plus passende scopes) is een **noodzakelijke maar geen voldoende voorwaarde** voor levering. De bronapplicatie MAY na een geldige introspect alsnog toegang weigeren of intrekken op basis van eigen beleid (bijvoorbeeld ingetrokken patiënt-toestemming, bron-specifieke regels, vermoeden van misbruik). In dat geval reageert de bron met `403 Forbidden` en logt de afwijzing zelf.
+
+Twee alternatieven zijn overwogen en niet gekozen:
+
+- **Een nieuwe, expliciete scope voor de documentinhoud** (bijvoorbeeld `documenten/content.read`): zou toegang tot de inhoud loskoppelen van DocumentReference-toegang. **Verworpen omdat het een onduidelijke status institutionaliseert (wel toegang tot de reference, niet tot de data) zonder een gebruiksscenario dat dat onderscheid nodig maakt.**
+- **Uitbreiding van het introspect-endpoint met een scope-parameter** (de bron vraagt aan Koppeltaal "mag deze client dit bestand ophalen?"): valt af. [RFC 7662](https://datatracker.ietf.org/doc/html/rfc7662) definieert `/introspect` strikt als token-introspectie en kent geen request-parameters voor een per-resource autorisatiebeslissing. Een policy-decision-point hoort, indien ooit nodig, in een aparte voorziening (UMA-/PDP-pattern), niet in `/introspect`.
+
+### Bewaartermijn DocumentReference
+
+De DocumentReference wordt in principe **beperkt bewaard** in de Koppeltaal FHIR store. De standaardtermijn is **30 dagen** vanaf publicatie. Deze termijn weerspiegelt de rol van Koppeltaal als orkestratie- en transportlaag, niet als langetermijn-archief: zodra het document is opgehaald en gearchiveerd in het EPD-dossier, is de DocumentReference in de Koppeltaal-store overbodig. Een korte termijn beperkt het aanvalsoppervlak, voorkomt dat de Koppeltaal-store de facto een tweede dossierstore wordt, en sluit aan op het principe dat de bronhouder verantwoordelijk blijft voor de inhoud.
+
+**Wie voert de opschoning uit?** De **bronapplicatie (module)** die de DocumentReference heeft gepubliceerd: zij is onder het Koppeltaal `resource-origin`-model de eigenaar van de resource en heeft daarmee het recht en de plicht om de eigen DocumentReference na de bewaartermijn te verwijderen. Het reguliere opschoningsproces voor Patient-data van Koppeltaal — dat op patiëntniveau werkt en pas na de veel langere Patient-bewaartermijn ingrijpt — fungeert hierbij slechts als **vangnet**: wordt de hele patiënt verwijderd, dan verdwijnt de DocumentReference mee in de `$purge`-cascade.
+
+Consequenties:
+
+- **Het EPD** moet de DocumentReference binnen de bewaartermijn detecteren (polling of Subscription) en de inhoud ophalen en archiveren. Documenten die na 30 dagen nog niet zijn opgehaald, worden niet langer aangeboden via de Koppeltaal-store.
+- **De bronapplicatie** behoudt het brondocument in haar eigen omgeving, onafhankelijk van de Koppeltaal-bewaartermijn. **De levenscyclus van het brondocument volgt het beleid van de bronhouder.**
+- **Afwijken van de standaard** (langer of korter dan 30 dagen) is in specifieke gebruiksscenario's mogelijk, maar moet expliciet worden vastgelegd in het leveranciersprofiel of een aanvullende afspraak. Of, en op welk niveau, individuele afwijkingen mogelijk worden gemaakt is nog uit te werken (zie [Open punten](#open-punten)).
+
+## Toepassing en restricties
+
+### Workflow
+
+Documenten delen sluit aan op de bestaande Koppeltaal Task lifecycle (zie [Topic 13](TOP-KT-013-levenscyclus-van-een-fhir-resource.md)), maar begint al vóór de toewijzing — bij de publicatie van de `ActivityDefinition` en het herkennen van de uitbreidingscode door het initiërende platform:
+
+| Stap | Beschrijving |
+| --- | --- |
+| 1. Publiceren `ActivityDefinition` | De module-applicatie publiceert een `ActivityDefinition` met de documenten-delen-uitbreiding in de `useContext` (zie [Aankondiging via de ActivityDefinition](#aankondiging-via-de-activitydefinition)). |
+| 2. Inzien en selecteren | De toewijzende applicatie (ECD/EPD) leest de `ActivityDefinition`, herkent aan de `useContext` dat deze interventie een document oplevert, en stelt vast dat zij de te verwachten `DocumentReference` kan verwerken — kan zij dat niet, dan biedt zij de interventie niet aan. |
+| 3. Toewijzen | De behandelaar wijst de interventie toe aan de patiënt; een `Task` wordt aangemaakt. |
+| 4. Uitvoeren | De patiënt voert de interventie uit via de module. |
+| 5. Genereren document | De module genereert een document (bijvoorbeeld een PDF/A) — bij afronding van de interventie of tussentijds. |
+| 6. Publiceren `DocumentReference` | De module publiceert een DocumentReference in de Koppeltaal FHIR store, gekoppeld aan de `Patient` en de `Task`. |
+| 7. Ophalen en archiveren | Het EPD detecteert de DocumentReference, haalt het document op bij de bron en archiveert het in het patiëntdossier. |
+
+De DocumentReference wordt gekoppeld aan zowel de Patient als de Task, zodat het document traceerbaar is naar de specifieke interventie.
+
+**Een afgeronde Task is geen voorwaarde.** Een document mag op elk moment in de Task-lifecycle worden gepubliceerd; de Task hoeft hiervoor **niet** de status `completed` te hebben. Zo kunnen ook tussentijdse rapportages worden gedeeld terwijl de interventie nog loopt.
+
+### Aankondiging via de ActivityDefinition
+
+Of een digitale interventie een document oplevert, is voor de toewijzende applicatie niet vanzelfsprekend. Conform het mechanisme van [Topic 25](TOP-KT-025-optionele-uitbreiding-van-de-koppeltaal-standaard.md) kondigt een module-applicatie dit vooraf aan in de `useContext` van de `ActivityDefinition`, met een uitbreidingscode uit het `KoppeltaalExpansion`-codesysteem (hetzelfde patroon als [Topic 26 — Rol van de naaste](TOP-KT-026-uitbreiding-rol-van-de-naaste.md)).
+
+Het voorstel is om hiervoor een nieuwe code op te nemen in het `KoppeltaalExpansion`-codesysteem (`http://vzvz.nl/fhir/CodeSystem/koppeltaal-expansion`):
+
+```text
+029-DocumentenDelen — "Documenten Delen"
+Met de "Documenten Delen" uitbreiding kunnen applicaties op basis van Taken
+voor de patiënt een document door middel van een DocumentReference delen met
+andere applicaties in het domein.
+```
+
+Een module die documenten oplevert, neemt deze code dan als volgt op in de `useContext` van haar `ActivityDefinition` (illustratief; de code is nog niet vastgelegd):
+
+```json
+"useContext": [
+  {
+    "code": {
+      "system": "http://vzvz.nl/fhir/CodeSystem/koppeltaal-usage-context-type",
+      "code": "koppeltaal-expansion"
+    },
+    "valueCodeableConcept": {
+      "coding": [
+        {
+          "system": "http://vzvz.nl/fhir/CodeSystem/koppeltaal-expansion",
+          "code": "029-DocumentenDelen",
+          "display": "Documenten Delen"
+        }
+      ]
+    }
+  }
+]
+```
+
+De toewijzende applicatie leest deze `useContext` bij het inzien en selecteren van interventies. Daarmee weet zij **vooraf** dat:
+
+- er op basis van de aangemaakte `Task` een `DocumentReference` in de Koppeltaal FHIR store gepubliceerd zal worden;
+- zij in staat moet zijn dit document te verwerken: detecteren (polling of Subscription), ophalen via de externe referentie en archiveren in het dossier.
+
+Een applicatie die documenten delen niet ondersteunt, kan op basis van de `useContext` besluiten de interventie niet aan te bieden of toe te wijzen — net als bij andere optionele uitbreidingen. Zo wordt voorkomen dat een interventie wordt toegewezen waarvan het opgeleverde document vervolgens niet verwerkt kan worden.
+
+Conform het MVP-model van Topic 25 zijn er geen technische controles in het Koppeltaal-stelsel die afdwingen dat de toewijzende applicatie documenten kan verwerken; dit wordt geborgd via acceptatie per uitbreiding en afspraken op zorgaanbieder-domeinniveau.
+
+### Beveiligingseisen voor het document-endpoint van de bron
+
+Om fragmentatie en ongelijke beveiligingsniveaus te voorkomen publiceert Koppeltaal een set eisen voor het document-endpoint dat een bronapplicatie aanbiedt. De eisen worden gesplitst in harde eisen (verplicht; conformance-criterium) en zachte aanbevelingen (best practice; sterk aangeraden maar niet afdwingbaar).
+
+De generieke Koppeltaal-beveiligingseisen uit TOP-KT-008 — Beveiliging aspecten (onder andere: HTTPS-only, JWT-handtekening met asymmetrische algoritmes, security headers zoals `Cache-Control: no-store`, `Strict-Transport-Security`, `X-Content-Type-Options: nosniff` en expliciete `Content-Type`, restrictieve CORS, input-validatie) gelden onverkort ook voor het document-endpoint. De eisen hieronder zijn **aanvullend** en specifiek voor het document-endpoint van de bronapplicatie.
+
+**Hard — verplicht:**
+
+- **TLS-only** (minimaal TLS 1.2, geen klare HTTP)
+- **Verplichte token-validatie** (zie [Token-validatie en data-owner-verificatie](#token-validatie-en-data-owner-verificatie)), inclusief afwijzing van requests zonder geldig access_token
+
+**Zacht — aanbevolen:**
+
+- Niet-raadbare paden voor documenten (bijvoorbeeld UUID's of cryptografisch random identifiers; geen incrementele IDs)
+- Rate-limiting en standaard hardening (security headers, beperkte error-detail bij 401/403)
+
+### Audit-logging bij de bron
+
+Het ophalen van het bestand loopt niet via Koppeltaal; de **bronapplicatie is verantwoordelijk voor de audit-registratie** van wie/wanneer/welk document. Detail-eisen, AuditEvent-structuur en eventuele uitwisseling met een centrale Koppeltaal-AuditEvent-store worden behandeld in TOP-KT-011 — Logging en tracing en de bijbehorende implementatie-feedback.
+
+## DDL - Eisen (en aanbevelingen) voor documenten delen
+
+> **Let op:** deze eisen volgen de status van dit topic (Concept) en worden definitief vastgesteld samen met het `KT2_DocumentReference`-profiel.
+
+Eisen 1 t/m 8 betreffen het publiceren van documenten, eisen 9 t/m 15 het document-endpoint van de bron, eisen 16 t/m 19 het verwerken door de dossierhouder en eisen 20 t/m 21 de bewaartermijn.
+
+| # | Eis | Module (bron) | ECD/EPD (dossierhouder) |
+| --- | --- | --- | --- |
+| 1 | Een module die documenten oplevert MOET de uitbreidingscode voor documenten delen opnemen in de `useContext` van haar `ActivityDefinition`. | X |  |
+| 2 | Een applicatie MAG de uitbreidingscode voor documenten delen enkel gebruiken wanneer zij is geaccepteerd voor deze uitbreiding (conform het MVP-model van [Topic 25](TOP-KT-025-optionele-uitbreiding-van-de-koppeltaal-standaard.md)). | X | X |
+| 3 | Een gepubliceerde `DocumentReference` MOET voldoen aan het `KT2_DocumentReference`-profiel: `subject` (`1..1`, Koppeltaal Patient), `context.related` (`1..*`, met verwijzing naar de `Task` van de interventie), `date` (`1..1`) en `type` (`1..1`). | X |  |
+| 4 | De documentinhoud MOET via externe referentie (`content.attachment.url`) worden aangeboden; inline base64 (`attachment.data`) MAG NIET worden gebruikt. | X |  |
+| 5 | Het bestand waarnaar een `DocumentReference` verwijst MOET onveranderlijk en self-contained zijn: de inhoud op een gepubliceerde `attachment.url` MAG NIET meer wijzigen. | X |  |
+| 6 | Een nieuwe versie van een document MOET op een nieuwe URL worden gepubliceerd; de module MOET de bestaande `DocumentReference` bijwerken (`PUT` of `PATCH`) zodat `content.attachment.url` naar de nieuwe versie verwijst. | X |  |
+| 7 | Een document MAG op elk moment in de Task-lifecycle worden gepubliceerd; een `Task` met status `completed` is geen voorwaarde. | X |  |
+| 8 | Er is geen verplicht bestandsformaat; het bestand MOET wel onveranderlijk en self-contained zijn. Voor tekstdocumenten wordt PDF/A AANBEVOLEN. | X |  |
+| 9 | Het document-endpoint MOET uitsluitend via TLS (minimaal TLS 1.2) bereikbaar zijn; onversleuteld HTTP MAG NIET worden aangeboden. | X |  |
+| 10 | Een `GET` op `attachment.url` MOET de ruwe bestandsinhoud leveren met een `Content-Type` die overeenkomt met `attachment.contentType`. Het document-endpoint is een regulier HTTPS-download-endpoint, geen FHIR-endpoint: `attachment.url` MAG NIET naar een FHIR Binary resource verwijzen. | X |  |
+| 11 | Het document-endpoint MOET elk request zonder geldig access_token afwijzen. Token-validatie MOET plaatsvinden via token introspection bij de Koppeltaal authorization server ([RFC 7662](https://datatracker.ietf.org/doc/html/rfc7662); zie [Topic 21](TOP-KT-021-token-introspection.md)); het document MAG pas worden geleverd na een geldige respons (`active: true` plus passende scopes). | X |  |
+| 12 | De bronapplicatie MAG na een geldige introspect alsnog toegang weigeren op basis van eigen beleid (data-owner verification). In dat geval MOET zij reageren met `403 Forbidden` en MOET zij de afwijzing zelf loggen. | X |  |
+| 13 | De bronapplicatie MOET het ophalen van documenten auditeerbaar registreren (wie, wanneer, welk document). | X |  |
+| 14 | Het GEBRUIK van niet-raadbare paden voor documenten (UUID's of cryptografisch random identifiers; geen incrementele IDs) wordt AANBEVOLEN. | X |  |
+| 15 | Rate-limiting en standaard hardening van het document-endpoint (security headers, beperkte error-detail bij 401/403) worden AANBEVOLEN. | X |  |
+| 16 | De toewijzende applicatie MOET de `useContext` van de `ActivityDefinition` lezen en MAG een interventie met de documenten-delen-uitbreiding alleen aanbieden of toewijzen wanneer zij de resulterende `DocumentReference` kan verwerken. |  | X |
+| 17 | De dossierhouder MOET nieuwe en bijgewerkte `DocumentReference`-resources detecteren via polling of een FHIR Subscription op de Koppeltaal-store. |  | X |
+| 18 | De dossierhouder MOET bij het ophalen van de documentinhoud een geldig Koppeltaal access_token meesturen (`Authorization: Bearer …`). |  | X |
+| 19 | De dossierhouder MOET het document binnen de bewaartermijn ophalen en archiveren in het patiëntdossier. |  | X |
+| 20 | De bronapplicatie MOET de eigen `DocumentReference` na de bewaartermijn (standaard 30 dagen na publicatie) verwijderen uit de Koppeltaal FHIR store. | X |  |
+| 21 | Afwijken van de standaard-bewaartermijn MOET expliciet worden vastgelegd in het leveranciersprofiel of een aanvullende afspraak. | X | X |
+
+## Open punten
+
+De volgende punten zijn nog uit te werken in samenwerking met leveranciers:
+
+| Open punt | Toelichting |
+| --- | --- |
+| ValueSet/binding voor `DocumentReference.type` | Welke codes mogen leveranciers gebruiken voor `type`? Opties: LOINC ([valueset-c80-doc-typecodes](https://www.hl7.org/fhir/R4/valueset-c80-doc-typecodes.html), de FHIR R4-default), een Koppeltaal-specifieke ValueSet voor ongestructureerde behandeluitkomsten, of een gelaagde aanpak (LOINC als basis met aanvullende Koppeltaal-codes). Op te nemen in het toekomstige `KT2_DocumentReference`-profiel. |
+| Concrete scope-syntax voor DocumentReference in de autorisatiematrix | Het SMART v2 scopes-met-query-patroon (`system/DocumentReference.read?type=…`) moet worden uitgewerkt: welke parameters worden ondersteund, welke combinaties, en hoe verhouden filter-scopes zich tot de generieke `DocumentReference.read`. |
+| Uitbreidingscode voor documenten delen | De definitieve codewaarde en het label in het `KoppeltaalExpansion`-codesysteem, naar analogie van `026-RolvdNaaste`; en of documenten delen één enkele uitbreiding vormt of verder verfijnd wordt (bijvoorbeeld onderscheid tussen verplicht en optioneel opleveren van een document). |
+| Slice op `context.related` | Of een slice nodig is om de Task-referentie expliciet aan te wijzen (versus andere related resources). |
+| Afwijkende bewaartermijnen | Of, en op welk niveau (leveranciersprofiel, domeinafspraak), individuele afwijkingen van de standaard-bewaartermijn van 30 dagen mogelijk worden gemaakt. |
+
+## Status
+
+Deze pagina beschrijft de oplossingsrichting op hoog niveau. De exacte invulling van profielen, uitwisselingspatronen en autorisatieregels wordt in samenwerking met leveranciers bepaald. Aanvullende inhoudelijke uitwerking volgt uit door de Technical Community aangeleverde documentatie (TC, juni 2026).
+
+## Links naar gerelateerde onderwerpen
+
+| Topic | Beschrijving van relatie met dit onderwerp |
+| --- | --- |
+| [TOP-KT-005 - Toegangsbeheersing](TOP-KT-005-toegangsbeheersing.md) | Toegang tot de DocumentReference loopt in het huidige model via de applicatie-autorisatiematrix. |
+| [TOP-KT-006 - Abonneren op en signaleren van gebeurtenissen](TOP-KT-006-abonneren-op-en-signaleren-van-gebeurtenissen.md) | Het EPD detecteert nieuwe of bijgewerkte DocumentReferences via polling of een FHIR Subscription. |
+| TOP-KT-008 - Beveiliging aspecten | De generieke beveiligingseisen gelden onverkort voor het document-endpoint van de bronapplicatie; dit topic voegt endpoint-specifieke eisen toe. |
+| [TOP-KT-009 - Overzicht gebruikte FHIR Resources](TOP-KT-009-overzicht-gebruikte-fhir-resources.md) | DocumentReference wordt toegevoegd aan het overzicht van gebruikte resources; de documentinhoud zelf blijft als bestand bij de bron. |
+| TOP-KT-011 - Logging en tracing | Audit-registratie van inzage en overdracht van documenten; de bron logt het ophalen van bestanden zelf. |
+| [TOP-KT-013 - Levenscyclus van een FHIR Resource](TOP-KT-013-levenscyclus-van-een-fhir-resource.md) | De DocumentReference volgt de algemene resource-levenscyclus; versionering van documenten verloopt via updates van de DocumentReference (`_history`/`vread`). |
+| [TOP-KT-016 - SMART on FHIR Conformiteit](TOP-KT-016-smart-on-fhir-conformiteit.md) | Het scope-model (SMART on FHIR v2, scopes-met-query) bepaalt de toegang tot DocumentReference en daarmee tot de documentinhoud. |
+| [TOP-KT-021 - Token Introspection](TOP-KT-021-token-introspection.md) | De bronapplicatie valideert het access_token van het EPD via token introspection bij de Koppeltaal authorization server. |
+| [TOP-KT-025 - Optionele uitbreiding van de Koppeltaal standaard](TOP-KT-025-optionele-uitbreiding-van-de-koppeltaal-standaard.md) | Documenten delen is een optionele uitbreiding volgens het mechanisme van Topic 25 (aankondiging via `useContext` op de `ActivityDefinition`). |
+| [TOP-KT-026 - Uitbreiding: Rol van de naaste](TOP-KT-026-uitbreiding-rol-van-de-naaste.md) | Zelfde uitbreidingspatroon (`KoppeltaalExpansion`-code in de `useContext`); in het toekomstige autorisatiemodel kunnen RelatedPersons doelgebonden inzage krijgen in documenten. |
+| [TOP-KT-027 - Zorgteams](TOP-KT-027-zorgteams.md) | In het toekomstige autorisatiemodel is toegang tot documenten gebonden aan de behandelrelatie, vastgelegd in het CareTeam. |
