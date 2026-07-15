@@ -2,6 +2,11 @@
 
 Deze pagina bevat een overzicht van de wijzigingen per versie van de Koppeltaal 2.0 Implementation Guide.
 
+### 0.16.4 (2026-07-09)
+
+#### Toegevoegd
+- **AuditEvent voorbeelden**: vijf voorbeelden van de Topic 11 authenticatie-events toegevoegd — `introspect`, `authorize`, `idp call` en `idp login` (subtype `DCM#110122`, onderscheiden via de `outcomeDesc`-prefix) en Application User Authentication (subtype `DCM#110126`) — plus een Device-voorbeeld voor de externe IdP.
+
 ### 0.16.3 (2026-06-25)
 
 #### Hersteld
