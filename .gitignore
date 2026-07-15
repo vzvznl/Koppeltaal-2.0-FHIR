@@ -18,6 +18,9 @@
 # FHIR IG Publisher cache
 /input-cache/
 
+# Local diagram-render cache (scripts/render-diagrams.py)
+/.cache/
+
 # Package files
 *.tgz
 /packages/
