@@ -2,6 +2,8 @@
 
 | Versie | Datum | Status | Wijzigingen |
 | --- | --- | --- | --- |
+| 0.1.3 | 20 Jul 2026 | Concept | `content.attachment.hash` toegevoegd als optioneel veld (`0..1`): SHA-1-hash (base64) van de bestandsinhoud, waarmee de dossierhouder de integriteit van het opgehaalde bestand kan controleren. |
+| 0.1.2 | 20 Jul 2026 | Concept | Task-koppeling via `context.related` afgezwakt van verplicht (`1..*`) naar optioneel (`0..*`): koppeling aan ten minste één Task is wenselijk, maar niet op voorhand verplicht en wordt evenmin uitgesloten. |
 | 0.1.1 | 14 Jul 2026 | Concept | FHIR Binary-optie volledig vervallen: `attachment.url` MAG NIET naar een FHIR Binary resource verwijzen; het document-endpoint is een regulier HTTPS-download-endpoint. Onderbouwing opgenomen onder Overwogen alternatieven. |
 | 0.1.0 | 9 Jul 2026 | Concept | Eerste concept, gebaseerd op de IG-pagina "Documenten delen" (versie 0.1.0). |
 
@@ -92,7 +94,7 @@ Uit de onveranderlijkheid volgt een concrete regel: zodra een bestand is gepubli
 Ontstaat er tijdens de behandeling een **nieuwe versie**, dan:
 
 - publiceert de module het nieuwe bestand op een **nieuwe URL** — het bestaande bestand blijft ongewijzigd;
-- werkt de module de bestaande DocumentReference bij (`PUT` of `PATCH`) zodat `content.attachment.url` naar het nieuwe bestand verwijst;
+- werkt de module de bestaande DocumentReference bij (`PUT` of `PATCH`) zodat `content.attachment.url` naar het nieuwe bestand verwijst — inclusief een bijgewerkte `attachment.hash`, indien die wordt meegegeven;
 - detecteert het EPD de bijgewerkte DocumentReference (polling of Subscription) en haalt de nieuwe versie op.
 
 Versiehistorie wordt **niet expliciet vastgelegd** via aparte resources: de DocumentReference verwijst altijd naar de actuele versie. Eerdere versies blijven beschikbaar via de versiehistorie van de DocumentReference zelf (FHIR-resourceversionering, op te vragen via `_history`/`vread`).
@@ -104,10 +106,11 @@ Koppeltaal definieert een eigen DocumentReference-profiel (`KT2_DocumentReferenc
 | Element | Regel | Onderbouwing |
 | --- | --- | --- |
 | `subject` | Verplicht (`1..1`), target-profiel Koppeltaal Patient | Zonder `subject` is het document niet routeerbaar naar het juiste dossier. |
-| `context.related` | Verplicht (minimaal `1..*`), met verwijzing naar de `Task` van de interventie | Het document blijft traceerbaar naar de specifieke behandelopdracht; het EPD kan het document in de juiste context plaatsen. Door de Task-referentie verplicht te stellen, gebeurt het delen van een document per definitie altijd binnen de context van een taak — er bestaan geen "losse" documenten zonder taakcontext. Dat sluit aan op het Task-gebaseerde autorisatie- en orkestratiemodel van Koppeltaal. |
+| `context.related` | Optioneel (`0..*`), met verwijzing naar de `Task` van de interventie | Het is wenselijk de DocumentReference aan ten minste één Task te koppelen: het document blijft dan traceerbaar naar de specifieke behandelopdracht en het EPD kan het in de juiste context plaatsen. De Task-koppeling is echter niet op voorhand verplicht en wordt evenmin uitgesloten — er kunnen ook documenten worden gedeeld zonder (directe) taakcontext. |
 | `date` | Verplicht (`1..1`) | Ankerpunt voor onder andere de bewaartermijn in de Koppeltaal-store en archiveringslogica in het EPD. |
 | `type` | Verplicht (`1..1`) | Ontvangers moeten direct kunnen zien wat voor soort document binnenkomt — rapportage, ongestructureerde vragenlijst-uitkomst, voortgangsverslag — zonder het bestand te hoeven openen. De binding/ValueSet wordt nog uitgewerkt (zie [Open punten](#open-punten)). |
 | `category` | Optioneel (`0..*`) | Leveranciers MOGEN categorieën meegeven (bijvoorbeeld om type-codes op een hoger niveau te groeperen), maar het is geen eis. |
+| `content.attachment.hash` | Optioneel (`0..1`) | SHA-1-hash (base64) van de bestandsinhoud, conform de definitie van [`Attachment.hash`](https://www.hl7.org/fhir/R4/datatypes-definitions.html#Attachment.hash). Hiermee kan de dossierhouder na het ophalen controleren of de inhoud overeenkomt met wat de DocumentReference aankondigt — een extra waarborg bovenop de onveranderlijkheidseis. Bij een nieuwe versie werkt de module ook de hash bij. |
 
 Deze regels worden vastgelegd in het `KT2_DocumentReference`-profiel (FSH), met bijbehorende validatie via de IG-publisher. Niet-conformante resources worden op deze regels afgewezen.
 
@@ -159,10 +162,10 @@ Documenten delen sluit aan op de bestaande Koppeltaal Task lifecycle (zie [Topic
 | 3. Toewijzen | De behandelaar wijst de interventie toe aan de patiënt; een `Task` wordt aangemaakt. |
 | 4. Uitvoeren | De patiënt voert de interventie uit via de module. |
 | 5. Genereren document | De module genereert een document (bijvoorbeeld een PDF/A) — bij afronding van de interventie of tussentijds. |
-| 6. Publiceren `DocumentReference` | De module publiceert een DocumentReference in de Koppeltaal FHIR store, gekoppeld aan de `Patient` en de `Task`. |
+| 6. Publiceren `DocumentReference` | De module publiceert een DocumentReference in de Koppeltaal FHIR store, gekoppeld aan de `Patient` en bij voorkeur aan de `Task`. |
 | 7. Ophalen en archiveren | Het EPD detecteert de DocumentReference, haalt het document op bij de bron en archiveert het in het patiëntdossier. |
 
-De DocumentReference wordt gekoppeld aan zowel de Patient als de Task, zodat het document traceerbaar is naar de specifieke interventie.
+De DocumentReference wordt gekoppeld aan de Patient en bij voorkeur ook aan de Task, zodat het document traceerbaar is naar de specifieke interventie. De Task-koppeling is wenselijk, maar niet verplicht (zie [Aanpassingen aan het DocumentReference-profiel](#aanpassingen-aan-het-documentreference-profiel)).
 
 **Een afgeronde Task is geen voorwaarde.** Een document mag op elk moment in de Task-lifecycle worden gepubliceerd; de Task hoeft hiervoor **niet** de status `completed` te hebben. Zo kunnen ook tussentijdse rapportages worden gedeeld terwijl de interventie nog loopt.
 
@@ -240,8 +243,8 @@ Eisen 1 t/m 8 betreffen het publiceren van documenten, eisen 9 t/m 15 het docume
 | --- | --- | --- | --- |
 | 1 | Een module die documenten oplevert MOET de uitbreidingscode voor documenten delen opnemen in de `useContext` van haar `ActivityDefinition`. | X |  |
 | 2 | Een applicatie MAG de uitbreidingscode voor documenten delen enkel gebruiken wanneer zij is geaccepteerd voor deze uitbreiding (conform het MVP-model van [Topic 25](TOP-KT-025-optionele-uitbreiding-van-de-koppeltaal-standaard.md)). | X | X |
-| 3 | Een gepubliceerde `DocumentReference` MOET voldoen aan het `KT2_DocumentReference`-profiel: `subject` (`1..1`, Koppeltaal Patient), `context.related` (`1..*`, met verwijzing naar de `Task` van de interventie), `date` (`1..1`) en `type` (`1..1`). | X |  |
-| 4 | De documentinhoud MOET via externe referentie (`content.attachment.url`) worden aangeboden; inline base64 (`attachment.data`) MAG NIET worden gebruikt. | X |  |
+| 3 | Een gepubliceerde `DocumentReference` MOET voldoen aan het `KT2_DocumentReference`-profiel: `subject` (`1..1`, Koppeltaal Patient), `date` (`1..1`) en `type` (`1..1`). Het koppelen aan de `Task` van de interventie via `context.related` (`0..*`) wordt AANBEVOLEN, maar is niet verplicht. | X |  |
+| 4 | De documentinhoud MOET via externe referentie (`content.attachment.url`) worden aangeboden; inline base64 (`attachment.data`) MAG NIET worden gebruikt. De module MAG via `content.attachment.hash` (`0..1`) een SHA-1-hash (base64) van de bestandsinhoud meegeven, zodat de dossierhouder de integriteit van het opgehaalde bestand kan controleren. | X |  |
 | 5 | Het bestand waarnaar een `DocumentReference` verwijst MOET onveranderlijk en self-contained zijn: de inhoud op een gepubliceerde `attachment.url` MAG NIET meer wijzigen. | X |  |
 | 6 | Een nieuwe versie van een document MOET op een nieuwe URL worden gepubliceerd; de module MOET de bestaande `DocumentReference` bijwerken (`PUT` of `PATCH`) zodat `content.attachment.url` naar de nieuwe versie verwijst. | X |  |
 | 7 | Een document MAG op elk moment in de Task-lifecycle worden gepubliceerd; een `Task` met status `completed` is geen voorwaarde. | X |  |
@@ -271,6 +274,7 @@ De volgende punten zijn nog uit te werken in samenwerking met leveranciers:
 | Uitbreidingscode voor documenten delen | De definitieve codewaarde en het label in het `KoppeltaalExpansion`-codesysteem, naar analogie van `026-RolvdNaaste`; en of documenten delen één enkele uitbreiding vormt of verder verfijnd wordt (bijvoorbeeld onderscheid tussen verplicht en optioneel opleveren van een document). |
 | Slice op `context.related` | Of een slice nodig is om de Task-referentie expliciet aan te wijzen (versus andere related resources). |
 | Afwijkende bewaartermijnen | Of, en op welk niveau (leveranciersprofiel, domeinafspraak), individuele afwijkingen van de standaard-bewaartermijn van 30 dagen mogelijk worden gemaakt. |
+| [Topic 13](TOP-KT-013-levenscyclus-van-een-fhir-resource.md) uitbreiden | De lifecycle status van de DocumentReference resource moet beschreven worden. |
 
 ## Status
 
