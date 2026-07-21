@@ -2,6 +2,7 @@
 
 | Versie | Datum | Wijziging |
 | --- | --- | --- |
+| 0.2.0 | 2026-07-21 | **Levenscyclus- en versioneringsmodel.** De 30 dagen is voortaan een *beschikbaarheidstermijn van de inhoud*, geen bewaartermijn van de resource: na afloop verwijdert de bron alleen `attachment.url` (leegmaak-update); de DocumentReference blijft als metadata-anker bestaan en volgt de reguliere patiënt-levenscyclus. Versiestreams zijn herkenbaar via een reeks-identifier (`identifier`) en een sterk aanbevolen versie-identifier (`masterIdentifier`); herzieningen ná de termijn verwijzen via `relatesTo` naar hun voorganger, waarbij `replaces`/`appends`/`transforms` een workflow-functie hebben en `signs` is toegestaan zonder logische functie. De logische bestandsnaam reist mee via de `Content-Disposition`-header van het document-endpoint, niet via de metadata. |
 | 0.1.4 | 2026-07-20 | `content.attachment.hash` toegevoegd als optioneel veld (`0..1`): SHA-1-hash (base64) van de bestandsinhoud, waarmee de ontvanger de integriteit van het opgehaalde bestand kan controleren. |
 | 0.1.3 | 2026-07-20 | Task-koppeling via `context.related` afgezwakt van verplicht (`1..*`) naar optioneel (`0..*`): koppeling aan ten minste één Task is wenselijk, maar niet op voorhand verplicht en wordt evenmin uitgesloten. |
 | 0.1.2 | 2026-07-14 | De FHIR Binary-optie is volledig vervallen: `attachment.url` MAG NIET naar een FHIR Binary resource verwijzen; het document-endpoint is een regulier HTTPS-download-endpoint, geen FHIR-endpoint. Onderbouwing toegevoegd onder [Overwogen alternatieven](#overwogen-alternatieven). |
@@ -32,13 +33,72 @@ Er is **geen verplicht bestandsformaat**. Het kan een PDF/A-rapport zijn, maar n
 
 Uit de onveranderlijkheid volgt een concrete regel: zodra een bestand is gepubliceerd, mag de inhoud op die `attachment.url` niet meer worden gewijzigd. Een eenmaal gepubliceerde versie is definitief. Een EPD dat het bestand heeft opgehaald en gearchiveerd, kan er zo op vertrouwen dat de inhoud achter die URL niet stilzwijgend verandert.
 
-Ontstaat er tijdens de behandeling een **nieuwe versie**, dan:
+Ontstaat er **binnen de beschikbaarheidstermijn** (zie [Beschikbaarheidstermijn en levenscyclus](#beschikbaarheidstermijn-en-levenscyclus)) een nieuwe versie, dan:
 
 - publiceert de module het nieuwe bestand op een **nieuwe URL** — het bestaande bestand blijft ongewijzigd;
-- werkt de module de bestaande DocumentReference bij (`PUT` of `PATCH`) zodat `content.attachment.url` naar het nieuwe bestand verwijst — inclusief een bijgewerkte `attachment.hash`, indien die wordt meegegeven;
+- werkt de module de bestaande DocumentReference bij (`PUT` of `PATCH`) zodat `content.attachment.url` naar het nieuwe bestand verwijst — inclusief een bijgewerkte `attachment.hash` en een nieuwe `masterIdentifier` (versie-identifier), indien die worden meegegeven;
 - detecteert het EPD de bijgewerkte DocumentReference (polling of Subscription) en haalt de nieuwe versie op.
 
-Versiehistorie wordt **niet expliciet vastgelegd** via aparte resources: een update van de bestaande DocumentReference naar een nieuwe bestands-URL volstaat. De DocumentReference verwijst altijd naar de actuele versie; eerdere versies worden in Koppeltaal niet als aparte resources bijgehouden, maar blijven beschikbaar via de versiehistorie van de DocumentReference zelf (FHIR-resourceversionering, op te vragen via `_history`/`vread`).
+Binnen de beschikbaarheidstermijn wordt versiehistorie dus **niet via aparte resources** vastgelegd: een update van de bestaande DocumentReference naar een nieuwe bestands-URL volstaat; de store-interne historie blijft opvraagbaar via `_history`/`vread`. Een herziening **ná de beschikbaarheidstermijn** — bijvoorbeeld wanneer de patiënt in een draaideurscenario na maanden terugkeert — is wél een nieuwe DocumentReference, met een `relatesTo`-verwijzing naar haar voorganger; zie [Versionering en versiestreams](#versionering-en-versiestreams).
+
+#### Versionering en versiestreams
+
+Een documentreeks — "Diagnose Jan Jansen", met opeenvolgende versies over meerdere jaren — moet voor het EPD herkenbaar zijn als één stream. FHIR R4 biedt daarvoor twee complementaire identifier-elementen:
+
+- **`identifier`** (`0..*`) — *"Other identifiers associated with the document, including version independent identifiers."* Hier hoort de **reeks-identifier** thuis: één versie-onafhankelijke identifier die alle versies in de stream delen, uitgegeven door de oorspronkelijke bron (bijvoorbeeld een UUID onder het naamsysteem van de module). Dit is het CDA-`setId`-patroon.
+- **`masterIdentifier`** (`0..1`) — *"Document identifier as assigned by the source of the document. This identifier is specific to this version of the document."* De **versie-identifier**: door de bron uitgegeven en bij elke inhoudelijke versie vernieuwd — óók bij een update-in-place, waar de resource-id gelijk blijft.
+
+Toegepast op de reeks "Diagnose Jan Jansen":
+
+| Document | `identifier` (reeks) | `masterIdentifier` (versie) | `relatesTo` |
+| --- | --- | --- | --- |
+| Diagnose Jan Jansen — 2022-12-01 | `reeks-8f3a…` | `versie-001` | — |
+| Diagnose Jan Jansen — 2024-01-03 | `reeks-8f3a…` | `versie-002` | `replaces` → versie 2022 |
+| Diagnose Jan Jansen — 2025-03-06 | `reeks-8f3a…` | `versie-003` | `replaces` → versie 2024 |
+
+Het EPD herkent de stream door te **groeperen op de reeks-identifier** — niet op `title` of bestandsnaam, die zijn mensgericht en instabiel — sorteert op `date`/`creation`, en gebruikt `relatesTo` als expliciete voorganger-verwijzing. De mechanismen versterken elkaar: de reeks-identifier groepeert óók wanneer een schakel in de `relatesTo`-keten ontbreekt; de versie-identifier maakt exacte herkenning en deduplicatie in het archief mogelijk, onafhankelijk van Koppeltaal-resource-ids.
+
+> **R5-bestendig.** In FHIR R5 is `masterIdentifier` opgegaan in `identifier` en is een apart `version`-element toegevoegd. Het hier gekozen patroon — reeks-id in `identifier`, versie-id in `masterIdentifier` — mapt daar één-op-één op.
+
+**Herziening na de beschikbaarheidstermijn.** De oude DocumentReference is dan [uitgedoofd](#beschikbaarheidstermijn-en-levenscyclus), maar bestaat nog. De module publiceert een **nieuwe DocumentReference** met een `relatesTo`-relatie naar de oude:
+
+```json
+{
+  "resourceType": "DocumentReference",
+  "masterIdentifier": {
+    "system": "urn:ietf:rfc:3986",
+    "value": "urn:uuid:e4b7d9c1-2f6a-4d8e-b3a5-9c0f1e2d3b4a"
+  },
+  "identifier": [
+    {
+      "system": "urn:ietf:rfc:3986",
+      "value": "urn:uuid:8f3a6b2c-5d4e-4f1a-a9b8-7c6d5e4f3a2b"
+    }
+  ],
+  "relatesTo": [
+    {
+      "code": "replaces",
+      "target": {
+        "reference": "DocumentReference/7c3e9a2f-4b1d-4e0a-9f2c-1a8b6d5e4c3f"
+      }
+    }
+  ]
+}
+```
+
+In dit fragment is `identifier` de reeks-identifier (gelijk aan die van de voorgangers) en `masterIdentifier` de nieuwe versie-identifier. Omdat het anker blijft bestaan, is `relatesTo.target` een gewone, oplosbare referentie; desgewenst draagt `target.identifier` daarnaast de `masterIdentifier` van de voorganger, als extra houvast voor archief-matching. Het EPD ziet de nieuwe DocumentReference binnenkomen, leest de `relatesTo`, en koppelt de herziening aan het origineel dat het destijds — binnen de toenmalige beschikbaarheidstermijn — heeft gearchiveerd.
+
+Voor de status van de oude DocumentReference geldt: komt de herziening van **dezelfde module** (de eigenaar van de oude resource), dan zet die de oude DocumentReference op `status = superseded`. Komt de herziening van een **andere module**, dan kan dat niet — onder het `resource-origin`-model mag alleen de eigenaar schrijven; de `relatesTo` op de nieuwe DocumentReference volstaat dan en ontvangers leiden de vervanging daaruit af.
+
+**Toegestane relatiecodes.** `relatesTo.code` heeft in R4 een **required binding** op [DocumentRelationshipType](https://hl7.org/fhir/R4/valueset-document-relationship-type.html) — een gesloten set van vier codes; eigen codes zijn niet-conformant. Het profiel staat alle vier de codes toe. Drie ervan hebben een functie in de Koppeltaal-workflow:
+
+- **`replaces`** — dit document vervangt het doeldocument (de herziening uit het draaideurscenario);
+- **`appends`** — addendum: dit document voegt informatie toe aan het doeldocument, dat zelf geldig blijft;
+- **`transforms`** — dit document is een bewerking of omzetting van het doeldocument (bijvoorbeeld formaat- of taalconversie).
+
+**`signs`** (ondertekening) is in het profiel **toegestaan** — de code hoort bij de required binding — maar heeft binnen Koppeltaal **geen logische functie**: er is geen Koppeltaal-workflow die erop reageert. Ontvangers mogen de relatie tonen of negeren en hoeven er geen gedrag aan te verbinden. Relaties met een ándere semantiek dan deze vier passen niet in `relatesTo`; daarvoor is `context.related` het aangewezen element.
+
+**Herziening door een andere module.** Een andere module(leverancier) kent de eerdere DocumentReference niet uit eigen administratie. Die kennis ligt bij het EPD: dat is de toewijzer van de nieuwe interventie én de archiefhouder van het eerdere document. Het EPD reikt bij de toewijzing zowel de **referentie** naar het eerdere document als de **reeks-identifier** aan — kandidaat-mechanismen zijn `Task.input` en de launch-context. De module neemt de referentie over in de `relatesTo` en de reeks-identifier in de `identifier` van haar nieuwe DocumentReference. Merk op dat de module daarvoor de oude DocumentReference niet hoeft te kunnen *lezen* (wat onder `resource-origin` mogelijk ook niet zou mogen): zij heeft alleen de referentie nodig, en die krijgt ze aangereikt. Het exacte mechanisme is een [open punt](#open-punten).
 
 #### Voorstel: aanpassingen aan het DocumentReference-profiel
 
@@ -46,12 +106,16 @@ Op dit moment kent Koppeltaal nog geen eigen DocumentReference-profiel. De volge
 
 Voorgestelde profielregels ten opzichte van de FHIR-basis:
 
+- **`masterIdentifier`** — voorgesteld als optioneel maar **sterk aanbevolen** (`0..1`): de versie-specifieke identifier, door de bron uitgegeven en bij elke inhoudelijke versie vernieuwd — ook bij een update-in-place. Zonder versie-identifier kan het EPD versies niet betrouwbaar herkennen en dedupliceren; de Koppeltaal-resource-id volstaat daarvoor niet (die blijft bij update-in-place immers gelijk). Zie [Versionering en versiestreams](#versionering-en-versiestreams).
+- **`identifier`** — voorgesteld: elke DocumentReference draagt ten minste één versie-onafhankelijke **reeks-identifier** (een slice op `identifier`), met dezelfde waarde over alle versies in de stream. Uitgegeven door de oorspronkelijke bron; bij een cross-module herziening aangereikt door het EPD. Zie [Versionering en versiestreams](#versionering-en-versiestreams).
+- **`relatesTo`** — voorgesteld als optioneel (`0..*`). `relatesTo.code` volgt de required binding van de FHIR-basis (alle vier de codes toegestaan); `replaces`, `appends` en `transforms` hebben een functie in de Koppeltaal-workflow, `signs` is toegestaan maar zonder logische functie binnen Koppeltaal (zie [Versionering en versiestreams](#versionering-en-versiestreams)). `relatesTo.target` is een referentie naar een (mogelijk uitgedoofde) DocumentReference in de Koppeltaal-store, desgewenst aangevuld met `target.identifier` (de `masterIdentifier` van de voorganger).
 - **`subject`** — voorgesteld als verplicht (`1..1`), met als target-profiel het Koppeltaal Patient-profiel. Zonder `subject` is het document niet routeerbaar naar het juiste dossier.
 - **`context.related`** — voorgesteld als optioneel (`0..*`), met een verwijzing naar de [Task](https://www.hl7.org/fhir/R4/task.html) die de interventie representeert waaruit het document is voortgekomen. Het is **wenselijk** de DocumentReference aan ten minste één Task te koppelen: daarmee blijft het document traceerbaar naar de specifieke behandelopdracht en kan het EPD het document in de juiste context plaatsen. De Task-koppeling is echter **niet op voorhand verplicht en wordt evenmin uitgesloten** — er kunnen ook documenten worden gedeeld zonder (directe) taakcontext. Te bepalen: of een slice op `context.related` nodig is om de Task-referentie expliciet aan te wijzen (versus andere related resources).
-- **`date`** — voorgesteld als verplicht (`1..1`). Het tijdstip waarop de DocumentReference is aangemaakt door de module. Dit is het ankerpunt voor onder andere de [bewaartermijn](#bewaartermijn-documentreference) in de Koppeltaal-store en voor archiveringslogica in het EPD.
+- **`date`** — voorgesteld als verplicht (`1..1`). Het tijdstip waarop de DocumentReference is aangemaakt door de module. Dit is het ankerpunt voor onder andere de [beschikbaarheidstermijn](#beschikbaarheidstermijn-en-levenscyclus) in de Koppeltaal-store en voor archiveringslogica in het EPD.
 - **`type`** — voorgesteld als verplicht (`1..1`). Ontvangers (dossierhouders) moeten direct kunnen zien wat voor soort document binnenkomt — rapportage, ongestructureerde vragenlijst-uitkomst, voortgangsverslag, etc. — zonder het bestand te hoeven openen. De binding/ValueSet (LOINC via [valueset-c80-doc-typecodes](https://www.hl7.org/fhir/R4/valueset-c80-doc-typecodes.html) of een Koppeltaal-specifieke ValueSet) wordt nog uitgewerkt; zie [Open punten](#open-punten).
 - **`category`** — voorgesteld als optioneel (`0..*`). Leveranciers MOGEN categorieën meegeven (bv. om type-codes op een hoger niveau te groeperen), maar het is geen eis.
-- **`content.attachment.hash`** — voorgesteld als optioneel (`0..1`). De SHA-1-hash (base64) van de bestandsinhoud, conform de definitie van [`Attachment.hash`](https://www.hl7.org/fhir/R4/datatypes-definitions.html#Attachment.hash). Hiermee kan de ontvanger na het ophalen controleren of de opgehaalde inhoud overeenkomt met wat de DocumentReference aankondigt — een extra waarborg bovenop het [onveranderlijkheidsprincipe](#onveranderlijk-en-self-contained). Bij publicatie van een nieuwe versie (nieuwe `attachment.url`) werkt de module ook de hash bij.
+- **`content.attachment.url`** — conditioneel: **verplicht bij publicatie**, en **verwijderd door de bron na afloop van de beschikbaarheidstermijn** (de leegmaak-update; zie [Beschikbaarheidstermijn en levenscyclus](#beschikbaarheidstermijn-en-levenscyclus)). Dit is een procesregel; profieltechnisch blijft `url` `0..1` (de conditie is niet in cardinaliteit uit te drukken).
+- **`content.attachment.hash`** — voorgesteld als optioneel (`0..1`), maar **aanbevolen: meegeven, tenzij dat technisch niet kan**. De SHA-1-hash (base64) van de bestandsinhoud, conform de definitie van [`Attachment.hash`](https://www.hl7.org/fhir/R4/datatypes-definitions.html#Attachment.hash). Hiermee kan de ontvanger na het ophalen controleren of de opgehaalde inhoud overeenkomt met wat de DocumentReference aankondigt — een extra waarborg bovenop het [onveranderlijkheidsprincipe](#onveranderlijk-en-self-contained). Na het uitdoven is de hash bovendien het blijvende bewijs van welke inhoud er destijds is aangekondigd. Bij publicatie van een nieuwe versie (nieuwe `attachment.url`) werkt de module ook de hash bij.
 
 Dit zijn voorstellen, geen vastgestelde profielregels. Na consensus volgt de uitwerking in een DocumentReference-profiel in `input/fsh`, met bijbehorende validatie via de IG-publisher. Pas vanaf dat moment kunnen niet-conformante resources op deze regels worden afgewezen.
 
@@ -147,19 +211,78 @@ In het toekomstige model is toegang tot documenten gebonden aan de behandelrelat
 
 Het Koppeltaal-scope-model is gebaseerd op SMART on FHIR v2 scopes met query-parameters (zie [autorisaties.html](./autorisaties.html) en TOP-KT-016). Het patroon `system/Resource.[crud]?param=value` — al toegepast voor `resource-origin` — maakt het mogelijk om in een toekomstige iteratie filtering op bijvoorbeeld `DocumentReference.type` te ondersteunen. De concrete scope-syntax voor DocumentReference wordt vastgelegd in de Koppeltaal-autorisatiematrix; zie [Open punten](#open-punten).
 
-### Bewaartermijn DocumentReference
+### Beschikbaarheidstermijn en levenscyclus
 
-De DocumentReference wordt in principe **beperkt bewaard** in de Koppeltaal FHIR store. De standaardtermijn is **30 dagen** vanaf publicatie.
+De DocumentReference wordt **niet** na een vaste termijn uit de Koppeltaal FHIR store verwijderd. De 30-dagentermijn is een **beschikbaarheidstermijn van de inhoud**, geen bewaartermijn van de resource:
 
-**Wie voert de opschoning uit?** De **bronapplicatie (module)** die de DocumentReference heeft gepubliceerd is hiervoor verantwoordelijk: zij is onder het Koppeltaal `resource-origin`-model de eigenaar van de resource en heeft daarmee het recht en de plicht om de eigen DocumentReference na de bewaartermijn te verwijderen. Het reguliere opschoningsproces voor Patient-data van Koppeltaal (zie [opschoning-patient-data.html](./opschoning-patient-data.html)) — dat op patiëntniveau werkt en pas na de veel langere Patient-bewaartermijn ingrijpt — fungeert hierbij slechts als **vangnet**: wordt de hele patiënt verwijderd, dan verdwijnt de DocumentReference mee in de `$purge`-cascade.
+- **Gedurende 30 dagen na publicatie** (`date`) garandeert de bronapplicatie dat `attachment.url` de inhoud levert. Het EPD moet het document binnen deze termijn detecteren (polling of Subscription) en ophalen; daarna wordt de inhoud niet langer aangeboden.
+- **Na afloop van de termijn** verwijdert de bronapplicatie — als `resource-origin`-eigenaar — de `attachment.url` uit de DocumentReference (een reguliere `PUT`/`PATCH`; de *leegmaak-update*). Zij mag het bestand daarna offline halen. De overige attachment-metadata (`contentType`, `title`, `creation`, `size`, `hash`) blijft staan.
+- **De DocumentReference zelf blijft bestaan** als metadata-anker — nodig voor de `relatesTo`-verwijzingen bij [langlopende versionering](#versionering-en-versiestreams) — en volgt de reguliere patiënt-levenscyclus: zij wordt opgeruimd via het opschoningsproces voor Patient-data (zie [opschoning-patient-data.html](./opschoning-patient-data.html)), met de `$purge`-cascade als vangnet. Er is geen apart verwijderproces per DocumentReference.
 
-Deze termijn weerspiegelt de rol van Koppeltaal als orkestratie- en transportlaag, niet als langetermijn-archief: zodra het document is opgehaald en gearchiveerd in het EPD-dossier, is de DocumentReference in de Koppeltaal-store overbodig. Een korte termijn beperkt het aanvalsoppervlak, voorkomt dat de Koppeltaal-store de facto een tweede dossierstore wordt, en sluit aan op het principe dat de bronhouder verantwoordelijk blijft voor de inhoud.
+De korte inhoudstermijn weerspiegelt de rol van Koppeltaal als orkestratie- en transportlaag, niet als langetermijn-archief: zodra het document is opgehaald en gearchiveerd in het EPD-dossier, hoeft de inhoud niet meer via de bron beschikbaar te zijn. Dat beperkt het aanvalsoppervlak, voorkomt dat de Koppeltaal-store de facto een tweede dossierstore wordt, en sluit aan op het principe dat de bronhouder verantwoordelijk blijft voor de inhoud.
+
+<div style="clear: both; margin: 1em 0;">
+{% include documenten-delen-levenscyclus.svg %}
+</div>
+
+#### FHIR-basis: een attachment zonder inhoud
+
+De leegmaak-update steunt niet op een kunstgreep, maar op de expliciete semantiek van het [Attachment](https://hl7.org/fhir/R4/datatypes.html#attachment)-datatype. Alle elementen van Attachment zijn optioneel (`0..1`), inclusief `url` en `data`; de enige invariant (att-1) eist alleen een `contentType` wanneer `data` aanwezig is. Over het ontbreken van beide zegt de specificatie letterlijk:
+
+> *"If neither data nor a URL is provided, the value should be understood as an assertion that no content for the specified mimeType and/or language is available."*
+
+Een attachment zonder `url` en zonder `data` betekent dus precies wat wij willen uitdrukken: *dit document bestaat (bestond), maar de inhoud is hier niet (meer) beschikbaar.* De achterblijvende `hash` en `size` beschrijven per definitie de oorspronkelijke inhoud ("the hash and size relate to the data"), waardoor het EPD zijn gearchiveerde kopie blijvend kan verifiëren tegen wat de bron destijds heeft aangekondigd.
+
+Een *uitgedoofde* attachment ziet er zo uit:
+
+```json
+"content": [
+  {
+    "attachment": {
+      "contentType": "application/pdf",
+      "title": "Rapportage interventie",
+      "creation": "2026-06-15T10:00:00+02:00",
+      "size": 482133,
+      "hash": "N7UdGUp1E+RbVvZSTy1R8g1lFf0="
+    }
+  }
+]
+```
+
+#### Levenscyclus in drie fasen
+
+| Fase | Duur | Inhoud ophaalbaar? | Wie handelt |
+| --- | --- | --- | --- |
+| **Beschikbaar** | 30 dagen vanaf publicatie (`date`) | Ja — `attachment.url` gegarandeerd | Module publiceert; EPD haalt op en archiveert |
+| **Uitgedoofd** | Tot de patiënt-opschoning | Nee — `attachment.url` verwijderd; metadata-anker blijft | Bron voert de leegmaak-update uit en mag het bestand offline halen |
+| **Opgeschoond** | — | — | Koppeltaalvoorziening, via het reguliere opschoningsproces voor Patient-data (`$purge`-cascade) |
 
 Consequenties:
 
-- **Het EPD** moet de DocumentReference binnen de bewaartermijn detecteren (polling of Subscription) en de inhoud ophalen of archiveren. Documenten die na 30 dagen nog niet zijn opgehaald, worden niet langer aangeboden via de Koppeltaal-store.
-- **De bronapplicatie** behoudt — bij de variant met externe URL — het brondocument in haar eigen omgeving, onafhankelijk van de Koppeltaal-bewaartermijn. De levenscyclus van het brondocument volgt het beleid van de bronhouder.
-- **Afwijken van de standaard** (langer of korter dan 30 dagen) is in specifieke gebruiksscenario's mogelijk, maar moet expliciet worden vastgelegd in het leveranciersprofiel of een aanvullende afspraak. Of, en op welk niveau, individuele afwijkingen mogelijk worden gemaakt is nog uit te werken (zie [Open punten](#open-punten)).
+- **De bronapplicatie** behoudt het brondocument in haar eigen omgeving, onafhankelijk van de beschikbaarheidstermijn. De levenscyclus van het brondocument volgt het beleid van de bronhouder.
+- **De metadata staat langer in de store** en valt daarmee volledig onder het patiënt-PII-regime: bewaartermijn van 2 jaar na de laatste betrokkenheid, opschoning via het reguliere proces. Dit is consistent met hoe andere patiëntgebonden resources (Task, CareTeam) al behandeld worden.
+- **Richtlijn voor metadata-inhoud:** omdat de metadata langer leeft, horen er geen klinische bevindingen in thuis. `title` en overige beschrijvende velden blijven inhoudelijk **neutraal** (bijvoorbeeld "Rapportage interventie", niet een titel die diagnose of uitkomst prijsgeeft). Zie ook [Logische bestandsnaam](#logische-bestandsnaam).
+- **Afwijken van de standaard** (langer of korter dan 30 dagen) is in specifieke gebruiksscenario's mogelijk, maar moet expliciet worden vastgelegd in het leveranciersprofiel of een aanvullende afspraak; zo'n afspraak gaat dan over de beschikbaarheidstermijn van de inhoud. Of, en op welk niveau, individuele afwijkingen mogelijk worden gemaakt is nog uit te werken (zie [Open punten](#open-punten)).
+
+### Logische bestandsnaam
+
+Een document heeft in de praktijk een logische bestandsnaam — *Diagnose Jan Jansen — 2024-01-03.pdf* — die de ontvanger wil kunnen tonen en gebruiken bij het archiveren. FHIR heeft daar **geen veld** voor: het Attachment-datatype kent geen bestandsnaam-element, niet in R4 en evenmin in R5 (dat voegt wel `height`, `width`, `frames`, `duration` en `pages` toe, maar geen `filename`). Het dichtstbijzijnde element is `attachment.title`, maar dat is gedefinieerd als weergavelabel (*"a label or set of text to display in place of the data"*), niet als bestandsnaam — en `title` moet juist **inhoudelijk neutraal** blijven, omdat de metadata lang leeft (zie [Beschikbaarheidstermijn en levenscyclus](#beschikbaarheidstermijn-en-levenscyclus)). Een bestandsnaam die de patiëntnaam bevat, hoort dus niet in de blijvende metadata thuis.
+
+De oplossing sluit aan op het levenscyclusmodel: **de bestandsnaam reist met de inhoud mee, niet met de metadata.** Het document-endpoint van de bron geeft de naam mee als `Content-Disposition`-header bij de download ([RFC 6266](https://datatracker.ietf.org/doc/html/rfc6266)):
+
+```http
+Content-Disposition: attachment; filename="rapportage.pdf"; filename*=UTF-8''Diagnose%20Jan%20Jansen%20-%202024-01-03.pdf
+```
+
+De `filename*`-variant met UTF-8-encoding ([RFC 8187](https://datatracker.ietf.org/doc/html/rfc8187)) ondersteunt diakrieten en spaties; de eenvoudige `filename` dient als ASCII-fallback voor oudere clients.
+
+Daarmee geldt:
+
+- de bestandsnaam bestaat precies zo lang als de inhoud beschikbaar is en verdwijnt bij het uitdoven — er blijft geen persoonsgegeven achter in de Koppeltaal-store;
+- het EPD archiveert het bestand onder de meegekregen naam, of onder de eigen dossierconventies;
+- `attachment.title` blijft het neutrale weergavelabel in de metadata.
+
+Het meesturen van `Content-Disposition` is voor het document-endpoint een **zachte aanbeveling** (zie [Beveiligingseisen voor het document-endpoint van de bron](#beveiligingseisen-voor-het-document-endpoint-van-de-bron)).
 
 ### Beveiligingseisen voor het document-endpoint van de bron
 
@@ -176,6 +299,7 @@ De generieke Koppeltaal-beveiligingseisen uit TOP-KT-008 — Beveiliging aspecte
 
 - Niet-raadbare paden voor documenten (bijvoorbeeld UUID's of cryptografisch random identifiers; geen incrementele IDs)
 - Rate-limiting en standaard hardening (security headers, beperkte error-detail bij 401/403)
+- Meesturen van de logische bestandsnaam via `Content-Disposition` (`filename`/`filename*`; zie [Logische bestandsnaam](#logische-bestandsnaam))
 
 Voor toekomstige fijngranulariteit (bijvoorbeeld filtering op `DocumentReference.type`) ligt de richting bij **SMART on FHIR v2 scopes-met-query** — het patroon dat Koppeltaal al toepast voor `resource-origin`. De concrete uitwerking volgt in de Koppeltaal-autorisatiematrix; zie [Concrete scope-syntax voor DocumentReference in de autorisatiematrix](#concrete-scope-syntax-voor-documentreference-in-de-autorisatiematrix) onder Open punten.
 
@@ -246,6 +370,18 @@ Het SMART v2 scopes-met-query-patroon (`system/DocumentReference.read?type=…`)
 #### Uitbreidingscode voor documenten delen
 
 De [aankondiging via de ActivityDefinition](#aankondiging-via-de-activitydefinition) vereist een concrete uitbreidingscode in het `KoppeltaalExpansion`-codesysteem (`input/fsh`), naar analogie van `026-RolvdNaaste`. Vast te leggen na afstemming met leveranciers: de codewaarde en het label, en of documenten delen één enkele uitbreiding vormt of verder verfijnd wordt (bijvoorbeeld onderscheid tussen verplicht en optioneel opleveren van een document). Pas zodra de code in `input/fsh` is opgenomen, kan de `useContext` op deze waarde worden gevalideerd.
+
+#### Aanreiken van eerdere-document-referentie en reeks-identifier
+
+Bij een [herziening door een andere module](#versionering-en-versiestreams) reikt het EPD de referentie naar het eerdere document en de reeks-identifier aan. Via `Task.input`, de launch-context, of beide? Uit te werken met leveranciers, in samenhang met het `KT2_Task`-profiel.
+
+#### Naamsysteem en formaat van de identifiers
+
+Onder welk `system` geven bronnen de reeks- en versie-identifiers uit (eigen naamsysteem per leverancier, of een Koppeltaal-breed patroon)? Af te stemmen met leveranciers.
+
+#### Handhaving van de leegmaak-update
+
+Wat als een bron de `attachment.url` na de [beschikbaarheidstermijn](#beschikbaarheidstermijn-en-levenscyclus) niet verwijdert? Opties: monitoring/rapportage door de Koppeltaalvoorziening, of een server-side opschoningstaak als vangnet.
 
 ### Status
 
