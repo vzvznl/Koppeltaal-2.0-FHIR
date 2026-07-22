@@ -2,6 +2,7 @@
 
 | Versie | Datum | Status | Wijzigingen |
 | --- | --- | --- | --- |
+| 0.2.1 | 21 Jul 2026 | Concept | Voorbeeldtabel bij Versionering en versiestreams uitgebreid met de `status`-kolom (`superseded`/`current`), als situatie ná de laatste herziening door dezelfde module. |
 | 0.2.0 | 21 Jul 2026 | Concept | **Levenscyclus- en versioneringsmodel.** De 30 dagen is voortaan een *beschikbaarheidstermijn van de inhoud*, geen bewaartermijn van de resource: na afloop verwijdert de bron alleen `attachment.url` (leegmaak-update); de DocumentReference blijft als metadata-anker bestaan en volgt de reguliere patiënt-levenscyclus. Versiestreams zijn herkenbaar via een reeks-identifier (`identifier`) en een sterk aanbevolen versie-identifier (`masterIdentifier`); herzieningen ná de termijn verwijzen via `relatesTo` naar hun voorganger (`replaces`/`appends`/`transforms` met workflow-functie; `signs` toegestaan zonder logische functie). De logische bestandsnaam reist mee via de `Content-Disposition`-header van het document-endpoint. |
 | 0.1.3 | 20 Jul 2026 | Concept | `content.attachment.hash` toegevoegd als optioneel veld (`0..1`): SHA-1-hash (base64) van de bestandsinhoud, waarmee de dossierhouder de integriteit van het opgehaalde bestand kan controleren. |
 | 0.1.2 | 20 Jul 2026 | Concept | Task-koppeling via `context.related` afgezwakt van verplicht (`1..*`) naar optioneel (`0..*`): koppeling aan ten minste één Task is wenselijk, maar niet op voorhand verplicht en wordt evenmin uitgesloten. |
@@ -107,13 +108,13 @@ Een documentreeks — "Diagnose Jan Jansen", met opeenvolgende versies over meer
 - **`identifier`** (`0..*`) — *"Other identifiers associated with the document, including version independent identifiers."* Hier hoort de **reeks-identifier** thuis: één versie-onafhankelijke identifier die alle versies in de stream delen, uitgegeven door de oorspronkelijke bron (bijvoorbeeld een UUID onder het naamsysteem van de module). Dit is het CDA-`setId`-patroon.
 - **`masterIdentifier`** (`0..1`) — *"Document identifier as assigned by the source of the document. This identifier is specific to this version of the document."* De **versie-identifier**: door de bron uitgegeven en bij elke inhoudelijke versie vernieuwd — óók bij een update-in-place, waar de resource-id gelijk blijft.
 
-Toegepast op de reeks "Diagnose Jan Jansen":
+Toegepast op de reeks "Diagnose Jan Jansen" — de situatie ná de herziening van 2025, waarbij dezelfde module de eerdere versies op `superseded` heeft gezet (zie hieronder voor het geval van een andere module):
 
-| Document | `identifier` (reeks) | `masterIdentifier` (versie) | `relatesTo` |
-| --- | --- | --- | --- |
-| Diagnose Jan Jansen — 2022-12-01 | `reeks-8f3a…` | `versie-001` | — |
-| Diagnose Jan Jansen — 2024-01-03 | `reeks-8f3a…` | `versie-002` | `replaces` → versie 2022 |
-| Diagnose Jan Jansen — 2025-03-06 | `reeks-8f3a…` | `versie-003` | `replaces` → versie 2024 |
+| Document | `identifier` (reeks) | `masterIdentifier` (versie) | `status` | `relatesTo` |
+| --- | --- | --- | --- | --- |
+| Diagnose Jan Jansen — 2022-12-01 | `reeks-8f3a…` | `versie-001` | `superseded` | — |
+| Diagnose Jan Jansen — 2024-01-03 | `reeks-8f3a…` | `versie-002` | `superseded` | `replaces` → versie 2022 |
+| Diagnose Jan Jansen — 2025-03-06 | `reeks-8f3a…` | `versie-003` | `current` | `replaces` → versie 2024 |
 
 Het EPD herkent de stream door te **groeperen op de reeks-identifier** — niet op `title` of bestandsnaam, die zijn mensgericht en instabiel — sorteert op `date`/`creation`, en gebruikt `relatesTo` als expliciete voorganger-verwijzing. De mechanismen versterken elkaar: de reeks-identifier groepeert óók wanneer een schakel in de `relatesTo`-keten ontbreekt; de versie-identifier maakt exacte herkenning en deduplicatie in het archief mogelijk, onafhankelijk van Koppeltaal-resource-ids. In FHIR R5 is `masterIdentifier` opgegaan in `identifier` en is een apart `version`-element toegevoegd; het hier gekozen patroon mapt daar één-op-één op.
 
@@ -304,6 +305,9 @@ Eisen 1 t/m 10 betreffen het publiceren en versioneren van documenten, eisen 11 
 | 3 | Een gepubliceerde `DocumentReference` MOET voldoen aan het `KT2_DocumentReference`-profiel: `subject` (`1..1`, Koppeltaal Patient), `date` (`1..1`) en `type` (`1..1`). Het koppelen aan de `Task` van de interventie via `context.related` (`0..*`) wordt AANBEVOLEN, maar is niet verplicht. | X |  |
 | 4 | De documentinhoud MOET via externe referentie (`content.attachment.url`) worden aangeboden; inline base64 (`attachment.data`) MAG NIET worden gebruikt. Het meegeven van een SHA-1-hash (base64) van de bestandsinhoud via `content.attachment.hash` (`0..1`) wordt AANBEVOLEN (tenzij technisch niet mogelijk), zodat de dossierhouder de integriteit van het opgehaalde bestand kan controleren. | X |  |
 | 5 | Het bestand waarnaar een `DocumentReference` verwijst MOET onveranderlijk en self-contained zijn: de inhoud op een gepubliceerde `attachment.url` MAG NIET meer wijzigen. | X |  |
+| 17 | Rate-limiting en standaard hardening van het document-endpoint (security headers, beperkte error-detail bij 401/403) worden AANBEVOLEN. | X |  |
+| 18 | Het meesturen van de logische bestandsnaam via de `Content-Disposition`-header (`filename`, met `filename*` voor UTF-8) wordt AANBEVOLEN; de bestandsnaam MAG NIET in de blijvende metadata (`attachment.title`) worden opgenomen wanneer zij persoonsgegevens bevat. | X |  |
+| 23 | De bronapplicatie MOET na de beschikbaarheidstermijn (standaard 30 dagen na publicatie) de `attachment.url` uit de eigen `DocumentReference` verwijderen (leegmaak-update); de DocumentReference zelf blijft bestaan en volgt de patiënt-opschoning. | X |  |
 | 6 | Een nieuwe versie binnen de beschikbaarheidstermijn MOET op een nieuwe URL worden gepubliceerd; de module MOET de bestaande `DocumentReference` bijwerken (`PUT` of `PATCH`) zodat `content.attachment.url` naar de nieuwe versie verwijst. Indien de module een `masterIdentifier` meegeeft, MOET zij die daarbij vernieuwen. | X |  |
 | 7 | Een `DocumentReference` MOET ten minste één versie-onafhankelijke reeks-identifier (`identifier`) bevatten, met dezelfde waarde over alle versies in de stream. Het meegeven van een versie-specifieke `masterIdentifier` (bij elke inhoudelijke versie vernieuwd) wordt STERK AANBEVOLEN. | X |  |
 | 8 | Een herziening ná de beschikbaarheidstermijn MOET als nieuwe `DocumentReference` worden gepubliceerd, met dezelfde reeks-identifier en een `relatesTo` (code `replaces`) naar de voorganger. `appends` en `transforms` MOGEN worden gebruikt voor addenda respectievelijk bewerkingen; `signs` is toegestaan maar heeft binnen Koppeltaal geen logische functie. | X |  |
@@ -314,14 +318,11 @@ Eisen 1 t/m 10 betreffen het publiceren en versioneren van documenten, eisen 11 
 | 13 | Het document-endpoint MOET elk request zonder geldig access_token afwijzen. Token-validatie MOET plaatsvinden via token introspection bij de Koppeltaal authorization server ([RFC 7662](https://datatracker.ietf.org/doc/html/rfc7662); zie [Topic 21](TOP-KT-021-token-introspection.md)); het document MAG pas worden geleverd na een geldige respons (`active: true` plus passende scopes). | X |  |
 | 14 | De bronapplicatie MAG na een geldige introspect alsnog toegang weigeren op basis van eigen beleid (data-owner verification). In dat geval MOET zij reageren met `403 Forbidden` en MOET zij de afwijzing zelf loggen. | X |  |
 | 15 | De bronapplicatie MOET het ophalen van documenten auditeerbaar registreren (wie, wanneer, welk document). | X |  |
-| 16 | Het GEBRUIK van niet-raadbare paden voor documenten (UUID's of cryptografisch random identifiers; geen incrementele IDs) wordt AANBEVOLEN. | X |  |
-| 17 | Rate-limiting en standaard hardening van het document-endpoint (security headers, beperkte error-detail bij 401/403) worden AANBEVOLEN. | X |  |
-| 18 | Het meesturen van de logische bestandsnaam via de `Content-Disposition`-header (`filename`, met `filename*` voor UTF-8) wordt AANBEVOLEN; de bestandsnaam MAG NIET in de blijvende metadata (`attachment.title`) worden opgenomen wanneer zij persoonsgegevens bevat. | X |  |
 | 19 | De toewijzende applicatie MOET de `useContext` van de `ActivityDefinition` lezen en MAG een interventie met de documenten-delen-uitbreiding alleen aanbieden of toewijzen wanneer zij de resulterende `DocumentReference` kan verwerken. |  | X |
 | 20 | De dossierhouder MOET nieuwe en bijgewerkte `DocumentReference`-resources detecteren via polling of een FHIR Subscription op de Koppeltaal-store. |  | X |
 | 21 | De dossierhouder MOET bij het ophalen van de documentinhoud een geldig Koppeltaal access_token meesturen (`Authorization: Bearer …`). |  | X |
 | 22 | De dossierhouder MOET het document binnen de beschikbaarheidstermijn ophalen en archiveren in het patiëntdossier. |  | X |
-| 23 | De bronapplicatie MOET na de beschikbaarheidstermijn (standaard 30 dagen na publicatie) de `attachment.url` uit de eigen `DocumentReference` verwijderen (leegmaak-update); de DocumentReference zelf blijft bestaan en volgt de patiënt-opschoning. | X |  |
+| 16 | Het GEBRUIK van niet-raadbare paden voor documenten (UUID's of cryptografisch random identifiers; geen incrementele IDs) wordt AANBEVOLEN. | X |  |
 | 24 | Afwijken van de standaard-beschikbaarheidstermijn MOET expliciet worden vastgelegd in het leveranciersprofiel of een aanvullende afspraak. | X | X |
 
 ## Open punten

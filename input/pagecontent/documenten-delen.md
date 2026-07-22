@@ -2,6 +2,7 @@
 
 | Versie | Datum | Wijziging |
 | --- | --- | --- |
+| 0.2.1 | 2026-07-21 | Voorbeeldtabel bij [Versionering en versiestreams](#versionering-en-versiestreams) uitgebreid met de `status`-kolom (`superseded`/`current`), als situatie ná de laatste herziening door dezelfde module. |
 | 0.2.0 | 2026-07-21 | **Levenscyclus- en versioneringsmodel.** De 30 dagen is voortaan een *beschikbaarheidstermijn van de inhoud*, geen bewaartermijn van de resource: na afloop verwijdert de bron alleen `attachment.url` (leegmaak-update); de DocumentReference blijft als metadata-anker bestaan en volgt de reguliere patiënt-levenscyclus. Versiestreams zijn herkenbaar via een reeks-identifier (`identifier`) en een sterk aanbevolen versie-identifier (`masterIdentifier`); herzieningen ná de termijn verwijzen via `relatesTo` naar hun voorganger, waarbij `replaces`/`appends`/`transforms` een workflow-functie hebben en `signs` is toegestaan zonder logische functie. De logische bestandsnaam reist mee via de `Content-Disposition`-header van het document-endpoint, niet via de metadata. |
 | 0.1.4 | 2026-07-20 | `content.attachment.hash` toegevoegd als optioneel veld (`0..1`): SHA-1-hash (base64) van de bestandsinhoud, waarmee de ontvanger de integriteit van het opgehaalde bestand kan controleren. |
 | 0.1.3 | 2026-07-20 | Task-koppeling via `context.related` afgezwakt van verplicht (`1..*`) naar optioneel (`0..*`): koppeling aan ten minste één Task is wenselijk, maar niet op voorhand verplicht en wordt evenmin uitgesloten. |
@@ -48,13 +49,13 @@ Een documentreeks — "Diagnose Jan Jansen", met opeenvolgende versies over meer
 - **`identifier`** (`0..*`) — *"Other identifiers associated with the document, including version independent identifiers."* Hier hoort de **reeks-identifier** thuis: één versie-onafhankelijke identifier die alle versies in de stream delen, uitgegeven door de oorspronkelijke bron (bijvoorbeeld een UUID onder het naamsysteem van de module). Dit is het CDA-`setId`-patroon.
 - **`masterIdentifier`** (`0..1`) — *"Document identifier as assigned by the source of the document. This identifier is specific to this version of the document."* De **versie-identifier**: door de bron uitgegeven en bij elke inhoudelijke versie vernieuwd — óók bij een update-in-place, waar de resource-id gelijk blijft.
 
-Toegepast op de reeks "Diagnose Jan Jansen":
+Toegepast op de reeks "Diagnose Jan Jansen" — de situatie ná de herziening van 2025, waarbij dezelfde module de eerdere versies op `superseded` heeft gezet (zie [Herziening na de beschikbaarheidstermijn](#versionering-en-versiestreams) voor het geval van een andere module):
 
-| Document | `identifier` (reeks) | `masterIdentifier` (versie) | `relatesTo` |
-| --- | --- | --- | --- |
-| Diagnose Jan Jansen — 2022-12-01 | `reeks-8f3a…` | `versie-001` | — |
-| Diagnose Jan Jansen — 2024-01-03 | `reeks-8f3a…` | `versie-002` | `replaces` → versie 2022 |
-| Diagnose Jan Jansen — 2025-03-06 | `reeks-8f3a…` | `versie-003` | `replaces` → versie 2024 |
+| Document | `identifier` (reeks) | `masterIdentifier` (versie) | `status` | `relatesTo` |
+| --- | --- | --- | --- | --- |
+| Diagnose Jan Jansen — 2022-12-01 | `reeks-8f3a…` | `versie-001` | `superseded` | — |
+| Diagnose Jan Jansen — 2024-01-03 | `reeks-8f3a…` | `versie-002` | `superseded` | `replaces` → versie 2022 |
+| Diagnose Jan Jansen — 2025-03-06 | `reeks-8f3a…` | `versie-003` | `current` | `replaces` → versie 2024 |
 
 Het EPD herkent de stream door te **groeperen op de reeks-identifier** — niet op `title` of bestandsnaam, die zijn mensgericht en instabiel — sorteert op `date`/`creation`, en gebruikt `relatesTo` als expliciete voorganger-verwijzing. De mechanismen versterken elkaar: de reeks-identifier groepeert óók wanneer een schakel in de `relatesTo`-keten ontbreekt; de versie-identifier maakt exacte herkenning en deduplicatie in het archief mogelijk, onafhankelijk van Koppeltaal-resource-ids.
 
