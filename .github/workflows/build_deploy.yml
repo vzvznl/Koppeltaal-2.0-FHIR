@@ -63,13 +63,29 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      # tx.fhir.org has become very slow (server-side cache sessions get dropped, every
+      # validation call takes minutes). Persist the publisher's local terminology cache
+      # across runs so repeated validations never hit the network. The unique key forces
+      # a fresh save each run; restore-keys picks up the most recent previous cache.
+      - name: Restore terminology cache (txCache)
+        uses: actions/cache@v4
+        with:
+          path: input-cache/txcache
+          key: txcache-${{ github.run_id }}
+          restore-keys: |
+            txcache-
+
       - name: Build FHIR Packages
         env:
           FHIR_EMAIL: ${{ secrets.FHIR_EMAIL }}
           FHIR_PASSWORD: ${{ secrets.FHIR_PASSWORD }}
+          # main: full terminology validation, but retry previously failed tx calls so
+          # cached errors don't poison the published ValueSet expansions.
+          # branches: skip the terminology server entirely for fast feedback.
+          TX_OPTS: ${{ github.ref == 'refs/heads/main' && '-resetTxErrors' || '-tx n/a' }}
         run: |
           # Run build-minimal which produces both full (./output) and minimal (./output-minimal) packages
-          docker run -v ${PWD}:/src -e FHIR_EMAIL=${FHIR_EMAIL} -e FHIR_PASSWORD=${FHIR_PASSWORD} localhost:5000/koppeltaal-builder:latest build-minimal
+          docker run -v ${PWD}:/src -e FHIR_EMAIL=${FHIR_EMAIL} -e FHIR_PASSWORD=${FHIR_PASSWORD} -e TX_OPTS="${TX_OPTS}" localhost:5000/koppeltaal-builder:latest build-minimal
 
       - name: Upload full build artifacts
         uses: actions/upload-artifact@v4
@@ -217,8 +233,9 @@ jobs:
           PUBLISH_VERSION="${{ needs.build.outputs.version }}"
           # For non-main branches, append the branch name and short commit hash to make version unique
           if [ "${{ github.ref_name }}" != "main" ]; then
-            # Sanitize branch name for npm version (replace / with -, remove special chars)
-            BRANCH_NAME=$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9._-]/-/g')
+            # Sanitize branch name for npm version: semver prerelease identifiers only
+            # allow alphanumerics and hyphens, so underscores etc. must become hyphens
+            BRANCH_NAME=$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9-]/-/g')
             PUBLISH_VERSION="${PUBLISH_VERSION}-${BRANCH_NAME}-${GITHUB_SHA::7}"
           fi
 
@@ -277,8 +294,9 @@ jobs:
           PUBLISH_VERSION="${{ needs.build.outputs.version }}-minimal"
           # For non-main branches, append the branch name and short commit hash to make version unique
           if [ "${{ github.ref_name }}" != "main" ]; then
-            # Sanitize branch name for npm version (replace / with -, remove special chars)
-            BRANCH_NAME=$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9._-]/-/g')
+            # Sanitize branch name for npm version: semver prerelease identifiers only
+            # allow alphanumerics and hyphens, so underscores etc. must become hyphens
+            BRANCH_NAME=$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9-]/-/g')
             PUBLISH_VERSION="${PUBLISH_VERSION}-${BRANCH_NAME}-${GITHUB_SHA::7}"
           fi
 

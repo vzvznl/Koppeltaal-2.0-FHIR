@@ -11,6 +11,7 @@
 
 ## Diagrams
 - PlantUML source files go in `input/images-source/*.plantuml`. The Makefile automatically generates PNG files from these into `input/images/` during the build. Never generate PNG files manually.
+- To preview/regenerate the SVGs locally, run `python3 scripts/render-diagrams.py`. It renders with the **same PlantUML version as the IG publisher (1.2025.2, bundled via `fhir.base.template`)**. Do **not** rely on a newer local PlantUML (1.2026.x): it flags the `#colour:activity;` prefix as deprecated and renders a red banner, whereas the publisher's 1.2025.2 *requires* that prefix — the newer `:activity; <<#colour>>` stereotype syntax makes the publisher fail with exit 200 (`Publishing Content Failed: Java returned: 200`).
 - The IG publisher automatically converts PlantUML sources to SVG with correct UTF-8 encoding. Reference them in pagecontent markdown using Jekyll includes:
 ```html
   <div style="clear: both; margin: 1em 0;">
