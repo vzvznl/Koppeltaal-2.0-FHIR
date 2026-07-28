@@ -174,7 +174,7 @@ Noodrem trekken met een coded (non-PII) reden — `PUT Task/{id}` met `If-Match:
     "coding": [{ "system": "http://vzvz.nl/fhir/CodeSystem/koppeltaal-delete-hold-reason", "code": "data-export-pending", "display": "Export naar bronsysteem loopt nog" }]
   },
   "intent": "order",
-  "code": { "coding": [{ "system": "https://koppeltaal.nl/fhir/CodeSystem/koppeltaal-task-code", "code": "delete-pending" }] },
+  "code": { "coding": [{ "system": "http://vzvz.nl/fhir/CodeSystem/koppeltaal-task-code", "code": "delete-pending" }] },
   "for": { "reference": "Patient/{patientId}" },
   "owner": { "reference": "Device/{appDevice}" }
 }
