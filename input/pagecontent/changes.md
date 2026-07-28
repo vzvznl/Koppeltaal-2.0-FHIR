@@ -2,6 +2,15 @@
 
 Deze pagina bevat een overzicht van de wijzigingen per versie van de Koppeltaal 2.0 Implementation Guide.
 
+### 0.16.4 (2026-07-09)
+
+#### Toegevoegd
+- **KT2DeletePendingTask profiel**: nieuw Task-profiel voor de aankondigings-Task van het opschoningsproces (één per Patient × deelnemende applicatie). Vaste `code` (`delete-pending`), `intent = order`, `for` (KT2_Patient), `owner` en `requester` (KT2_Device), verplichte server-beheerde `restriction.period.end` (grace-deadline) en een coded `statusReason` voor de noodrem-reden. Reageren gebeurt via de native Task-lifecycle (`on-hold` als noodrem, `accepted` als groen licht); de server valideert de overgangen. Vervangt PR #67.
+- **KoppeltaalTaskCode codesysteem**: code `delete-pending` toegevoegd voor de aankondigings-Task.
+- **KoppeltaalSecurityLabel codesysteem**: nieuw codesysteem met de server-owned `meta.security`-marker `kt2-delete-flow` waarmee de Koppeltaalvoorziening de opschoon-resources labelt (lezen domein-breed, schrijven owner-scoped op de Task).
+- **KoppeltaalDeleteHoldReason codesysteem + ValueSet**: gesloten redenlijst voor de noodrem (`Task.statusReason` op de KT2DeletePendingTask), met required binding, verplichte `coding.display` en `text 0..0` — afdwingbaar PII-vrij omdat de Task domein-breed leesbaar is.
+- **Voorbeelden**: `task-delete-pending` (aankondigings-Task), `device-koppeltaalvoorziening` (Device van de Koppeltaalvoorziening) en de zes geaggregeerde opschoning-lifecycle AuditEvents `auditevent-opschoning-archive` / `-hold` / `-unhold` / `-grace-reset` / `-reactivate` / `-destroy` (ISO 21089 lifecycle-codes op `type`, `entity.what` altijd de Patient, de Koppeltaalvoorziening als `agent`); alle voorbeelden dragen de `kt2-delete-flow`-marker.
+
 ### 0.16.3 (2026-06-25)
 
 #### Hersteld
