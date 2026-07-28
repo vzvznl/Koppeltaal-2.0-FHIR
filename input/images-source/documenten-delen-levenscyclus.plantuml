@@ -1,0 +1,26 @@
+@startuml documenten-delen-levenscyclus
+
+skinparam state {
+  BackgroundColor #f5f5f5
+  BorderColor #333333
+}
+
+state "Beschikbaar" as beschikbaar
+state "Uitgedoofd" as uitgedoofd
+
+[*] --> beschikbaar : module publiceert DocumentReference\n(attachment.url aanwezig)
+
+beschikbaar : inhoud gegarandeerd ophaalbaar via\nattachment.url (beschikbaarheidstermijn: 30 dagen)
+beschikbaar --> beschikbaar : nieuwe versie binnen de termijn:\nupdate-in-place (nieuwe url + hash)
+beschikbaar --> uitgedoofd : bron verwijdert attachment.url\nna afloop van de termijn
+
+uitgedoofd : metadata-anker blijft bestaan\n(contentType, title, creation, size, hash)
+uitgedoofd --> [*] : opschoning Patient-data\n($purge-cascade)
+
+note right of uitgedoofd
+  Een latere herziening (draaideurscenario)
+  is een nieuwe DocumentReference met
+  relatesTo[replaces] naar dit blijvende anker.
+end note
+
+@enduml
