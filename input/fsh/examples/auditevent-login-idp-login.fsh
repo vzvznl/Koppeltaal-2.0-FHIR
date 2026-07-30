@@ -23,11 +23,13 @@ Usage: #example
   * type = $DCM#110153 "Source Role ID"
   * who = Reference(device-externe-idp)
     * type = "Device"
+    * display = "Externe IdP"
   * requestor = false
 * source
   * site = "Koppeltaal Domein X"
   * observer = Reference(autorisatieserver)
     * type = "Device"
+  * type = $security-source-type#6 "Security Server"
 * entity
   * what = Reference(patient-botje-minimaal)
     * type = "Patient"

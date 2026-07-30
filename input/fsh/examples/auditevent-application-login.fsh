@@ -23,6 +23,7 @@ Usage: #example
   * site = "applicatie.example.nl"
   * observer = Reference(device-volledig)
     * type = "Device"
+  * type = $security-source-type#4 "Application Server"
 * entity
   * what = Reference(patient-botje-minimaal)
     * type = "Patient"

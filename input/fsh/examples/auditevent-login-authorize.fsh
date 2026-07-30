@@ -23,6 +23,7 @@ Usage: #example
   * site = "Koppeltaal Domein X"
   * observer = Reference(autorisatieserver)
     * type = "Device"
+  * type = $security-source-type#6 "Security Server"
 * entity
   * what = Reference(patient-botje-minimaal)
     * type = "Patient"
