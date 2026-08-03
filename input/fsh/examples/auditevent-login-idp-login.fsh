@@ -19,10 +19,16 @@ Usage: #example
   * who = Reference(device-volledig)
     * type = "Device"
   * requestor = true
+// Variation on purpose: agent(2).who as a logical reference (identifier + display)
+// instead of the literal Reference(device-externe-idp) used in auditevent-login-idp-call.
+// Do not normalise these two examples to one form.
 * agent[+]
   * type = $DCM#110153 "Source Role ID"
-  * who = Reference(device-externe-idp)
+  * who
     * type = "Device"
+    * identifier
+      * system = "http://vzvz.nl/fhir/NamingSystem/koppeltaal-client-id"
+      * value = "externe-idp"
     * display = "Externe IdP"
   * requestor = false
 * source

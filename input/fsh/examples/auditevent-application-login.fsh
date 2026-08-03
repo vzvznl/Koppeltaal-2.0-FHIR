@@ -32,6 +32,8 @@ Usage: #example
 * extension[0]
   * url = "http://koppeltaal.nl/fhir/StructureDefinition/trace-id"
   * valueId = "7f4a1c9e-2d6b-4e8f-a3c5-0b9d8e7f6a21"
+// Variation on purpose: a UUID-style request-id, where the other examples use a short
+// opaque value. The request-id extension allows any FHIR id; neither form is normative.
 * extension[+]
   * url = "http://koppeltaal.nl/fhir/StructureDefinition/request-id"
-  * valueId = "Nc8dR4tGy1wZk5Xj"
+  * valueId = "0ae41ca5-7459-4590-982c-a2f326190a4d"
