@@ -25,7 +25,6 @@ Usage: #example
 * agent[+]
   * type = $DCM#110153 "Source Role ID"
   * who
-    * type = "Device"
     * identifier
       * system = "http://vzvz.nl/fhir/NamingSystem/koppeltaal-client-id"
       * value = "externe-idp"
