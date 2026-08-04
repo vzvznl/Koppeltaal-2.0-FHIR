@@ -6,6 +6,7 @@
 | 0.2 | 13 jul 2026 | Concept | Herontwerp overgenomen van de IG-pagina "Opschoning Patient-data" (v0.2.0). Het `meta.tag`-lifecycle-model is vervangen door een FHIR-native Task-workflow (`KT2_DeletePendingTask`) met een server-owned `meta.security`-marker (`kt2-delete-flow`). Betrokkenheidsmodel (`T_auth`), graceful/fast-track-verwijderpad en geaggregeerde AuditEvents op basis van standaard ISO 21089-lifecycle-codes toegevoegd. Titel gewijzigd van "Archivering" naar "Opschoning patiëntgegevens": het ontwerp kent geen aparte gearchiveerde (read-only) tussentoestand meer — data blijft actief tot de definitieve verwijdering. |
 | 0.3 | 14 jul 2026 | Besloten | Herontwerp vastgesteld in de architectuurbespreking; status gewijzigd van besluitvormingsdocument naar besloten ontwerp. De resterende uitwerkingspunten blijven staan onder [Discussiepunten](#discussiepunten). |
 | 0.4 | 30 jul 2026 | Besloten | Verduidelijkingen n.a.v. vragen uit de Technical Community: nieuwe subsectie [Na de verwijdering](#na-de-verwijdering-her-onboarding-en-launch) over her-onboarding na verwijdering (nieuwe `Patient.id`; herkenning via de business-identifier `Patient.identifier`) en het verwachte launch-gedrag na verwijdering (launch-ingangen opruimen; fallback via de reguliere launch-foutafhandeling, TOP-KT-012c). Drie CodeSystem-URL's gecorrigeerd naar de canonieke IG-URL's (`http://vzvz.nl/fhir/CodeSystem/koppeltaal-security-label`, `…/koppeltaal-delete-hold-reason`, `…/koppeltaal-task-code`). |
+| 0.5 | 4 aug 2026 | Besloten | Verwerking review-comments (K. Graveland, 27 jul): noodrem/groen licht kort geduid in de Oplossingsrichting; figuur-onderschriften (Figuur 1–4) en expliciete verwijzingen naar het interactie- en statusdiagram en de Termijnen-tabel; noodrem-time-out geherformuleerd ("geen eigen time-out" i.p.v. "oneindig"); grace period begrensd (14–90 dagen, te bevestigen); Termijnen-tabel uitgebreid met freeze-window en overgangsvenster; discussiepunt 4 herschreven in vraagvorm (onderbouwing verplaatst naar Overwogen alternatieven); nieuwe discussiepunten: initiële populatie & gefaseerde uitrol, concrete termijn-waarden, besluitvorming & randvoorwaardelijkheid. |
 
 > **Status: besloten ontwerp.** Het herontwerp is vastgesteld in de architectuurbespreking. Profiel-/FSH-wijzigingen en interactiediagrammen volgen; de resterende uitwerkingspunten staan onder [Discussiepunten](#discussiepunten).
 
@@ -17,7 +18,7 @@ De gekozen oplossingsrichting is een **standaard FHIR Task-workflow**. De Koppel
 
 > **Waarom niet "Archivering"?** Een eerdere versie van dit topic (0.1) beschreef een archiveringslifecycle op de Patient resource via `meta.tag` (`ARCHIVE_PENDING`, `ARCHIVED`, `PURGE_PENDING`), met een gearchiveerde read-only tussentoestand. Dat model is bij nadere uitwerking afgewezen (zie [Overwogen alternatieven](#overwogen-alternatieven)): het kent geen per-app status als één gedeelde noodrem zonder eigenaar, muteert de Patient resource en vereist cross-tenant schrijven. In het huidige ontwerp bestaat er geen aparte archief-toestand: data blijft actief en ongewijzigd beschikbaar tot het moment van definitieve verwijdering. De titel is daarom gewijzigd naar "Opschoning patiëntgegevens": het ontwerp kent geen tussentoestand meer.
 
-> De PlantUML-bron van het overzichtsdiagram is beschikbaar in `input/images-source/opschoning-patient-data-overzicht.plantuml`.
+> *Figuur 1 — Overzicht van de opschoon-flow.* De PlantUML-bron van het overzichtsdiagram is beschikbaar in `input/images-source/opschoning-patient-data-overzicht.plantuml`.
 
 ## Overwegingen
 
@@ -41,7 +42,7 @@ Buiten scope zijn niet cliënt-specifieke resources en resources die geen onderd
 
 **Verwijderen op patiëntniveau.** FHIR resources zijn referentieel verbonden; individueel verwijderen geeft integriteitsproblemen. Verwijdering vindt daarom op patiëntniveau plaats — alle aan de patiënt gerelateerde resources als geheel. `RelatedPerson` valt binnen de scope (altijd aan één patiënt gekoppeld); `Practitioner` niet (kan bij meerdere patiënten betrokken zijn).
 
-**Logging en PII gescheiden.** Persoonsgegevens (PII): max. 2 jaar. AuditEvents (NEN 7513): min. 5 jaar. AuditEvents zijn immutable en bevatten geen demografie — alleen technische, **pseudonieme** referenties (zoals een `Patient`-UUID). Na verwijdering van de PII ontsluiten die binnen de voorziening geen herleidbare gegevens meer, maar ze gelden niet als volledig geanonimiseerd.
+**Logging en PII gescheiden.** Persoonsgegevens (PII): max. 2 jaar. AuditEvents (NEN 7513): min. 5 jaar (zie [Termijnen](#termijnen)). AuditEvents zijn immutable en bevatten geen demografie — alleen technische, **pseudonieme** referenties (zoals een `Patient`-UUID). Na verwijdering van de PII ontsluiten die binnen de voorziening geen herleidbare gegevens meer, maar ze gelden niet als volledig geanonimiseerd.
 
 De Koppeltaalvoorziening initieert het proces zodra de 2-jaarstermijn (vanaf de laatste betrokkenheid) is verstreken. Het ECD heeft op grond van de [WGBO](https://wetten.overheid.nl/BWBR0005290) een eigen termijn (max. 20 jaar) en is zelf verantwoordelijk voor het tijdig veiligstellen van data.
 
@@ -88,22 +89,26 @@ Vanaf `C + 2 jaar` is de selectie volledig op `T_auth` gebaseerd en bepaalt een 
 
 De `Task` telt hier **niet** mee voor de selectie (een Patiënt zonder login blijft opschoonbaar), alléén voor de **routekeuze**. Beide paden eindigen in dezelfde [definitieve verwijdering](#definitieve-verwijdering), met vlak vóór de erase een laatste auth-hercontrole.
 
+Het volledige procesverloop van het graceful pad — aankondiging, grace period, noodrem en definitieve verwijdering — is weergegeven in het interactiediagram (*Figuur 2*) onder [Coördinatie via Task](#coördinatie-via-task-kt2_deletependingtask).
+
 ### Termijnen
 
-Vaste termijnen voor een voorspelbaar kader; **alleen de grace period is per domein aanpasbaar** (omhoog of omlaag, begrensd en geaudit).
+Vaste termijnen voor een voorspelbaar kader; **alleen de grace period is per domein aanpasbaar** (omhoog of omlaag, binnen **min. 14 – max. 90 dagen**, geaudit; grenzen te bevestigen — zie [Discussiepunten](#discussiepunten)).
 
 | Termijn | Waarde | Toelichting |
 | --- | --- | --- |
-| Grace period | **30 dagen** (default; per domein aanpasbaar) | Window tussen aankondiging (`requested`) en geplande verwijdering; vastgelegd in `restriction.period.end` (server-beheerd; schuift mee bij een grace-reset) |
+| Grace period | **30 dagen** (default; per domein aanpasbaar binnen 14–90 dagen) | Window tussen aankondiging (`requested`) en geplande verwijdering; vastgelegd in `restriction.period.end` (server-beheerd; schuift mee bij een grace-reset) |
 | Bewaartermijn PII | 2 jaar | Vanaf `last-patient-engagement` (KT2-uitgangspunt) |
 | Bewaartermijn AuditEvents | 5 jaar | Minimale logging-bewaartermijn (bevestigen tegen NEN 7513); geen demografie |
-| Noodrem-time-out (`on-hold`) | oneindig | Op de grace-deadline worden alle holds gewist en herstart de grace period; om te blijven blokkeren trekt een app telkens opnieuw — met een reden — aan de handrem |
+| Noodrem-time-out (`on-hold`) | geen eigen time-out (vervalt bij de grace-deadline) | Op de grace-deadline worden alle holds gewist en herstart de grace period; om te blijven blokkeren trekt een app telkens opnieuw — met een reden — aan de handrem |
+| Freeze-window | max. 24 uur (te bevestigen) | Lock tussen de laatste auth-hercontrole en de erase; voorkomt een race tussen check en verwijdering (zie [Definitieve verwijdering](#definitieve-verwijdering)) |
+| Overgangsvenster | `C + 2 jaar` | Periode waarin de `T_legacy`-brug actief is; daarna alleen `T_auth`-selectie (zie [Betrokkenheidsmodel](#betrokkenheidsmodel-last-patient-engagement)) |
 
 De grace period geldt **niet** voor het [fast-track-pad](#verwijderpad-graceful-of-fast-track) — daar wordt direct verwijderd.
 
 ## Oplossingsrichting
 
-De opschoon-flow is een **standaard FHIR Task-workflow**. De Koppeltaalvoorziening zet per deelnemende app een delete-pending `Task` klaar; apps **lezen** die met gewone FHIR-interacties en **reageren** met een `Task.status`-write; de server **bewaakt de transities** en voert de definitieve verwijdering intern uit. Eén mechanisme maakt dit mogelijk zónder de CRUD-matrix te wijzigen: één server-owned **`meta.security`-marker** (`kt2-delete-flow`) die de Koppeltaalvoorziening als **additieve grant** bovenop de matrix leest. Apps gebruiken dezelfde FHIR-interacties die ze al hebben — geen aparte operation: ze **lezen** de flow (Task én delete-AuditEvents) domein-breed en **schrijven** alleen de toegestane status-overgang op hun eigen Task.
+De opschoon-flow is een **standaard FHIR Task-workflow**. De Koppeltaalvoorziening zet per deelnemende app een delete-pending `Task` klaar; apps **lezen** die met gewone FHIR-interacties en **reageren** met een `Task.status`-write — `on-hold` is de **noodrem**, `accepted` het **groene licht** (zie [Status-lifecycle](#status-lifecycle--server-validatie)); de server **bewaakt de transities** en voert de definitieve verwijdering intern uit. Eén mechanisme maakt dit mogelijk zónder de CRUD-matrix te wijzigen: één server-owned **`meta.security`-marker** (`kt2-delete-flow`) die de Koppeltaalvoorziening als **additieve grant** bovenop de matrix leest. Apps gebruiken dezelfde FHIR-interacties die ze al hebben — geen aparte operation: ze **lezen** de flow (Task én delete-AuditEvents) domein-breed en **schrijven** alleen de toegestane status-overgang op hun eigen Task.
 
 | Concern | Mechanisme |
 | --- | --- |
@@ -140,7 +145,7 @@ De marker is dus de **enige** as: lezen = domein-breed, schrijven = owner-scoped
 
 Het proces wordt aangekondigd via één FHIR `Task` per (Patient × deelnemende applicatie); de Patient zelf wordt niet aangeraakt. Een Task-per-applicatie geeft elke app een eigen, onafhankelijk **workflow**-statusobject (haar eigen handrem en groen licht). De **AuditEvents** zijn daarentegen **geaggregeerd** op procesniveau — de Voorziening logt de geaggregeerde status (zie [AuditEvents](#auditevents-bij-statusovergangen)), niet elke losse Task-write. De Task is **server-owned maar door deelnemende apps leesbaar** (domein-breed, zie [Toegang buiten de matrix](#toegang-buiten-de-matrix-metasecurity)): apps lezen 'm met een gewone `GET` en de **eigen** app reageert met een `Task.status`-write (zie [Status-lifecycle](#status-lifecycle--server-validatie)).
 
-> De PlantUML-bron van het interactiediagram is beschikbaar in `input/images-source/opschoning-patient-data-interactie.plantuml`.
+> *Figuur 2 — End-to-end procesverloop van de verwijdering van patiëntgerelateerde gegevens.* De PlantUML-bron van het interactiediagram is beschikbaar in `input/images-source/opschoning-patient-data-interactie.plantuml`.
 
 **Per deelnemende applicatie een Task.** De Koppeltaalvoorziening maakt en bezit de aankondigings-Task(s) (`requester` = de Koppeltaalvoorziening). Onder de deelnemers krijgt vooralsnog elke app een Task per opschoning.
 
@@ -170,9 +175,9 @@ Het proces wordt aangekondigd via één FHIR `Task` per (Patient × deelnemende 
 
 ### Status-lifecycle & server-validatie
 
-De app reageert door **`Task.status` te schrijven** (`PUT` met `If-Match`) op haar eigen Task — geen custom operation; KT2 ondersteunt geen `PATCH`. De Koppeltaalvoorziening **valideert** elke overgang.
+De app reageert door **`Task.status` te schrijven** (`PUT` met `If-Match`) op haar eigen Task — geen custom operation; KT2 ondersteunt geen `PATCH`. De Koppeltaalvoorziening **valideert** elke overgang. Het statusdiagram (*Figuur 3*) geeft de state-machine visueel weer; de tabel hieronder beschrijft per status hoe die wordt gezet en welk belang die in het proces heeft.
 
-> De PlantUML-bron van het statusdiagram is beschikbaar in `input/images-source/opschoning-patient-data-statusflow.plantuml`.
+> *Figuur 3 — Status-lifecycle van de delete-pending Task (state-machine).* De PlantUML-bron van het statusdiagram is beschikbaar in `input/images-source/opschoning-patient-data-statusflow.plantuml`.
 
 | `Task.status` | Hoe gezet | Betekenis | Belang in het proces |
 | --- | --- | --- | --- |
@@ -239,7 +244,7 @@ De `destroy`-AuditEvent is daarmee de **gezaghebbende** bevestiging; een `GET` o
 
 De **criteria** uit het Betrokkenheidsmodel bepalen de initiële selectie. Vlak vóór de verwijdering wordt **alleen de auth-check** opnieuw gedraaid om **hernieuwde betrokkenheid** te detecteren — bij het graceful pad tijdens de grace period, bij fast-track in de freeze-window vlak vóór de erase. Is er een nieuw geslaagd auth-event, dan stopt de verwijdering: bij graceful gaat de Task → `cancelled` (een `reactivate`-AuditEvent op `type`) en herstart de 2-jaarstermijn; bij fast-track wordt simpelweg niet verwijderd. De overige criteria (leeftijd, transitie-brug) liggen vast bij de selectie.
 
-> De PlantUML-bron van het activiteitscheck-diagram is beschikbaar in `input/images-source/opschoning-patient-data-activiteitscheck.plantuml`.
+> *Figuur 4 — Activiteitscheck bij selectie en hercontrole.* De PlantUML-bron van het activiteitscheck-diagram is beschikbaar in `input/images-source/opschoning-patient-data-activiteitscheck.plantuml`.
 
 > *Niet-normatief — implementatie.* Hóé een voorziening deze criteria evalueert (bijvoorbeeld als één interne query met negatie, of als losse FHIR-searches per kandidaat — waarbij chaining naar `RelatedPerson.patient` de gekoppelde RelatedPersons meeneemt en de delete-pending Task zelf wordt uitgesloten) is vrij; alleen de criteria zijn normatief.
 
@@ -248,7 +253,7 @@ De **criteria** uit het Betrokkenheidsmodel bepalen de initiële selectie. Vlak 
 De definitieve verwijdering is een **interne server-stap** — alleen de Koppeltaalvoorziening voert 'm uit, na de [activiteitscheck](#activiteitscheck-selectie-en-hercontrole). De erase-semantiek is **server-agnostisch**; *hoe* een server het uitvoert (HAPI `$expunge`, IRIS-eigen mechanisme) is implementatie-detail (FHIR R4 kent geen Patient-`$purge`).
 
 - **Echte erase, geen tombstone.** Dit is een *harde* verwijdering en **geen reguliere FHIR `DELETE`** (die behoudt de history; een latere `read` geeft dan `410 Gone`). De erase wist alle versies, waardoor de id daarna **onbekend** is: een latere `GET` geeft **404** en een `vread` is onmogelijk — anders zou je via de history alsnog PII teruglezen. Bevestiging verloopt via de **gezaghebbende** `destroy`-AuditEvent of een `GET` → 404, zoals beschreven onder [AuditEvents](#auditevents-bij-statusovergangen).
-- **Precondities** — *graceful pad*: geen Task op `on-hold`; grace verstreken óf alle relevante Tasks `accepted`; geen hernieuwde betrokkenheid. *Fast-track pad* (vanaf `C + 2 jaar`, geen recente `Task` — zie [Verwijderpad](#verwijderpad-graceful-of-fast-track)): geen aankondiging/grace, direct na een laatste auth-hercontrole. Beide paden: een **lock/freeze-window** tussen de check en de verwijdering voorkomt een race.
+- **Precondities** — *graceful pad*: geen Task op `on-hold`; grace verstreken óf alle relevante Tasks `accepted`; geen hernieuwde betrokkenheid. *Fast-track pad* (vanaf `C + 2 jaar`, geen recente `Task` — zie [Verwijderpad](#verwijderpad-graceful-of-fast-track)): geen aankondiging/grace, direct na een laatste auth-hercontrole. Beide paden: een **lock/freeze-window** tussen de check en de verwijdering voorkomt een race (duur: zie [Termijnen](#termijnen)).
 - **Scope**: het Patient Compartment, **met `AuditEvent` uitgesloten** — die overleeft als centraal record en mag de verwijderde `Patient/{id}` blijven refereren (referentiële integriteit op dat punt uitgezonderd). De Tasks van deze Patient (`Task` valt niet in het compartiment) worden **apart** mee-verwijderd: de `delete-pending`-Tasks én de historische `cancelled`-Tasks (die verwijzen nu naar een gewiste Patient). Tijdens een lopende cyclus blijft een `cancelled`-Task juist behouden (onderscheidt reactivering van een uitgevoerde verwijdering). Omvat o.a. Patient, RelatedPerson, CareTeam.
 - **cascade** vastgezet door policy; de stap is **idempotent** — een herhaling ná een voltooide erase leunt op de overlevende `destroy`-AuditEvent (de instance bestaat dan niet meer), met gedefinieerd failure/retry-gedrag.
 
@@ -268,6 +273,7 @@ Afgewezen of als variant genoteerd:
 
 - **`meta.tag`-lifecycle op de Patient** — het model uit concept 0.1 van dit topic: archiveringsstatussen (`ARCHIVE_PENDING`, `ARCHIVED`, `PURGE_PENDING`, `ARCHIVE_HOLD`) als `meta.tag` op de Patient resource, met notificatie via Subscriptions op `_tag`. Afgewezen: geen per-app status (één gedeelde noodrem zonder eigenaar), muteert de Patient resource, en vereist cross-tenant schrijven. Ook de aparte gearchiveerde (read-only) tussentoestand is hiermee vervallen.
 - **Operation-/webhook-model ("hide-fully")** — de Task verstoppen (search-narrowing) en app-interactie via custom operations + een custom notificatie-payload; afgewezen als te ver van FHIR voor wat het oplost. Het exposed-Task-model (dit topic) houdt de CRUD-matrix intact en is FHIR-native.
+- **Custom `CompartmentDefinition`, custom operation of FHIR `Consent` als toegangsmechanisme** — overwogen als *méér*-standaard alternatieven voor de `kt2-delete-flow`-marker. Afgewezen: R4 laat compartimenten alleen door HL7 International definiëren en het Device-compartment dekt Task/Subscription niet; een custom operation is het al afgewezen hide-fully-model; `Consent` kán exacte instances benoemen maar blijft policy-data die nog steeds een PDP vereist — server-validatie van de Task-overgangen blijft normatief.
 - **FHIR soft delete** — geen revert bij cascading delete, geen DELETE-notificaties in R4, onzekere server-ondersteuning.
 - **Geen notificatie** — eenvoudigst, maar geen veiligstellen/bezwaar.
 - **Two-phase commit** — maximale coördinatie, maar blokkerende apps.
@@ -303,8 +309,11 @@ De volgende punten staan nog open voor de architectuurbespreking:
 1. **Domein-transparantie vs. footprint (privacy).** Gekozen: de opschoon-flow is **domein-breed leesbaar** (Tasks + delete-AuditEvents) — elke deelnemer ziet welke patiënten op verwijdering staan en de overgangen (pseudonieme UUID's, coded, geen demografie/vrije tekst, binnen één DPA-domein). AVG art. 19 wijst richting **footprint-based** versmalling als mogelijke v2. Bevestigen met privacy.
 2. **Betrokkenheid = authenticatie (ná de transitie).** De Task-brug telt tot `C + 2 jaar` any-actor `Task.meta.lastUpdated` (incl. Practitioner → tijdelijk conservatief); dáárna geldt alleen `T_auth`. Gevolg: ná de transitie wordt een patiënt die enkel via Practitioner-activiteit "in zorg" is maar 2 jaar niet inlogde, opschoonbaar — het [verwijderpad](#verwijderpad-graceful-of-fast-track) bepaalt dan het vangnet (recente `Task` → graceful/noodrem; geen → fast-track). (`meta.lastUpdated` is bovendien optioneel.) Bevestigen.
 3. **Subtype `110126`.** FHIR labelt dit "Node Authentication", niet user-login. Handhaven met eigen display, of passender subtype? Nog géén harde SHALL.
-4. **`kt2-delete-flow`-marker formeel vastleggen.** De marker en haar interpretatie als **additieve grant** normatief opnemen in de autorisatiepagina's (zie [Topic 05](TOP-KT-005-toegangsbeheersing.md)). Te bevestigen: de exacte code/het CodeSystem; dat AuditEvent-read-only **KT2-beleid** is (geen FHIR-norm); en de borging (server-owned marker; DPA-domein uit de Device-registratie i.p.v. de gewiste Patient; onafhankelijke autorisatie van `_include`/contained/history/export). Verworpen als *méér*-standaard alternatief: een custom `CompartmentDefinition` (R4: compartimenten alleen door HL7 International te definiëren; het Device-compartment dekt Task/Subscription niet) en een `-operation (= het al afgewezen hide-fully-model). FHIR` Consent` kán exacte instances benoemen maar blijft policy-data die nog steeds een PDP vereist; server-validatie van de Task-overgangen is normatief.
+4. **`kt2-delete-flow`-marker formeel vastleggen.** Wanneer en waar wordt de marker normatief vastgelegd in de autorisatiepagina's ([Topic 05](TOP-KT-005-toegangsbeheersing.md))? De exacte CodeSystem-URI is inmiddels vastgelegd in de IG (v0.2.2): `http://vzvz.nl/fhir/CodeSystem/koppeltaal-security-label#kt2-delete-flow`. Daarbij te bevestigen: de interpretatie als **additieve grant**; dat AuditEvent-read-only **KT2-beleid** is (geen FHIR-norm); en de borging (server-owned marker; DPA-domein uit de Device-registratie i.p.v. de gewiste Patient; onafhankelijke autorisatie van `_include`/contained/history/export). De overwogen en verworpen alternatieven staan onder [Overwogen alternatieven](#overwogen-alternatieven).
 5. **Deelname/opt-in & Subscription-provisioning.** Hoe wordt een app deelnemer — automatisch elke app in het domein, of een expliciete opt-in (bv. via domeinbeheer)? En provisioneert de Koppeltaalvoorziening de notificatie-`Subscription`(s) vóór, of maakt elke app 'm zelf (R4 staat client-Subscriptions toe)? Open; te beslissen met domeinbeheer/architectuur.
+6. **Initiële populatie & gefaseerde uitrol.** Bij inwerkingtreding wordt de bestaande voorraad inactieve patiënten in één keer opschoonbaar. Hoe groot is die eerste golf per domein, en kunnen de voorziening én de apps dat volume aan? En is er een fallback als het misgaat — bijvoorbeeld een batch-limiet per run, een gefaseerde uitrol per domein of een extra signaal richting de deelnemers?
+7. **Concrete termijn-waarden.** De grenzen van de domein-aanpasbare grace period (voorzet: min. 14 – max. 90 dagen, default 30) en de duur van het freeze-window (voorzet: max. 24 uur) bevestigen — zie [Termijnen](#termijnen). Zonder grenzen is de grace period onimplementeerbaar; de freeze-window-duur heeft impact op de hercontrole-logica en race-condities.
+8. **Besluitvorming & randvoorwaardelijkheid.** Per discussiepunt vastleggen welk gremium besluit (Technical Community, Standaardisatie-team of architectuurbespreking) en of het besluit randvoorwaardelijk is voor ingebruikname van deze uitbreiding.
 
 De volgende punten zijn inmiddels **besloten** en in de tekst verwerkt: de delete-AuditEvents leggen de **geaggregeerde** proces-status per patiënt vast, niet elke losse `Task.status`-write (grondslag: KT2-juridisch hoeft de verwijdering niet per client te worden onderbouwd); en de workflow-events worden gediscrimineerd via **standaard ISO 21089-lifecycle-codes op `AuditEvent.type`** in plaats van een custom CodeSystem of `entity.lifecycle` (géén zoekparameter).
 
