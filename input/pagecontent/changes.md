@@ -2,11 +2,6 @@
 
 Deze pagina bevat een overzicht van de wijzigingen per versie van de Koppeltaal 2.0 Implementation Guide.
 
-### 0.16.5 (2026-07-28)
-
-#### Toegevoegd
-- **AuditEvent voorbeelden**: vijf voorbeelden van de Topic 11 authenticatie-events toegevoegd — `introspect`, `authorize`, `idp call` en `idp login` (subtype `DCM#110122`, onderscheiden via de `outcomeDesc`-prefix) en Application User Authentication (subtype `DCM#110126`) — plus een Device-voorbeeld voor de externe IdP.
-
 ### 0.16.4 (2026-07-09)
 
 #### Toegevoegd
@@ -15,6 +10,7 @@ Deze pagina bevat een overzicht van de wijzigingen per versie van de Koppeltaal 
 - **KoppeltaalSecurityLabel codesysteem**: nieuw codesysteem met de server-owned `meta.security`-marker `kt2-delete-flow` waarmee de Koppeltaalvoorziening de opschoon-resources labelt (lezen domein-breed, schrijven owner-scoped op de Task).
 - **KoppeltaalDeleteHoldReason codesysteem + ValueSet**: gesloten redenlijst voor de noodrem (`Task.statusReason` op de KT2DeletePendingTask), met required binding, verplichte `coding.display` en `text 0..0` — afdwingbaar PII-vrij omdat de Task domein-breed leesbaar is.
 - **Voorbeelden**: `task-delete-pending` (aankondigings-Task), `device-koppeltaalvoorziening` (Device van de Koppeltaalvoorziening) en de zes geaggregeerde opschoning-lifecycle AuditEvents `auditevent-opschoning-archive` / `-hold` / `-unhold` / `-grace-reset` / `-reactivate` / `-destroy` (ISO 21089 lifecycle-codes op `type`, `entity.what` altijd de Patient, de Koppeltaalvoorziening als `agent`); alle voorbeelden dragen de `kt2-delete-flow`-marker.
+- **AuditEvent voorbeelden**: vijf voorbeelden van de Topic 11 authenticatie-events toegevoegd — `introspect`, `authorize`, `idp call` en `idp login` (subtype `DCM#110122`, onderscheiden via de `outcomeDesc`-prefix) en Application User Authentication (subtype `DCM#110126`) — plus een Device-voorbeeld voor de externe IdP.
 
 ### 0.16.3 (2026-06-25)
 
