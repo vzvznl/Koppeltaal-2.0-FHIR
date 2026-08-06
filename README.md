@@ -232,6 +232,47 @@ SKIP_BUILD=true ./scripts/sync_to_simplifier.sh
 The script rewrites relative `.html` links in resource descriptions to absolute GitHub Pages URLs so they work on Simplifier.
 
 The Implementation Guide on Simplifier.net is managed separately in the Simplifier UI. The sync only replaces FHIR resource JSON files — IG pages, styles, and project settings are preserved.
+
+### Publishing a package release to Simplifier.net
+
+Syncing resources and publishing a package are **two independent actions**:
+
+- `sync_to_simplifier.sh` updates the *project* at <https://simplifier.net/koppeltaalv2.0> — the browsable resources.
+- `scripts/release_package.sh` publishes a *package* to the registry at <https://packages.simplifier.net/koppeltaalv2.00> — what implementers install.
+
+Neither is run by CI; both are manual. Publishing a package does **not** require the project to be in sync, and syncing the project does **not** publish anything.
+
+> **Warning**: A published package version is permanent. Firely Terminal states "Once a package is published it can not be removed from the package server"; Simplifier's [package documentation](https://docs.fire.ly/projects/Simplifier/package_releases/simplifierPackages.html) confirms versions can only be *unlisted*, never deleted. Always run `--dry-run` first.
+
+**Prerequisites**: Firely Terminal (`fhir`), Simplifier.net credentials, and a publishing licence — `fhir publish-package` is a licensed command.
+
+Publish the exact artifact that CI built and that was tested, rather than rebuilding locally. `release_package.sh` reads the version from `sushi-config.yaml` and refuses to publish if it disagrees with the package, so run it from a checkout of the tag you are releasing:
+
+```bash
+# 1. Check out the release tag in a worktree
+git worktree add /tmp/kt-release v0.16.3
+
+# 2. Drop the CI-built package in place as output/package.tgz
+mkdir -p /tmp/kt-release/output
+gh release download v0.16.3 --pattern 'koppeltaalv2-0.16.3.tgz' --dir /tmp/kt-release/output
+mv /tmp/kt-release/output/koppeltaalv2-0.16.3.tgz /tmp/kt-release/output/package.tgz
+
+# 3. Review the summary and the generated release notes
+cd /tmp/kt-release && ./scripts/release_package.sh --dry-run
+
+# 4. Publish (prompts for confirmation)
+export FHIR_EMAIL=your-email FHIR_PASSWORD=your-password
+./scripts/release_package.sh
+```
+
+The script determines the last published version from the registry and builds the release notes from every `CHANGELOG.md` section between that version and the one being released — so **read the dry-run output**, since that text is what ends up on Simplifier. It also strips the `notForPublication` flag and the `file://` URL that the IG Publisher writes into `package.json`.
+
+#### Alternative: the Simplifier UI
+
+The *Releases* tab of the project offers `Create` > `Create new package`, or `Create new version for..` for an existing package. Per Firely's documentation this builds the package **from the project's resources**, so it publishes whatever `sync_to_simplifier.sh` last uploaded — not the contents of a git tag. Sync the project first, or the released version will silently ship stale content.
+
+Leave **Pin canonical references** unchecked. That option rewrites unversioned canonicals to the version resolved at creation time, which re-pins `AuditEvent.entity.what` to `Resource|4.0.1` — exactly the defect that `KT2_AuditEvent.fsh` works around.
+
 ### Release Types
 
 #### Main Branch Releases (Stable)
