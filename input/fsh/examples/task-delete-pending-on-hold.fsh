@@ -1,6 +1,6 @@
 Instance: task-delete-pending-on-hold
 InstanceOf: KT2_DeletePendingTask
-Description: "Example of a delete-pending Task on which the target application has pulled the emergency brake. The coded statusReason states why the deletion is paused; it comes from a closed list and takes no free text, so the reason itself cannot carry demographics. The Koppeltaal service clears statusReason as soon as on-hold is left."
+Description: "Example of a delete-pending Task on which the target application has pulled the emergency brake. The coded statusReason states why the deletion is paused; it comes from a closed list and `text` is closed off, so the reason itself is not a free-text field. The Koppeltaal service clears statusReason as soon as on-hold is left."
 Usage: #example
 * meta.profile = "http://koppeltaal.nl/fhir/StructureDefinition/KT2DeletePendingTask"
 * meta.security = $koppeltaal-security-label#kt2-delete-flow "KT2 delete flow"

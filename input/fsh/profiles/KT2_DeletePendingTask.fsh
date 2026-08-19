@@ -28,35 +28,21 @@ Description: "The KT2_DeletePendingTask profile represents the announcement that
 * status ^comment = "Native Task lifecycle. The Koppeltaal service sets `requested` (announcement), `cancelled` (renewed patient engagement) and `completed` (deletion executed). The target application only sets `on-hold` (temporary emergency brake) or `accepted` (green light); the server validates every transition."
 // The emergency-brake reason; explicitly allowed (unlike KT2_Task, where statusReason is 0..0).
 * statusReason ^short = "Reason for the emergency brake when `status = on-hold`"
-  * ^comment = "Coded, without demographics or free text. Set by the target application in the status write to `on-hold`; the server clears it when `on-hold` is left. The reason lives on the Task only (per application) and is not carried in the aggregated deletion lifecycle AuditEvents."
+  * ^comment = "Coded, from a closed list; `text` is closed off so the reason itself is not a free-text field. It must not be used to convey demographics. Set by the target application in the status write to `on-hold`; the server clears it when `on-hold` is left. The reason lives on the Task only (per application) and is not carried in the aggregated deletion lifecycle AuditEvents."
 * statusReason from $koppeltaal-delete-hold-reason-vs (required)
 // Exactly one reason: the closed list has no second terminology to translate into.
 * statusReason.coding 1..1
 * statusReason.coding.display ^short = "Human-readable description of the emergency-brake reason"
 * statusReason.text 0..0
 // Closed down to the same surface as KT2_Task, the house standard for a Task in this
-// IG. Parent is Task rather than KT2_Task, so those elements have to be closed here
-// by hand. The two KT2_Task closes that this profile needs stay open: statusReason
+// IG. Parent is Task rather than KT2_Task, so the shared UnusedTaskElements RuleSet
+// carries that list. The two KT2_Task closes that this profile needs stay open: statusReason
 // for the emergency-brake reason and restriction for the grace deadline. description
 // is closed on top of that set, because these Tasks reach applications holding no
 // Task read right at all and the coded statusReason should be the only reason
 // recorded on them.
-* basedOn 0..0
-* businessStatus 0..0
+* insert UnusedTaskElements
 * description 0..0
-* encounter 0..0
-* focus 0..0
-* groupIdentifier 0..0
-* input 0..0
-* instantiatesUri 0..0
-* insurance 0..0
-* location 0..0
-* note 0..0
-* output 0..0
-* performerType 0..0
-* reasonCode 0..0
-* reasonReference 0..0
-* relevantHistory 0..0
 // The Patient being deleted; places the Task in the Patient compartment.
 * for 1..1
 * for only Reference(KT2_Patient)
