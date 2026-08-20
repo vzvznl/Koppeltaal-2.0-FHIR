@@ -26,6 +26,17 @@ Het topic (PDF v0.2.0, 16 jan 2023) beschrijft statuscodes en OperationOutcome-b
 >
 > Bij het opschoonproces van patiëntgegevens (TOP-KT-028 — Opschoning patiëntgegevens) kondigt de Koppeltaalvoorziening een voorgenomen verwijdering aan via een per-applicatie `delete-pending` Task (`KT2_DeletePendingTask`). Een applicatie reageert met een `PUT` op haar **eigen** Task waarin uitsluitend `status` wijzigt (naar `on-hold`, met een coded `statusReason`, of naar `accepted`). De Koppeltaalvoorziening valideert elke overgang; optimistic concurrency via `If-Match`/ETag is hierbij normatief. De volgende situaties kunnen zich voordoen:
 >
+
+| Situatie | HTTP Statuscode | Toelichting |
+| --- | --- | --- |
+| `PUT` op de delete-pending Task van een **andere** applicatie (`Task.owner` ≠ eigen Device) | 403 Forbidden | Buiten het toegekende schrijfrecht: het `kt2-delete-flow`-label geeft alleen schrijfrecht op de eigen Task. |
+| `PUT` die iets anders wijzigt dan `status` (en `statusReason` bij `on-hold`): de server-owned velden `owner`, `for`, `requester`, `code`, `restriction.period.end`, óf een `PUT` waarin het server-owned `kt2-delete-flow`-security-label ontbreekt of gewijzigd is | 403 Forbidden | De server-owned velden en het label mogen alleen ongewijzigd worden teruggestuurd; een `PUT` die het label dropt wordt geweigerd. |
+| `PUT` met een niet-toegestane statusovergang (bijv. naar `cancelled` of `completed` — die zijn server-only — of van `accepted` terug naar `on-hold`) | 403 Forbidden (422 Unprocessable Entity is verdedigbaar wanneer de server dit als profielvalidatie implementeert) | Toegestaan voor de eigenaar is uitsluitend `requested`/`on-hold` → `on-hold`/`accepted`. |
+| `PUT` naar `on-hold` zónder coded `statusReason` | 422 Unprocessable Entity | Profielvalidatie (`KT2_DeletePendingTask`): de noodrem vereist een coded, niet-herleidbare reden. |
+| `PUT` zonder `If-Match`-header | 400 Bad Request (412 of 428 komen in de praktijk ook voor) | `If-Match` is bij deze status-write verplicht. |
+| `PUT` met een verouderde `If-Match`-waarde | 409 Conflict / 412 Precondition Failed | Zie het onderdeel "If-Match header probleem: 409 of 412" — beide codes zijn correct. |
+| `POST` (create) of `DELETE` op een delete-pending Task of een delete-AuditEvent | 403 Forbidden | Deze resources zijn server-owned; er is geen create-/delete-recht. |
+
 > | Situatie | HTTP Statuscode | Toelichting |
 > | --- | --- | --- |
 > | `PUT` op de delete-pending Task van een **andere** applicatie (`Task.owner` ≠ eigen Device) | 403 Forbidden | Buiten het toegekende schrijfrecht: het `kt2-delete-flow`-label geeft alleen schrijfrecht op de eigen Task. |
@@ -65,12 +76,12 @@ Het topic (PDF v0.2.0, 16 jan 2023) beschrijft statuscodes en OperationOutcome-b
 >
 > De definitieve verwijdering in het opschoonproces is een **harde erase**: alle versies van de resources worden gewist. Dit is géén reguliere FHIR `DELETE` (die de history behoudt, waarna een read `410 Gone` geeft). Na de erase is de id voor de server onbekend; het gedrag is daarom:
 >
-> | Actie | Resource state | HTTP Statuscode |
-> | --- | --- | --- |
-> | GET /Patient/\<id> (of een andere mee-verwijderde resource) | Verwijderd via opschoning | 404 Not Found |
-> | GET /Task/\<id> (delete-pending of historische `cancelled`-Task van de verwijderde patiënt) | Mee-verwijderd | 404 Not Found |
-> | GET /Patient/\<id>/_history/\<version> (vread) | History is gewist | 404 Not Found |
-> | PUT /Patient/\<id> | Resource bestaat niet | 404 Not Found |
+| Actie | Resource state | HTTP Statuscode |
+| --- | --- | --- |
+| GET /Patient/\<id> (of een andere mee-verwijderde resource) | Verwijderd via opschoning | 404 Not Found |
+| GET /Task/\<id> (delete-pending of historische `cancelled`-Task van de verwijderde patiënt) | Mee-verwijderd | 404 Not Found |
+| GET /Patient/\<id>/_history/\<version> (vread) | History is gewist | 404 Not Found |
+| PUT /Patient/\<id> | Resource bestaat niet | 404 Not Found |
 >
 > Er wordt bewust **géén `410 Gone`** en geen tombstone gegeven: een `410` zou het eerdere bestaan van de patiënt prijsgeven en vereist behoud van history, waarmee PII via een vread terugleesbaar zou blijven. De OperationOutcome bij deze `404` is summier (`issue.code` = `not-found`) en maakt géén onderscheid tussen "heeft nooit bestaan" en "is verwijderd".
 >
@@ -243,9 +254,9 @@ Een apart 012d zou dezelfde inhoud over drie bestaande plekken dupliceren zonder
 ## Open punten
 
 1. **Delivery-failure-afspraken nog niet in het topicdocument.** De afspraken "verzendpogingen loggen, `Subscription.status=error` bij herhaald falen, alerting bij de leverancier" staan momenteel alleen in de gedeelde ontwerp-samenvatting (briefing), niet letterlijk in TOP-KT-028 of op de IG-pagina (die zegt alleen "push is best-effort … pull is de garantie"). Vóór overname in TOP-KT-006 verifiëren dat dit inderdaad zo is besloten — *afhankelijk van de verdere uitwerking van TOP-KT-028*.
-2. **Duur van de grace period.** De briefing noemt 10 dagen (vast; SHOULD), TOP-KT-028 en de IG-pagina noemen 30 dagen default (per domein aanpasbaar). De voorstelteksten verwijzen daarom naar de Termijnen-tabel van TOP-KT-028 zonder zelf een duur te noemen; de aanbevolen pollingfrequentie ("ten minste dagelijks") past bij beide waarden.
-3. **Exacte marker-code onder voorbehoud.** De code/het CodeSystem van `kt2-delete-flow` is nog te bevestigen (*afhankelijk van besluit TOP-KT-028 discussiepunt 4/5 — "marker formeel vastleggen"*); de zoekvoorbeelden in W6 nemen de huidige ontwerpwaarde over.
+2. **Duur van de grace period.** De briefing noemt 10 dagen (vast; SHOULD), TOP-KT-028 en de IG-pagina noemen 30 dagen default (per domein aanpasbaar). De voorstelteksten verwijzen daarom naar de Termijnen-tabel van TOP-KT-028 zonder zelf een duur te noemen; de aanbevolen pollingfrequentie ("ten minste dagelijks") past bij beide waarden. *Voorlopig besloten (19 aug 2026): default 30 dagen, per domein aanpasbaar binnen 14–90 dagen.*
+3. **Exacte marker-code.** De canonieke code/het CodeSystem van `kt2-delete-flow` is inmiddels in de IG vastgelegd (`http://vzvz.nl/fhir/CodeSystem/koppeltaal-security-label`); het voormalige TOP-KT-028-discussiepunt "marker formeel vastleggen" is afgevoerd en de vastlegging in Topic 05 is belegd in `TOP-KT-005-update-instructies.md`. Controleer dat de zoekvoorbeelden in W6 de canonieke waarde gebruiken.
 4. **Statuscode bij een niet-toegestane statusovergang.** Het ontwerp zegt "alles buiten het toegekende schrijfrecht blijft 403"; W1 stelt daarom 403 voor, met 422 als verdedigbaar alternatief wanneer de server de overgang als profielvalidatie afdwingt. Definitieve keuze bij de uitwerking van de servervalidatie; voor clients maakt het per het bestaande 012a-advies (range-check) niet uit.
-5. **Subscription-provisioning.** Of de app zelf de `Subscription`(s) aanmaakt of de Koppeltaalvoorziening ze vóór-provisioneert is open (*afhankelijk van besluit TOP-KT-028 discussiepunt 5/7*). De pull-fallback uit W6 geldt in beide varianten onverkort.
+5. **Subscription-provisioning.** Of de app zelf de `Subscription`(s) aanmaakt of de Koppeltaalvoorziening ze vóór-provisioneert is open (*afhankelijk van besluit TOP-KT-028 discussiepunt 3*). De pull-fallback uit W6 geldt in beide varianten onverkort. *Voorlopig besloten (19 aug 2026): de app maakt de Subscription zelf.*
 6. **ERR-eisenpagina niet aangeleverd.** TOP-KT-012a verwijst voor de eisen naar "ERR — Eisen (en aanbevelingen) voor foutafhandeling"; die pagina zat niet bij de bronnen. Controleren of daar eisen over de status-write-validatie en het 404-na-erase-gedrag moeten worden toegevoegd (spiegel van W1/W2).
 7. Alle vier de PDF's waren volledig leesbaar; er zijn geen onleesbare delen genoteerd.

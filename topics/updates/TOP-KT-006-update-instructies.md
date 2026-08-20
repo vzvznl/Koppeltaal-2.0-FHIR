@@ -85,6 +85,6 @@ TOP-KT-028 (Opschoning patiëntgegevens) leunt voor de signalering volledig op h
 
 ## Open punten
 
-- **Subscription-provisioning** — *afhankelijk van besluit TOP-KT-028 discussiepunt 5*: maakt elke applicatie de Subscription zelf aan (zoals dit topic nu veronderstelt: "geen use case vanuit domeinbeheer"), of provisioneert de Koppeltaalvoorziening deze vóór? Bij vóór-provisioneren moet ook de passage "De FHIR Subscription" in dit topic worden bijgesteld.
-- **Marker-code** — *afhankelijk van besluit TOP-KT-028 discussiepunt 4*: de exacte code/het CodeSystem van `kt2-delete-flow` in de `_security`-criteria (W4) en de narrowing-alinea (W1) kan nog wijzigen.
+- **Subscription-provisioning** — *afhankelijk van besluit TOP-KT-028 discussiepunt 3*: maakt elke applicatie de Subscription zelf aan (zoals dit topic nu veronderstelt: "geen use case vanuit domeinbeheer"), of provisioneert de Koppeltaalvoorziening deze vóór? Bij vóór-provisioneren moet ook de passage "De FHIR Subscription" in dit topic worden bijgesteld. *Voorlopig besloten (19 aug 2026): de app maakt de Subscription zelf — dit topic hoeft dus niet te worden bijgesteld.*
+- **Marker-code** — de canonieke code/het CodeSystem van `kt2-delete-flow` is inmiddels in de IG vastgelegd (`http://vzvz.nl/fhir/CodeSystem/koppeltaal-security-label`); het voormalige TOP-KT-028-discussiepunt is afgevoerd (vastlegging belegd in `TOP-KT-005-update-instructies.md`). Controleer dat de `_security`-criteria (W4) en de narrowing-alinea (W1) de canonieke waarde gebruiken.
 - **KT2Subscription-profiel**: bevestigen dat het Koppeltaal Subscription-profiel criteria op `AuditEvent` toestaat (het topic noemt nu alleen voorbeelden op `Task`); zo niet, dan moet het profiel daarop worden verruimd voordat W4 uitvoerbaar is.

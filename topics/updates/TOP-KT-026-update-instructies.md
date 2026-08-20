@@ -54,5 +54,5 @@ TOP-KT-028 (Opschoning patiëntgegevens) raakt de naaste op twee punten. Ten eer
 
 ## Open punten
 
-1. **Subtype `DCM#110126` (W1, laatste zin eerste alinea)** — afhankelijk van besluit TOP-KT-028 discussiepunt 3: de benaming/keuze van het subtype voor Application User Authentication ("Node Authentication") staat nog niet definitief vast (geen harde SHALL). De rest van W1 steunt op besloten onderdelen.
+1. **Subtype `DCM#110126` (W1, laatste zin eerste alinea)** — afgedaan in TOP-KT-028 (v0.8): het subtype voor Application User Authentication wordt gehandhaafd met een eigen display (het FHIR-label "Node Authentication" wijkt af); er is geen harde SHALL. De rest van W1 steunt op besloten onderdelen.
 2. **Volgorde-afhankelijkheid**: de verwijzing naar de paragraaf Application User Authentication veronderstelt dat de Topic 11-update is doorgevoerd; verwerk `TOP-KT-011-update-instructies.md` eerst.

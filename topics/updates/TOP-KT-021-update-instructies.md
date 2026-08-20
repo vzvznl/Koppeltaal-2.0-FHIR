@@ -31,10 +31,11 @@ Het topic beschrijft het token-introspection-endpoint voor drie tokentypes (HTI 
 - **Actie**: wijzigen (de sectie is nu leeg; tabel opnemen)
 - **Voorstel**:
 
-  > | Topic | Beschrijving van relatie met dit onderwerp |
-  > | --- | --- |
-  > | TOP-KT-011 - Logging en tracing | De introspectie van een HTI launch token wordt vastgelegd als User-Authentication-AuditEvent (paragraaf User Authentication, variant `introspect`); introspectie van access- en id-tokens wordt niet gelogd. |
-  > | TOP-KT-028 - Opschoning patiëntgegevens | Het User-Authentication-AuditEvent van de HTI-introspectie telt mee als patiëntbetrokkenheid (`T_auth`) en bepaalt daarmee het startmoment van de bewaartermijn. |
+| Topic | Beschrijving van relatie met dit onderwerp |
+| --- | --- |
+| TOP-KT-011 - Logging en tracing | De introspectie van een HTI launch token wordt vastgelegd als User-Authentication-AuditEvent (paragraaf User Authentication, variant `introspect`); introspectie van access- en id-tokens wordt niet gelogd. |
+| TOP-KT-028 - Opschoning patiëntgegevens | Het User-Authentication-AuditEvent van de HTI-introspectie telt mee als patiëntbetrokkenheid (`T_auth`) en bepaalt daarmee het startmoment van de bewaartermijn. |
+
 - **Motivatie**: de sectie bestaat al maar is leeg (`{}`); andere topics gebruiken hier een relatietabel — zelfde vorm aanhouden.
 
 ### W4 — Versiegeschiedenis
@@ -54,4 +55,4 @@ Het topic beschrijft het token-introspection-endpoint voor drie tokentypes (HTI 
 ## Open punten
 
 1. **Volgorde-afhankelijkheid**: de verwijzingen veronderstellen dat de Topic 11-update (paragraaf User Authentication met de variant-prefixen) is doorgevoerd; verwerk `TOP-KT-011-update-instructies.md` eerst.
-2. Geen afhankelijkheden van de openstaande TOP-KT-028-discussiepunten: de `introspect`-variant valt onder subtype `DCM#110122` (vastgesteld); discussiepunt 3 (subtype `DCM#110126`) raakt dit topic niet.
+2. Geen afhankelijkheden van de openstaande TOP-KT-028-discussiepunten: de `introspect`-variant valt onder subtype `DCM#110122` (vastgesteld); het subtype-punt (`DCM#110126`) is inmiddels editorieel afgedaan in TOP-KT-028 (gehandhaafd met eigen display) en raakte dit topic sowieso niet.

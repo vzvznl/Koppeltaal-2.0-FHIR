@@ -87,13 +87,13 @@ TOP-KT-008 is het verzameltopic van de beveiligingsaspecten van Koppeltaal (de e
 - **Actie**: toevoegen
 - **Voorstel**:
 
-  > **Aandachtspunt — domein-transparantie.** De opschoon-flow is domein-breed leesbaar: elke deelnemende applicatie binnen het DPA-domein kan zien welke patiënten (pseudonieme referenties, coded data, geen demografie) voor verwijdering zijn aangekondigd en welke statusovergangen plaatsvinden. Dit is een bewuste ontwerpkeuze van [TOP-KT-028 - Opschoning patiëntgegevens]; een footprint-based versmalling (alleen zichtbaar voor applicaties die de patiënt daadwerkelijk kennen, vgl. AVG art. 19) is als mogelijke doorontwikkeling benoemd.
+  > **Aandachtspunt — domein-transparantie.** De opschoon-flow is domein-breed leesbaar: elke deelnemende applicatie binnen het DPA-domein kan zien welke patiënten (pseudonieme referenties, coded data, geen demografie) voor verwijdering zijn aangekondigd en welke statusovergangen plaatsvinden. Dit is een bewuste ontwerpkeuze van [TOP-KT-028 - Opschoning patiëntgegevens]; versmallingsvarianten (owner-scoped lezen van de eigen delete-pending Task, of footprint-based zichtbaarheid — alleen applicaties die de patiënt daadwerkelijk kennen, vgl. AVG art. 19) zijn als discussiepunt benoemd.
 
 - **Motivatie**: zie A5. Zolang discussiepunt 1 openstaat, moet de tekst het aandachtspunt eerlijk benoemen; wordt tot footprint-versmalling besloten, dan vervalt of wijzigt deze alinea.
 
 ## Verwijzingen
 
-- `topics/TOP-KT-028-opschoning-patientgegevens.md` — besloten ontwerp (v0.3, 14 jul 2026); m.n. "Uitgangspunten" (logging/PII-scheiding), "Termijnen", "Rechten van betrokkenen & contractbeëindiging", eisen 12–14 en 16, discussiepunt 1
+- `topics/TOP-KT-028-opschoning-patientgegevens.md` — besloten ontwerp (v0.3, 14 jul 2026); m.n. "Uitgangspunten" (logging/PII-scheiding), "Termijnen", "Rechten van betrokkenen", eisen 12–14 en 16, discussiepunt 1
 - `input/pagecontent/opschoning-patient-data.md` — IG-pagina, uitgangspunten en oplossingsrichting
 - `input/pagecontent/memo-wijzigingen-topic11.md` — §3.8 (opschoning-lifecycle-AuditEvents: geen PII, overleven de erase)
 - `topics/updates/TOP-KT-005-update-instructies.md` — de autorisatie-uitzondering (`kt2-delete-flow`) die in Topic 05 wordt belegd
@@ -101,7 +101,7 @@ TOP-KT-008 is het verzameltopic van de beveiligingsaspecten van Koppeltaal (de e
 
 ## Open punten
 
-1. **Afhankelijk van besluit TOP-KT-028 discussiepunt 1** (domein-transparantie vs. footprint, bevestiging door privacy): W4 en de formulering "domein-breed" in W2. Bij een besluit tot footprint-versmalling vervalt W4 en wordt W2 aangepast.
+1. **Afhankelijk van besluit TOP-KT-028 discussiepunt 1** (domein-transparantie vs. footprint, bevestiging door privacy): W4 en de formulering "domein-breed" in W2. Bij een besluit tot footprint-versmalling vervalt W4 en wordt W2 aangepast. *Voorlopig besloten (19 aug 2026): domein-breed bevestigd, privacy-toets randvoorwaardelijk — W4 en W2 blijven zoals voorgesteld.*
 2. **Bewaartermijn audit-logging bevestigen.** TOP-KT-028 noemt "min. 5 jaar" met de kanttekening dat dit nog tegen NEN 7513 bevestigd moet worden. De termijn in W1 volgt dat besluit.
 3. **Geen actuele md-versie van dit topic beschikbaar**; het onderzoek is uitgevoerd op de bron-PDF (v1.02, 1 okt 2025, 4 pagina's — volledig leesbaar). Er is ook een Confluence-Word-export in de repo-root (`TOP-KT-008+-+Beveiliging+aspecten.doc`); die is niet apart geverifieerd.
 4. **Eisen-sectie ontbreekt in TOP-KT-008.** Het topic kent geen genummerde eisen; de voorstellen zijn daarom als beschrijvende tekst onder "Toepassing en restricties" geformuleerd, in de stijl van de bestaande subsecties. Wil de redactie normatieve eisen (MOET/SHOULD), dan horen die in TOP-KT-028/TOP-KT-005 thuis — daar staan ze al.

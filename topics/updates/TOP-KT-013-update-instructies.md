@@ -27,7 +27,7 @@ TOP-KT-013 beschrijft de levenscyclus van FHIR resources binnen Koppeltaal en st
 - **Actie**: wijzigen (laatste zin van de sectie vervangen)
 - **Voorstel**: vervang de zin "Hoewel nog niet duidelijk is om welke situaties het exact gaat, voorzien we dat er in de toekomst gebruik gemaakt gaat worden van deze functionaliteit." door:
 
-> Eén van die situaties is inmiddels uitgewerkt: de opschoning van patiëntgegevens na het verstrijken van de bewaartermijn (en de verwijdering of retournering van gegevens bij contractbeëindiging). Zie TOP-KT-028 - Opschoning patiëntgegevens voor het volledige proces; de paragraaf "Definitieve verwijdering (opschoning)" hieronder beschrijft de gevolgen voor de levenscyclus.
+> Eén van die situaties is inmiddels uitgewerkt: de opschoning van patiëntgegevens na het verstrijken van de bewaartermijn. Zie TOP-KT-028 - Opschoning patiëntgegevens voor het volledige proces; de paragraaf "Definitieve verwijdering (opschoning)" hieronder beschrijft de gevolgen voor de levenscyclus.
 
 - **Motivatie**: de bestaande tekst kondigt toekomstig gebruik van verwijderen aan zonder invulling; TOP-KT-028 geeft die invulling nu concreet. De verwijzing houdt TOP-KT-013 beknopt.
 
@@ -39,15 +39,15 @@ TOP-KT-013 beschrijft de levenscyclus van FHIR resources binnen Koppeltaal en st
 > **Definitieve verwijdering (opschoning): einde van de levenscyclus op patiëntniveau**
 >
 > Bij de opschoning van patiëntgegevens (TOP-KT-028 - Opschoning patiëntgegevens) eindigt de levenscyclus van de aan een patiënt gebonden resources definitief. Omdat FHIR resources referentieel verbonden zijn, vindt de verwijdering plaats op patiëntniveau — alle aan de patiënt gebonden resources als geheel:
->
-> | Resource | Binding aan de patiënt | Positie in de opschoning |
-> | --- | --- | --- |
-> | `Patient` | het anker zelf | Wordt verwijderd (Patient Compartment) |
-> | `RelatedPerson` | `RelatedPerson.patient` (altijd één patiënt) | Wordt mee-verwijderd |
-> | `CareTeam` | `CareTeam.subject` | Wordt mee-verwijderd |
-> | `Task` | `Task.for` | Wordt mee-verwijderd; `Task` valt buiten het Patient Compartment en wordt apart meegenomen, inclusief de delete-pending-Tasks van het opschoningsproces zelf en de historische Tasks met status `cancelled` |
-> | `AuditEvent` | pseudonieme referentie op `entity.what` | **Uitgezonderd**: blijft als centraal NEN 7513-record behouden en mag de verwijderde `Patient/{id}` blijven refereren |
->
+
+| Resource | Binding aan de patiënt | Positie in de opschoning |
+| --- | --- | --- |
+| `Patient` | het anker zelf | Wordt verwijderd (Patient Compartment) |
+| `RelatedPerson` | `RelatedPerson.patient` (altijd één patiënt) | Wordt mee-verwijderd |
+| `CareTeam` | `CareTeam.subject` | Wordt mee-verwijderd |
+| `Task` | `Task.for` | Wordt mee-verwijderd; `Task` valt buiten het Patient Compartment en wordt apart meegenomen, inclusief de delete-pending-Tasks van het opschoningsproces zelf en de historische Tasks met status `cancelled` |
+| `AuditEvent` | pseudonieme referentie op `entity.what` | **Uitgezonderd**: blijft als centraal NEN 7513-record behouden en mag de verwijderde `Patient/{id}` blijven refereren |
+
 > De erase is **definitief en server-agnostisch**: alle versies van de resources worden gewist, een latere `GET` geeft `404` en een `vread` is onmogelijk. Er is géén tombstone, géén archief- of read-only-tussentoestand en geen mogelijkheid om via de history alsnog gegevens terug te lezen. Hoe een server de erase technisch uitvoert, is een implementatiedetail. De `destroy`-AuditEvent is de gezaghebbende, blijvende bevestiging van de uitgevoerde verwijdering.
 >
 > Tijdens een lopende opschoningscyclus blijft een Task met status `cancelled` juist behouden: die onderscheidt een afgebroken verwijdering (hernieuwde betrokkenheid; de patiënt bestaat nog) van een uitgevoerde verwijdering (`GET` → `404`). Pas bij een latere, daadwerkelijk uitgevoerde erase wordt ook deze Task mee-verwijderd.
@@ -65,7 +65,7 @@ TOP-KT-013 beschrijft de levenscyclus van FHIR resources binnen Koppeltaal en st
 
 > Voor het fysiek verwijderen van resources kent FHIR R4 geen standaard operatie. Sommige FHIR resource providers bieden hiervoor een eigen mechanisme (zoals HAPI's `$expunge`); dit is een implementatiedetail van de server. Binnen Koppeltaal is de erase-semantiek van het opschoningsproces server-agnostisch gedefinieerd (alle versies gewist, `GET` → `404`, geen tombstone); zie TOP-KT-028 - Opschoning patiëntgegevens. Het recht om vergeten te worden (AVG art. 17) blijft een aparte procedure met eigen toetsing en valt buiten het reguliere opschoningsproces.
 
-- **Motivatie**: de bestaande sectie legt het verschil tussen soft delete, logische `DELETE` (410) en fysiek verwijderen al uit, maar noemt `$expunge` als hét mechanisme. Het besloten ontwerp is bewust server-agnostisch (HAPI `$expunge`, IRIS-eigen mechanisme e.d. zijn implementatiedetails) en positioneert de 404-semantiek als norm. De afbakening van AVG art. 17 komt uit TOP-KT-028 ("Rechten van betrokkenen & contractbeëindiging").
+- **Motivatie**: de bestaande sectie legt het verschil tussen soft delete, logische `DELETE` (410) en fysiek verwijderen al uit, maar noemt `$expunge` als hét mechanisme. Het besloten ontwerp is bewust server-agnostisch (HAPI `$expunge`, IRIS-eigen mechanisme e.d. zijn implementatiedetails) en positioneert de 404-semantiek als norm. De afbakening van AVG art. 17 komt uit TOP-KT-028 ("Rechten van betrokkenen").
 
 ### W5 — Statussen van een task
 
