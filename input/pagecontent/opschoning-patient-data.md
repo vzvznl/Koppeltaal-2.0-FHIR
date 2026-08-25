@@ -15,6 +15,7 @@
 | 0.2.5 | 2026-08-17 | AVG-claim over AuditEvents **gecorrigeerd** (review-commentaar): search-events leggen per Topic 11 de query vast (`entity.query`) inclusief eventuele business-identifiers (bijv. `Patient?identifier=…`) plus referenties naar de gevonden resources — access-log-AuditEvents blijven daarmee ook ná de erase persoonsgegevens. Grondslag voor bewaring is de wettelijke logging-verplichting (NEN 7513; AVG art. 17 lid 3 sub b), niet pseudonimisering; de pseudonimiteits-claim geldt alleen nog voor de delete-flow-AuditEvents. Uitgangspunt "Logging en PII gescheiden" en Termijnen-tabel aangepast; nieuw discussiepunt 8 over mitigatie (hashen/redigeren van identificerende parameterwaarden) aan de Topic 11-kant |
 | 0.2.6 | 2026-08-18 | Status gecorrigeerd: het herontwerp is **ter besluitvorming** — de eerdere vermelding (0.2.1) dat de architectuurbespreking het ontwerp had vastgesteld was voorbarig; changelog-rij 0.2.1 en de status-callout hierop aangepast |
 | 0.2.7 | 2026-08-18 | Discussiepunten opgeschoond (review-commentaar): subtype `110126` editorieel afgedaan (kanttekening bij `T_auth`); de twee als "besloten" gemarkeerde punten (geaggregeerde AuditEvents; ISO 21089-discriminator) uit de genummerde lijst gehaald — de inhoud staat in de tekst en in een slotalinea; de formele marker-vastlegging als actiepunt belegd in de Topic 05-update-instructies (verworpen alternatieven verplaatst naar [Overwogen alternatieven](#overwogen-alternatieven)); de search-query-mitigatie overgedragen naar de Topic 11-update-instructies. Resterende beslispunten: domein-transparantie/footprint, betrokkenheidsdefinitie, deelname & Subscription-provisioning |
+| 0.2.8 | 2026-08-19 | Veldtabel aangevuld met `authoredOn` (aankondigingsmoment) en `status` (de vijf statussen waaraan het profiel required bindt); `authoredOn` toegevoegd aan de server-owned velden die een app niet mag muteren; het `PUT`-voorbeeld van de noodrem compleet gemaakt — het heette "de volledige Task" maar miste de profielverplichte `authoredOn`, `requester` en `restriction.period.end`, plus `meta.profile` als expliciete profielclaim |
 
 ---
 
@@ -143,11 +144,13 @@ Het proces wordt aangekondigd via één FHIR `Task` per (Patient × deelnemende 
 | `for` | `Reference(KT2_Patient)` (1..1) | Patiënt-anker (`Task?patient=`) én verwijderdoel |
 | `owner` | `Reference(KT2_Device)` — **Device van de doelapplicatie** | De app die mag reageren; per-app scoping. **Nooit** Patient/RelatedPerson (zou de klok resetten) |
 | `requester` | `Reference(KT2_Device)` — de Koppeltaalvoorziening |  |
+| `authoredOn` | aankondigingsmoment (**1..1, afgedwongen**) | Server-gezet; hier start de grace period. De deadline ligt altijd later |
 | `restriction.period.end` | grace-deadline (**1..1, afgedwongen**) | Geplande verwijdering; server-beheerd — bij een grace-reset zet de server een nieuwe deadline (apps muteren 'm nooit) |
-| `statusReason` | reden bij `on-hold` (**coded, geen demografie**) | De noodrem-reden; gezet bij de status-write naar `on-hold` |
+| `statusReason` | reden bij `on-hold` (**coded, geen demografie**) | De noodrem-reden; gezet bij de status-write naar `on-hold`. Verplicht bij `on-hold`, verboden bij elke andere status |
+| `status` | `requested`, `on-hold`, `accepted`, `cancelled`, `completed` | Required gebonden; de overige R4 task-statussen komen in deze flow niet voor |
 | `intent` | `order` | Een vaststaande verwijdering wordt aangekondigd |
 
-**Apart profiel (`Parent: Task`), naast `KT2_Task`.** `KT2_Task` is onverenigbaar (bindt `owner` aan mens-actoren, verbiedt `restriction`/`statusReason`); de aankondigings-Task heeft die juist nodig. Een eigen profiel borgt de exacte vorm als validatiecontract, houdt `owner = Device` dragend (valt buiten de retentieklok), en blijft losgekoppeld van het [KoppelMij-openstellen](memo-koppelmij-scope.html) van `KT2_Task`. (Afleiden van een geopend `KT2_Task` kan heroverwogen worden zodra dat traject `KT2_Task` compatibel maakt.)
+**Apart profiel (`Parent: Task`), naast `KT2_Task`.** `KT2_Task` is onverenigbaar (bindt `owner` aan mens-actoren, verbiedt `restriction`/`statusReason`); de aankondigings-Task heeft die juist nodig. Een eigen profiel borgt de vorm als validatiecontract — het zet dezelfde elementen dicht als `KT2_Task`, op `statusReason` en `restriction` na die deze Task juist nodig heeft, plus `description` — houdt `owner = Device` dragend (valt buiten de retentieklok), en blijft losgekoppeld van het [KoppelMij-openstellen](memo-koppelmij-scope.html) van `KT2_Task`. (Afleiden van een geopend `KT2_Task` kan heroverwogen worden zodra dat traject `KT2_Task` compatibel maakt.)
 
 #### Status-lifecycle & server-validatie
 
@@ -165,23 +168,29 @@ De app reageert door **`Task.status` te schrijven** (`PUT` met `If-Match`) op ha
 | `cancelled` | Koppeltaalvoorziening | Afgebroken wegens hernieuwde betrokkenheid; **Task blijft behouden** zodat een latere `GET` 'm onderscheidt van een uitgevoerde verwijdering |
 | `completed` | Koppeltaalvoorziening | Verwijderd; de Task wordt **mét de Patiënt** opgeruimd |
 
-**Server-validatie (normatief).** De Koppeltaalvoorziening **MOET** de overgangen valideren (optimistic concurrency via `If-Match`/ETag): een app mag op haar **eigen** Task (`owner` = haar Device) alleen `status` → `on-hold`/`accepted` zetten (+ `statusReason` bij `on-hold`), en **niet** `owner`/`for`/`requester`/`code`/`restriction.period.end` of de server-owned `kt2-delete-flow`-marker muteren — een `PUT` die de marker dropt wordt geweigerd. Bij het verlaten van `on-hold` (door de app naar `accepted`, of door de server bij de grace-reset) **wist de server `statusReason`**. De hold-reden is per-applicatie en leeft **op de Task**: inzichtelijk zolang er nog geen verwijdering is; ná de `$purge` verdwijnt hij mee. De geaggregeerde `hold`-AuditEvent draagt geen per-app reden. `cancelled`/`completed` zijn **server-only**.
+**Server-validatie (normatief).** De Koppeltaalvoorziening **MOET** de overgangen valideren (optimistic concurrency via `If-Match`/ETag): een app mag op haar **eigen** Task (`owner` = haar Device) alleen `status` → `on-hold`/`accepted` zetten (+ `statusReason` bij `on-hold`), en **niet** `owner`/`for`/`requester`/`code`/`authoredOn`/`restriction.period.end` of de server-owned `kt2-delete-flow`-marker muteren — een `PUT` die de marker dropt wordt geweigerd. Bij het verlaten van `on-hold` (door de app naar `accepted`, of door de server bij de grace-reset) **wist de server `statusReason`**. De hold-reden is per-applicatie en leeft **op de Task**: inzichtelijk zolang er nog geen verwijdering is; ná de `$purge` verdwijnt hij mee. De geaggregeerde `hold`-AuditEvent draagt geen per-app reden. `cancelled`/`completed` zijn **server-only**.
 
-Noodrem trekken met een coded (non-PII) reden — `PUT Task/{id}` met `If-Match: W/"{etag}"`. De app stuurt de **volledige** Task terug met `status` → `on-hold` en een gezette `statusReason`; de server-owned velden (`code`/`for`/`owner`/`requester`/`restriction`/`meta.security`) gaan ongewijzigd mee — de server weigert wijziging daarvan:
+Noodrem trekken met een coded (non-PII) reden — `PUT Task/{id}` met `If-Match: W/"{etag}"`. De app stuurt de **volledige** Task terug met `status` → `on-hold` en een gezette `statusReason`; de server-owned velden (`code`/`for`/`owner`/`requester`/`authoredOn`/`restriction`/`meta.security`) gaan ongewijzigd mee — de server weigert wijziging daarvan. Alle profielverplichte velden staan hieronder — een `PUT` die er één weglaat wordt afgekeurd. `meta.profile` is niet verplicht maar wordt getoond als expliciete profielclaim, en `id` is vereist door de REST-update zelf:
 
 ```json
 {
   "resourceType": "Task",
   "id": "{id}",
-  "meta": { "security": [{ "system": "http://vzvz.nl/fhir/CodeSystem/koppeltaal-security-label", "code": "kt2-delete-flow" }] },
+  "meta": {
+    "profile": ["http://koppeltaal.nl/fhir/StructureDefinition/KT2DeletePendingTask"],
+    "security": [{ "system": "http://vzvz.nl/fhir/CodeSystem/koppeltaal-security-label", "code": "kt2-delete-flow" }]
+  },
   "status": "on-hold",
   "statusReason": {
     "coding": [{ "system": "http://vzvz.nl/fhir/CodeSystem/koppeltaal-delete-hold-reason", "code": "data-export-pending", "display": "Export naar bronsysteem loopt nog" }]
   },
   "intent": "order",
   "code": { "coding": [{ "system": "http://vzvz.nl/fhir/CodeSystem/koppeltaal-task-code", "code": "delete-pending" }] },
+  "authoredOn": "2026-07-01T06:00:00+00:00",
   "for": { "reference": "Patient/{patientId}" },
-  "owner": { "reference": "Device/{appDevice}" }
+  "requester": { "reference": "Device/{koppeltaalvoorzieningDevice}" },
+  "owner": { "reference": "Device/{appDevice}" },
+  "restriction": { "period": { "end": "2026-07-31T06:00:00+00:00" } }
 }
 ```
 
@@ -255,7 +264,7 @@ Afgewezen of als variant genoteerd: **operation-/webhook-model ("hide-fully")** 
 
 De volgende punten staan nog open voor besluitvorming; per punt wordt daarbij vastgelegd welk gremium besluit en of het besluit randvoorwaardelijk is voor ingebruikname:
 
-1. **Domein-transparantie vs. footprint (privacy).** Gekozen: de opschoon-flow is **domein-breed leesbaar** (Tasks + delete-AuditEvents) — elke deelnemer ziet welke patiënten op verwijdering staan en de overgangen (pseudonieme UUID's, coded, geen demografie/vrije tekst, binnen één DPA-domein). Te bevestigen met privacy, met twee versmallingsvarianten op tafel. **(a) Owner-scoped lezen van de Tasks** (review-commentaar, aug 2026): elke app leest alleen haar **eigen** delete-pending Task; de geaggregeerde delete-AuditEvents blijven het domein-brede signaal. Kanttekening: omdat elke deelnemende app al een eigen Task per opschoning krijgt én de delete-AuditEvents domein-breed leesbaar blijven, versmalt dit niet wélke patiënten in de flow zichtbaar zijn, maar alleen de status en de coded hold-reden van *andere* apps — daarmee vervalt wel het inzicht wélke app een verwijdering blokkeert en waarom de grace-deadline opschuift (de geaggregeerde AuditEvent draagt bewust geen per-app reden). **(b) Footprint-based versmalling** (AVG art. 19): de flow alleen zichtbaar voor applicaties die de patiënt daadwerkelijk kennen — als mogelijke v2.
+1. **Domein-transparantie vs. footprint (privacy).** Gekozen: de opschoon-flow is **domein-breed leesbaar** (Tasks + delete-AuditEvents) — elke deelnemer ziet welke patiënten op verwijdering staan en de overgangen (pseudonieme UUID's, coded, zonder demografie, binnen één DPA-domein). Te bevestigen met privacy, met twee versmallingsvarianten op tafel. **(a) Owner-scoped lezen van de Tasks** (review-commentaar, aug 2026): elke app leest alleen haar **eigen** delete-pending Task; de geaggregeerde delete-AuditEvents blijven het domein-brede signaal. Kanttekening: omdat elke deelnemende app al een eigen Task per opschoning krijgt én de delete-AuditEvents domein-breed leesbaar blijven, versmalt dit niet wélke patiënten in de flow zichtbaar zijn, maar alleen de status en de coded hold-reden van *andere* apps — daarmee vervalt wel het inzicht wélke app een verwijdering blokkeert en waarom de grace-deadline opschuift (de geaggregeerde AuditEvent draagt bewust geen per-app reden). **(b) Footprint-based versmalling** (AVG art. 19): de flow alleen zichtbaar voor applicaties die de patiënt daadwerkelijk kennen — als mogelijke v2.
 2. **Betrokkenheid = authenticatie (ná de transitie).** De Task-brug telt tot `C + 2 jaar` any-actor `Task.meta.lastUpdated` (incl. Practitioner → tijdelijk conservatief); dáárna geldt alleen `T_auth`. Gevolg: ná de transitie wordt een patiënt die enkel via Practitioner-activiteit "in zorg" is maar 2 jaar niet inlogde, opschoonbaar — het [verwijderpad](#verwijderpad-graceful-of-fast-track) bepaalt dan het vangnet (recente `Task` → graceful/noodrem; geen → fast-track). (`meta.lastUpdated` is bovendien optioneel.) Bevestigen.
 3. **Deelname/opt-in & Subscription-provisioning.** Hoe wordt een app deelnemer — automatisch elke app in het domein, of een expliciete opt-in (bv. via domeinbeheer)? En provisioneert de Koppeltaalvoorziening de notificatie-`Subscription`(s) vóór, of maakt elke app 'm zelf (R4 staat client-Subscriptions toe)? Open; te beslissen met domeinbeheer/architectuur.
 

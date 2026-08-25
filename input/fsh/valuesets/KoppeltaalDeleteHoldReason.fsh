@@ -9,6 +9,7 @@ Description: "ValueSet for Task.statusReason on the KT2_DeletePendingTask (the e
 * ^identifier.value = "http://vzvz.nl/fhir/ValueSet/koppeltaal-delete-hold-reason"
 * ^status = #active
 * ^experimental = false
+* ^version = "2026-07-09"
 * ^date = 2026-07-09T12:00:00+02:00
 * insert ContactAndPublisher
 * include codes from system KoppeltaalDeleteHoldReason
