@@ -8,6 +8,8 @@ Description: "The Task resource represents an eHealth activity that has been ass
 * insert ContactAndPublisher
 // The elements Koppeltaal does not use, shared with KT2_DeletePendingTask.
 * insert UnusedTaskElements
+// Another patient executes the Task as a RelatedPerson, never as a Patient owner.
+* obeys kt2-task-patient-owner
 * . ^definition = "An eHealth activity assigned to a patient."
 * extension contains
     KT2_ResourceOrigin named resource-origin 0..1 and

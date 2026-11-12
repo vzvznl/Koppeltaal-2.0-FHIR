@@ -1,5 +1,10 @@
 CHANGELOG
 
+## 0.16.6 (2026-11-12)
+
+### Gewijzigd
+- **KT2Task profiel**: invariant `kt2-task-patient-owner` toegevoegd. Is `Task.owner` een Patient, dan moet dat dezelfde patiënt zijn als `Task.for`; een andere patiënt voert de taak uit als RelatedPerson. Bevat `owner.reference` `Patient/`, dan moet `for.reference` exact gelijk zijn; een relatieve en een absolute verwijzing naar dezelfde patiënt gelden dus als verschillend. Referenties met alleen een identifier worden niet gecontroleerd. **Breaking change**: een Task met een andere patiënt als owner is niet meer geldig tegen het profiel.
+
 ## 0.16.5 (2026-08-24)
 
 Alles hieronder is ná de release van 0.16.4 (28 juli 2026) op main gekomen. Het stond eerder abusievelijk onder 0.16.4, terwijl die versie toen al was uitgebracht.

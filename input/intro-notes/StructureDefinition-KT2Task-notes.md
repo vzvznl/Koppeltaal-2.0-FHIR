@@ -13,6 +13,8 @@ The element `instantiatesCanonical` should not be used for this reference. Recei
 
 `KT2_Task.owner` determines which actor is the executor of the respective task.
 
+A `Patient` as owner must be the same patient as `KT2_Task.for` (invariant `kt2-task-patient-owner`). Another patient executes the task as a `RelatedPerson`.
+
 The `RelatedPerson` can be assigned as the owner of a task either directly or through a `CareTeam`.
 
 #### KT2_Task.partOf
