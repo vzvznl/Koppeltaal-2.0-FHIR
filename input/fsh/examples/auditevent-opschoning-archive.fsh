@@ -30,6 +30,3 @@ Usage: #example
 * extension[0]
   * url = "http://koppeltaal.nl/fhir/StructureDefinition/trace-id"
   * valueId = "1a6f3c2d-9e4b-4d7a-b8c1-5f2e6a9d0c31"
-* extension[+]
-  * url = "http://koppeltaal.nl/fhir/StructureDefinition/request-id"
-  * valueId = "Fp2vK7mDx4qWn9Sb"

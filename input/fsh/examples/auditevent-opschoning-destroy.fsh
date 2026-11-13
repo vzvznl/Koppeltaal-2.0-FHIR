@@ -29,7 +29,4 @@ Usage: #example
   * role = $object-role#1 "Patient"
 * extension[0]
   * url = "http://koppeltaal.nl/fhir/StructureDefinition/trace-id"
-  * valueId = "6f1c8b7a-4d9e-4c2f-3b6a-0e7d1f4c5b86"
-* extension[+]
-  * url = "http://koppeltaal.nl/fhir/StructureDefinition/request-id"
-  * valueId = "Lu7aP2rIc9vBs4Xg"
+  * valueId = "6f1c8b7a-4d9e-4c2f-bb6a-0e7d1f4c5b86"
