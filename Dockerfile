@@ -3,8 +3,10 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0
 # Build argument for IG Publisher version
 ARG PUBLISHER_VERSION=2.2.10
 ARG SUSHI_VERSION=3.16.5
+# firely.terminal 4.x only ships a net10.0 tool, while this base image is the .NET 8 SDK
+ARG FIRELY_TERMINAL_VERSION=3.5.0
 
-RUN dotnet tool install -g firely.terminal && apt-get update && apt install -y make jq default-jdk python3 python3-pip python3-yaml graphviz plantuml jekyll nodejs npm
+RUN dotnet tool install -g firely.terminal --version $FIRELY_TERMINAL_VERSION && apt-get update && apt install -y make jq default-jdk python3 python3-pip python3-yaml graphviz plantuml jekyll nodejs npm
 
 RUN npm install -g fsh-sushi@$SUSHI_VERSION
 
