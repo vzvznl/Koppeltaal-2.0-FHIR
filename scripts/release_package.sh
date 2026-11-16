@@ -3,7 +3,8 @@
 # release_package.sh - Publish a FHIR package to Simplifier via Firely Terminal CLI
 #
 # Extracts the version from sushi-config.yaml, builds release notes from
-# CHANGELOG.md, patches the IG Publisher output, and publishes using `fhir`.
+# CHANGELOG.md, downloads and validates the canonical GitHub Release asset,
+# publishes it unchanged using `fhir`, and verifies the Simplifier checksum.
 #
 # Usage:
 #   ./scripts/release_package.sh [--dry-run]
@@ -37,7 +38,7 @@ PACKAGE_NAME=$(grep '^id:' "$PROJECT_ROOT/sushi-config.yaml" | sed 's/id: //' | 
 
 # ── Find last published version on Simplifier ────────────────────────────────
 step "Checking published versions"
-LAST_PUBLISHED=$(curl -sf "https://packages.simplifier.net/$PACKAGE_NAME" \
+LAST_PUBLISHED=$(curl -sf --connect-timeout 20 --max-time 60 "https://packages.simplifier.net/$PACKAGE_NAME" \
     | python3 -c "
 import json, re, sys
 
@@ -115,70 +116,36 @@ if not notes:
 print('\n\n'.join(notes))
 " "$VERSION" "$PROJECT_ROOT/CHANGELOG.md" "${LAST_PUBLISHED:-}")
 
-# ── Locate package ───────────────────────────────────────────────────────────
-PACKAGE_TGZ="$PROJECT_ROOT/output/package.tgz"
-[[ -f "$PACKAGE_TGZ" ]] || { error "Package not found: $PACKAGE_TGZ (run a build first)"; exit 1; }
-
-# Verify the package name and version inside the .tgz match
-PACKAGE_JSON=$(tar -xzf "$PACKAGE_TGZ" -O package/package.json)
-PKG_INNER_NAME=$(echo "$PACKAGE_JSON" | python3 -c "import json,sys; print(json.load(sys.stdin)['name'])")
-PKG_INNER_VERSION=$(echo "$PACKAGE_JSON" | python3 -c "import json,sys; print(json.load(sys.stdin)['version'])")
-
-[[ "$PKG_INNER_NAME" == "$PACKAGE_NAME" ]] || {
-    error "Package name mismatch: sushi-config=$PACKAGE_NAME, package.tgz=$PKG_INNER_NAME"
-    exit 1
-}
-[[ "$PKG_INNER_VERSION" == "$VERSION" ]] || {
-    error "Version mismatch: sushi-config=$VERSION, package.tgz=$PKG_INNER_VERSION"
-    exit 1
-}
-
-# ── Patch notForPublication flag ─────────────────────────────────────────────
-step "Preparing package for publication"
-
+# ── Download canonical GitHub release package ────────────────────────────────
+step "Downloading canonical GitHub release package"
 WORK_DIR=$(mktemp -d)
 trap 'rm -rf "$WORK_DIR"' EXIT
 
-tar -xzf "$PACKAGE_TGZ" -C "$WORK_DIR"
+GITHUB_ASSET_URL="https://github.com/vzvznl/Koppeltaal-2.0-FHIR/releases/download/v${VERSION}/koppeltaalv2-${VERSION}.tgz"
+RELEASE_TGZ="$WORK_DIR/koppeltaalv2-${VERSION}.tgz"
 
-python3 -c "
-import json, sys, pathlib
+# GitHub is the canonical release source. Never extract, modify, or repack this
+# archive here: macOS bsdtar can add AppleDouble and xattr metadata, and any
+# transformation would make the Simplifier package differ from GitHub.
+info "GitHub asset: $GITHUB_ASSET_URL"
+curl -fL --retry 3 --connect-timeout 20 --max-time 300 --output "$RELEASE_TGZ" "$GITHUB_ASSET_URL"
 
-pkg_file = pathlib.Path(sys.argv[1]) / 'package' / 'package.json'
-pkg = json.loads(pkg_file.read_text(encoding='utf-8'))
-
-changed = False
-
-if pkg.get('notForPublication'):
-    del pkg['notForPublication']
-    changed = True
-    print('Removed notForPublication flag')
-
-if pkg.get('url', '').startswith('file://'):
-    del pkg['url']
-    changed = True
-    print('Removed file:// url')
-
-if not changed:
-    print('No patches needed')
-
-pkg_file.write_text(json.dumps(pkg, indent=2, ensure_ascii=False) + '\n', encoding='utf-8')
-" "$WORK_DIR"
-
-RELEASE_TGZ="$WORK_DIR/${PACKAGE_NAME}-${VERSION}.tgz"
-(cd "$WORK_DIR" && tar -czf "$RELEASE_TGZ" package/)
 RELEASE_SIZE=$(du -h "$RELEASE_TGZ" | cut -f1)
-ok "Package ready: $RELEASE_SIZE"
+ok "Downloaded canonical package: $RELEASE_SIZE"
 
 # ── Summary ──────────────────────────────────────────────────────────────────
 step "Summary"
 echo ""
-echo "  Package:       $PACKAGE_NAME"
-echo "  Version:       $VERSION"
-echo "  Size:          $RELEASE_SIZE"
+echo "  GitHub asset:  $GITHUB_ASSET_URL"
+python3 "$PROJECT_ROOT/scripts/release_artifact.py" inspect \
+    "$RELEASE_TGZ" \
+    --name "$PACKAGE_NAME" \
+    --version "$VERSION" | sed 's/^/  /'
 echo ""
 echo "  Release notes:"
-echo "$RELEASE_NOTES" | sed 's/^/    /'
+while IFS= read -r release_note_line; do
+    printf '    %s\n' "$release_note_line"
+done <<< "$RELEASE_NOTES"
 echo ""
 
 if [[ "$DRY_RUN" == "true" ]]; then
@@ -209,6 +176,35 @@ ok "Logged in"
 
 info "Publishing ${PACKAGE_NAME} ${VERSION}..."
 fhir publish-package "$RELEASE_TGZ"
+ok "Published ${PACKAGE_NAME} ${VERSION}"
+
+# ── Verify published bytes ───────────────────────────────────────────────────
+step "Verifying GitHub and Simplifier package identity"
+
+SIMPLIFIER_URL="https://packages.simplifier.net/${PACKAGE_NAME}/-/${PACKAGE_NAME}-${VERSION}.tgz"
+SIMPLIFIER_TGZ="$WORK_DIR/simplifier-${PACKAGE_NAME}-${VERSION}.tgz"
+SIMPLIFIER_DOWNLOADED=false
+
+for attempt in {1..6}; do
+    if curl -fsSL --connect-timeout 20 --max-time 120 --output "$SIMPLIFIER_TGZ" "$SIMPLIFIER_URL"; then
+        SIMPLIFIER_DOWNLOADED=true
+        break
+    fi
+    if [[ "$attempt" -lt 6 ]]; then
+        warn "Published package is not available yet; retrying in 5 seconds"
+        sleep 5
+    fi
+done
+
+[[ "$SIMPLIFIER_DOWNLOADED" == "true" ]] || {
+    error "Could not download published package for checksum verification: $SIMPLIFIER_URL"
+    exit 1
+}
+
+python3 "$PROJECT_ROOT/scripts/release_artifact.py" compare \
+    "$RELEASE_TGZ" \
+    "$SIMPLIFIER_TGZ"
+ok "GitHub and Simplifier packages are byte-identical"
 
 echo ""
 echo -e "${GREEN}Done!${NC} Published ${PACKAGE_NAME} ${VERSION}"

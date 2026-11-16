@@ -75,6 +75,9 @@ jobs:
           restore-keys: |
             txcache-
 
+      - name: Test release artifact handling
+        run: python3 -m unittest tests.test_release_artifact -v
+
       - name: Build FHIR Packages
         env:
           FHIR_EMAIL: ${{ secrets.FHIR_EMAIL }}

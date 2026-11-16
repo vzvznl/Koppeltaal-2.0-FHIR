@@ -66,6 +66,7 @@ The minimal build creates **differential-only packages** that match the working 
 2. Generates complete HTML documentation
 3. Creates Implementation Guide package with full snapshots
 4. Includes all narratives and validation files
+5. Writes the release archive `output/koppeltaalv2-<version>.tgz` with `scripts/release_artifact.py prepare`. The raw `output/package.tgz` from the IG Publisher carries `notForPublication: true` and a `file://` URL; the release archive drops both. It is the file attached to the GitHub Release and published to Simplifier unchanged.
 
 ### Minimal Package (Snapshot Stripping)
 1. **Builds full IG first** (reuses existing output)

@@ -246,26 +246,22 @@ Neither is run by CI; both are manual. Publishing a package does **not** require
 
 **Prerequisites**: Firely Terminal (`fhir`), Simplifier.net credentials, and a publishing licence — `fhir publish-package` is a licensed command.
 
-Publish the exact artifact that CI built and that was tested, rather than rebuilding locally. `release_package.sh` reads the version from `sushi-config.yaml` and refuses to publish if it disagrees with the package, so run it from a checkout of the tag you are releasing:
+Simplifier gets the exact archive that CI built and attached to the GitHub Release. The build writes it as `output/koppeltaalv2-<version>.tgz` with `scripts/release_artifact.py prepare`, which drops the `notForPublication` flag and the `file://` URL that the IG Publisher writes into `package.json` (see [BUILD.md](BUILD.md)). Run the script from an up-to-date `main` checkout, not from a release tag: tags from before this flow contain the old script, which repacks the archive and on macOS adds AppleDouble files.
 
 ```bash
-# 1. Check out the release tag in a worktree
-git worktree add /tmp/kt-release v0.16.3
+git switch main && git pull
 
-# 2. Drop the CI-built package in place as output/package.tgz
-mkdir -p /tmp/kt-release/output
-gh release download v0.16.3 --pattern 'koppeltaalv2-0.16.3.tgz' --dir /tmp/kt-release/output
-mv /tmp/kt-release/output/koppeltaalv2-0.16.3.tgz /tmp/kt-release/output/package.tgz
+# 1. Review the summary and the release notes
+./scripts/release_package.sh --dry-run
 
-# 3. Review the summary and the generated release notes
-cd /tmp/kt-release && ./scripts/release_package.sh --dry-run
-
-# 4. Publish (prompts for confirmation)
+# 2. Publish (prompts for confirmation)
 export FHIR_EMAIL=your-email FHIR_PASSWORD=your-password
 ./scripts/release_package.sh
 ```
 
-The script determines the last published version from the registry and builds the release notes from every `CHANGELOG.md` section between that version and the one being released — so **read the dry-run output**, since that text is what ends up on Simplifier. It also strips the `notForPublication` flag and the `file://` URL that the IG Publisher writes into `package.json`.
+The script reads the version from `sushi-config.yaml` and downloads `koppeltaalv2-<version>.tgz` from the matching GitHub Release. It refuses an archive with a corrupt gzip stream, macOS metadata, `notForPublication` or a `file://` URL, so releases built before this flow are refused. It publishes the archive unchanged, then downloads it from Simplifier and checks that the SHA-256 matches the GitHub asset.
+
+The summary lists the `CHANGELOG.md` sections since the last published version for review only: `fhir publish-package` does not send release notes to Simplifier.
 
 #### Alternative: the Simplifier UI
 
