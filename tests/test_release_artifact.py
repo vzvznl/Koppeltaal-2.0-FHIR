@@ -397,7 +397,7 @@ class ReleasePackageShellTests(unittest.TestCase):
             r"""
             #!/usr/bin/env bash
             set -euo pipefail
-            printf '%s\n' "$1" >> "$TEST_FHIR_LOG"
+            printf '%s\n' "$*" >> "$TEST_FHIR_LOG"
             case "$1" in
                 login)
                     exit 0
@@ -414,13 +414,12 @@ class ReleasePackageShellTests(unittest.TestCase):
             """,
         )
 
-    def run_release_script(self, canonical):
+    def release_environment(self, canonical, credentials=True):
         environment = os.environ.copy()
+        for key in ("CI", "FHIR_EMAIL", "FHIR_PASSWORD"):
+            environment.pop(key, None)
         environment.update(
             {
-                "CI": "true",
-                "FHIR_EMAIL": "release-test@example.invalid",
-                "FHIR_PASSWORD": "synthetic-password",
                 "PATH": f"{self.bin_directory}:{environment['PATH']}",
                 "TEST_CANONICAL_ARCHIVE": str(canonical),
                 "TEST_CAPTURED_UPLOAD": str(self.captured_upload),
@@ -428,13 +427,23 @@ class ReleasePackageShellTests(unittest.TestCase):
                 "TEST_FHIR_LOG": str(self.fhir_log),
             }
         )
+        environment["CI"] = "true"
+        if credentials:
+            environment["FHIR_EMAIL"] = "release-test@example.invalid"
+            environment["FHIR_PASSWORD"] = "synthetic-password"
+        return environment
+
+    def run_release_script(self, canonical, credentials=True):
         return subprocess.run(
             ["bash", str(REPOSITORY / "scripts/release_package.sh")],
             cwd=REPOSITORY,
-            env=environment,
+            env=self.release_environment(canonical, credentials=credentials),
             text=True,
             capture_output=True,
         )
+
+    def fhir_calls(self):
+        return self.fhir_log.read_text().splitlines() if self.fhir_log.exists() else []
 
     def test_uploads_exact_github_release_asset(self):
         package_name = self.config_value("id")
@@ -446,6 +455,10 @@ class ReleasePackageShellTests(unittest.TestCase):
         result = self.run_release_script(canonical)
 
         self.assertEqual(0, result.returncode, result.stderr)
+        self.assertIn(
+            "login email=release-test@example.invalid password=synthetic-password",
+            self.fhir_calls(),
+        )
         self.assertTrue(self.captured_upload.exists())
         self.assertEqual(canonical.read_bytes(), self.captured_upload.read_bytes())
         self.assertIn("GitHub asset", result.stdout)
@@ -463,8 +476,20 @@ class ReleasePackageShellTests(unittest.TestCase):
 
         self.assertNotEqual(0, result.returncode, result.stdout)
         self.assertFalse(self.captured_upload.exists())
-        fhir_calls = self.fhir_log.read_text().split() if self.fhir_log.exists() else []
-        self.assertEqual([], fhir_calls)
+        self.assertEqual([], self.fhir_calls())
+
+    def test_without_credentials_lets_firely_terminal_log_in(self):
+        package_name = self.config_value("id")
+        package_version = self.config_value("version")
+        canonical = self.root / f"koppeltaalv2-{package_version}.tgz"
+        self.create_canonical_archive(canonical, package_name, package_version)
+        self.install_release_stubs()
+
+        result = self.run_release_script(canonical, credentials=False)
+
+        self.assertEqual(0, result.returncode, result.stderr)
+        self.assertIn("login", self.fhir_calls())
+        self.assertTrue(self.captured_upload.exists())
 
     def test_make_publish_delegates_to_canonical_release_script(self):
         result = subprocess.run(
