@@ -40,10 +40,16 @@ error() { echo -e "${RED}[ERROR]${NC} $*" >&2; }
 step()  { echo -e "\n${GREEN}=== $* ===${NC}"; }
 
 check_credentials() {
+    local mode="${1:-sync}"
     [[ -z "${FHIR_EMAIL:-}" || -z "${FHIR_PASSWORD:-}" ]] && {
         error "FHIR_EMAIL and FHIR_PASSWORD must be set"; exit 1
     }
-    for tool in curl jq docker; do
+    # backup/restore only talk to the API; sync additionally builds and repacks
+    local tools=(curl jq unzip)
+    if [[ "$mode" == "sync" ]]; then
+        tools+=(zip python3 docker)
+    fi
+    for tool in "${tools[@]}"; do
         command -v "$tool" &>/dev/null || { error "'$tool' not found"; exit 1; }
     done
 }
@@ -84,6 +90,10 @@ download_project() {
         -H "Authorization: Bearer $token" \
         "$SIMPLIFIER_API/$SIMPLIFIER_PROJECT/zip")
     [[ "$http_code" -eq 200 ]] || { error "Download failed (HTTP $http_code)"; exit 1; }
+    # The backup is the only safety net for an operation that overwrites a live
+    # project, so make sure it is actually a readable archive and not an error body.
+    [[ -s "$dest" ]] || { error "Download produced an empty file"; exit 1; }
+    unzip -tq "$dest" >/dev/null 2>&1 || { error "Downloaded file is not a valid ZIP"; exit 1; }
 }
 
 upload_project() {
@@ -105,7 +115,7 @@ upload_project() {
 
 # ── Mode: backup ──────────────────────────────────────────────────────────────
 do_backup() {
-    check_credentials
+    check_credentials backup
     step "Downloading project backup"
     local token
     token=$(get_token)
@@ -121,7 +131,7 @@ do_backup() {
 do_restore() {
     local zip_file="$1"
     [[ -f "$zip_file" ]] || { error "File not found: $zip_file"; exit 1; }
-    check_credentials
+    check_credentials restore
 
     echo ""
     echo -e "${RED}  RESTORE will overwrite the Simplifier project!${NC}"
@@ -142,7 +152,7 @@ do_restore() {
 
 # ── Mode: sync (default) ─────────────────────────────────────────────────────
 do_sync() {
-    check_credentials
+    check_credentials sync
 
     # Build fresh unless CI provides pre-built resources via SKIP_BUILD
     if [[ "${SKIP_BUILD:-}" == "true" ]]; then
@@ -244,12 +254,11 @@ sys.exit(0 if is_fhir else 1)
         ok "Rewrote links in $rewritten resources"
     fi
 
-    # Update existing IG pages with repo content
-    local guides_dir="$unpack_dir/guides/koppeltaal"
-    if [[ -d "$guides_dir" ]]; then
-        info "Updating existing IG pages..."
-        python3 "$SCRIPT_DIR/update_simplifier_ig_pages.py" \
-            "$guides_dir" "$PROJECT_ROOT" "$ig_base_url"
+    # IG pages, styles and project settings are deliberately left untouched — they
+    # are managed in the Simplifier UI. (A block here used to call
+    # update_simplifier_ig_pages.py, which was never committed and aborted the sync.)
+    if [[ -d "$unpack_dir/guides" ]]; then
+        info "Leaving IG pages untouched: guides/"
     fi
 
     local final_count

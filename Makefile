@@ -57,8 +57,14 @@ build-ig:
 		echo "ERROR: Build did not create ./output/package.tgz"; \
 		exit 1; \
 	fi
-	@echo "Copying package.tgz to: ./output/koppeltaalv2-$(VERSION).tgz"
-	@cp ./output/package.tgz ./output/koppeltaalv2-$(VERSION).tgz
+	@echo "Preparing canonical release package: ./output/koppeltaalv2-$(VERSION).tgz"
+	@# This named archive is published unchanged on GitHub and Simplifier. Do not
+	@# replace this with a filesystem tar repack: macOS can add AppleDouble files.
+	@python3 scripts/release_artifact.py prepare \
+		./output/package.tgz \
+		./output/koppeltaalv2-$(VERSION).tgz \
+		--name koppeltaalv2.00 \
+		--version $(VERSION)
 	@echo "Successfully created: ./output/koppeltaalv2-$(VERSION).tgz"
 
 # Build Implementation Guide (Minimal for servers with snapshots)
@@ -126,29 +132,10 @@ pack-minimal:
 
 # Publish package to Simplifier.net
 .PHONY: publish
-publish: build-ig login
-	@echo "Publishing package to Simplifier.net..."
-	cd fsh-generated/resources && $(FHIR) bake
-	@echo "Copying package.json to fsh-generated/resources..."
-	cp package.json fsh-generated/resources/package.json
-	@echo "Restoring package dependencies..."
-	cd fsh-generated/resources && $(FHIR) restore
-	cd fsh-generated/resources && $(FHIR) pack
-	cd fsh-generated/resources && $(FHIR) publish-package koppeltaalv2.00.$(VERSION).tgz
-	@echo "✅"
-#	@echo "Publishing project to Simplifier.net..."
-#	@echo "Cloning Simplifier project..."
-#	$(FHIR) project clone koppeltaalv2.0 koppeltaalv2.0
-#	@echo "Copying resources..."
-#	@cp README.md koppeltaalv2.0/
-#	@cp CHANGELOG.md koppeltaalv2.0/
-#	@cp package.json koppeltaalv2.0/
-#	@rm -Rf koppeltaalv2.0/resources
-#	@mkdir -p koppeltaalv2.0/resources
-#	@cp -r fsh-generated/resources/* koppeltaalv2.0/resources/
-#	@echo "Pushing to Simplifier..."
-#	cd koppeltaalv2.0 && $(FHIR) project status && $(FHIR) project push
-#	@echo "Successfully published to Simplifier.net"
+publish:
+	@# The release script downloads the canonical GitHub asset and uploads it
+	@# unchanged. Do not add a local pack or publish path here.
+	@./scripts/release_package.sh
 
 # Show version
 .PHONY: version
