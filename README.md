@@ -254,10 +254,11 @@ git switch main && git pull
 # 1. Review the summary and the release notes
 ./scripts/release_package.sh --dry-run
 
-# 2. Publish (prompts for confirmation)
-export FHIR_EMAIL=your-email FHIR_PASSWORD=your-password
+# 2. Publish (prompts for confirmation, then for your Simplifier e-mail and password)
 ./scripts/release_package.sh
 ```
+
+Without `FHIR_EMAIL` and `FHIR_PASSWORD` in the environment, the script runs `fhir login` without arguments: Firely Terminal reuses a saved login or asks for the e-mail and password, hiding the password, so they stay out of the shell history.
 
 The script reads the version from `sushi-config.yaml` and downloads `koppeltaalv2-<version>.tgz` from the matching GitHub Release. It refuses an archive with a corrupt gzip stream, macOS metadata, `notForPublication` or a `file://` URL, so releases built before this flow are refused. It publishes the archive unchanged, then downloads it from Simplifier and checks that the SHA-256 matches the GitHub asset.
 

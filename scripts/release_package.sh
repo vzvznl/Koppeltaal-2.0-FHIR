@@ -10,8 +10,8 @@
 #   ./scripts/release_package.sh [--dry-run]
 #
 # Environment:
-#   FHIR_EMAIL      Simplifier.net email (required)
-#   FHIR_PASSWORD   Simplifier.net password (required)
+#   FHIR_EMAIL      Simplifier.net email (optional: without it, `fhir login` asks)
+#   FHIR_PASSWORD   Simplifier.net password (optional: without it, `fhir login` asks)
 #
 set -euo pipefail
 
@@ -162,16 +162,18 @@ if [[ "${CI:-}" != "true" ]]; then
 fi
 
 # ── Authenticate and publish ─────────────────────────────────────────────────
-[[ -z "${FHIR_EMAIL:-}" || -z "${FHIR_PASSWORD:-}" ]] && {
-    error "FHIR_EMAIL and FHIR_PASSWORD must be set"; exit 1
-}
-
 command -v fhir &>/dev/null || { error "'fhir' CLI (Firely Terminal) not found in PATH"; exit 1; }
 
 step "Publishing to Simplifier"
 
 info "Authenticating..."
-fhir login email="$FHIR_EMAIL" password="$FHIR_PASSWORD"
+if [[ -n "${FHIR_EMAIL:-}" && -n "${FHIR_PASSWORD:-}" ]]; then
+    fhir login email="$FHIR_EMAIL" password="$FHIR_PASSWORD"
+else
+    # Firely Terminal reuses a saved login or asks for the e-mail and password,
+    # hiding the password, so neither ends up in the shell history.
+    fhir login
+fi
 ok "Logged in"
 
 info "Publishing ${PACKAGE_NAME} ${VERSION}..."
