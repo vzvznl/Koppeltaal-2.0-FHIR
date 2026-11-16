@@ -334,22 +334,45 @@ jobs:
     permissions: write-all
     if: github.ref == 'refs/heads/main'
     steps:
+      # A published release keeps the assets it was tested and published with.
+      # Without this check every later push of the same version would replace
+      # them, and GitHub would no longer match what is on Simplifier.
+      - name: Check whether this version is already released
+        id: existing
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.build.outputs.version }}
+        run: |
+          if output=$(gh release view "v${VERSION}" --repo "$GITHUB_REPOSITORY" --json tagName 2>&1); then
+            echo "Release v${VERSION} already exists; its assets stay unchanged."
+            echo "released=true" >> "$GITHUB_OUTPUT"
+          elif [[ "$output" == *"release not found"* ]]; then
+            echo "released=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "$output" >&2
+            exit 1
+          fi
+
       - name: Checkout
+        if: steps.existing.outputs.released == 'false'
         uses: actions/checkout@v4
 
       - name: Download full build artifacts
+        if: steps.existing.outputs.released == 'false'
         uses: actions/download-artifact@v4
         with:
           name: fhir-package-full
           path: ./full-build
 
       - name: Download minimal build artifacts
+        if: steps.existing.outputs.released == 'false'
         uses: actions/download-artifact@v4
         with:
           name: fhir-package-minimal
           path: ./minimal-build
 
       - name: Create Release
+        if: steps.existing.outputs.released == 'false'
         uses: softprops/action-gh-release@v1
         with:
           draft: false
