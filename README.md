@@ -156,9 +156,7 @@ make build-minimal
 # Show version (no credentials needed)
 make version
 
-# Publish to Simplifier.net (requires credentials)
-export FHIR_EMAIL=your-email
-export FHIR_PASSWORD=your-password
+# Publish to Simplifier.net (Firely Terminal asks for your login if needed)
 make publish
 
 # Other targets
@@ -207,12 +205,9 @@ This repository uses GitHub Actions for continuous integration and deployment:
 
 Resources are synced to the [Simplifier.net project](https://simplifier.net/koppeltaalv2.0) using `scripts/sync_to_simplifier.sh`. This script uses the Simplifier ZIP API (not the Firely CLI project commands) and automatically creates a backup before making changes.
 
-**Prerequisites**: Docker, curl, jq, python3, and Simplifier.net credentials (`FHIR_EMAIL`, `FHIR_PASSWORD`).
+**Prerequisites**: Docker, curl, jq, python3, and a Simplifier.net account. The script asks for your e-mail and password, without showing the password, unless `FHIR_EMAIL` and `FHIR_PASSWORD` are set; non-interactive runs need both variables.
 
 ```bash
-export FHIR_EMAIL=your-email
-export FHIR_PASSWORD=your-password
-
 # Sync resources to Simplifier (builds fresh, downloads backup, uploads)
 ./scripts/sync_to_simplifier.sh
 

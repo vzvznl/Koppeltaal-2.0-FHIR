@@ -16,8 +16,8 @@
 #   ./scripts/sync_to_simplifier.sh backup
 #
 # Environment:
-#   FHIR_EMAIL      Simplifier.net email (required)
-#   FHIR_PASSWORD   Simplifier.net password (required)
+#   FHIR_EMAIL      Simplifier.net email (asked for when unset in an interactive run)
+#   FHIR_PASSWORD   Simplifier.net password (asked for, hidden, when unset in an interactive run)
 #
 set -euo pipefail
 
@@ -41,9 +41,6 @@ step()  { echo -e "\n${GREEN}=== $* ===${NC}"; }
 
 check_credentials() {
     local mode="${1:-sync}"
-    [[ -z "${FHIR_EMAIL:-}" || -z "${FHIR_PASSWORD:-}" ]] && {
-        error "FHIR_EMAIL and FHIR_PASSWORD must be set"; exit 1
-    }
     # backup/restore only talk to the API; sync additionally builds and repacks
     local tools=(curl jq unzip)
     if [[ "$mode" == "sync" ]]; then
@@ -52,6 +49,22 @@ check_credentials() {
     for tool in "${tools[@]}"; do
         command -v "$tool" &>/dev/null || { error "'$tool' not found"; exit 1; }
     done
+
+    if [[ -z "${FHIR_EMAIL:-}" || -z "${FHIR_PASSWORD:-}" ]]; then
+        if [[ "${CI:-}" == "true" || ! -t 0 ]]; then
+            error "Set FHIR_EMAIL and FHIR_PASSWORD, or run interactively to be asked for them"
+            exit 1
+        fi
+        # IFS= keeps leading and trailing spaces, which are part of a password.
+        [[ -n "${FHIR_EMAIL:-}" ]] || IFS= read -rp "Simplifier e-mail: " FHIR_EMAIL
+        if [[ -z "${FHIR_PASSWORD:-}" ]]; then
+            IFS= read -rsp "Simplifier password: " FHIR_PASSWORD
+            echo >&2
+        fi
+    fi
+    # Keep the credentials out of the environment of every later process (docker,
+    # curl, python); get_token hands them to jq alone.
+    export -n FHIR_EMAIL FHIR_PASSWORD
 }
 
 build_resources() {
@@ -75,11 +88,18 @@ build_resources() {
 
 get_token() {
     local token
-    token=$(curl -sf -X POST "$SIMPLIFIER_API/token" \
-        -H "Content-Type: application/json" \
-        -d "{\"Email\": \"$FHIR_EMAIL\", \"Password\": \"$FHIR_PASSWORD\"}" \
-        | jq -r '.token // empty')
-    [[ -z "$token" ]] && { error "Authentication failed"; exit 1; }
+    # Only jq gets the credentials, in its own environment, and curl reads the body
+    # from stdin: the password is on no command line and quotes cannot break the JSON.
+    # The explicit check matters because errexit does not apply inside $(...): a curl
+    # failure after printing a token would otherwise pass unnoticed.
+    if ! token=$(FHIR_EMAIL="$FHIR_EMAIL" FHIR_PASSWORD="$FHIR_PASSWORD" \
+            jq -n '{Email: env.FHIR_EMAIL, Password: env.FHIR_PASSWORD}' \
+        | curl -sf --connect-timeout 20 --max-time 60 -X POST "$SIMPLIFIER_API/token" \
+            -H "Content-Type: application/json" --data-binary @- \
+        | jq -r '.token // empty'); then
+        error "Authentication failed"; exit 1
+    fi
+    [[ -n "$token" ]] || { error "Authentication failed"; exit 1; }
     echo "$token"
 }
 
@@ -329,7 +349,7 @@ case "${1:-sync}" in
         echo "  $0 restore <backup.zip>     Restore project from backup"
         echo "  $0 backup                   Download project backup only"
         echo ""
-        echo "Environment: FHIR_EMAIL, FHIR_PASSWORD"
+        echo "Environment: FHIR_EMAIL, FHIR_PASSWORD (asked for when unset)"
         ;;
     *)
         error "Unknown command: $1"
