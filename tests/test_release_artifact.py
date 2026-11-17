@@ -505,5 +505,151 @@ class ReleasePackageShellTests(unittest.TestCase):
         self.assertNotIn("fhir publish-package", result.stdout)
 
 
+WORKFLOW_PATH = REPOSITORY / ".github" / "workflows" / "build_deploy.yml"
+
+
+def release_guard_script():
+    """Return the run block of the step that checks for an existing release."""
+    lines = WORKFLOW_PATH.read_text().splitlines()
+    step = next((i for i, line in enumerate(lines) if line.strip() == "id: existing"), None)
+    if step is None:
+        raise AssertionError("build_deploy.yml has no step with id 'existing'")
+    run = next(i for i in range(step, len(lines)) if lines[i].strip() == "run: |")
+    indent = len(lines[run]) - len(lines[run].lstrip())
+    body = []
+    for line in lines[run + 1:]:
+        if line.strip() and len(line) - len(line.lstrip()) <= indent:
+            break
+        body.append(line)
+    return textwrap.dedent("\n".join(body)) + "\n"
+
+
+class ReleaseGuardTests(unittest.TestCase):
+    """A published release keeps its assets; only a version without a release gets one."""
+
+    FULL = "koppeltaalv2-0.16.6.tgz"
+    MINIMAL = "koppeltaalv2-0.16.6-minimal.tgz"
+
+    def setUp(self):
+        self.temporary_directory = tempfile.TemporaryDirectory()
+        self.root = Path(self.temporary_directory.name)
+        self.script = self.root / "guard.sh"
+        self.script.write_text(release_guard_script())
+        (self.root / "bin").mkdir()
+        (self.root / "temp").mkdir()
+        self.output = self.root / "github-output"
+        self.output.touch()
+        self.curl_arguments = self.root / "curl-arguments"
+        curl = self.root / "bin" / "curl"
+        curl.write_text(
+            textwrap.dedent(
+                r"""
+                #!/usr/bin/env bash
+                printf '%s\n' "$@" > "$TEST_CURL_ARGUMENTS"
+                output=""
+                while [[ $# -gt 0 ]]; do
+                    case "$1" in
+                        -o) output="$2"; shift 2 ;;
+                        *) shift ;;
+                    esac
+                done
+                if [[ -n "${TEST_CURL_EXIT:-}" ]]; then
+                    echo "curl: (28) Operation timed out" >&2
+                    printf '000'
+                    exit "$TEST_CURL_EXIT"
+                fi
+                printf '%s' "$TEST_BODY" > "$output"
+                printf '%s' "$TEST_STATUS"
+                """
+            ).lstrip()
+        )
+        curl.chmod(0o755)
+
+    def tearDown(self):
+        self.temporary_directory.cleanup()
+
+    def run_guard(self, status="200", body="", version="0.16.6", curl_exit=None):
+        self.output.write_text("")
+        environment = {
+            "PATH": f"{self.root / 'bin'}:{os.environ['PATH']}",
+            "GITHUB_OUTPUT": str(self.output),
+            "RUNNER_TEMP": str(self.root / "temp"),
+            "GITHUB_API_URL": "https://api.github.com",
+            "GITHUB_REPOSITORY": "vzvznl/Koppeltaal-2.0-FHIR",
+            "GITHUB_TOKEN": "test-token",
+            "VERSION": version,
+            "TEST_CURL_ARGUMENTS": str(self.curl_arguments),
+            "TEST_STATUS": status,
+            "TEST_BODY": body,
+        }
+        if curl_exit:
+            environment["TEST_CURL_EXIT"] = curl_exit
+        # GitHub runs a `run:` block without an explicit shell as `bash -e {0}`.
+        return subprocess.run(
+            ["bash", "-e", str(self.script)],
+            env=environment,
+            text=True,
+            capture_output=True,
+        )
+
+    def release(self, *assets):
+        return json.dumps({"assets": [{"name": name, "state": state} for name, state in assets]})
+
+    def assert_stops(self, result, message):
+        self.assertNotEqual(0, result.returncode, result.stdout)
+        self.assertIn(message, result.stdout + result.stderr)
+        self.assertEqual("", self.output.read_text())
+
+    def test_version_without_release_gets_one(self):
+        result = self.run_guard(status="404", body='{"message":"Not Found"}')
+
+        self.assertEqual(0, result.returncode, result.stderr)
+        self.assertEqual("released=false\n", self.output.read_text())
+        arguments = self.curl_arguments.read_text().splitlines()
+        self.assertIn(
+            "https://api.github.com/repos/vzvznl/Koppeltaal-2.0-FHIR/releases/tags/v0.16.6",
+            arguments,
+        )
+        self.assertIn("Authorization: Bearer test-token", arguments)
+
+    def test_complete_release_stays_unchanged(self):
+        body = self.release((self.MINIMAL, "uploaded"), (self.FULL, "uploaded"))
+
+        result = self.run_guard(body=body)
+
+        self.assertEqual(0, result.returncode, result.stderr)
+        self.assertEqual("released=true\n", self.output.read_text())
+
+    def test_release_with_a_missing_or_unfinished_asset_stops(self):
+        cases = {
+            "no minimal package": [(self.FULL, "uploaded")],
+            "no full package": [(self.MINIMAL, "uploaded")],
+            # GitHub leaves an empty asset in state "starter" after a failed upload.
+            "failed upload": [(self.FULL, "uploaded"), (self.MINIMAL, "starter")],
+            "unfinished upload": [(self.FULL, "open"), (self.MINIMAL, "uploaded")],
+        }
+        for case, assets in cases.items():
+            with self.subTest(case):
+                self.assert_stops(self.run_guard(body=self.release(*assets)), "has no complete")
+
+    def test_unreadable_release_stops(self):
+        for body in ("", "<html>Bad Gateway</html>"):
+            with self.subTest(body=body):
+                self.assert_stops(self.run_guard(body=body), "has no complete")
+
+    def test_any_other_answer_stops(self):
+        for status in ("401", "403", "429", "500", "502"):
+            with self.subTest(status=status):
+                result = self.run_guard(status=status, body='{"message":"error"}')
+                self.assert_stops(result, f"returned HTTP {status}")
+
+    def test_unreachable_api_stops(self):
+        self.assert_stops(self.run_guard(curl_exit="28"), "Operation timed out")
+
+    def test_missing_version_stops_before_any_request(self):
+        self.assert_stops(self.run_guard(status="404", version=""), "no version")
+        self.assertFalse(self.curl_arguments.exists())
+
+
 if __name__ == "__main__":
     unittest.main()

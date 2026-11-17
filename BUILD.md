@@ -119,7 +119,7 @@ The CI/CD pipeline automatically builds, tests, and releases packages:
 When code is pushed to `main`:
 1. Builds both full and minimal packages
 2. Deploys full package to GitHub Pages
-3. Creates a **stable release** with both packages
+3. Creates a **stable release** with both packages, once per version: later pushes of the same version leave the release and its assets unchanged
 4. Publishes both packages to GitHub Packages (NPM)
 
 **Release format:**
@@ -128,6 +128,15 @@ When code is pushed to `main`:
 - **Assets**:
   - `koppeltaalv2-{version}.tgz` - Full documentation package
   - `koppeltaalv2-{version}-minimal.tgz` - Minimal server package
+
+If the release of a version lacks one of these assets, for example after a failed upload, the release job fails. Restore it from the files of the run that created the release, never from a new build: a rebuild produces different bytes.
+1. Find that run: it is the only run whose `Create Release` step ran (`✓` or `X` in `gh run view <run-id> -v`; a skipped step shows `-`), at the release's `publishedAt` (`gh release view v{version} --json publishedAt`). List the main runs before that moment with `gh run list --workflow build_deploy.yml --branch main`; for a re-run, also check earlier attempts with `--attempt`. Neither the tag's commit nor the release's `createdAt` is proof: `createdAt` is the date of the tagged commit, and the tag lands on the commit `main` has when the release is created, which can be newer than the build.
+2. Check that the release's assets were never replaced. If one asset is still there, it must have been uploaded in that same `Create Release` step: compare its `createdAt` (`gh release view v{version} --json assets`) with the time of the step. Before this check existed, later runs replaced the assets of a release, as happened with 0.16.6; for such a release, the run that created it does not hold the current files, so release a new version.
+3. Download its artifact: `gh run download <run-id> -n fhir-package-full` gives `output/koppeltaalv2-{version}.tgz`, and `-n fhir-package-minimal` gives `output-minimal/koppeltaalv2-{version}-minimal.tgz`.
+4. If the release holds an unfinished upload of that file (state other than `uploaded`), delete it: `gh release delete-asset v{version} <asset>`.
+5. Upload the file without `--clobber`, so the other asset stays: `gh release upload v{version} <file>`. Then re-run the job.
+
+The artifacts are kept for 7 days. After that, or if you cannot pin down that run and its artifacts with certainty, release a new version instead.
 
 #### Branch Builds (Pre-releases)
 When code is pushed to any other branch:
