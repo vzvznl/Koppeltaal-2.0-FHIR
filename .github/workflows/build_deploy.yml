@@ -340,18 +340,42 @@ jobs:
       - name: Check whether this version is already released
         id: existing
         env:
-          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
           VERSION: ${{ needs.build.outputs.version }}
         run: |
-          if output=$(gh release view "v${VERSION}" --repo "$GITHUB_REPOSITORY" --json tagName 2>&1); then
-            echo "Release v${VERSION} already exists; its assets stay unchanged."
-            echo "released=true" >> "$GITHUB_OUTPUT"
-          elif [[ "$output" == *"release not found"* ]]; then
-            echo "released=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "$output" >&2
+          if [[ -z "$VERSION" ]]; then
+            echo "::error::The build job reported no version"
             exit 1
           fi
+          # A 404 from this endpoint is taken to mean that the version has no
+          # published release yet; any other answer stops the job. `gh release view`
+          # is not used: it also reports "release not found" when its lookup of the
+          # published release fails and its draft lookup finds no draft.
+          release="$RUNNER_TEMP/release.json"
+          status=$(curl -sS --connect-timeout 20 --max-time 60 -o "$release" -w '%{http_code}' \
+            -H "Authorization: Bearer $GITHUB_TOKEN" -H "Accept: application/vnd.github+json" \
+            "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/releases/tags/v$VERSION") || exit 1
+          case "$status" in
+            404)
+              echo "released=false" >> "$GITHUB_OUTPUT"
+              ;;
+            200)
+              # `input` fails on an empty response, which jq 1.6 with only -e accepts.
+              for asset in "koppeltaalv2-$VERSION.tgz" "koppeltaalv2-$VERSION-minimal.tgz"; do
+                if ! jq -n -e --arg name "$asset" 'input | any(.assets[]; .name == $name and .state == "uploaded")' "$release" > /dev/null; then
+                  echo "::error::Release v$VERSION has no complete $asset. Upload the file from the artifacts of the run that created the release, without --clobber; if those artifacts have expired or that run is uncertain, release a new version instead of rebuilding this one. See BUILD.md."
+                  exit 1
+                fi
+              done
+              echo "Release v$VERSION already exists; its assets stay unchanged."
+              echo "released=true" >> "$GITHUB_OUTPUT"
+              ;;
+            *)
+              echo "::error::Looking up release v$VERSION returned HTTP $status"
+              cat "$release" >&2
+              exit 1
+              ;;
+          esac
 
       - name: Checkout
         if: steps.existing.outputs.released == 'false'
