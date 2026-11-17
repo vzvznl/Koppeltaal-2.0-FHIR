@@ -16,8 +16,13 @@
 #   ./scripts/sync_to_simplifier.sh backup
 #
 # Environment:
-#   FHIR_EMAIL      Simplifier.net email (asked for when unset in an interactive run)
-#   FHIR_PASSWORD   Simplifier.net password (asked for, hidden, when unset in an interactive run)
+#   FHIR_EMAIL      Simplifier.net email
+#   FHIR_PASSWORD   Simplifier.net password
+#
+# Without both variables, an interactive run logs in like the release script:
+# `fhir login` reuses or renews the saved Firely Terminal login, or asks for it, and
+# the script uses Firely's token. Without a usable Firely login it asks for the
+# e-mail and password itself, hiding the password.
 #
 set -euo pipefail
 
@@ -30,6 +35,7 @@ WORK_DIR="$PROJECT_ROOT/.simplifier-sync"
 BACKUP_DIR="$PROJECT_ROOT/backups"
 DOCKER_IMAGE="koppeltaal-builder"
 DRY_RUN=false
+AUTH=password
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; BLUE='\033[0;34m'; NC='\033[0m'
@@ -38,6 +44,39 @@ ok()    { echo -e "${GREEN}[OK]${NC}    $*"; }
 warn()  { echo -e "${YELLOW}[WARN]${NC}  $*"; }
 error() { echo -e "${RED}[ERROR]${NC} $*" >&2; }
 step()  { echo -e "\n${GREEN}=== $* ===${NC}"; }
+
+# Firely Terminal keeps its login (an access token and a refresh token) in one config
+# file per platform, as seen with Firely Terminal 3.3.2 on macOS and 3.5.0 on Linux.
+# Only that file counts: another one may belong to another installation or account.
+firely_config() {
+    case "$(uname -s)" in
+        Darwin) echo "$HOME/Library/Application Support/Torinox/config.json" ;;
+        Linux) echo "$HOME/.local/share/Torinox/config.json" ;;
+        *) return 1 ;;
+    esac
+}
+
+# Prints the access token of the saved Firely Terminal login, if it is meant for the
+# Simplifier API and stays valid for at least ten minutes.
+firely_token() {
+    local config
+    command -v python3 &>/dev/null || return 1
+    config="$(firely_config)" || return 1
+    [[ -f "$config" ]] || return 1
+    python3 - "$config" <<'EOF'
+import base64, json, sys, time
+try:
+    token = json.load(open(sys.argv[1]))["Tokens"]["AccessToken"]
+    payload = token.split(".")[1]
+    claims = json.loads(base64.urlsafe_b64decode(payload + "=" * (-len(payload) % 4)))
+    usable = claims.get("aud") == "api.simplifier.net" and claims["exp"] > time.time() + 600
+except Exception:
+    usable = False
+if not usable:
+    sys.exit(1)
+print(token)
+EOF
+}
 
 check_credentials() {
     local mode="${1:-sync}"
@@ -49,6 +88,18 @@ check_credentials() {
     for tool in "${tools[@]}"; do
         command -v "$tool" &>/dev/null || { error "'$tool' not found"; exit 1; }
     done
+
+    if [[ -z "${FHIR_EMAIL:-}" && -z "${FHIR_PASSWORD:-}" && "${CI:-}" != "true" && -t 0 ]] \
+            && command -v fhir &>/dev/null; then
+        # Same as the release script: Firely Terminal reuses or renews its saved
+        # login, or asks for it. Its token then serves the API calls.
+        if fhir login && firely_token >/dev/null; then
+            AUTH=firely
+            ok "Using the Firely Terminal login"
+            return
+        fi
+        warn "No usable Firely Terminal login; asking for the Simplifier login instead"
+    fi
 
     if [[ -z "${FHIR_EMAIL:-}" || -z "${FHIR_PASSWORD:-}" ]]; then
         if [[ "${CI:-}" == "true" || ! -t 0 ]]; then
@@ -88,6 +139,14 @@ build_resources() {
 
 get_token() {
     local token
+    if [[ "$AUTH" == firely ]]; then
+        # Read the token again, and renew it once if it has less than ten minutes
+        # left, for instance after a long build or a long wait at a confirmation.
+        firely_token && return
+        fhir login >&2 && firely_token && return
+        error "The Firely Terminal login is no longer valid"
+        exit 1
+    fi
     # Only jq gets the credentials, in its own environment, and curl reads the body
     # from stdin: the password is on no command line and quotes cannot break the JSON.
     # The explicit check matters because errexit does not apply inside $(...): a curl
@@ -312,6 +371,11 @@ sys.exit(0 if is_fhir else 1)
     if [[ "${CI:-}" != "true" ]]; then
         read -rp "Upload to Simplifier.net? [y/N] " confirm
         [[ "$confirm" == "y" || "$confirm" == "Y" ]] || { error "Aborted"; exit 1; }
+    fi
+
+    if [[ "$AUTH" == firely ]]; then
+        # The confirmation can take a while; the token must still be valid for the upload.
+        token=$(get_token)
     fi
 
     # Upload

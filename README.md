@@ -205,7 +205,7 @@ This repository uses GitHub Actions for continuous integration and deployment:
 
 Resources are synced to the [Simplifier.net project](https://simplifier.net/koppeltaalv2.0) using `scripts/sync_to_simplifier.sh`. This script uses the Simplifier ZIP API (not the Firely CLI project commands) and automatically creates a backup before making changes.
 
-**Prerequisites**: Docker, curl, jq, python3, and a Simplifier.net account. The script asks for your e-mail and password, without showing the password, unless `FHIR_EMAIL` and `FHIR_PASSWORD` are set; non-interactive runs need both variables.
+**Prerequisites**: Docker, curl, jq, python3, and a Simplifier.net account. Without `FHIR_EMAIL` and `FHIR_PASSWORD`, the script logs in like the release script: `fhir login` reuses or renews your saved Firely Terminal login, or asks for it, and the script uses Firely's token. Without a usable Firely login it asks for your e-mail and password itself, without showing the password. Non-interactive runs need both variables.
 
 ```bash
 # Sync resources to Simplifier (builds fresh, downloads backup, uploads)
